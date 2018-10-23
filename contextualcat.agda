@@ -3,7 +3,7 @@
 open import common hiding (_,_)
 
 variable
-  {n m k l} : ℕ
+  {n n' m k l} : ℕ
 
 ap-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') {b : B a} {b' : B a'} → f a b ≡ f a' b'
 ap-irr f refl = refl
@@ -167,11 +167,7 @@ module M (C : CCat) where
 
   {- Variables -}
 
-  _-F_ : (n : ℕ) (k : Fin n) → ℕ
-  n -F last = n
-  suc n -F prev k = n -F k
-
-  trim : (k : Fin n) (X : Ob n) → Ob (n -F k)
+  trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F' k)
   trim last X = X
   trim (prev k) X = trim k (ft X)
 
@@ -183,7 +179,7 @@ module M (C : CCat) where
   morTm₁ (last-var X) = ss₁ ∙ ap-irr2 star (id-left ∙ ap pp id₁) id₁
   eqTm (last-var X) = ap-irr (λ x y → comp x (ss (id X)) y) (ap pp (ap-irr2 star (! (id-left ∙ ap pp id₁)) (! id₁))) ∙ (ss-pp {f = id X} ∙ ap id (id₀ ∙ ! (ft-star ∙ pp₀)))
 
-  var-unweakened : (k : Fin n) (X : Ob n) → Tm (trim k X) 0
+  var-unweakened : {n : ℕ} (k : Fin n) (X : Ob n) → Tm (trim k X) 0
   var-unweakened last X = last-var X
   var-unweakened (prev k) X = var-unweakened k (ft X)
 

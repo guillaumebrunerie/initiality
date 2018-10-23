@@ -9,6 +9,8 @@ open import Agda.Builtin.Bool public
 
 {-# BUILTIN REWRITE _≡_ #-}
 
+infixr 42 _×_
+
 _×_ : (A B : Set) → Set
 A × B = Σ A (λ _ → B)
 
@@ -38,3 +40,11 @@ data Empty : Set where
 data Fin : ℕ → Set where
   last : {n : ℕ} → Fin (suc n)
   prev : {n : ℕ} → Fin n → Fin (suc n)
+
+_-F_ : (n : ℕ) (k : Fin (suc n)) → ℕ
+n -F last = n
+suc n -F prev k = n -F k
+
+_-F'_ : (n : ℕ) (k : Fin n) → ℕ
+n -F' last = n
+suc n -F' prev k = n -F' k

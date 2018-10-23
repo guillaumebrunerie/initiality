@@ -1,7 +1,8 @@
-{-# OPTIONS --irrelevant-projections #-}
+{-# OPTIONS --irrelevant-projections --type-in-type --rewriting #-}
 
 open import common
 open import contextualcat
+open import quotients
 
 open CCat hiding (Mor)
 
@@ -20,18 +21,38 @@ data TmExpr where
   lam : TyExpr n → TyExpr (suc n) → TmExpr (suc n) → TmExpr n
   app : TyExpr n → TyExpr (suc n) → TmExpr n → TmExpr n → TmExpr n
 
-{- Weakening -}
+{- Renaming -}
+
+extendRen : (Fin n → Fin m) → (Fin (suc n) → Fin (suc m))
+extendRen r last = last
+extendRen r (prev k) = prev (r k)
+
+renameTy : (r : Fin n → Fin m) → TyExpr n → TyExpr m
+renameTm : (r : Fin n → Fin m) → TmExpr n → TmExpr m
+
+renameTy r (pi A B) = pi (renameTy r A) (renameTy (extendRen r) B)
+renameTy r uu = uu
+renameTy r (el v) = el (renameTm r v)
+
+renameTm r (var x) = var (r x)
+renameTm r (lam A B u) = lam (renameTy r A) (renameTy (extendRen r) B) (renameTm (extendRen r) u)
+renameTm r (app A B f a) = app (renameTy r A) (renameTy (extendRen r) B) (renameTm r f) (renameTm r a)
+
+injF : Fin (suc n) → (Fin n → Fin (suc n))
+injF last = prev
+injF {n = suc n} (prev k) = extendRen (injF k)
 
 weakenTy : TyExpr n → TyExpr (suc n)
+weakenTy = renameTy prev
+
 weakenTm : TmExpr n → TmExpr (suc n)
+weakenTm = renameTm prev
 
-weakenTy (pi A B) = pi (weakenTy A) (weakenTy B)
-weakenTy uu = uu
-weakenTy (el v) = el (weakenTm v)
+weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
+weakenTy' k = renameTy (injF k)
 
-weakenTm (var x) = var (prev x)
-weakenTm (lam A B u) = lam (weakenTy A) (weakenTy B) (weakenTm u)
-weakenTm (app A B f a) = app (weakenTy A) (weakenTy B) (weakenTm f) (weakenTm a)
+weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
+weakenTm' k = renameTm (injF k)
 
 {- Substitution -}
 
@@ -54,192 +75,259 @@ substVar {m = suc m} (prev x) u = weakenTm (substVar x u)
 
 {- Contexts and context morphisms -}
 
-data Ctx : Set
-lenCtx : Ctx → ℕ
+data Ctx : ℕ → Set where
+  ◇ : Ctx 0
+  _,_ : {n : ℕ} (Γ : Ctx n) → TyExpr n → Ctx (suc n)
 
-data Ctx where
-  ◇ : Ctx
-  _,_ : (Γ : Ctx) → TyExpr (lenCtx Γ) → Ctx
-
-lenCtx ◇ = 0
-lenCtx (Γ , A) = suc (lenCtx Γ)
+data Mor (n : ℕ) : ℕ → Set where
+  ◇ : Mor n 0
+  _,_ : {m : ℕ} → Mor n m → TmExpr n → Mor n (suc m)
 
 
-data Mor (n : ℕ) : Set where
-  ◇ : Mor n
-  _,_ : Mor n → TmExpr n → Mor n
+renameMor : (r : Fin n → Fin n') → Mor n m → Mor n' m
+renameMor r ◇ = ◇
+renameMor r (δ , u) = (renameMor r δ , renameTm r u)
 
-lenMor : {n : ℕ} → Mor n → ℕ
-lenMor ◇ = 0
-lenMor (δ , u) = suc (lenMor δ)
-
-
-weakenMor : Mor n → Mor (suc n)
-weakenMor ◇ = ◇
-weakenMor (δ , u) = (weakenMor δ , weakenTm u)
-
-lenWeakenMor : {δ : Mor n} → lenMor (weakenMor δ) ≡ lenMor δ
-lenWeakenMor {δ = ◇} = refl
-lenWeakenMor {δ = δ , u} = ap suc lenWeakenMor
+weakenMor : Mor n m → Mor (suc n) m
+weakenMor = renameMor prev
 
 {- Total substitutions -}
 
-totalSubstTy : {n m : ℕ} → TyExpr n → (δ : Mor m) → lenMor δ ≡ n → TyExpr m
-totalSubstTm : {n m : ℕ} → TmExpr n → (δ : Mor m) → lenMor δ ≡ n → TmExpr m
+totalSubstTy : {n m : ℕ} → TyExpr n → (δ : Mor m n) → TyExpr m
+totalSubstTm : {n m : ℕ} → TmExpr n → (δ : Mor m n) → TmExpr m
 
-totalSubstTy (pi A B) δ refl = pi (totalSubstTy A δ refl) (totalSubstTy B (weakenMor δ , var last) (ap suc lenWeakenMor))
-totalSubstTy uu δ refl = uu
-totalSubstTy (el v) δ refl = el (totalSubstTm v δ refl)
+totalSubstTy (pi A B) δ = pi (totalSubstTy A δ) (totalSubstTy B (weakenMor δ , var last))
+totalSubstTy uu δ = uu
+totalSubstTy (el v) δ = el (totalSubstTm v δ)
 
-totalSubstTm (var last) ◇ ()
-totalSubstTm (var last) (δ , u) p = u
-totalSubstTm (var (prev x)) ◇ ()
-totalSubstTm (var (prev x)) (δ , u) refl = totalSubstTm (var x) δ refl
-totalSubstTm (lam A B u) δ refl = lam (totalSubstTy A δ refl)
-                                      (totalSubstTy B (weakenMor δ , var last) (ap suc lenWeakenMor))
-                                      (totalSubstTm u (weakenMor δ , var last) (ap suc lenWeakenMor))
-totalSubstTm (app A B f a) δ refl = app (totalSubstTy A δ refl) (totalSubstTy B (weakenMor δ , var last) (ap suc lenWeakenMor)) (totalSubstTm f δ refl) (totalSubstTm a δ refl)
+totalSubstTm (var last) (δ , u) = u
+totalSubstTm (var (prev x)) (δ , u) = totalSubstTm (var x) δ
+totalSubstTm (lam A B u) δ = lam (totalSubstTy A δ)
+                                 (totalSubstTy B (weakenMor δ , var last))
+                                 (totalSubstTm u (weakenMor δ , var last))
+totalSubstTm (app A B f a) δ = app (totalSubstTy A δ) (totalSubstTy B (weakenMor δ , var last)) (totalSubstTm f δ) (totalSubstTm a δ)
 
 {- The different forms of (pre)judgments. Maybe the judgments for contexts and context morphisms could be defined later. -}
 data Judgment : Set where
-  ⊢_ : Ctx → Judgment
+  _⊢_ : (Γ : Ctx n) → TyExpr n → Judgment
+  _⊢_:>_ : (Γ : Ctx n) → TmExpr n → TyExpr n → Judgment
+  _⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Judgment
 
-  _⊢_ : (Γ : Ctx) → TyExpr (lenCtx Γ) → Judgment
-  _⊢_:>_ : (Γ : Ctx) → TmExpr (lenCtx Γ) → TyExpr (lenCtx Γ) → Judgment
-  _⊢_∷>_ : (Γ : Ctx) → Mor (lenCtx Γ) → Ctx → Judgment
-
-  _⊢_==_ : (Γ : Ctx) → TyExpr (lenCtx Γ) → TyExpr (lenCtx Γ) → Judgment
-  _⊢_==_:>_ : (Γ : Ctx) → TmExpr (lenCtx Γ) → TmExpr (lenCtx Γ) → TyExpr (lenCtx Γ) → Judgment
-  _⊢_==_∷>_ : (Γ : Ctx) → Mor (lenCtx Γ) → Mor (lenCtx Γ) → Ctx → Judgment
+  _⊢_==_ : (Γ : Ctx n) → TyExpr n → TyExpr n → Judgment
+  _⊢_==_:>_ : (Γ : Ctx n) → TmExpr n → TmExpr n → TyExpr n → Judgment
+  _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Judgment
 
 
-data _∋_:>_ : (Γ : Ctx) → Fin (lenCtx Γ) → TyExpr (lenCtx Γ) → Set where
-  last : {Γ : Ctx} {A : TyExpr (lenCtx Γ)} → (Γ , A) ∋ last :> weakenTy A
-  prev : {Γ : Ctx} {x : Fin (lenCtx Γ)} {A B : TyExpr (lenCtx Γ)} → (Γ ∋ x :> A) → (Γ , B) ∋ prev x :> weakenTy A
+data _∋_:>_ : {n : ℕ} (Γ : Ctx n) → Fin n → TyExpr n → Set where
+  last : {Γ : Ctx n} {A : TyExpr n} → (Γ , A) ∋ last :> weakenTy A
+  prev : {Γ : Ctx n} {x : Fin n} {A B : TyExpr n} → (Γ ∋ x :> A) → (Γ , B) ∋ prev x :> weakenTy A
 
 {- Derivability of judgments, the typing rules of the type theory -}
+data Derivable : Judgment → Set
+⊢_ : Ctx n → Set
+⊢ ◇ = Unit
+⊢ (Γ , A) = (⊢ Γ) × Derivable (Γ ⊢ A)
 
-data Derivable : Judgment → Set where
+data Derivable where
 
   -- Variable rule
-  VarRule : {Γ : Ctx} {x : Fin (lenCtx Γ)} {A : TyExpr (lenCtx Γ)}
-          → (Γ ∋ x :> A) → Derivable (⊢ Γ) → Derivable (Γ ⊢ var x :> A)
+  VarRule : {Γ : Ctx n} {x : Fin n} {A : TyExpr n}
+          → (Γ ∋ x :> A) → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ var x :> A)
 
   -- Congruence for variables
-  VarCong : {Γ : Ctx} {x : Fin (lenCtx Γ)} {A : TyExpr (lenCtx Γ)}
-          → (Γ ∋ x :> A) → Derivable (⊢ Γ) → Derivable (Γ ⊢ var x == var x :> A)
+  VarCong : {Γ : Ctx n} {x : Fin n} {A : TyExpr n}
+          → (Γ ∋ x :> A) → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ var x == var x :> A)
 
   -- Symmetry and transitivity for types
-  TySymm : {Γ : Ctx} {A B : TyExpr (lenCtx Γ)}
+  TySymm : {Γ : Ctx n} {A B : TyExpr n}
          → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == A)
-  TyTran : {Γ : Ctx} {A B C : TyExpr (lenCtx Γ)}
+  TyTran : {Γ : Ctx n} {A B C : TyExpr n}
          → Derivable (Γ ⊢ A == B)→ Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
 
   -- Symmetry and transitivity for terms
-  TmSymm : {Γ : Ctx} {u v : TmExpr (lenCtx Γ)} {A : TyExpr (lenCtx Γ)}
+  TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
          → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ v == u :> A)
-  TmTran : {Γ : Ctx} {u v w : TmExpr (lenCtx Γ)} {A : TyExpr (lenCtx Γ)}
+  TmTran : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n}
          → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
 
   -- Conversion rule
-  Conv : {Γ : Ctx} {u : TmExpr (lenCtx Γ)} {A B : TyExpr (lenCtx Γ)}
+  Conv : {Γ : Ctx n} {u : TmExpr n} {A B : TyExpr n}
        → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u :> B)
-  ConvEq : {Γ : Ctx} {u u' : TmExpr (lenCtx Γ)} {A B : TyExpr (lenCtx Γ)}
+  ConvEq : {Γ : Ctx n} {u u' : TmExpr n} {A B : TyExpr n}
        → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u == u' :> B)
 
-  -- Formation rules for contexts
-  EmpCtx : Derivable (⊢ ◇)
-  ExtCtx : {Γ : Ctx} {A : TyExpr (lenCtx Γ)}
-         → Derivable (⊢ Γ) → Derivable (Γ ⊢ A) → Derivable (⊢ (Γ , A))
-
   -- Formation rules for context morphisms
-  EmpMor : {Γ : Ctx}
-         → Derivable (⊢ Γ) → Derivable (Γ ⊢ ◇ ∷> ◇)
-  ExtMor : {Γ Δ : Ctx} {A : TyExpr (lenCtx Δ)} {u : TmExpr (lenCtx Γ)} {δ : Mor (lenCtx Γ)} {p : lenMor δ ≡ lenCtx Δ}
-         → Derivable (Γ ⊢ δ ∷> Δ) → Derivable (Δ ⊢ A) → Derivable (Γ ⊢ u :> totalSubstTy A δ p) → Derivable (Γ ⊢ (δ , u) ∷> (Δ , A))
+  EmpMor : {Γ : Ctx n}
+         → (⊢ Γ) → Derivable (Γ ⊢ ◇ ∷> ◇)
+  ExtMor : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {u : TmExpr n} {δ : Mor n m}
+         → Derivable (Γ ⊢ δ ∷> Δ) → Derivable (Δ ⊢ A) → Derivable (Γ ⊢ u :> totalSubstTy A δ) → Derivable (Γ ⊢ (δ , u) ∷> (Δ , A))
 
   -- Formation rules for context morphism equality
-  EmpMorEq : {Γ : Ctx}
-           → Derivable (⊢ Γ) → Derivable (Γ ⊢ ◇ == ◇ ∷> ◇)
-  ExtMorEq : {Γ Δ : Ctx} {A : TyExpr (lenCtx Δ)} {u u' : TmExpr (lenCtx Γ)} {δ δ' : Mor (lenCtx Γ)} {p : lenMor δ ≡ lenCtx Δ}
-           → Derivable (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Δ ⊢ A) → Derivable (Γ ⊢ u == u' :> totalSubstTy A δ p) → Derivable (Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A))
+  EmpMorEq : {Γ : Ctx n}
+           → (⊢ Γ) → Derivable (Γ ⊢ ◇ == ◇ ∷> ◇)
+  ExtMorEq : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {u u' : TmExpr n} {δ δ' : Mor n m}
+           → Derivable (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Δ ⊢ A) → Derivable (Γ ⊢ u == u' :> totalSubstTy A δ) → Derivable (Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A))
 
   -- Rules for Pi
-  Pi : {Γ : Ctx} {A : TyExpr (lenCtx Γ)} {B : TyExpr (suc (lenCtx Γ))} 
-     → Derivable (⊢ Γ) → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ pi A B)
-  PiCong : {Γ : Ctx} {A A' : TyExpr (lenCtx Γ)} {B B' : TyExpr (suc (lenCtx Γ))} 
-     → Derivable (⊢ Γ) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
+  Pi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} 
+     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ pi A B)
+  PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} 
+     → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
 
   -- Rules for lambda
-  Lam : {Γ : Ctx} {A : TyExpr (lenCtx Γ)} {B : TyExpr (suc (lenCtx Γ))} {u : TmExpr (suc (lenCtx Γ))}
-      → Derivable (⊢ Γ) → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ lam A B u :> pi A B)
-  LamCong : {Γ : Ctx} {A A' : TyExpr (lenCtx Γ)} {B B' : TyExpr (suc (lenCtx Γ))} {u u' : TmExpr (suc (lenCtx Γ))}
-      → Derivable (⊢ Γ) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable ((Γ , A) ⊢ u == u' :> B) → Derivable (Γ ⊢ lam A B u == lam A' B' u' :> pi A B)
+  Lam : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)}
+      → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ lam A B u :> pi A B)
+  LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
+      → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable ((Γ , A) ⊢ u == u' :> B) → Derivable (Γ ⊢ lam A B u == lam A' B' u' :> pi A B)
 
   -- Rules for app
-  App : {Γ : Ctx} {A : TyExpr (lenCtx Γ)} {B : TyExpr (suc (lenCtx Γ))} {f a : TmExpr (lenCtx Γ)}
-      → Derivable (⊢ Γ) → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ app A B f a :> substTy B a)
-  AppCong : {Γ : Ctx} {A A' : TyExpr (lenCtx Γ)} {B B' : TyExpr (suc (lenCtx Γ))} {f f' a a' : TmExpr (lenCtx Γ)}
-      → Derivable (⊢ Γ) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
+  App : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f a : TmExpr n}
+      → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ app A B f a :> substTy B a)
+  AppCong : {n : ℕ} {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {f f' a a' : TmExpr n}
+      → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
 
   -- Beta-reduction
-  Beta : {Γ : Ctx} {A : TyExpr (lenCtx Γ)} {B : TyExpr (suc (lenCtx Γ))} {u : TmExpr (suc (lenCtx Γ))} {a : TmExpr (lenCtx Γ)}
-       → Derivable (⊢ Γ) → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ a :> A)
+  Beta : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} {a : TmExpr n}
+       → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ a :> A)
        → Derivable (Γ ⊢ app A B (lam A B u) a == substTm u a :> substTy B a)
 
   -- Rules for UU
-  UU : {Γ : Ctx}
-     → Derivable (⊢ Γ) → Derivable (Γ ⊢ uu)
-  UUCong : {Γ : Ctx}
-     → Derivable (⊢ Γ) → Derivable (Γ ⊢ uu == uu)
+  UU : {Γ : Ctx n}
+     → Derivable (Γ ⊢ uu)
+  UUCong : {Γ : Ctx n}
+     → Derivable (Γ ⊢ uu == uu)
 
   -- Rules for El
-  El : {Γ : Ctx} {v : TmExpr (lenCtx Γ)}
-     → Derivable (⊢ Γ) → Derivable (Γ ⊢ v :> uu) → Derivable (Γ ⊢ el v)
-  ElCong : {Γ : Ctx} {v v' : TmExpr (lenCtx Γ)}
-     → Derivable (⊢ Γ) → Derivable (Γ ⊢ v == v' :> uu) → Derivable (Γ ⊢ el v == el v')
+  El : {Γ : Ctx n} {v : TmExpr n}
+     → Derivable (Γ ⊢ v :> uu) → Derivable (Γ ⊢ el v)
+  ElCong : {Γ : Ctx n} {v v' : TmExpr n}
+     → Derivable (Γ ⊢ v == v' :> uu) → Derivable (Γ ⊢ el v == el v')
 
--- ⊢_==_ : Ctx → Ctx → Set
--- ⊢ ◇ == ◇ = Unit
--- ⊢ (Γ , A) == (Γ' , A') = (⊢ Γ == Γ') × Derivable (Γ ⊢ A == {!A'!})
--- ⊢ _ == _ = Empty
+⊢_==_ : Ctx n → Ctx n → Set
+⊢ ◇ == ◇ = Unit
+⊢ (Γ , A) == (Γ' , A') = (⊢ Γ == Γ') × Derivable (Γ ⊢ A == A')
 
--- synCCat : CCat
--- Ob synCCat n = {!!}
--- CCat.Mor synCCat = {!!}
--- ∂₀ synCCat = {!!}
--- ∂₁ synCCat = {!!}
--- id synCCat = {!!}
--- id₀ synCCat = {!!}
--- id₁ synCCat = {!!}
--- comp synCCat = {!!}
--- comp₀ synCCat = {!!}
--- comp₁ synCCat = {!!}
--- ft synCCat = {!!}
--- pp synCCat = {!!}
--- pp₀ synCCat = {!!}
--- pp₁ synCCat = {!!}
--- star synCCat = {!!}
--- qq synCCat = {!!}
--- qq₀ synCCat = {!!}
--- qq₁ synCCat = {!!}
--- ss synCCat = {!!}
--- ss₀ synCCat = {!!}
--- ss₁ synCCat = {!!}
--- pt synCCat = {!!}
--- pt-unique synCCat = {!!}
--- ptmor synCCat = {!!}
--- ptmor₀ synCCat = {!!}
--- ptmor₁ synCCat = {!!}
--- ptmor-unique synCCat = {!!}
--- id-right synCCat = {!!}
--- id-left synCCat = {!!}
--- assoc synCCat = {!!}
--- ft-star synCCat = {!!}
--- pp-qq synCCat = {!!}
--- star-id synCCat = {!!}
--- qq-id synCCat = {!!}
--- star-comp synCCat = {!!}
--- ss-pp synCCat = {!!}
--- ss-qq synCCat = {!!}
--- ss-comp synCCat = {!!}
+record DCtx (n : ℕ) : Set where
+  constructor _,_
+  field
+    fst : Ctx n
+    .snd : (⊢ fst)
+open DCtx
+
+pair-irr : {n : ℕ} {Γ Γ' : Ctx n} {dΓ : ⊢ Γ} {dΓ' : ⊢ Γ'} → Γ ≡ Γ' → _≡_ {A = DCtx n} (Γ , dΓ) (Γ' , dΓ')
+pair-irr refl = refl
+
+DMor : ℕ → ℕ → Set
+DMor n m = Σ (DCtx n × DCtx m) (λ {((Γ , _) , (Δ , _)) → Σ (Mor n m) (λ δ → Derivable (Γ ⊢ δ ∷> Δ))})
+
+
+⟨_⟩ : {n : ℕ} → Fin n → ℕ
+⟨ last ⟩ = 0
+⟨ prev k ⟩ = suc ⟨ k ⟩
+
+weakenCtx' : {n : ℕ} (k : Fin (suc n)) (Γ : Ctx n) (A : TyExpr (n -F k)) → Ctx (suc n)
+weakenCtx' last Γ A = Γ , A
+weakenCtx' (prev k) (Γ , B) A = weakenCtx' k Γ A , weakenTy' k B
+
+prev^ : (n : ℕ) → Fin (suc m) → Fin (suc (n + m))
+prev^ zero k = k
+prev^ (suc n) k = prev (prev^ n k)
+
+-- weakenCommutes : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr (m + n)) → weakenTy' (prev^ m last) (weakenTy' (prev^ m k) A) ≡ weakenTy' (prev^ m (prev k)) (weakenTy' (prev^ m last) A)
+-- weakenCommutes k (pi A B) = {!!}
+-- weakenCommutes k uu = {!!}
+-- weakenCommutes k (el v) = {!!}
+
+transport : {A : Set} (B : A → Set) {a a' : A} (p : a ≡ a') → B a → B a'
+transport B refl x = x
+
+inj∈ : {Γ : Ctx n} {k : Fin (suc n)} {x : Fin n} {A : TyExpr n} {B : TyExpr (n -F k)} → Γ ∋ x :> A → ((weakenCtx' k Γ B) ∋ (injF k x) :> (weakenTy' k A))
+-- inj∈ {k = last} r = prev r
+-- inj∈ {k = prev k} {B = B} (last {Γ = Γ} {A = A}) = transport (λ x → (weakenCtx' k Γ B , weakenTy' k A) ∋ last :> x) (weakenCommutes 0 k A) last
+-- inj∈ {k = prev k} {B = B} (prev {Γ = Γ} {x = x} {A = A} {B = B'} r) =
+--   transport (λ y → (weakenCtx' k Γ B , weakenTy' k B') ∋ prev (injF k x) :> y)
+--             (weakenCommutes 0 k A) (prev (inj∈ r))
+
+weakeningDerivableTy : {m : ℕ} (k : Fin (suc m)) {Γ : Ctx m} {A : TyExpr m} {B : TyExpr (m -F k)} → Derivable (Γ ⊢ A) → Derivable (weakenCtx' k Γ B ⊢ weakenTy' k A)
+weakeningDerivableTm : {m : ℕ} (k : Fin (suc m)) {Γ : Ctx m} {u : TmExpr m} {A : TyExpr m} {B : TyExpr (m -F k)} → Derivable (Γ ⊢ u :> A) → Derivable (weakenCtx' k Γ B ⊢ weakenTm' k u :> weakenTy' k A)
+
+weakeningDerivableTy k (Pi dA dB) = Pi (weakeningDerivableTy k dA) (weakeningDerivableTy (prev k) dB)
+weakeningDerivableTy k UU = UU
+weakeningDerivableTy k (El dv) = El (weakeningDerivableTm k dv)
+
+weakeningDerivableTm k (VarRule x∈ dA) = VarRule (inj∈ x∈) (weakeningDerivableTy k dA)
+weakeningDerivableTm k (Conv du dA=) = {!!}
+weakeningDerivableTm k (Lam dA dB du) = Lam (weakeningDerivableTy k dA) (weakeningDerivableTy (prev k) dB) (weakeningDerivableTm (prev k) du)
+weakeningDerivableTm k (App dA dB df da) = {!App (weakeningDerivableTy k dA) (weakeningDerivableTy (prev k) dB) (weakeningDerivableTm k df) (weakeningDerivableTm k da)!}
+
+idMor : (n : ℕ) → Mor n n
+idMor zero = ◇
+idMor (suc n) = weakenMor (idMor n) , var last
+
+idMorDerivable : (n : ℕ) (Γ : Ctx n) → ⊢ Γ → Derivable (Γ ⊢ idMor n ∷> Γ)
+idMorDerivable zero ◇ dΓ = EmpMor dΓ
+idMorDerivable (suc n) (Γ , A) (dΓ , dA) = ExtMor {!idMorDerivable n Γ dΓ!} dA {!!}
+
+ObsynCCat : ℕ → Set
+ObsynCCat n = DCtx n // λ {(Γ , _) (Γ' , _) → ⊢ Γ == Γ'}
+
+MorsynCCat : ℕ → ℕ → Set
+MorsynCCat n m = DMor n m // λ {(((Γ , _), (Δ , _)), (δ , _)) (((Γ' , _), (Δ' , _)), (δ' , _)) → ((⊢ Γ == Γ') × (⊢ Δ == Δ')) × Derivable (Γ ⊢ δ == δ' ∷> Δ)}
+
+∂₀synCCat : {n m : ℕ} → MorsynCCat n m → ObsynCCat n
+∂₀synCCat = //-rec (ObsynCCat _) (λ {((Γ , _), _) → proj Γ}) (λ {_ _ r → eq (fst (fst r))})
+
+∂₁synCCat : {n m : ℕ} → MorsynCCat n m → ObsynCCat m
+∂₁synCCat = //-rec (ObsynCCat _) (λ {((_ , Δ), _) → proj Δ}) (λ {_ _ r → eq (snd (fst r))})
+
+postulate
+  #TODO# : {A : Set} → A
+
+idsynCCat : (n : ℕ) → ObsynCCat n → MorsynCCat n n
+idsynCCat n = //-rec (MorsynCCat _ _) (λ {(Γ , dΓ) → proj (((Γ , dΓ) , (Γ , dΓ)) , (idMor n , {!!}))}) #TODO#
+
+ftsynCCat-// : (n : ℕ) → DCtx (suc n) → ObsynCCat n
+ftsynCCat-// n ((Γ , _) , (dΓ , _)) = proj (Γ , dΓ)
+
+ftsynCCat : (n : ℕ) → ObsynCCat (suc n) → ObsynCCat n
+ftsynCCat n = //-rec (ObsynCCat n) (ftsynCCat-// n) (λ {((Γ , _) , _) ((Γ' , _) , _) r → eq (fst r)})
+
+synCCat : CCat
+Ob synCCat = ObsynCCat
+CCat.Mor synCCat = MorsynCCat
+∂₀ synCCat = ∂₀synCCat
+∂₁ synCCat = ∂₁synCCat
+id synCCat {n = n} = idsynCCat n
+id₀ synCCat {n = n} {X = X} = //-elimId (λ X → ∂₀synCCat (idsynCCat n X)) (λ X → X) (λ Γ → refl) X
+id₁ synCCat {n = n} {X = X} = //-elimId (λ X → ∂₁synCCat (idsynCCat n X)) (λ X → X) (λ Γ → refl) X
+comp synCCat = {!!}
+comp₀ synCCat = {!!}
+comp₁ synCCat = {!!}
+ft synCCat {n = n} = ftsynCCat n
+pp synCCat = {!!}
+pp₀ synCCat = {!!}
+pp₁ synCCat = {!!}
+star synCCat = {!!}
+qq synCCat = {!!}
+qq₀ synCCat = {!!}
+qq₁ synCCat = {!!}
+ss synCCat = {!!}
+ss₀ synCCat = {!!}
+ss₁ synCCat = {!!}
+pt synCCat = proj (◇ , tt)
+pt-unique synCCat = {!!}
+ptmor synCCat = {!!}
+ptmor₀ synCCat = {!!}
+ptmor₁ synCCat = {!!}
+ptmor-unique synCCat = {!!}
+id-right synCCat = {!!}
+id-left synCCat = {!!}
+assoc synCCat = {!!}
+ft-star synCCat = {!!}
+pp-qq synCCat = {!!}
+star-id synCCat = {!!}
+qq-id synCCat = {!!}
+star-comp synCCat = {!!}
+ss-pp synCCat = {!!}
+ss-qq synCCat = {!!}
+ss-comp synCCat = {!!}
