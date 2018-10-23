@@ -2,7 +2,7 @@
 
 open import Agda.Builtin.Equality public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_)
-open import Agda.Builtin.Unit public
+open import Agda.Builtin.Unit public renaming (⊤ to Unit)
 open import Agda.Builtin.Sigma public
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
@@ -33,15 +33,8 @@ refl ∙ refl = refl
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
-data Maybe (X : Set) : Set where
-  Nothing : Maybe X
-  Just : X → Maybe X
-
-return : {A : Set} → A → Maybe A
-return = Just
-
-_>>=_ : {A B : Set} → Maybe A → (A → Maybe B) → Maybe B
-Nothing >>= f = Nothing
-Just a >>= f = f a
-
 data Empty : Set where
+
+data Fin : ℕ → Set where
+  last : {n : ℕ} → Fin (suc n)
+  prev : {n : ℕ} → Fin n → Fin (suc n)

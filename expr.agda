@@ -3,11 +3,9 @@
 open import common
 open import contextualcat
 
-{- Syntax of term- and type-expressions, using de Bruijn indices -}
+open CCat hiding (Mor)
 
-data Fin : ℕ → Set where
-  last : Fin (suc n)
-  prev : Fin n → Fin (suc n)
+{- Syntax of term- and type-expressions, using de Bruijn indices -}
 
 data TyExpr : ℕ → Set
 data TmExpr : ℕ → Set
@@ -184,6 +182,7 @@ data Derivable : Judgment → Set where
   AppCong : {Γ : Ctx} {A A' : TyExpr (lenCtx Γ)} {B B' : TyExpr (suc (lenCtx Γ))} {f f' a a' : TmExpr (lenCtx Γ)}
       → Derivable (⊢ Γ) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
 
+  -- Beta-reduction
   Beta : {Γ : Ctx} {A : TyExpr (lenCtx Γ)} {B : TyExpr (suc (lenCtx Γ))} {u : TmExpr (suc (lenCtx Γ))} {a : TmExpr (lenCtx Γ)}
        → Derivable (⊢ Γ) → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ a :> A)
        → Derivable (Γ ⊢ app A B (lam A B u) a == substTm u a :> substTy B a)
@@ -199,3 +198,48 @@ data Derivable : Judgment → Set where
      → Derivable (⊢ Γ) → Derivable (Γ ⊢ v :> uu) → Derivable (Γ ⊢ el v)
   ElCong : {Γ : Ctx} {v v' : TmExpr (lenCtx Γ)}
      → Derivable (⊢ Γ) → Derivable (Γ ⊢ v == v' :> uu) → Derivable (Γ ⊢ el v == el v')
+
+-- ⊢_==_ : Ctx → Ctx → Set
+-- ⊢ ◇ == ◇ = Unit
+-- ⊢ (Γ , A) == (Γ' , A') = (⊢ Γ == Γ') × Derivable (Γ ⊢ A == {!A'!})
+-- ⊢ _ == _ = Empty
+
+-- synCCat : CCat
+-- Ob synCCat n = {!!}
+-- CCat.Mor synCCat = {!!}
+-- ∂₀ synCCat = {!!}
+-- ∂₁ synCCat = {!!}
+-- id synCCat = {!!}
+-- id₀ synCCat = {!!}
+-- id₁ synCCat = {!!}
+-- comp synCCat = {!!}
+-- comp₀ synCCat = {!!}
+-- comp₁ synCCat = {!!}
+-- ft synCCat = {!!}
+-- pp synCCat = {!!}
+-- pp₀ synCCat = {!!}
+-- pp₁ synCCat = {!!}
+-- star synCCat = {!!}
+-- qq synCCat = {!!}
+-- qq₀ synCCat = {!!}
+-- qq₁ synCCat = {!!}
+-- ss synCCat = {!!}
+-- ss₀ synCCat = {!!}
+-- ss₁ synCCat = {!!}
+-- pt synCCat = {!!}
+-- pt-unique synCCat = {!!}
+-- ptmor synCCat = {!!}
+-- ptmor₀ synCCat = {!!}
+-- ptmor₁ synCCat = {!!}
+-- ptmor-unique synCCat = {!!}
+-- id-right synCCat = {!!}
+-- id-left synCCat = {!!}
+-- assoc synCCat = {!!}
+-- ft-star synCCat = {!!}
+-- pp-qq synCCat = {!!}
+-- star-id synCCat = {!!}
+-- qq-id synCCat = {!!}
+-- star-comp synCCat = {!!}
+-- ss-pp synCCat = {!!}
+-- ss-qq synCCat = {!!}
+-- ss-comp synCCat = {!!}

@@ -167,12 +167,15 @@ module M (C : CCat) where
 
   {- Variables -}
 
-  trim : {n : ℕ} (k : ℕ) (X : Ob n) → Ob (n - k)
-  trim zero X = X
-  trim {zero} (suc k) X = X -- or pt…
-  trim {suc n} (suc k) X = trim k (ft X)
+  _-F_ : (n : ℕ) (k : Fin n) → ℕ
+  n -F last = n
+  suc n -F prev k = n -F k
 
-  last-var : {n : ℕ} (X : Ob (suc n)) → Tm X 0
+  trim : (k : Fin n) (X : Ob n) → Ob (n -F k)
+  trim last X = X
+  trim (prev k) X = trim k (ft X)
+
+  last-var : (X : Ob (suc n)) → Tm X 0
   toCtx (getTy (last-var X)) = star (pp X) X pp₁
   toCtxEq (getTy (last-var X)) = ft-star ∙ pp₀
   morTm (last-var X) = ss (id X)
@@ -180,27 +183,23 @@ module M (C : CCat) where
   morTm₁ (last-var X) = ss₁ ∙ ap-irr2 star (id-left ∙ ap pp id₁) id₁
   eqTm (last-var X) = ap-irr (λ x y → comp x (ss (id X)) y) (ap pp (ap-irr2 star (! (id-left ∙ ap pp id₁)) (! id₁))) ∙ (ss-pp {f = id X} ∙ ap id (id₀ ∙ ! (ft-star ∙ pp₀)))
 
-  var-unweakened : {n : ℕ} (k : ℕ) (X : Ob n) → Maybe (Tm (trim k X) 0)
-  var-unweakened {zero} _ X = Nothing
-  var-unweakened {suc n} zero X = Just (last-var X)
-  var-unweakened {suc n} (suc k) X = var-unweakened {n} k (ft X)
+  var-unweakened : (k : Fin n) (X : Ob n) → Tm (trim k X) 0
+  var-unweakened last X = last-var X
+  var-unweakened (prev k) X = var-unweakened k (ft X)
 
-  weaken : {n : ℕ} (k : ℕ) {X : Ob n} → Tm (trim k X) 0 → Tm X 0
-  weaken 0 x = x
-  weaken {0} (suc k) x = x
-  weaken {suc n} (suc k) {X} x = star^tm-with-eqs (pp X) pp₁ pp₀ (weaken k x)
+  weaken : (k : Fin n) {X : Ob n} → Tm (trim k X) 0 → Tm X 0
+  weaken last x = x
+  weaken (prev k) {X} x = star^tm-with-eqs (pp X) pp₁ pp₀ (weaken k x)
 
-  var : {n : ℕ} (k : ℕ) (X : Ob n) → Maybe (Tm X 0)
-  var k X with var-unweakened k X
-  var k X | Nothing = Nothing
-  var k X | Just x = Just (weaken k x)
+  var : (k : Fin n) (X : Ob n) → Tm X 0
+  var k X = weaken k (var-unweakened k X)
 
-  substCTy : {n m : ℕ} (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) .(p : getTy u ≡ ft' A) → Ty X m
+  substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) .(p : getTy u ≡ ft' A) → Ty X m
   substCTy {m = m} X A u p = (star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p) , (ap (ft^ m) (ft-star ∙ morTm₀ u) ∙ (ap (λ z → ft^ m (toCtx (ft' z))) p ∙ toCtxEq A)))
   -- toCtx (substCTy {m = m} X A u p) = star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p)
   -- toCtxEq (substCTy {m = m} X A u p) = ap (ft^ m) (ft-star ∙ morTm₀ u) ∙ (ap (λ z → ft^ m (toCtx (ft' z))) {!p!} ∙ toCtxEq A)
 
-  .ft-substCTy : {n m : ℕ} (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' A) → ft (toCtx (substCTy X A u p)) ≡ ft (ft (toCtx A))
+  .ft-substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' A) → ft (toCtx (substCTy X A u p)) ≡ ft (ft (toCtx A))
   ft-substCTy X A u p = ft-star ∙ (morTm₀ u ∙ ap ft (ap toCtx p))
 
   substCTm : (X : Ob n) (v : Tm X (suc m)) (u : Tm X m) .(p : getTy u ≡ ft' (getTy v)) → Tm X m
@@ -215,10 +214,10 @@ module M (C : CCat) where
 
 record StructuredCCat : Set₁ where
   field
-    cat : CCat
+    ccat : CCat
 
-  open CCat cat public renaming (Mor to CMor)
-  open M cat public
+  open CCat ccat renaming (Mor to MorC)
+  open M ccat
 
   field
     -- Additional structure on contextual categories
@@ -229,16 +228,16 @@ record StructuredCCat : Set₁ where
     ElStr : (X : Ob n) (v : Tm X 0) .(_ : getTy v ≡ UUStr X) → Ty X 0
 
     -- Naturality
-    PiStrNat : {n m : ℕ} (f : CMor n m) (let X = ∂₀ f) (let Y = ∂₁ f) (A : Ty Y 0) (B : Ty Y 1) (p : ft' B ≡ A)
+    PiStrNat : {n m : ℕ} (f : MorC n m) (let X = ∂₀ f) (let Y = ∂₁ f) (A : Ty Y 0) (B : Ty Y 1) (p : ft' B ≡ A)
               → star^ f (PiStr Y A B p) ≡ PiStr X (star^ f A) (star^ f B) (ft-star^ B (toCtxEq B) ∙ ap (star^ f) p)
-    lamStrNat : {n m : ℕ} (f : CMor n m) (let X = ∂₀ f) (let Y = ∂₁ f) (A : Ty Y 0) (B : Ty Y 1) (u : Tm Y 1) (p : ft' B ≡ A) (q : getTy u ≡ B)
+    lamStrNat : {n m : ℕ} (f : MorC n m) (let X = ∂₀ f) (let Y = ∂₁ f) (A : Ty Y 0) (B : Ty Y 1) (u : Tm Y 1) (p : ft' B ≡ A) (q : getTy u ≡ B)
               → star^tm f (lamStr Y A B u p q) ≡ lamStr X (star^ f A) (star^ f B) (star^tm f u) (ft-star^ B (toCtxEq B) ∙ ap (star^ f) p) (ap (star^ f) q)
-    appStrNat : {n m : ℕ} (f : CMor n m) (let X = ∂₀ f) (let Y = ∂₁ f) (A : Ty Y 0) (B : Ty Y 1) (g : Tm Y 0) (a : Tm Y 0) (p : ft' B ≡ A) (q : getTy g ≡ PiStr Y A B p) (r : getTy a ≡ A)
+    appStrNat : {n m : ℕ} (f : MorC n m) (let X = ∂₀ f) (let Y = ∂₁ f) (A : Ty Y 0) (B : Ty Y 1) (g : Tm Y 0) (a : Tm Y 0) (p : ft' B ≡ A) (q : getTy g ≡ PiStr Y A B p) (r : getTy a ≡ A)
               → star^tm f (appStr Y A B g a p q r) ≡ appStr X (star^ f A) (star^ f B) (star^tm f g) (star^tm f a)
                                                             (ft-star^ B (toCtxEq B) ∙ ap (star^ f) p)
                                                             (ap (star^ f) q ∙ PiStrNat f A B p) (ap (star^ f) r)
-    UUStrNat : {n m : ℕ} (f : CMor n m) (let X = ∂₀ f) (let Y = ∂₁ f) → star^ f (UUStr Y) ≡ UUStr X
-    ElStrNat : {n m : ℕ} (f : CMor n m) (let X = ∂₀ f) (let Y = ∂₁ f) (v : Tm Y 0) (p : getTy v ≡ UUStr Y) → star^ f (ElStr Y v p) ≡ ElStr X (star^tm f v) (ap (star^ f) p ∙ UUStrNat f)
+    UUStrNat : {n m : ℕ} (f : MorC n m) (let X = ∂₀ f) (let Y = ∂₁ f) → star^ f (UUStr Y) ≡ UUStr X
+    ElStrNat : {n m : ℕ} (f : MorC n m) (let X = ∂₀ f) (let Y = ∂₁ f) (v : Tm Y 0) (p : getTy v ≡ UUStr Y) → star^ f (ElStr Y v p) ≡ ElStr X (star^tm f v) (ap (star^ f) p ∙ UUStrNat f)
 
 
     -- Typing
@@ -247,3 +246,70 @@ record StructuredCCat : Set₁ where
              → getTy (appStr X A B f a p q r) ≡ substCTy X B a (r ∙ ! p)
     betaStr : {n : ℕ} (X : Ob n) (A : Ty X 0) (B : Ty X 1) (u : Tm X 1) (a : Tm X 0) .(p : ft' B ≡ A) .(q : getTy u ≡ B) .(r : getTy a ≡ A)
             → appStr X A B (lamStr X A B u p q) a p lamStrTy r ≡ substCTm X u a (r ∙ ! (ap ft' q ∙ p))
+
+open StructuredCCat
+
+record CCatMor (C D : CCat) : Set where
+  open CCat
+  field
+    Ob→ : Ob C n → Ob D n
+    Mor→ : Mor C n m → Mor D n m
+    ∂₀→ : {X : Mor C n m} → Ob→ (∂₀ C X) ≡ ∂₀ D (Mor→ X)
+    ∂₁→ : {X : Mor C n m} → Ob→ (∂₁ C X) ≡ ∂₁ D (Mor→ X)
+    id→ : {X : Ob C n} → Mor→ (id C X) ≡ id D (Ob→ X)
+    comp→ : {n m k : ℕ} {g : Mor C m k} {f : Mor C n m} .{p : ∂₁ C f ≡ ∂₀ C g} → Mor→ (comp C g f p) ≡ comp D (Mor→ g) (Mor→ f) (! ∂₁→ ∙ (ap Ob→ p ∙ ∂₀→))
+    ft→ : {X : Ob C (suc n)} → Ob→ (ft C X) ≡ ft D (Ob→ X)
+    pp→ : {X : Ob C (suc n)} → Mor→ (pp C X) ≡ pp D (Ob→ X)
+    star→ : {n m : ℕ} {f : Mor C m n} {X : Ob C (suc n)} .{p : ∂₁ C f ≡ ft C X} → Ob→ (star C f X p) ≡ star D (Mor→ f) (Ob→ X) (! ∂₁→ ∙ (ap Ob→ p ∙ ft→))
+    qq→ : {n m : ℕ} {f : Mor C m n} {X : Ob C (suc n)} .{p : ∂₁ C f ≡ ft C X} → Mor→ (qq C f X p) ≡ qq D (Mor→ f) (Ob→ X) (! ∂₁→ ∙ (ap Ob→ p ∙ ft→))
+    ss→ : {f : Mor C m (suc n)} → Mor→ (ss C f) ≡ ss D (Mor→ f)
+    pt→ : Ob→ (pt C) ≡ pt D
+    ptmor→ : {X : Ob C n} → Mor→ (ptmor C X) ≡ ptmor D (Ob→ X)
+
+
+module TyTm→ {C D : CCat} (f : CCatMor C D) where
+
+  open CCatMor f
+  open CCat
+  open M
+  
+  ft^→ : (m : ℕ) {X : Ob C (m + n)} → Ob→ (ft^ C m X) ≡ ft^ D m (Ob→ X)
+  ft^→ zero = refl
+  ft^→ (suc m) = ft^→ m ∙ ap (ft^ D m) ft→
+
+  Ty→ : {X : Ob C m} → Ty C X n → Ty D (Ob→ X) n
+  toCtx (Ty→ ty) = Ob→ (toCtx ty)
+  toCtxEq (Ty→ {n = n} ty) = ! (ft^→ (suc n)) ∙ ap Ob→ (toCtxEq ty)
+
+  .ft'→ : {X : Ob C n} (ty : Ty C X (suc m)) → Ty→ (ft' C ty) ≡ ft' D (Ty→ ty)
+  ft'→ ty = pair-irr D ft→
+
+  Tm→ : {X : Ob C m} → Tm C X n → Tm D (Ob→ X) n
+  getTy (Tm→ tm) = Ty→ (getTy tm)
+  morTm (Tm→ tm) = Mor→ (morTm tm)
+  morTm₀ (Tm→ tm) = ! ∂₀→ ∙ (ap Ob→ (morTm₀ tm) ∙ ft→)
+  morTm₁ (Tm→ tm) = ! ∂₁→ ∙ ap Ob→ (morTm₁ tm)
+  eqTm (Tm→ tm) = ap-irr (λ x z → comp D x (Mor→ (morTm tm)) z) (! pp→) ∙ (! comp→ ∙ (ap Mor→ (eqTm tm) ∙ (id→ ∙ ap (id D) ft→)))
+
+
+record StructuredCCatMor (C D : StructuredCCat) : Set where
+  field
+    ccat→ : CCatMor (ccat C) (ccat D)
+
+  open CCatMor ccat→
+  open CCat (ccat C) renaming (Ob to ObC; Mor to MorC)
+  open M (ccat C) renaming (Ty to TyC; Tm to TmC; ft' to ft'C)
+  open M (ccat D) renaming (Ty to TyD)
+
+  open TyTm→ ccat→
+
+  field
+    PiStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) .(p : ft'C B ≡ A)
+           → Ty→ (PiStr C X A B p) ≡ PiStr D (Ob→ X) (Ty→ A) (Ty→ B) (! (ft'→ B) ∙ ap Ty→ p)
+    lamStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (u : TmC X 1) .(p : ft'C B ≡ A) .(q : getTy u ≡ B)
+           → Tm→ (lamStr C X A B u p q) ≡ lamStr D (Ob→ X) (Ty→ A) (Ty→ B) (Tm→ u) (! (ft'→ B) ∙ ap Ty→ p) (ap Ty→ q)
+    appStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (f : TmC X 0) (a : TmC X 0) .(p : ft'C B ≡ A) .(q : getTy f ≡ PiStr C X A B p) .(r : getTy a ≡ A)
+           → Tm→ (appStr C X A B f a p q r) ≡ appStr D (Ob→ X) (Ty→ A) (Ty→ B) (Tm→ f) (Tm→ a) (! (ft'→ B) ∙ ap Ty→ p) (ap Ty→ q ∙ PiStr→ X A B p) (ap Ty→ r)
+    UUStr→ : (X : ObC n) → Ty→ (UUStr C X) ≡ UUStr D (Ob→ X)
+    ElStr→ : (X : ObC n) (v : TmC X 0) .(p : getTy v ≡ UUStr C X)
+           → Ty→ (ElStr C X v p) ≡ ElStr D (Ob→ X) (Tm→ v) (ap Ty→ p ∙ UUStr→ X)
