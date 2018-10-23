@@ -4,3 +4,6 @@ contextual categories.
 
 It requires a version of Agda higher than 2.5.4.1 (to have the `variable` keyword), but not too
 recent until https://github.com/agda/agda/issues/3306 is fixed.
+
+The file `expr.agda` contains things about the syntax and the file `contextualcat.agda` contains
+things about contextual categories.
