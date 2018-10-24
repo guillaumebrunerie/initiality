@@ -14,6 +14,21 @@ infixr 42 _×_
 _×_ : (A B : Set) → Set
 A × B = Σ A (λ _ → B)
 
+record Σ' (A : Set) (B : A → Set) : Set where
+  constructor _,_
+  field
+    fst' : A
+    .snd' : B fst'
+open Σ' public
+
+pair-irr : {A : Set} {B : A → Set} {a a' : A} {b : B a} {b' : B a'} → a ≡ a' → _≡_ {A = Σ' A B} (a , b) (a' , b')
+pair-irr refl = refl
+
+infixr 42 _×'_
+
+_×'_ : (A B : Set) → Set
+A ×' B = Σ' A (λ _ → B)
+
 len : {A : Set} → List A → ℕ
 len [] = zero
 len (_ ∷ l) = suc (len l)

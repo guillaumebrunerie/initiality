@@ -46,7 +46,7 @@ record CCat : Set₁ where
     ss₁ : {f : Mor m (suc n)} → ∂₁ (ss f) ≡ star (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)
     -- terminal object
     pt : Ob 0
-    pt-unique : (x : Ob 0) → x ≡ pt
+    pt-unique : (X : Ob 0) → X ≡ pt
     ptmor : Ob n → Mor n 0
     ptmor₀ : {X : Ob n} → ∂₀ (ptmor X) ≡ X
     ptmor₁ : {X : Ob n} → ∂₁ (ptmor X) ≡ pt
@@ -89,8 +89,8 @@ module M (C : CCat) where
   Ty : {m : ℕ} (X : Ob m) (n : ℕ) → Set
   Ty X n = TyPred X (suc n)
 
-  pair-irr : {m : ℕ} {X : Ob m} {n : ℕ} {a a' : Ob (n + m)} {b : ft^ n a ≡ X} {b' : ft^ n a' ≡ X} → a ≡ a' → (a , b) ≡ (a' , b')
-  pair-irr refl = refl
+  pair-irr-Ty : {m : ℕ} {X : Ob m} {n : ℕ} {a a' : Ob (n + m)} {b : ft^ n a ≡ X} {b' : ft^ n a' ≡ X} → a ≡ a' → (a , b) ≡ (a' , b')
+  pair-irr-Ty refl = refl
 
   ft' : {n : ℕ} {X : Ob n} → TyPred X (suc m) → TyPred X m
   ft' (Y , p) = (ft Y , p)
@@ -117,8 +117,8 @@ module M (C : CCat) where
   --
 
   .ft-star^ : {n m k : ℕ} {f : Mor m k} (X : Ty (∂₁ f) n) .(p : ft^ (suc n) (toCtx X) ≡ ∂₁ f) → ft' (star^ f X) ≡ star^ f (ft' X)
-  ft-star^ {zero}  _ _ = pair-irr ft-star
-  ft-star^ {suc n} _ _ = pair-irr (ft-star ∙ qq₀)
+  ft-star^ {zero}  _ _ = pair-irr-Ty ft-star
+  ft-star^ {suc n} _ _ = pair-irr-Ty (ft-star ∙ qq₀)
   
   {- Identity laws for the iterated star and qq operations -}
 
@@ -191,20 +191,18 @@ module M (C : CCat) where
   var k X = weaken k (var-unweakened k X)
 
   substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) .(p : getTy u ≡ ft' A) → Ty X m
-  substCTy {m = m} X A u p = (star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p) , (ap (ft^ m) (ft-star ∙ morTm₀ u) ∙ (ap (λ z → ft^ m (toCtx (ft' z))) p ∙ toCtxEq A)))
-  -- toCtx (substCTy {m = m} X A u p) = star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p)
-  -- toCtxEq (substCTy {m = m} X A u p) = ap (ft^ m) (ft-star ∙ morTm₀ u) ∙ (ap (λ z → ft^ m (toCtx (ft' z))) {!p!} ∙ toCtxEq A)
+  toCtx (substCTy X A u p) = star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p)
+  toCtxEq (substCTy {m = m} X A u p) = ap (ft^ m) (ft-star ∙ morTm₀ u) ∙ (ap (λ z → ft^ m (toCtx (ft' z))) p ∙ toCtxEq A)
 
   .ft-substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' A) → ft (toCtx (substCTy X A u p)) ≡ ft (ft (toCtx A))
   ft-substCTy X A u p = ft-star ∙ (morTm₀ u ∙ ap ft (ap toCtx p))
 
   substCTm : (X : Ob n) (v : Tm X (suc m)) (u : Tm X m) .(p : getTy u ≡ ft' (getTy v)) → Tm X m
-  substCTm X v u p = record {
-  {-getTy (substCTm X v u p)-} getTy = substCTy X (getTy v) u p;
-  {-morTm (substCTm X v u p)-} morTm = ss (comp (morTm v) (morTm u) (morTm₁ u ∙ (ap toCtx p ∙ ! (morTm₀ v))));
-  {-morTm₀ (substCTm X v u p)-} morTm₀ = ss₀ ∙ (comp₀ ∙ (morTm₀ u ∙ (ap toCtx (ap ft' p) ∙ ! (ft-substCTy X (getTy v) u p))));
-  {-morTm₁ (substCTm X v u p)-} morTm₁ = ss₁ ∙ (star-comp pp₁ ∙ (star-comp (morTm₁ v ∙ ! (ft-star ∙ (pp₀ ∙ (comp₁ ∙ morTm₁ v)))) ∙ ap-irr (star (morTm u)) (! (star-comp {p = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))} pp₁) ∙ (ap-irr2 star (ap-irr2 comp (ap pp (comp₁ ∙ morTm₁ v)) refl ∙ eqTm v) (comp₁ ∙ morTm₁ v) ∙ star-id) ) ));
-  {-eqTm (substCTm X v u p)-} eqTm = ap-irr2 comp (ap pp (ap-irr2 star (! (! (assoc {q = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))}) ∙ (ap-irr2 comp (ap-irr2 comp (ap pp (comp₁ {p = morTm₁ u ∙ ! (morTm₀ v ∙ ! (ap toCtx p))} ∙ morTm₁ v)) refl ∙ (eqTm v ∙ ap id (! (morTm₁ u ∙ ap toCtx p)))) refl ∙ id-right))) (! (comp₁ ∙ morTm₁ v)))) refl ∙ (ss-pp {f = comp (morTm v) (morTm u) _} ∙ ap id (comp₀ ∙ (morTm₀ u ∙ ! (ft-substCTy X (getTy v) u p ∙ ! (ap ft (ap toCtx p))))))}
+  getTy (substCTm X v u p) = substCTy X (getTy v) u p
+  morTm (substCTm X v u p) = ss (comp (morTm v) (morTm u) (morTm₁ u ∙ (ap toCtx p ∙ ! (morTm₀ v))))
+  morTm₀ (substCTm X v u p) = ss₀ ∙ (comp₀ ∙ (morTm₀ u ∙ (ap toCtx (ap ft' p) ∙ ! (ft-substCTy X (getTy v) u p))))
+  morTm₁ (substCTm X v u p) = ss₁ ∙ (star-comp pp₁ ∙ (star-comp (morTm₁ v ∙ ! (ft-star ∙ (pp₀ ∙ (comp₁ ∙ morTm₁ v)))) ∙ ap-irr (star (morTm u)) (! (star-comp {p = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))} pp₁) ∙ (ap-irr2 star (ap-irr2 comp (ap pp (comp₁ ∙ morTm₁ v)) refl ∙ eqTm v) (comp₁ ∙ morTm₁ v) ∙ star-id) ) ))
+  eqTm (substCTm X v u p) = ap-irr2 comp (ap pp (ap-irr2 star (! (! (assoc {q = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))}) ∙ (ap-irr2 comp (ap-irr2 comp (ap pp (comp₁ {p = morTm₁ u ∙ ! (morTm₀ v ∙ ! (ap toCtx p))} ∙ morTm₁ v)) refl ∙ (eqTm v ∙ ap id (! (morTm₁ u ∙ ap toCtx p)))) refl ∙ id-right))) (! (comp₁ ∙ morTm₁ v)))) refl ∙ (ss-pp {f = comp (morTm v) (morTm u) _} ∙ ap id (comp₀ ∙ (morTm₀ u ∙ ! (ft-substCTy X (getTy v) u p ∙ ! (ap ft (ap toCtx p))))))
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -278,7 +276,7 @@ module TyTm→ {C D : CCat} (f : CCatMor C D) where
   toCtxEq (Ty→ {n = n} ty) = ! (ft^→ (suc n)) ∙ ap Ob→ (toCtxEq ty)
 
   .ft'→ : {X : Ob C n} (ty : Ty C X (suc m)) → Ty→ (ft' C ty) ≡ ft' D (Ty→ ty)
-  ft'→ ty = pair-irr D ft→
+  ft'→ ty = pair-irr-Ty D ft→
 
   Tm→ : {X : Ob C m} → Tm C X n → Tm D (Ob→ X) n
   getTy (Tm→ tm) = Ty→ (getTy tm)
