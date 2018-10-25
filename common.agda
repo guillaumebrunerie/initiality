@@ -14,6 +14,8 @@ infixr 42 _×_
 _×_ : (A B : Set) → Set
 A × B = Σ A (λ _ → B)
 
+{- Irrelevant Σ-types -}
+
 record Σ' (A : Set) (B : A → Set) : Set where
   constructor _,_
   field
@@ -21,25 +23,12 @@ record Σ' (A : Set) (B : A → Set) : Set where
     .snd' : B fst'
 open Σ' public
 
-pair-irr : {A : Set} {B : A → Set} {a a' : A} {b : B a} {b' : B a'} → a ≡ a' → _≡_ {A = Σ' A B} (a , b) (a' , b')
-pair-irr refl = refl
-
 infixr 42 _×'_
 
 _×'_ : (A B : Set) → Set
 A ×' B = Σ' A (λ _ → B)
 
-len : {A : Set} → List A → ℕ
-len [] = zero
-len (_ ∷ l) = suc (len l)
-
-_&&_ : Bool → Bool → Bool
-true && x = x
-false && x = false
-
-if_then_else_ : {A : Set} → Bool → A → A → A
-if true then t else e = t
-if false then t else e = e
+{- Operations on equality proofs -}
 
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
@@ -50,16 +39,49 @@ refl ∙ refl = refl
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
-data Empty : Set where
+{- Finite sets -}
 
 data Fin : ℕ → Set where
   last : {n : ℕ} → Fin (suc n)
   prev : {n : ℕ} → Fin n → Fin (suc n)
 
-_-F_ : (n : ℕ) (k : Fin (suc n)) → ℕ
+_-F_ : (n : ℕ) (k : Fin n) → ℕ
 n -F last = n
 suc n -F prev k = n -F k
 
-_-F'_ : (n : ℕ) (k : Fin n) → ℕ
-n -F' last = n
-suc n -F' prev k = n -F' k
+{- Partiality monad -}
+
+record Partial (A : Set) : Set₁ where
+  constructor makePartial
+  field
+    prop : Set
+--    prop-is-prop : (a b : prop) → a ≡ b
+    inj : prop → A
+open Partial
+
+return : {A : Set} → A → Partial A
+return x = makePartial Unit {-(λ _ _ → refl)-} (λ _ → x)
+
+_>>=_ : {A B : Set} → Partial A → (A → Partial B) → Partial B
+prop (a >>= f) = Σ (prop a) (λ x → prop (f (inj a x)))
+--prop-is-prop (a >>= f) (a₀ , b₀) (a₁ , b₁) = {!!}
+inj (a >>= f) (a₀ , b₀) = inj (f (inj a a₀)) b₀
+
+assume : (P : Set) → Partial P
+assume p = makePartial p (λ x → x)
+
+{- Helper functions for irrelevance -}
+
+ap-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
+ap-irr f refl = refl
+
+ap-irr2 : {A D : Set} {B : A → Set} {C : (a : A) .(_ : B a) → Set} (f : (a : A) .(b : B a) .(c : C a b) → D) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} .{c : C a b} .{c' : C a' b'} → f a b c ≡ f a' b' c'
+ap-irr2 f refl = refl
+
+ap2-irr : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
+ap2-irr f refl refl = refl
+
+{- Generalized variables -}
+
+variable
+  {n n' m k l} : ℕ

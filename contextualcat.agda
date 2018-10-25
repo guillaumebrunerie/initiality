@@ -2,15 +2,6 @@
 
 open import common hiding (_,_)
 
-variable
-  {n n' m k l} : ℕ
-
-ap-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') {b : B a} {b' : B a'} → f a b ≡ f a' b'
-ap-irr f refl = refl
-
-ap-irr2 : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
-ap-irr2 f refl refl = refl
-
 {- Definition of contextual categories as algebras of an essentially algebraic theory -}
 
 record CCat : Set₁ where
@@ -43,18 +34,18 @@ record CCat : Set₁ where
     -- s
     ss  : (f : Mor m (suc n)) → Mor m (suc m)
     ss₀ : {f : Mor m (suc n)} → ∂₀ (ss f) ≡ ∂₀ f
-    ss₁ : {f : Mor m (suc n)} → ∂₁ (ss f) ≡ star (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)
+    .ss₁ : {f : Mor m (suc n)} → ∂₁ (ss f) ≡ star (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)
     -- terminal object
     pt : Ob 0
     pt-unique : (X : Ob 0) → X ≡ pt
     ptmor : Ob n → Mor n 0
     ptmor₀ : {X : Ob n} → ∂₀ (ptmor X) ≡ X
     ptmor₁ : {X : Ob n} → ∂₁ (ptmor X) ≡ pt
-    ptmor-unique : (X : Ob n) (f : Mor n 0) (p : ∂₀ f ≡ X) (q : ∂₁ f ≡ pt) → f ≡ ptmor X
+    .ptmor-unique : (X : Ob n) (f : Mor n 0) (p : ∂₀ f ≡ X) (q : ∂₁ f ≡ pt) → f ≡ ptmor X
     -- identity laws and associativity
-    id-right : {f : Mor n m} → comp (id (∂₁ f)) f (! id₀) ≡ f
-    id-left  : {f : Mor n m} {X : Ob n} {p : ∂₁ (id X) ≡ ∂₀ f} → comp f (id X) p ≡ f
-    assoc : {h : Mor k l} {g : Mor m k} {f : Mor n m} {p : ∂₁ f ≡ ∂₀ g} {q : ∂₁ g ≡ ∂₀ h} → comp (comp h g q) f (p ∙ ! comp₀) ≡ comp h (comp g f p) (comp₁ ∙ q)
+    .id-right : {f : Mor n m} → comp (id (∂₁ f)) f (! id₀) ≡ f
+    .id-left  : {f : Mor n m} → comp f (id (∂₀ f)) id₁ ≡ f
+    .assoc : {h : Mor k l} {g : Mor m k} {f : Mor n m} {p : ∂₁ f ≡ ∂₀ g} {q : ∂₁ g ≡ ∂₀ h} → comp (comp h g q) f (p ∙ ! comp₀) ≡ comp h (comp g f p) (comp₁ ∙ q)
     -- properties of star and q
     ft-star : {f : Mor m n} {X : Ob (suc n)} .{p : ∂₁ f ≡ ft X} → ft (star f X p) ≡ ∂₀ f
     pp-qq   : {f : Mor m n} {X : Ob (suc n)} .{p : ∂₁ f ≡ ft X} → comp (pp X) (qq f X p) (qq₁ ∙ ! pp₀) ≡ comp f (pp (star f X p)) (pp₁ ∙ ft-star)
@@ -73,6 +64,9 @@ module M (C : CCat) where
 
   open CCat C
 
+  .id-left' : {f : Mor n m} {X : Ob n} {p : ∂₁ (id X) ≡ ∂₀ f} → comp f (id X) p ≡ f
+  id-left' {f = f} {X} {p} = ap-irr (comp f) (ap id (! id₁ ∙ p)) ∙ id-left
+
   {- [Ty X n] represents types in a context iterated n times from X -}
 
   ft^ : (m : ℕ) → Ob (m + n) → Ob n
@@ -88,9 +82,6 @@ module M (C : CCat) where
 
   Ty : {m : ℕ} (X : Ob m) (n : ℕ) → Set
   Ty X n = TyPred X (suc n)
-
-  pair-irr-Ty : {m : ℕ} {X : Ob m} {n : ℕ} {a a' : Ob (n + m)} {b : ft^ n a ≡ X} {b' : ft^ n a' ≡ X} → a ≡ a' → (a , b) ≡ (a' , b')
-  pair-irr-Ty refl = refl
 
   ft' : {n : ℕ} {X : Ob n} → TyPred X (suc m) → TyPred X m
   ft' (Y , p) = (ft Y , p)
@@ -117,8 +108,8 @@ module M (C : CCat) where
   --
 
   .ft-star^ : {n m k : ℕ} {f : Mor m k} (X : Ty (∂₁ f) n) .(p : ft^ (suc n) (toCtx X) ≡ ∂₁ f) → ft' (star^ f X) ≡ star^ f (ft' X)
-  ft-star^ {zero}  _ _ = pair-irr-Ty ft-star
-  ft-star^ {suc n} _ _ = pair-irr-Ty (ft-star ∙ qq₀)
+  ft-star^ {zero}  _ _ = ap-irr _,_ ft-star
+  ft-star^ {suc n} _ _ = ap-irr _,_ (ft-star ∙ qq₀)
   
   {- Identity laws for the iterated star and qq operations -}
 
@@ -149,10 +140,10 @@ module M (C : CCat) where
   getTy (star^tm f s) = star^ f (getTy s)
   morTm (star^tm f s) = ss (comp (morTm s) (qq^ f (ft' (getTy s))) (qq^₁ {f = f} ∙ ! (morTm₀ s)))
   morTm₀ (star^tm f s) = (ss₀ ∙ (comp₀ ∙ qq^₀ {f = f})) ∙ ! (ap toCtx (ft-star^ (getTy s) (toCtxEq (getTy s))))
-  morTm₁ (star^tm f s) = ss₁ ∙ ap-irr2 star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ (ap-irr (λ x y → comp x (qq^ f _) y) (ap-irr (λ x y → comp (pp x) _ y) (comp₁ ∙ morTm₁ s) ∙ (eqTm s ∙ ap id (! (qq^₁ {f = f})))) ∙ id-right)) (comp₁ ∙ morTm₁ s)
+  morTm₁ (star^tm f s) = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ (ap-irr (λ x y → comp x (qq^ f _) y) (ap-irr (λ x y → comp (pp x) _ y) (comp₁ ∙ morTm₁ s) ∙ (eqTm s ∙ ap id (! (qq^₁ {f = f})))) ∙ id-right)) (comp₁ ∙ morTm₁ s)
   eqTm (star^tm f s) =
     ap-irr (λ x y → comp x (morTm (star^tm f s)) y)
-     (ap pp (ap-irr2 star (! (! (assoc {q = ! (pp₀ ∙ comp₁)})
+     (ap pp (ap2-irr star (! (! (assoc {q = ! (pp₀ ∙ comp₁)})
                               ∙ (ap-irr (λ x y → comp x (qq^ f (ft (toCtx (getTy s)) , toCtxEq (getTy s))) y)
                                  (ap-irr (λ x y → comp x (morTm s) y)
                                   (ap pp (comp₁ ∙ morTm₁ s))
@@ -167,7 +158,7 @@ module M (C : CCat) where
 
   {- Variables -}
 
-  trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F' k)
+  trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F k)
   trim last X = X
   trim (prev k) X = trim k (ft X)
 
@@ -176,8 +167,8 @@ module M (C : CCat) where
   toCtxEq (getTy (last-var X)) = ft-star ∙ pp₀
   morTm (last-var X) = ss (id X)
   morTm₀ (last-var X) = ss₀ ∙ (id₀ ∙ ! (ft-star ∙ pp₀))
-  morTm₁ (last-var X) = ss₁ ∙ ap-irr2 star (id-left ∙ ap pp id₁) id₁
-  eqTm (last-var X) = ap-irr (λ x y → comp x (ss (id X)) y) (ap pp (ap-irr2 star (! (id-left ∙ ap pp id₁)) (! id₁))) ∙ (ss-pp {f = id X} ∙ ap id (id₀ ∙ ! (ft-star ∙ pp₀)))
+  morTm₁ (last-var X) = ss₁ ∙ ap2-irr star (id-left' ∙ ap pp id₁) id₁
+  eqTm (last-var X) = ap-irr (λ x y → comp x (ss (id X)) y) (ap pp (ap2-irr star (! (id-left' ∙ ap pp id₁)) (! id₁))) ∙ (ss-pp {f = id X} ∙ ap id (id₀ ∙ ! (ft-star ∙ pp₀)))
 
   var-unweakened : {n : ℕ} (k : Fin n) (X : Ob n) → Tm (trim k X) 0
   var-unweakened last X = last-var X
@@ -201,8 +192,8 @@ module M (C : CCat) where
   getTy (substCTm X v u p) = substCTy X (getTy v) u p
   morTm (substCTm X v u p) = ss (comp (morTm v) (morTm u) (morTm₁ u ∙ (ap toCtx p ∙ ! (morTm₀ v))))
   morTm₀ (substCTm X v u p) = ss₀ ∙ (comp₀ ∙ (morTm₀ u ∙ (ap toCtx (ap ft' p) ∙ ! (ft-substCTy X (getTy v) u p))))
-  morTm₁ (substCTm X v u p) = ss₁ ∙ (star-comp pp₁ ∙ (star-comp (morTm₁ v ∙ ! (ft-star ∙ (pp₀ ∙ (comp₁ ∙ morTm₁ v)))) ∙ ap-irr (star (morTm u)) (! (star-comp {p = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))} pp₁) ∙ (ap-irr2 star (ap-irr2 comp (ap pp (comp₁ ∙ morTm₁ v)) refl ∙ eqTm v) (comp₁ ∙ morTm₁ v) ∙ star-id) ) ))
-  eqTm (substCTm X v u p) = ap-irr2 comp (ap pp (ap-irr2 star (! (! (assoc {q = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))}) ∙ (ap-irr2 comp (ap-irr2 comp (ap pp (comp₁ {p = morTm₁ u ∙ ! (morTm₀ v ∙ ! (ap toCtx p))} ∙ morTm₁ v)) refl ∙ (eqTm v ∙ ap id (! (morTm₁ u ∙ ap toCtx p)))) refl ∙ id-right))) (! (comp₁ ∙ morTm₁ v)))) refl ∙ (ss-pp {f = comp (morTm v) (morTm u) _} ∙ ap id (comp₀ ∙ (morTm₀ u ∙ ! (ft-substCTy X (getTy v) u p ∙ ! (ap ft (ap toCtx p))))))
+  morTm₁ (substCTm X v u p) = ss₁ ∙ (star-comp pp₁ ∙ (star-comp (morTm₁ v ∙ ! (ft-star ∙ (pp₀ ∙ (comp₁ ∙ morTm₁ v)))) ∙ ap-irr (star (morTm u)) (! (star-comp {p = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))} pp₁) ∙ (ap2-irr star (ap2-irr comp (ap pp (comp₁ ∙ morTm₁ v)) refl ∙ eqTm v) (comp₁ ∙ morTm₁ v) ∙ star-id) ) ))
+  eqTm (substCTm X v u p) = ap2-irr comp (ap pp (ap2-irr star (! (! (assoc {q = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))}) ∙ (ap2-irr comp (ap2-irr comp (ap pp (comp₁ {p = morTm₁ u ∙ ! (morTm₀ v ∙ ! (ap toCtx p))} ∙ morTm₁ v)) refl ∙ (eqTm v ∙ ap id (! (morTm₁ u ∙ ap toCtx p)))) refl ∙ id-right))) (! (comp₁ ∙ morTm₁ v)))) refl ∙ (ss-pp {f = comp (morTm v) (morTm u) _} ∙ ap id (comp₀ ∙ (morTm₀ u ∙ ! (ft-substCTy X (getTy v) u p ∙ ! (ap ft (ap toCtx p))))))
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -276,7 +267,7 @@ module TyTm→ {C D : CCat} (f : CCatMor C D) where
   toCtxEq (Ty→ {n = n} ty) = ! (ft^→ (suc n)) ∙ ap Ob→ (toCtxEq ty)
 
   .ft'→ : {X : Ob C n} (ty : Ty C X (suc m)) → Ty→ (ft' C ty) ≡ ft' D (Ty→ ty)
-  ft'→ ty = pair-irr-Ty D ft→
+  ft'→ ty = ap-irr _,_ ft→
 
   Tm→ : {X : Ob C m} → Tm C X n → Tm D (Ob→ X) n
   getTy (Tm→ tm) = Ty→ (getTy tm)

@@ -1,9 +1,19 @@
+Introduction
+------------
+
 A formalized proof in Agda of a version of the initiality conjecture for a type theory with
-Pi-types, a base type called U, and a dependent type called El. The notion of model is based on
-contextual categories.
+Pi-types, a base type called U, and a dependent type called El. This is work in progress.
 
-It requires a recent version of the master branch of Agda (to have the `variable` keyword and some
-issues fixed).
+It requires a quite recent version of the master branch of Agda (to have the `variable` keyword and
+some issues fixed).
 
-The file `expr.agda` contains things about the syntax and the file `contextualcat.agda` contains
-things about contextual categories.
+Files
+-----
+
+- `common.agda`: very basic definitions used everywhere
+- `quotients.agda`: quotients (postulated)
+- `syntx.agda`: raw syntax of the type theory
+- `rules.agda`: typing rules and admissible rules
+- `contextualcat.agda`: the models of the type theory and morphisms between them
+- `termmodel.agda`: the term model
+- `partialinterpretation.agda`: the partial interpretation function
