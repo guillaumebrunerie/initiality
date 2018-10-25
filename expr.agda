@@ -23,36 +23,58 @@ data TmExpr where
 
 {- Renaming -}
 
-extendRen : (Fin n → Fin m) → (Fin (suc n) → Fin (suc m))
-extendRen r last = last
-extendRen r (prev k) = prev (r k)
+-- extendRen : (Fin n → Fin m) → (Fin (suc n) → Fin (suc m))
+-- extendRen r last = last
+-- extendRen r (prev k) = prev (r k)
 
-renameTy : (r : Fin n → Fin m) → TyExpr n → TyExpr m
-renameTm : (r : Fin n → Fin m) → TmExpr n → TmExpr m
+-- renameTy : (r : Fin n → Fin m) → TyExpr n → TyExpr m
+-- renameTm : (r : Fin n → Fin m) → TmExpr n → TmExpr m
 
-renameTy r (pi A B) = pi (renameTy r A) (renameTy (extendRen r) B)
-renameTy r uu = uu
-renameTy r (el v) = el (renameTm r v)
+-- renameTy r (pi A B) = pi (renameTy r A) (renameTy (extendRen r) B)
+-- renameTy r uu = uu
+-- renameTy r (el v) = el (renameTm r v)
 
-renameTm r (var x) = var (r x)
-renameTm r (lam A B u) = lam (renameTy r A) (renameTy (extendRen r) B) (renameTm (extendRen r) u)
-renameTm r (app A B f a) = app (renameTy r A) (renameTy (extendRen r) B) (renameTm r f) (renameTm r a)
+-- renameTm r (var x) = var (r x)
+-- renameTm r (lam A B u) = lam (renameTy r A) (renameTy (extendRen r) B) (renameTm (extendRen r) u)
+-- renameTm r (app A B f a) = app (renameTy r A) (renameTy (extendRen r) B) (renameTm r f) (renameTm r a)
 
-injF : Fin (suc n) → (Fin n → Fin (suc n))
-injF last = prev
-injF {n = suc n} (prev k) = extendRen (injF k)
+-- injF : Fin (suc n) → (Fin n → Fin (suc n))
+-- injF last = prev
+-- injF {n = suc n} (prev k) = extendRen (injF k)
 
-weakenTy : TyExpr n → TyExpr (suc n)
-weakenTy = renameTy prev
+-- weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
+-- weakenTy' k = renameTy (injF k)
 
-weakenTm : TmExpr n → TmExpr (suc n)
-weakenTm = renameTm prev
+-- weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
+-- weakenTm' k = renameTm (injF k)
+
+-- weakenTy : TyExpr n → TyExpr (suc n)
+-- weakenTy = renameTy prev
+
+-- weakenTm : TmExpr n → TmExpr (suc n)
+-- weakenTm = renameTm prev
 
 weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
-weakenTy' k = renameTy (injF k)
-
 weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
-weakenTm' k = renameTm (injF k)
+weakenVar' : (k : Fin (suc n)) → Fin n → Fin (suc n)
+
+weakenTy' k (pi A B) = pi (weakenTy' k A) (weakenTy' (prev k) B)
+weakenTy' k uu = uu
+weakenTy' k (el v) = el (weakenTm' k v)
+
+weakenTm' k (var x) = var (weakenVar' k x)
+weakenTm' k (lam A B u) = lam (weakenTy' k A) (weakenTy' (prev k) B) (weakenTm' (prev k) u)
+weakenTm' k (app A B f a) = app (weakenTy' k A) (weakenTy' (prev k) B) (weakenTm' k f) (weakenTm' k a)
+
+weakenVar' last x = prev x
+weakenVar' (prev k) last = last
+weakenVar' (prev k) (prev x) = prev (weakenVar' k x)
+
+weakenTy : TyExpr n → TyExpr (suc n)
+weakenTy = weakenTy' last
+
+weakenTm : TmExpr n → TmExpr (suc n)
+weakenTm = weakenTm' last
 
 {- Substitution -}
 
@@ -84,15 +106,19 @@ data Mor (n : ℕ) : ℕ → Set where
   _,_ : {m : ℕ} → Mor n m → TmExpr n → Mor n (suc m)
 
 
-renameMor : (r : Fin n → Fin n') → Mor n m → Mor n' m
-renameMor r ◇ = ◇
-renameMor r (δ , u) = (renameMor r δ , renameTm r u)
+-- renameMor : (r : Fin n → Fin n') → Mor n m → Mor n' m
+-- renameMor r ◇ = ◇
+-- renameMor r (δ , u) = (renameMor r δ , renameTm r u)
 
-weakenMor : Mor n m → Mor (suc n) m
-weakenMor = renameMor prev
+-- weakenMor : Mor n m → Mor (suc n) m
+-- weakenMor = renameMor prev
 
 weakenMor' : (k : Fin (suc n)) → Mor n m → Mor (suc n) m
-weakenMor' k = renameMor (injF k)
+weakenMor' k ◇ = ◇
+weakenMor' k (δ , u) = (weakenMor' k δ , weakenTm' k u) -- renameMor (injF k)
+
+weakenMor : Mor n m → Mor (suc n) m
+weakenMor = weakenMor' last
 
 {- Total substitutions -}
 
