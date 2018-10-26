@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --irrelevant-projections #-}
+{-# OPTIONS --rewriting --irrelevant-projections --allow-unsolved-metas --prop #-}
 
 open import common hiding (_,_)
 
@@ -49,14 +49,14 @@ record CCat : Set₁ where
     -- properties of star and q
     ft-star : {f : Mor m n} {X : Ob (suc n)} .{p : ∂₁ f ≡ ft X} → ft (star f X p) ≡ ∂₀ f
     pp-qq   : {f : Mor m n} {X : Ob (suc n)} .{p : ∂₁ f ≡ ft X} → comp (pp X) (qq f X p) (qq₁ ∙ ! pp₀) ≡ comp f (pp (star f X p)) (pp₁ ∙ ft-star)
-    star-id : {X : Ob (suc n)} → star (id (ft X)) X id₁ ≡ X
-    qq-id : {X : Ob (suc n)} → qq (id (ft X)) X id₁ ≡ id X
-    star-comp : {m n k : ℕ} {g : Mor m k} {f : Mor n m} .{p : ∂₁ f ≡ ∂₀ g} {X : Ob (suc k)} .(q : ∂₁ g ≡ ft X) → star (comp g f p) X (comp₁ ∙ q) ≡ star f (star g X q) (p ∙ ! ft-star)
+    .star-id : {X : Ob (suc n)} → star (id (ft X)) X id₁ ≡ X
+    .qq-id : {X : Ob (suc n)} → qq (id (ft X)) X id₁ ≡ id X
+    .star-comp : {m n k : ℕ} {g : Mor m k} {f : Mor n m} {p : ∂₁ f ≡ ∂₀ g} {X : Ob (suc k)} (q : ∂₁ g ≡ ft X) → star (comp g f p) X (comp₁ ∙ q) ≡ star f (star g X q) (p ∙ ! ft-star)
     --qq-comp
     -- properties of s
     ss-pp : {m n : ℕ} {f : Mor m (suc n)} → comp (pp (star (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁))) (ss f) (ss₁ ∙ ! pp₀) ≡ id (∂₀ f)
     ss-qq : {m n : ℕ} {f : Mor m (suc n)} → f ≡ comp (qq (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)) (ss f) (ss₁ ∙ ! qq₀)
-    ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
+    .ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
 
 {- Some properties and structures on a contextual category -}
 
@@ -88,22 +88,36 @@ module M (C : CCat) where
 
   {- Definition of the iterated star and qq operations -}
 
+  star^-with-eqs : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) {Y : Ob m} (q : ∂₀ f ≡ Y) → TyPred X n → TyPred Y n
+  qq^-with-eqs    : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) (Z : TyPred X n) → Mor (n + m) (n + k)
+  .qq^₀-with-eqs  : {m n k : ℕ} {f : Mor m k} {X : Ob k} {p : ∂₁ f ≡ X} {Y : Ob m} {q : ∂₀ f ≡ Y} {Z : TyPred X n} → ∂₀ (qq^-with-eqs f p Z) ≡ toCtx (star^-with-eqs f p q Z)
+  .qq^₁-with-eqs  : {m n k : ℕ} {f : Mor m k} {X : Ob k} {p : ∂₁ f ≡ X} {Z : TyPred X n} → ∂₁ (qq^-with-eqs f p Z) ≡ toCtx Z
+
+  toCtx (star^-with-eqs {n = zero} f p {Y = Y} q (X , r)) = Y
+  toCtxEq (star^-with-eqs {n = zero} f p q (X , r)) = refl
+  toCtx (star^-with-eqs {n = suc n} f p q (X , r)) = star (qq^-with-eqs f p (ft' (X , r))) X qq^₁-with-eqs
+  toCtxEq (star^-with-eqs {n = suc n} f p q (X , r)) = ap (ft^ n) (ft-star ∙ qq^₀-with-eqs) ∙ toCtxEq (star^-with-eqs f p q (ft' (X , r)))
+
+  qq^-with-eqs {n = 0} f p (X , r) = f
+  qq^-with-eqs {n = suc n} f p (X , r) = qq (qq^-with-eqs f p (ft' (X , r))) X (qq^₁-with-eqs {Z = ft' (X , r)})
+
+  qq^₀-with-eqs {n = 0} {q = q} = q
+  qq^₀-with-eqs {n = suc n} = qq₀
+
+  qq^₁-with-eqs {n = 0} {p = p} {Z = Z} = p ∙ ! (toCtxEq Z)
+  qq^₁-with-eqs {n = suc n}     = qq₁
+
   star^ : (f : Mor m k) → TyPred (∂₁ f) n → TyPred (∂₀ f) n
+  star^ f = star^-with-eqs f refl refl
+
   qq^   : {m n k : ℕ} (f : Mor m k) (X : TyPred (∂₁ f) n) → Mor (n + m) (n + k)
+  qq^ f = qq^-with-eqs f refl
+
   .qq^₀ : {m n k : ℕ} {f : Mor m k} {X : TyPred (∂₁ f) n} → ∂₀ (qq^ f X) ≡ toCtx (star^ f X)
+  qq^₀ {f = f} {X = X} = qq^₀-with-eqs {f = f} {p = refl} {q = refl} {Z = X}
+
   .qq^₁ : {m n k : ℕ} {f : Mor m k} {X : TyPred (∂₁ f) n} → ∂₁ (qq^ f X) ≡ toCtx X
-
-  star^ {n = 0}   f (X , p) = ∂₀ f , refl
-  star^ {n = suc n} f (X , p) = (star (qq^ f (ft' (X , p))) X qq^₁) , (ap (ft^ n) (ft-star ∙ qq^₀) ∙ toCtxEq (star^ f (ft' (X , p))))
-
-  qq^ {n = 0} f (X , p) = f
-  qq^ {n = suc n} f (X , p) = qq (qq^ f (ft' (X , p))) X (qq^₁ {X = ft' (X , p)})
-
-  qq^₀ {n = 0} = refl
-  qq^₀ {n = suc n} = qq₀
-
-  qq^₁ {n = 0} {X = X} = ! (toCtxEq X)
-  qq^₁ {n = suc n} = qq₁
+  qq^₁ {f = f} {X = X} = qq^₁-with-eqs {f = f} {p = refl} {Z = X}
 
   --
 
@@ -154,7 +168,7 @@ module M (C : CCat) where
        ∙ ap id (comp₀ ∙ (qq^₀ {f = f} ∙ ! (ft-star ∙ qq^₀ {f = f}))))
 
   star^tm-with-eqs : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) {Y : Ob m} (q : ∂₀ f ≡ Y) → Tm X n → Tm Y n
-  star^tm-with-eqs f refl refl = star^tm f
+  star^tm-with-eqs = {!!} -- f reflR reflR = star^tm f
 
   {- Variables -}
 
@@ -258,7 +272,7 @@ module TyTm→ {C D : CCat} (f : CCatMor C D) where
   open CCat
   open M
   
-  ft^→ : (m : ℕ) {X : Ob C (m + n)} → Ob→ (ft^ C m X) ≡ ft^ D m (Ob→ X)
+  .ft^→ : (m : ℕ) {X : Ob C (m + n)} → Ob→ (ft^ C m X) ≡ ft^ D m (Ob→ X)
   ft^→ zero = refl
   ft^→ (suc m) = ft^→ m ∙ ap (ft^ D m) ft→
 

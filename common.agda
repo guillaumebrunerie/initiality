@@ -1,43 +1,48 @@
-{-# OPTIONS --rewriting #-}
+{-# OPTIONS --rewriting --prop #-}
 
-open import Agda.Builtin.Equality public
+open import Agda.Primitive
+open import Agda.Builtin.Equality public renaming (_≡_ to _≡R_; refl to reflR)
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_)
-open import Agda.Builtin.Unit public renaming (⊤ to Unit)
 open import Agda.Builtin.Sigma public
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
 
-{-# BUILTIN REWRITE _≡_ #-}
+{-# BUILTIN REWRITE _≡R_ #-}
+
+record Unit : Prop where
+  constructor tt
 
 infixr 42 _×_
 
-_×_ : (A B : Set) → Set
-A × B = Σ A (λ _ → B)
+record _×_ (A B : Prop) : Prop where
+  constructor _,_
+  field
+    fst : A
+    snd : B
+open _×_ public
 
 {- Irrelevant Σ-types -}
 
-record Σ' (A : Set) (B : A → Set) : Set where
+record Σ' (A : Set) (B : A → Prop) : Set where
   constructor _,_
   field
     fst' : A
     .snd' : B fst'
 open Σ' public
 
-infixr 42 _×'_
+_×R_ : (A B : Set) → Set
+A ×R B = Σ A (λ _ → B)
 
-_×'_ : (A B : Set) → Set
-A ×' B = Σ' A (λ _ → B)
+{- Operations on relevant equality proofs -}
 
-{- Operations on equality proofs -}
+!R : {A : Set} {a b : A} → a ≡R b → b ≡R a
+!R reflR = reflR
 
-! : {A : Set} {a b : A} → a ≡ b → b ≡ a
-! refl = refl
+_∙R_ : {A : Set} {a b c : A} → a ≡R b → b ≡R c → a ≡R c
+reflR ∙R reflR = reflR
 
-_∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
-refl ∙ refl = refl
-
-ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
-ap f refl = refl
+apR : {A B : Set} (f : A → B) {a b : A} → a ≡R b → f a ≡R f b
+apR f reflR = reflR
 
 {- Finite sets -}
 
@@ -54,32 +59,92 @@ suc n -F prev k = n -F k
 record Partial (A : Set) : Set₁ where
   constructor makePartial
   field
-    prop : Set
---    prop-is-prop : (a b : prop) → a ≡ b
-    inj : prop → A
+    prop : Prop
+    inj : .prop → A
 open Partial
 
+record UnitP : Prop where
+  constructor tt
+
+record ΣP (A : Prop) (B : A → Prop) : Prop where
+  constructor _,_
+  field
+    fst : A
+    snd : B fst
+open ΣP public
+
+{- Prop-valued equality -}
+infix 4 _≡P_
+data _≡P_ {l} {A : Set l} (x : A) : A → Prop where
+  reflP : x ≡P x
+
+record Setify {l} (P : Prop) : Set l where
+  constructor makeSetify
+  field
+    inside : P
+open Setify
+
+pattern refl = makeSetify reflP
+
+{- Set-valued, proof irrelevant equality -}
+infix 4 _≡_
+
+_≡_ : ∀ {l} {A : Set l} (x y : A) → Set l
+x ≡ y = Setify (x ≡P y)
+
+toS : {A : Set} {x y : A} → x ≡R y → x ≡ y
+inside (toS reflR) = reflP
+
+.ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
+inside (ap f refl) = reflP
+
+._∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
+inside (refl ∙ refl) = reflP
+
+.! : {A : Set} {a b : A} → a ≡ b → b ≡ a
+inside (! refl) = reflP
+
+_∙P_ : {A : Set} {a b c : A} → a ≡P b → b ≡P c → a ≡P c
+reflP ∙P reflP = reflP
+
+!P : {A : Set} {a b : A} → a ≡P b → b ≡P a
+!P reflP = reflP
+
 return : {A : Set} → A → Partial A
-return x = makePartial Unit {-(λ _ _ → refl)-} (λ _ → x)
+return x = makePartial UnitP (λ _ → x)
 
 _>>=_ : {A B : Set} → Partial A → (A → Partial B) → Partial B
-prop (a >>= f) = Σ (prop a) (λ x → prop (f (inj a x)))
---prop-is-prop (a >>= f) (a₀ , b₀) (a₁ , b₁) = {!!}
+prop (a >>= f) = ΣP (prop a) (λ x → prop (f (inj a x)))
 inj (a >>= f) (a₀ , b₀) = inj (f (inj a a₀)) b₀
 
-assume : (P : Set) → Partial P
-assume p = makePartial p (λ x → x)
+toSetify : ∀ {l} {P : Prop} → .P → Setify {l} P
+Setify.inside (toSetify x) = x
+
+assume : (P : Prop) → Partial (Setify {lzero} P)
+assume p = makePartial p toSetify
 
 {- Helper functions for irrelevance -}
 
-ap-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
-ap-irr f refl = refl
+.ap-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
+inside (ap-irr f refl) = reflP
 
-ap-irr2 : {A D : Set} {B : A → Set} {C : (a : A) .(_ : B a) → Set} (f : (a : A) .(b : B a) .(c : C a b) → D) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} .{c : C a b} .{c' : C a' b'} → f a b c ≡ f a' b' c'
-ap-irr2 f refl = refl
+.apP-irr : {A C : Set} {B : A → Prop} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
+inside (apP-irr f refl) = reflP
 
-ap2-irr : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
-ap2-irr f refl refl = refl
+apR-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡R a') .{b : B a} .{b' : B a'} → f a b ≡R f a' b'
+apR-irr f reflR = reflR
+
+.ap-irr2 : {A D : Set} {B : A → Set} {C : (a : A) .(_ : B a) → Set} (f : (a : A) .(b : B a) .(c : C a b) → D) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} .{c : C a b} .{c' : C a' b'} → f a b c ≡ f a' b' c'
+inside (ap-irr2 f refl) = reflP
+
+.apP-irr2 : {A D : Set} {B : A → Prop} {C : (a : A) .(_ : B a) → Prop} (f : (a : A) .(b : B a) .(c : C a b) → D) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} .{c : C a b} .{c' : C a' b'} → f a b c ≡ f a' b' c'
+inside (apP-irr2 f refl) = reflP
+
+.ap2-irr : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
+inside (ap2-irr f refl refl) = reflP
+
+.apP2-irr : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡P f a' c' b'
+apP2-irr f refl refl = reflP
 
 {- Generalized variables -}
 

@@ -17,3 +17,4 @@ Files
 - `contextualcat.agda`: the models of the type theory and morphisms between them
 - `termmodel.agda`: the term model
 - `partialinterpretation.agda`: the partial interpretation function
+- `totality.agda`: totality of the partial interpretation function
