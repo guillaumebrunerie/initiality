@@ -39,6 +39,16 @@ refl ∙ refl = refl
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
+{- Natural numbers -}
+
+_++ℕ_ : ℕ → ℕ → ℕ
+n ++ℕ 0 = n
+n ++ℕ suc m = suc n ++ℕ m
+
++-assoc : ∀ m n o → (m + n) + o ≡ m + (n + o)
++-assoc 0 _ _ = refl
++-assoc (suc m) n o = ap suc (+-assoc m n o)
+
 {- Finite sets -}
 
 data Fin : ℕ → Set where
@@ -48,6 +58,13 @@ data Fin : ℕ → Set where
 _-F_ : (n : ℕ) (k : Fin n) → ℕ
 n -F last = n
 suc n -F prev k = n -F k
+
+_++F_ : ∀ {n : ℕ} (k : Fin n) m → Fin (n ++ℕ m)
+k ++F 0 = k
+k ++F suc m = prev k ++F m
+
+trFin : ∀ {n m} → n ≡ m → Fin n → Fin m
+trFin refl x = x
 
 {- Partiality monad -}
 
