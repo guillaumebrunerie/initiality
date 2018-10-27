@@ -372,9 +372,8 @@ var++Tm k 0 = refl
 var++Tm k (suc m) = var++Tm (prev k) m
 
 var[idGen]Tm : ∀ (k : Fin n) m → var k [ idMorGen n m ]Tm ≡ var k ++Tm m
-var[idGen]Tm {n = 0} () _
-var[idGen]Tm {n = suc n} last m = var++Tm last m
-var[idGen]Tm {n = suc n} (prev k) m = var[idGen]Tm k (suc m)
+var[idGen]Tm last m = var++Tm last m
+var[idGen]Tm (prev k) m = var[idGen]Tm k (suc m)
 
 {- ultimate dark induction magic -}
 
@@ -390,17 +389,13 @@ weakenTm'' l₀ l₁ (var x) = var (weakenVar'' l₀ l₁ x)
 weakenTm'' l₀ l₁ (lam A B u) = lam (weakenTy'' l₀ l₁ A) (weakenTy'' (suc l₀) l₁ B) (weakenTm'' (suc l₀) l₁ u)
 weakenTm'' l₀ l₁ (app A B f a) = app (weakenTy'' l₀ l₁ A) (weakenTy'' (suc l₀) l₁ B) (weakenTm'' l₀ l₁ f) (weakenTm'' l₀ l₁ a)
 
-weakenVar'' 0 0 v = prev v
-weakenVar'' 0 (suc l₁) last = last
-weakenVar'' 0 (suc l₁) (prev v) = prev (weakenVar'' 0 l₁ v)
+weakenVar'' 0 l v = weakenVar' l v
 weakenVar'' (suc l₀) l₁ last = last
 weakenVar'' (suc l₀) l₁ (prev v) = prev (weakenVar'' l₀ l₁ v)
 
 weakenVar'WeakenVar'' : ∀ l₀ l₁ (v : Fin (l₀ + (l₁ + n)))
   → weakenTm' l₀ (weakenTm'' l₀ l₁ (var v)) ≡ weakenTm'' l₀ (suc l₁) (weakenTm' l₀ (var v))
-weakenVar'WeakenVar'' 0 0 v = refl
-weakenVar'WeakenVar'' 0 (suc l₁) last = refl
-weakenVar'WeakenVar'' 0 (suc l₁) (prev v) = ap weakenTm (weakenVar'WeakenVar'' 0 l₁ v)
+weakenVar'WeakenVar'' 0 l v = refl
 weakenVar'WeakenVar'' (suc l₀) l₁ last = refl
 weakenVar'WeakenVar'' (suc l₀) l₁ (prev v) = ap weakenTm (weakenVar'WeakenVar'' l₀ l₁ v)
 
