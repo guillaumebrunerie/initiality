@@ -1,4 +1,4 @@
-{-# OPTIONS --irrelevant-projections --rewriting --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --allow-unsolved-metas --prop #-}
 
 open import common
 open import contextualcat
@@ -40,8 +40,11 @@ MorS n m = DMor n m // MorEquiv n m
 ∂₀S : {n m : ℕ} → MorS n m → ObS n
 ∂₀S = //-rec (ObS _) (λ {((Γ , _), _) → proj Γ}) (λ _ _ r → eq (fst (fst r)))
 
+∂₁S-// : DMor n m → ObS m
+∂₁S-// ((_ , Δ), _) = proj Δ
+
 ∂₁S : {n m : ℕ} → MorS n m → ObS m
-∂₁S = //-rec (ObS _) (λ {((_ , Δ), _) → proj Δ}) (λ _ _ r → eq (snd (fst r)))
+∂₁S = //-rec (ObS _) ∂₁S-// (λ _ _ r → eq (snd (fst r)))
 
 idS-u : (n : ℕ) → DCtx n → DMor n n
 idS-u n (Γ , dΓ) = (((Γ , dΓ) , (Γ , dΓ)) , (idMor n , idMorDerivable dΓ))
@@ -106,10 +109,10 @@ ptS = proj (◇ , tt)
 ptmorS : (X : ObS n) → MorS n 0
 ptmorS = //-rec _ (λ Γ → proj ((Γ , (◇ , tt)) , (◇ , tt))) (λ a b r → eq ((r , tt) , tt))
 
-.ptmor-uniqueS-// : (X : DCtx n) (f : DMor n 0) (p : ∂₀S (proj f) ≡ proj X) (q : ∂₁S (proj f) ≡ ptS) → proj f ≡ ptmorS (proj X)
+ptmor-uniqueS-// : (X : DCtx n) (f : DMor n 0) (p : ∂₀S (proj f) ≡ proj X) (q : ∂₁S (proj f) ≡ ptS) → proj f ≡ ptmorS (proj X)
 ptmor-uniqueS-// X ((Γ , (◇ , tt)), (◇ , tt)) p q = eq ((reflect p , tt) , tt)
 
-.ptmor-uniqueS : (X : ObS n) (f : MorS n 0) (p : ∂₀S f ≡ X) (q : ∂₁S f ≡ ptS) → f ≡ ptmorS X
+ptmor-uniqueS : (X : ObS n) (f : MorS n 0) (p : ∂₀S f ≡ X) (q : ∂₁S f ≡ ptS) → f ≡ ptmorS X
 ptmor-uniqueS = //-elimPiCstIdIdId ptmor-uniqueS-//
 
 .id-rightS-// : (f : DMor n m) → compS (idS m (∂₁S (proj f))) (proj f) (! (id₀S m (∂₁S (proj f)))) ≡ (proj f)
@@ -144,7 +147,7 @@ starS = //-elimPiCstIdCst starS-// #TODO#
 qqS-// : (f : DMor m n) (X : DCtx (suc n)) .(_ : ∂₁S (proj f) ≡ ftS (proj X)) → MorS (suc m) (suc n)
 qqS-// f@(((Γ , dΓ), (Δ' , dΔ')) , (δ , dδ)) X@((Δ , A) , (dΔ , dA)) p = proj ((starS-//-u f X p , X) , ((weakenMor δ , var last) , ((WeakMor (ConvMor dδ (CtxRefl dΓ) (reflect p))) , aux)))  where
   .aux : Derivable ((Γ , (A [ δ ]Ty)) ⊢ var last :> (A [ weakenMor δ ]Ty))
-  aux = congTm (weaken[]Ty A δ last) (VarRule last (WeakTy (SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflect p)))))
+  aux = congTm (weaken[]Ty A δ last) reflR (VarRule last (WeakTy (SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflect p)))))
 
 qqS : (f : MorS m n) (X : ObS (suc n)) .(_ : ∂₁S f ≡ ftS X) → MorS (suc m) (suc n)
 qqS = //-elimPiCstIdCst qqS-// #TODO#
@@ -162,14 +165,14 @@ qq₁S : (f : MorS m n) (X : ObS (suc n)) .(p : ∂₁S f ≡ ftS X) → ∂₁S
 qq₁S = //-elimPiCstIdId qq₁S-//
 
 ssS-//-u : (f : DMor m (suc n)) → DMor m (suc m)
-ssS-//-u {m = m} f@(((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) = pair-DMor (idS-u m (Γ , dΓ)) (SubstTy dB dδ) (congTm (!R ([idMor]Ty _)) du)
+ssS-//-u {m = m} f@(((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) = pair-DMor (idS-u m (Γ , dΓ)) (SubstTy dB dδ) (congTm (!R ([idMor]Ty _)) reflR du)
 
 ssS-// : (f : DMor m (suc n)) → MorS m (suc m)
 ssS-// f = proj (ssS-//-u f)
 
 ssS-eq : (f f' : DMor m (suc n)) (_ : EquivRel._≃_ (MorEquiv m (suc n)) f f') → ssS-// f ≡ ssS-// f'
-ssS-eq {m = m} f@(((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) f'@(((Γ' , dΓ'), ((Δ' , B'), (dΔ' , dB'))), ((δ' , u'), (dδ' , du'))) p@((dΓ= , (dΔ= , dB=)) , (dδ= , du=))
-  = eq {a = ssS-//-u f} {b = ssS-//-u f'} ((dΓ= , (dΓ= , (SubstTySubstEq dB= dδ=))) , (MorRefl (idMorDerivable dΓ) , congTmEq (!R ([idMor]Ty _)) du=))
+ssS-eq {m = m} f@(((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) f'@(((Γ' , dΓ'), ((Δ' , B'), (dΔ' , dB'))), ((δ' , u'), (dδ' , du'))) p@((dΓ= , (dΔ= , dB , dB' , dB=)) , (dδ= , du=))
+  = eq {a = ssS-//-u f} {b = ssS-//-u f'} ((dΓ= , (dΓ= , SubstTy dB dδ , SubstTy dB' dδ' , (SubstTySubstEq dB= dδ=))) , (MorRefl (idMorDerivable dΓ) , congTmEq (!R ([idMor]Ty _)) du=))
 
 ssS : (f : MorS m (suc n)) → MorS m (suc m)
 ssS {n = n} = //-rec _ ssS-// ssS-eq
@@ -178,7 +181,7 @@ ss₀S : (f : MorS m (suc n)) → ∂₀S (ssS f) ≡ ∂₀S f
 ss₀S = //-elimId _ _ (λ {(((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) → refl})
 
 .ss₁S-// : (f : DMor m (suc n)) → ∂₁S (ssS (proj f)) ≡ starS (compS (ppS (∂₁S (proj f))) (proj f) (! (pp₀S _))) (∂₁S (proj f)) (comp₁S (ppS (∂₁S (proj f))) (proj f) (! (pp₀S _)) ∙ pp₁S (∂₁S (proj f)))
-ss₁S-// (((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) = apP-irr (λ x z → proj (x , z)) (ap (λ γ → (Γ , B [ γ ]Ty)) (! (toS (weakenidMor[]Mor δ u))))
+ss₁S-// (((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) = apP-irr (λ x z → proj ((Γ , B [ x ]Ty) , z)) (! (toS (weakenidMor[]Mor δ u)))
 
 .ss₁S : (f : MorS m (suc n)) → ∂₁S (ssS f) ≡ starS (compS (ppS (∂₁S f)) f (! (pp₀S _))) (∂₁S f) (comp₁S (ppS (∂₁S f)) f (! (pp₀S _)) ∙ pp₁S (∂₁S f))
 ss₁S = //-elimId _ _ ss₁S-//
@@ -199,7 +202,7 @@ pp-qqS = //-elimPiCstIdId pp-qqS-//
 star-idS = //-elimId _ _ (λ {((Γ , A), (dΓ , dA)) → apP-irr (λ x z → proj ((Γ , x) , z)) (toS ([idMor]Ty A))})
 
 .qq-idS : (X : ObS (suc n)) → qqS (idS n (ftS X)) X (id₁S n (ftS X)) ≡ idS (suc n) X
-qq-idS {n = n} = //-elimId _ _ (λ {((Γ , A), (dΓ , dA)) → apP-irr2 (λ x z t → (proj ((((Γ , x) , (dΓ , z)), ((Γ , A), (dΓ , dA))), ((weakenMor' last (idMor n) , var last) , t)))) (toS ([idMor]Ty A)) {b = SubstTy dA (idMorDerivable dΓ)} {b' = dA} {c = (WeakMor (idMorDerivable dΓ)) , (congTm (weaken[]Ty A (idMor n) last) (VarRule last (WeakTy (SubstTy dA (idMorDerivable dΓ)))))} {c' = (WeakMor (idMorDerivable dΓ)) , (congTm (apR weakenTy (!R ([idMor]Ty A)) ∙R weaken[]Ty A (idMor n) last) (VarRule last (WeakTy dA)))}})
+qq-idS {n = n} = //-elimId _ _ (λ {((Γ , A), (dΓ , dA)) → apP-irr2 (λ x z t → (proj ((((Γ , x) , (dΓ , z)), ((Γ , A), (dΓ , dA))), ((weakenMor' last (idMor n) , var last) , t)))) (toS ([idMor]Ty A)) {b = SubstTy dA (idMorDerivable dΓ)} {b' = dA} {c = (WeakMor (idMorDerivable dΓ)) , (congTm (weaken[]Ty A (idMor n) last) reflR (VarRule last (WeakTy (SubstTy dA (idMorDerivable dΓ)))))} {c' = (WeakMor (idMorDerivable dΓ)) , (congTm (apR weakenTy (!R ([idMor]Ty A)) ∙R weaken[]Ty A (idMor n) last) reflR (VarRule last (WeakTy dA)))}})
 
 .star-compS-// : (g : DMor m k) (f : DMor n m) (X : DCtx (suc k)) (p : ∂₁S (proj f) ≡ ∂₀S (proj g)) (q : ∂₁S (proj g) ≡ ftS (proj X)) → starS (compS (proj g) (proj f) p) (proj X) (comp₁S (proj g) (proj f) p ∙ q) ≡ starS (proj f) (starS (proj g) (proj X) q) (p ∙ ! (ft-starS (proj g) (proj X) q))
 star-compS-// ((Δd@(Δ , dΔ) , Θd) , (θ , dθ)) ((Γd@(Γ , dΓ) , Δd'@(Δ' , dΔ')) , (δ , dδ)) ((Γ' , A), (dΓ' , dA)) p q =
@@ -223,7 +226,7 @@ ss-qqS = //-elimId (λ f → f) (λ f → compS (qqS (compS (ppS (∂₁S f)) f 
 ss-compS-// : {m n k : ℕ} (U : DCtx (suc k)) (g : DMor n k) (f : DMor m (suc n)) (g₁ : ∂₁S (proj g) ≡ ftS (proj U)) (f₁ : ∂₁S (proj f) ≡ starS (proj g) (proj U) g₁) {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ssS (proj f) ≡ ssS (compS (qqS (proj g) (proj U) g₁) (proj f) (! (qq₀S (proj g) (proj U) g₁ ∙ ! f₁)))
 ss-compS-// U@((Θ' , C), (dΘ' , dC)) g@(((Δ' , dΔ'), (Θ , dΘ)), (θ , dθ)) f@(((Γ , dΓ), ((Δ , B), (dΔ , dB))), ((δ , u), (dδ , du))) g₁ f₁ = {!!}
 
-.ss-compS : {m n k : ℕ} (U : ObS (suc k)) (g : MorS n k) (f : MorS m (suc n)) (g₁ : ∂₁S g ≡ ftS U) (f₁ : ∂₁S f ≡ starS g U g₁) {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ssS f ≡ ssS (compS (qqS g U g₁) f (! (qq₀S g U g₁ ∙ ! f₁)))
+ss-compS : {m n k : ℕ} (U : ObS (suc k)) (g : MorS n k) (f : MorS m (suc n)) (g₁ : ∂₁S g ≡ ftS U) (f₁ : ∂₁S f ≡ starS g U g₁) {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ssS f ≡ ssS (compS (qqS g U g₁) f (! (qq₀S g U g₁ ∙ ! f₁)))
 ss-compS = //-elimPiCstCstIdIdId ss-compS-//
 
 {- The syntactic model itself -}

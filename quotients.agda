@@ -1,4 +1,4 @@
-{-# OPTIONS --irrelevant-projections --rewriting --prop #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common
 
@@ -7,9 +7,9 @@ open import common
 record EquivRel (A : Set) : Set₁ where
   field
     _≃_ : A → A → Prop
-    .ref : (a : A) → a ≃ a
-    .sym : {a b : A} → a ≃ b → b ≃ a
-    .tra : {a b c : A} → a ≃ b → b ≃ c → a ≃ c
+    ref : (a : A) → a ≃ a
+    sym : {a b : A} → a ≃ b → b ≃ a
+    tra : {a b c : A} → a ≃ b → b ≃ c → a ≃ c
 
 {- Function extensionality -}
 

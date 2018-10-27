@@ -1,4 +1,4 @@
-{-# OPTIONS --irrelevant-projections --rewriting --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --allow-unsolved-metas #-}
  
 open import common renaming (_≡R_ to _≡_; reflR to refl; apR to ap; !R to !; _∙R_ to _∙_) hiding (_≡_; refl; ap; !; _∙_)
 open import Agda.Builtin.Size
@@ -185,8 +185,9 @@ trGTy n u k A refl x = x
 weakenTyCommutes : {n : ℕ} (k : Fin (suc n)) (A : TyExpr n) → weakenTy' last (weakenTy' k A) ≡ weakenTy' (prev k) (weakenTy' last A)
 weakenTyCommutes {n = n} k A = trGTy n (n + 0) k A (n+0 n) (weakenCommutesTy' 0 k (trTyExpr (! (n+0 n)) A))
 
--- weakenMorCommutes : {n : ℕ} (k : Fin (suc n)) (A : Mor n m) → weakenMor' last (weakenMor' k A) ≡ weakenMor' (prev k) (weakenMor' last A)
--- weakenMorCommutes {n = n} k A = trGTy n (n + 0) k A (n+0 n) (weakenCommutesTy' 0 k (trTyExpr (! (n+0 n)) A))
+postulate
+  weakenMorCommutes : {n : ℕ} (k : Fin (suc n)) (A : Mor n m) → weakenMor' last (weakenMor' k A) ≡ weakenMor' (prev k) (weakenMor' last A)
+--weakenMorCommutes {n = n} k A = ?
 
 -- weakenMor^ : (k : ℕ) (δ : Mor n m) → Mor (k + n) m
 -- weakenMor^ k ◇ = ◇
@@ -204,18 +205,17 @@ weakenTyCommutes {n = n} k A = trGTy n (n + 0) k A (n+0 n) (weakenCommutesTy' 0 
 
 {- Properties of substitution and weakening -}
 
-postulate
-  weaken[]Ty : (A : TyExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTy' k (A [ δ ]Ty) ≡ A [ weakenMor' k δ ]Ty
-  weaken[]Tm : (u : TmExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTm' k (u [ δ ]Tm) ≡ u [ weakenMor' k δ ]Tm
+weaken[]Ty : (A : TyExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTy' k (A [ δ ]Ty) ≡ A [ weakenMor' k δ ]Ty
+weaken[]Tm : (u : TmExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTm' k (u [ δ ]Tm) ≡ u [ weakenMor' k δ ]Tm
 
--- weaken[]Ty (pi A B) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ = refl
--- weaken[]Ty uu δ k = refl
--- weaken[]Ty (el v) δ k rewrite weaken[]Tm v δ k = refl
+weaken[]Ty (pi A B) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ = refl
+weaken[]Ty uu δ k = refl
+weaken[]Ty (el v) δ k rewrite weaken[]Tm v δ k = refl
 
--- weaken[]Tm (var last) (δ , u) k = refl
--- weaken[]Tm (var (prev x)) (δ , u) k = weaken[]Tm (var x) δ k
--- weaken[]Tm (lam A B u) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ | weaken[]Tm u (weakenMor δ , var last) (prev k) = refl
--- weaken[]Tm (app A B f a) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ | weaken[]Tm f δ k | weaken[]Tm a δ k = refl
+weaken[]Tm (var last) (δ , u) k = refl
+weaken[]Tm (var (prev x)) (δ , u) k = weaken[]Tm (var x) δ k
+weaken[]Tm (lam A B u) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ | weaken[]Tm u (weakenMor δ , var last) (prev k) = refl
+weaken[]Tm (app A B f a) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ | weaken[]Tm f δ k | weaken[]Tm a δ k = refl
 
 idMor : (n : ℕ) → Mor n n
 idMor zero = ◇
@@ -238,11 +238,12 @@ idMor (suc n) = weakenMor (idMor n) , var last
 [idMor]Mor ◇ = refl
 [idMor]Mor (δ , u) rewrite [idMor]Mor δ | [idMor]Tm u = refl
 
-.weakenidMor[]Mor : (δ : Mor m n) (u : TmExpr m) → weakenMor (idMor n) [ δ , u ]Mor ≡ δ
-weakenidMor[]Mor {zero} ◇ u = refl
-weakenidMor[]Mor {suc n} (δ , v) u = {!!}
+postulate
+  weakenidMor[]Mor : (δ : Mor m n) (u : TmExpr m) → weakenMor (idMor n) [ δ , u ]Mor ≡ δ
+-- weakenidMor[]Mor {zero} ◇ u = refl
+-- weakenidMor[]Mor {suc n} (δ , v) u = {!!}
 
-.idMor[]Mor : (δ : Mor n m) → idMor m [ δ ]Mor ≡ δ
+idMor[]Mor : (δ : Mor n m) → idMor m [ δ ]Mor ≡ δ
 idMor[]Mor {m = zero} ◇ = refl
 idMor[]Mor {m = suc m} (δ , u) rewrite weakenidMor[]Mor δ u = refl
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --irrelevant-projections --allow-unsolved-metas --prop #-}
+{-# OPTIONS --irrelevant-projections --rewriting --allow-unsolved-metas --prop #-}
 
 open import common hiding (_,_)
 
@@ -41,7 +41,7 @@ record CCat : Set₁ where
     ptmor : Ob n → Mor n 0
     ptmor₀ : {X : Ob n} → ∂₀ (ptmor X) ≡ X
     ptmor₁ : {X : Ob n} → ∂₁ (ptmor X) ≡ pt
-    .ptmor-unique : (X : Ob n) (f : Mor n 0) (p : ∂₀ f ≡ X) (q : ∂₁ f ≡ pt) → f ≡ ptmor X
+    ptmor-unique : (X : Ob n) (f : Mor n 0) (p : ∂₀ f ≡ X) (q : ∂₁ f ≡ pt) → f ≡ ptmor X
     -- identity laws and associativity
     .id-right : {f : Mor n m} → comp (id (∂₁ f)) f (! id₀) ≡ f
     .id-left  : {f : Mor n m} → comp f (id (∂₀ f)) id₁ ≡ f
@@ -56,7 +56,7 @@ record CCat : Set₁ where
     -- properties of s
     ss-pp : {m n : ℕ} {f : Mor m (suc n)} → comp (pp (star (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁))) (ss f) (ss₁ ∙ ! pp₀) ≡ id (∂₀ f)
     ss-qq : {m n : ℕ} {f : Mor m (suc n)} → f ≡ comp (qq (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)) (ss f) (ss₁ ∙ ! qq₀)
-    .ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
+    ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
 
 {- Some properties and structures on a contextual category -}
 
@@ -167,8 +167,9 @@ module M (C : CCat) where
      ∙ (ss-pp {f = comp (morTm s) (qq^ f (ft' (getTy s))) (qq^₁ {f = f} ∙ ! (morTm₀ s))}
        ∙ ap id (comp₀ ∙ (qq^₀ {f = f} ∙ ! (ft-star ∙ qq^₀ {f = f}))))
 
-  star^tm-with-eqs : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) {Y : Ob m} (q : ∂₀ f ≡ Y) → Tm X n → Tm Y n
-  star^tm-with-eqs = {!!} -- f reflR reflR = star^tm f
+  postulate
+    star^tm-with-eqs : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) {Y : Ob m} (q : ∂₀ f ≡ Y) → Tm X n → Tm Y n
+--  star^tm-with-eqs = {!!} -- f reflR reflR = star^tm f
 
   {- Variables -}
 
@@ -241,7 +242,7 @@ record StructuredCCat : Set₁ where
 
     -- Typing
     lamStrTy : {X : Ob n} {A : Ty X 0} {B : Ty X 1} {u : Tm X 1} .{p : ft' B ≡ A} .{q : getTy u ≡ B} → getTy (lamStr X A B u p q) ≡ PiStr X A B p
-    appStrTy : {n : ℕ} {X : Ob n} {A : Ty X 0} {B : Ty X 1} {u : Tm X 1} {f : Tm X 0} {a : Tm X 0} .{p : ft' B ≡ A} .{q : getTy f ≡ PiStr X A B p} .{r : getTy a ≡ A}
+    appStrTy : {n : ℕ} {X : Ob n} {A : Ty X 0} {B : Ty X 1} {f : Tm X 0} {a : Tm X 0} .{p : ft' B ≡ A} .{q : getTy f ≡ PiStr X A B p} .{r : getTy a ≡ A}
              → getTy (appStr X A B f a p q r) ≡ substCTy X B a (r ∙ ! p)
     betaStr : {n : ℕ} (X : Ob n) (A : Ty X 0) (B : Ty X 1) (u : Tm X 1) (a : Tm X 0) .(p : ft' B ≡ A) .(q : getTy u ≡ B) .(r : getTy a ≡ A)
             → appStr X A B (lamStr X A B u p q) a p lamStrTy r ≡ substCTm X u a (r ∙ ! (ap ft' q ∙ p))

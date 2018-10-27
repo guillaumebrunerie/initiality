@@ -27,7 +27,7 @@ record Σ' (A : Set) (B : A → Prop) : Set where
   constructor _,_
   field
     fst' : A
-    .snd' : B fst'
+    snd' : B fst'
 open Σ' public
 
 _×R_ : (A B : Set) → Set
@@ -57,11 +57,10 @@ suc n -F prev k = n -F k
 {- Partiality monad -}
 
 record Partial (A : Set) : Set₁ where
-  constructor makePartial
   field
-    prop : Prop
-    inj : .prop → A
-open Partial
+    isDefined : Prop
+    totalify : .isDefined → A
+open Partial public
 
 record UnitP : Prop where
   constructor tt
@@ -81,8 +80,8 @@ data _≡P_ {l} {A : Set l} (x : A) : A → Prop where
 record Setify {l} (P : Prop) : Set l where
   constructor makeSetify
   field
-    inside : P
-open Setify
+    getProp : P
+open Setify public
 
 pattern refl = makeSetify reflP
 
@@ -93,16 +92,16 @@ _≡_ : ∀ {l} {A : Set l} (x y : A) → Set l
 x ≡ y = Setify (x ≡P y)
 
 toS : {A : Set} {x y : A} → x ≡R y → x ≡ y
-inside (toS reflR) = reflP
+getProp (toS reflR) = reflP
 
-.ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
-inside (ap f refl) = reflP
+ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
+getProp (ap f refl) = reflP
 
-._∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
-inside (refl ∙ refl) = reflP
+_∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
+getProp (refl ∙ refl) = reflP
 
-.! : {A : Set} {a b : A} → a ≡ b → b ≡ a
-inside (! refl) = reflP
+! : {A : Set} {a b : A} → a ≡ b → b ≡ a
+getProp (! refl) = reflP
 
 _∙P_ : {A : Set} {a b c : A} → a ≡P b → b ≡P c → a ≡P c
 reflP ∙P reflP = reflP
@@ -111,37 +110,39 @@ reflP ∙P reflP = reflP
 !P reflP = reflP
 
 return : {A : Set} → A → Partial A
-return x = makePartial UnitP (λ _ → x)
+isDefined (return x) = UnitP
+totalify (return x) tt = x
 
 _>>=_ : {A B : Set} → Partial A → (A → Partial B) → Partial B
-prop (a >>= f) = ΣP (prop a) (λ x → prop (f (inj a x)))
-inj (a >>= f) (a₀ , b₀) = inj (f (inj a a₀)) b₀
+isDefined (a >>= f) = ΣP (isDefined a) (λ x → isDefined (f (totalify a x)))
+totalify (a >>= f) (a₀ , b₀) = totalify (f (totalify a a₀)) b₀
 
 toSetify : ∀ {l} {P : Prop} → .P → Setify {l} P
-Setify.inside (toSetify x) = x
+getProp (toSetify x) = x
 
 assume : (P : Prop) → Partial (Setify {lzero} P)
-assume p = makePartial p toSetify
+isDefined (assume p) = p
+totalify (assume p) = toSetify
 
 {- Helper functions for irrelevance -}
 
 .ap-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
-inside (ap-irr f refl) = reflP
+getProp (ap-irr f refl) = reflP
 
-.apP-irr : {A C : Set} {B : A → Prop} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
-inside (apP-irr f refl) = reflP
+apP-irr : {A C : Set} {B : A → Prop} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} → f a b ≡ f a' b'
+getProp (apP-irr f refl) = reflP
 
 apR-irr : {A C : Set} {B : A → Set} (f : (a : A) .(b : B a) → C) {a a' : A} (p : a ≡R a') .{b : B a} .{b' : B a'} → f a b ≡R f a' b'
 apR-irr f reflR = reflR
 
 .ap-irr2 : {A D : Set} {B : A → Set} {C : (a : A) .(_ : B a) → Set} (f : (a : A) .(b : B a) .(c : C a b) → D) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} .{c : C a b} .{c' : C a' b'} → f a b c ≡ f a' b' c'
-inside (ap-irr2 f refl) = reflP
+getProp (ap-irr2 f refl) = reflP
 
 .apP-irr2 : {A D : Set} {B : A → Prop} {C : (a : A) .(_ : B a) → Prop} (f : (a : A) .(b : B a) .(c : C a b) → D) {a a' : A} (p : a ≡ a') .{b : B a} .{b' : B a'} .{c : C a b} .{c' : C a' b'} → f a b c ≡ f a' b' c'
-inside (apP-irr2 f refl) = reflP
+getProp (apP-irr2 f refl) = reflP
 
 .ap2-irr : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
-inside (ap2-irr f refl refl) = reflP
+getProp (ap2-irr f refl refl) = reflP
 
 .apP2-irr : {A C D : Set} {B : A → C → Set} (f : (a : A) (c : C) .(b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡P f a' c' b'
 apP2-irr f refl refl = reflP
