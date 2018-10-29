@@ -1,4 +1,4 @@
-{-# OPTIONS --irrelevant-projections --allow-unsolved-metas #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 
 open import common
 open import syntx
@@ -12,11 +12,11 @@ open M ccat
 
 {- Helper functions -}
 
-shift : {X : Ob n} {X' : Ob (suc n)} .(p : ft X' ≡ X) → Ty X' 0 → Ty X 1
+shift : {X : Ob n} {X' : Ob (suc n)} (p : ft X' ≡ X) → Ty X' 0 → Ty X 1
 toCtx (shift p T) = toCtx T
 toCtxEq (shift p T) = ap ft (toCtxEq T) ∙ p
 
-shiftTm : {X : Ob n} {X' : Ob (suc n)} .(p : ft X' ≡ X) → Tm X' 0 → Tm X 1
+shiftTm : {X : Ob n} {X' : Ob (suc n)} (p : ft X' ≡ X) → Tm X' 0 → Tm X 1
 getTy (shiftTm p t) = shift p (getTy t)
 morTm (shiftTm p t) = morTm t
 morTm₀ (shiftTm p t) = morTm₀ t
@@ -44,8 +44,8 @@ eqTm (shiftTm p t) = eqTm t
 ⟦ uu ⟧ty X = return (UUStr X)
 ⟦ el v ⟧ty X = do
   [v] ← ⟦ v ⟧tm X
-  vTy ← assume (getTy [v] ≡P UUStr X)
-  return (ElStr X [v] vTy)
+  vTy ← assume (getTy [v] ≡ UUStr X)
+  return (ElStr X [v] (vTy .unbox))
 
 ⟦ var x ⟧tm X = return (M.var ccat x X)
 ⟦ lam A B u ⟧tm X = do
@@ -53,23 +53,23 @@ eqTm (shiftTm p t) = eqTm t
   [B] ← ⟦ B ⟧ty ([A] .toCtx)
   [u] ← ⟦ u ⟧tm ([A] .toCtx)
 
-  uTy ← assume (getTy [u] ≡P [B])
-  return (lamStr X [A] (shift (toCtxEq [A]) [B]) (shiftTm (toCtxEq [A]) [u]) (ap-irr _,_ (toCtxEq [B])) (ap (shift (toCtxEq [A])) uTy))
+  uTy ← assume (getTy [u] ≡ [B])
+  return (lamStr X [A] (shift (toCtxEq [A]) [B]) (shiftTm (toCtxEq [A]) [u]) (ap-irr _,_ (toCtxEq [B])) (ap (shift (toCtxEq [A])) (uTy .unbox)))
 ⟦ app A B f a ⟧tm X = do
   [A] ← ⟦ A ⟧ty X
   [B] ← ⟦ B ⟧ty ([A] .toCtx)
   [f] ← ⟦ f ⟧tm X
   [a] ← ⟦ a ⟧tm X
 
-  fTy ← assume (getTy [f] ≡P PiStr X [A] (shift (toCtxEq [A]) [B]) (ap-irr _,_ (toCtxEq [B])))
-  aTy ← assume (getTy [a] ≡P [A])
-  return (appStr X [A] (shift (toCtxEq [A]) [B]) [f] [a] (ap-irr _,_ (toCtxEq [B])) fTy aTy)
+  fTy ← assume (getTy [f] ≡ PiStr X [A] (shift (toCtxEq [A]) [B]) (ap-irr _,_ (toCtxEq [B])))
+  aTy ← assume (getTy [a] ≡ [A])
+  return (appStr X [A] (shift (toCtxEq [A]) [B]) [f] [a] (ap-irr _,_ (toCtxEq [B])) (fTy .unbox) (aTy .unbox))
      
 ⟦ ◇ ⟧mor X Y = return (ptmor X)
 ⟦ δ , u ⟧mor X Y = do
   [δ] ← ⟦ δ ⟧mor X (ft Y)
   [u] ← ⟦ u ⟧tm X
   
-  ∂₁δ ← assume (∂₁ [δ] ≡P ft Y)
-  uTy ← assume (∂₁ (morTm [u]) ≡P ∂₀ (qq [δ] Y ∂₁δ))
-  return (comp (qq [δ] Y ∂₁δ) (morTm [u]) uTy)
+  ∂₁δ ← assume (∂₁ [δ] ≡ ft Y)
+  uTy ← assume (∂₁ (morTm [u]) ≡ ∂₀ (qq [δ] Y (∂₁δ .unbox)))
+  return (comp (qq [δ] Y (∂₁δ .unbox)) (morTm [u]) (uTy .unbox))

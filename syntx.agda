@@ -1,6 +1,7 @@
-{-# OPTIONS --rewriting --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --allow-unsolved-metas --prop --no-termination-check #-}
+-- The flag --no-termination-check is enabled because of issue #3332
  
-open import common renaming (_≡R_ to _≡_; reflR to refl; apR to ap; !R to !; _∙R_ to _∙_) hiding (_≡_; refl; ap; !; _∙_)
+open import common
 open import Agda.Builtin.Size
 
 {- Syntax of term- and type-expressions, using de Bruijn indices -}
@@ -56,7 +57,7 @@ weakenTm = weakenTm' last
 
 weakenMor' : (k : Fin (suc n)) → Mor n m → Mor (suc n) m
 weakenMor' k ◇ = ◇
-weakenMor' k (δ , u) = (weakenMor' k δ , weakenTm' k u) -- renameMor (injF k)
+weakenMor' k (δ , u) = (weakenMor' k δ , weakenTm' k u)
 
 weakenMor : Mor n m → Mor (suc n) m
 weakenMor = weakenMor' last
@@ -103,91 +104,103 @@ _[_]Mor : {n m k : ℕ} → Mor n k → (δ : Mor m n) → Mor m k
 
 {- Weakening commutes with weakening -}
 
-n+0 : (n : ℕ) → n + 0 ≡ n
-n+0 0 = refl
-n+0 (suc n) = ap suc (n+0 n)
+n+0 : (n : ℕ) → (n + 0) ≡R n
+n+0 0 = reflR
+n+0 (suc n) = apR suc (n+0 n)
 
-n+suc : (n m : ℕ) → n + suc m ≡ suc (n + m)
-n+suc 0 m = refl
-n+suc (suc n) m = ap suc (n+suc n m)
+n+suc : (n m : ℕ) → (n + suc m) ≡R suc (n + m)
+n+suc 0 m = reflR
+n+suc (suc n) m = apR suc (n+suc n m)
 
-trFin : (n ≡ m) → Fin n → Fin m
-trFin refl x = x
+trFin : (n ≡R m) → Fin n → Fin m
+trFin reflR x = x
 
 prev^ : (m : ℕ) → Fin (suc n) → Fin (suc (n + m))
-prev^ {n = n} zero k = trFin (ap suc (! (n+0 n))) k
-prev^ {n = n} (suc m) k = trFin (ap suc (! (n+suc n m))) (prev (prev^ m k))
+prev^ {n = n} zero k = trFin (apR suc (!R (n+0 n))) k
+prev^ {n = n} (suc m) k = trFin (apR suc (!R (n+suc n m))) (prev (prev^ m k))
 
-trTyExpr : (n ≡ m) → TyExpr {i} n → TyExpr {i} m
-trTyExpr refl x = x
+trTyExpr : (n ≡R m) → TyExpr {i} n → TyExpr {i} m
+trTyExpr reflR x = x
 
-FTy : (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (suc (n + m))) (p : u ≡ suc (n + m)) → Set
+FTy : (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (suc (n + m))) (p : u ≡R suc (n + m)) → Prop
 FTy n m u k A p =
-  weakenTy' (trFin (ap suc (! (ap suc p))) (prev (prev^ m last))) (weakenTy' (trFin (ap suc (! p)) (prev (prev^ m k))) (trTyExpr (! p) A)) ≡
-  weakenTy' (trFin (ap suc (! (ap suc p))) (prev (prev^ m (prev k)))) (weakenTy' (trFin (ap suc (! p)) (prev (prev^ m last))) (trTyExpr ((! p)) A))
+  weakenTy' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m last))) (weakenTy' (trFin (apR suc (!R p)) (prev (prev^ m k))) (trTyExpr (!R p) A)) ≡
+  weakenTy' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m (prev k)))) (weakenTy' (trFin (apR suc (!R p)) (prev (prev^ m last))) (trTyExpr ((!R p)) A))
 
-trFTy : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr (suc (n + m))) (p : u ≡ suc (n + m)) → FTy {i} n m u k A p → FTy {i} n m (suc (n + m)) k A refl
-trFTy n m u k A refl x = x
+trFTy : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr (suc (n + m))) (p : u ≡R suc (n + m)) → FTy {i} n m u k A p → FTy {i} n m (suc (n + m)) k A reflR
+trFTy n m u k A reflR x = x
 
-trTmExpr : (n ≡ m) → TmExpr {i} n → TmExpr {i} m
-trTmExpr refl x = x
+trTmExpr : (n ≡R m) → TmExpr {i} n → TmExpr {i} m
+trTmExpr reflR x = x
 
-FTm : (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (suc (n + m))) (p : u ≡ suc (n + m)) → Set
+FTm : (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (suc (n + m))) (p : u ≡R suc (n + m)) → Prop
 FTm n m u k A p =
-  weakenTm' (trFin (ap suc (! (ap suc p))) (prev (prev^ m last))) (weakenTm' (trFin (ap suc (! p)) (prev (prev^ m k))) (trTmExpr (! p) A)) ≡
-  weakenTm' (trFin (ap suc (! (ap suc p))) (prev (prev^ m (prev k)))) (weakenTm' (trFin (ap suc (! p)) (prev (prev^ m last))) (trTmExpr ((! p)) A))
+  weakenTm' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m last))) (weakenTm' (trFin (apR suc (!R p)) (prev (prev^ m k))) (trTmExpr (!R p) A)) ≡
+  weakenTm' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m (prev k)))) (weakenTm' (trFin (apR suc (!R p)) (prev (prev^ m last))) (trTmExpr ((!R p)) A))
 
-trFTm : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr (suc (n + m))) (p : u ≡ suc (n + m)) → FTm {i} n m u k A p → FTm {i} n m (suc (n + m)) k A refl
-trFTm n m u k A refl x = x
+trFTm : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr (suc (n + m))) (p : u ≡R suc (n + m)) → FTm {i} n m u k A p → FTm {i} n m (suc (n + m)) k A reflR
+trFTm n m u k A reflR x = x
 
-FVar : (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡ suc (n + m)) → Set
+FVar : (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡R suc (n + m)) → Prop
 FVar n m u k A p =
-  weakenVar' (trFin (ap suc (! (ap suc p))) (prev (prev^ m last))) (weakenVar' (trFin (ap suc (! p)) (prev (prev^ m k))) (trFin (! p) A)) ≡
-  weakenVar' (trFin (ap suc (! (ap suc p))) (prev (prev^ m (prev k)))) (weakenVar' (trFin (ap suc (! p)) (prev (prev^ m last))) (trFin ((! p)) A))
+  weakenVar' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m last))) (weakenVar' (trFin (apR suc (!R p)) (prev (prev^ m k))) (trFin (!R p) A)) ≡
+  weakenVar' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m (prev k)))) (weakenVar' (trFin (apR suc (!R p)) (prev (prev^ m last))) (trFin ((!R p)) A))
 
-trFVar : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡ suc (n + m)) → FVar n m u k A p → FVar n m (suc (n + m)) k A refl
-trFVar n m u k A refl x = x
+trFVar : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡R suc (n + m)) → FVar n m u k A p → FVar n m (suc (n + m)) k A reflR
+trFVar n m u k A reflR x = x
 
-weakenCommutesTy'' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (suc (n + m))) → FTy n m (suc (n + m)) k A refl
+weakenCommutesTy'' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (suc (n + m))) → FTy n m (suc (n + m)) k A reflR
 weakenCommutesTy' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (n + m)) → weakenTy' (prev^ m last) (weakenTy' (prev^ m k) A) ≡ weakenTy' (prev^ m (prev k)) (weakenTy' (prev^ m last) A)
 
-weakenCommutesTm'' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (suc (n + m))) → FTm n m (suc (n + m)) k A refl
+weakenCommutesTm'' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (suc (n + m))) → FTm n m (suc (n + m)) k A reflR
 weakenCommutesTm' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (n + m)) → weakenTm' (prev^ m last) (weakenTm' (prev^ m k) A) ≡ weakenTm' (prev^ m (prev k)) (weakenTm' (prev^ m last) A)
 
 weakenCommutesVar' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : Fin (n + m)) → weakenVar' (prev^ m last) (weakenVar' (prev^ m k) A) ≡ weakenVar' (prev^ m (prev k)) (weakenVar' (prev^ m last) A)
 
-
-weakenCommutesTy'' {n = n} m k A = trFTy n m (n + suc m) k A (n+suc n m) (weakenCommutesTy' (suc m) k (trTyExpr (! (n+suc n m)) A))
+weakenCommutesTy'' {n = n} m k A = trFTy n m (n + suc m) k A (n+suc n m) (weakenCommutesTy' (suc m) k (trTyExpr (!R (n+suc n m)) A))
 
 weakenCommutesTy' {n = n} m k (pi A B) rewrite weakenCommutesTy' m k A | weakenCommutesTy'' {n = n} m k B = refl
 weakenCommutesTy' {n = n} m k uu = refl
 weakenCommutesTy' {n = n} m k (el v) rewrite weakenCommutesTm' m k v = refl
 
-weakenCommutesTm'' {n = n} m k A = trFTm n m (n + suc m) k A (n+suc n m) (weakenCommutesTm' (suc m) k (trTmExpr (! (n+suc n m)) A))
+weakenCommutesTm'' {n = n} m k A = trFTm n m (n + suc m) k A (n+suc n m) (weakenCommutesTm' (suc m) k (trTmExpr (!R (n+suc n m)) A))
 
 weakenCommutesTm' m k (var x) = ap var (weakenCommutesVar' m k x)
 weakenCommutesTm' m k (lam A B u) rewrite weakenCommutesTy' m k A | weakenCommutesTy'' m k B | weakenCommutesTm'' m k u = refl
 weakenCommutesTm' m k (app A B f a) rewrite weakenCommutesTy' m k A | weakenCommutesTy'' m k B | weakenCommutesTm' m k f | weakenCommutesTm' m k a = refl
 
-weakenCommutesVar' {n = n} zero k x rewrite n+0 n = refl
-weakenCommutesVar' {n = n} (suc m) k x rewrite n+suc n m with x
-... | last = refl
-... | prev x' = ap prev (weakenCommutesVar' m k x')
+weakenCommutesVar' {n = n} zero k x with n + 0 | n+0 n
+... | _ | reflR = refl
+weakenCommutesVar' {n = n} (suc m) k x with n + suc m | n+suc n m
+... | _ | reflR with x
+...   | last = refl
+...   | prev x' = ap prev (weakenCommutesVar' m k x')
 
-GTy : (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr {i} n) (p : u ≡ n) → Set
+GTy : (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr {i} n) (p : u ≡R n) → Prop
 GTy n u k A p =
-  weakenTy' (trFin (ap suc (! (ap suc p))) last) (weakenTy' (trFin (ap suc (! p)) k) (trTyExpr (! p) A)) ≡
-  weakenTy' (trFin (ap suc (! (ap suc p))) (prev k)) (weakenTy' (trFin (ap suc (! p)) last) (trTyExpr ((! p)) A))
+  weakenTy' (trFin (apR suc (!R (apR suc p))) last) (weakenTy' (trFin (apR suc (!R p)) k) (trTyExpr (!R p) A)) ≡
+  weakenTy' (trFin (apR suc (!R (apR suc p))) (prev k)) (weakenTy' (trFin (apR suc (!R p)) last) (trTyExpr ((!R p)) A))
 
-trGTy : {i : Size} (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr n) (p : u ≡ n) → GTy {i} n u k A p → GTy {i} n n k A refl
-trGTy n u k A refl x = x
+trGTy : {i : Size} (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr n) (p : u ≡R n) → GTy {i} n u k A p → GTy {i} n n k A reflR
+trGTy n u k A reflR x = x
 
 weakenTyCommutes : {n : ℕ} (k : Fin (suc n)) (A : TyExpr n) → weakenTy' last (weakenTy' k A) ≡ weakenTy' (prev k) (weakenTy' last A)
-weakenTyCommutes {n = n} k A = trGTy n (n + 0) k A (n+0 n) (weakenCommutesTy' 0 k (trTyExpr (! (n+0 n)) A))
+weakenTyCommutes {n = n} k A = trGTy n (n + 0) k A (n+0 n) (weakenCommutesTy' 0 k (trTyExpr (!R (n+0 n)) A))
 
-postulate
-  weakenMorCommutes : {n : ℕ} (k : Fin (suc n)) (A : Mor n m) → weakenMor' last (weakenMor' k A) ≡ weakenMor' (prev k) (weakenMor' last A)
---weakenMorCommutes {n = n} k A = ?
+GTm : (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr {i} n) (p : u ≡R n) → Prop
+GTm n u k A p =
+  weakenTm' (trFin (apR suc (!R (apR suc p))) last) (weakenTm' (trFin (apR suc (!R p)) k) (trTmExpr (!R p) A)) ≡
+  weakenTm' (trFin (apR suc (!R (apR suc p))) (prev k)) (weakenTm' (trFin (apR suc (!R p)) last) (trTmExpr ((!R p)) A))
+
+trGTm : {i : Size} (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr n) (p : u ≡R n) → GTm {i} n u k A p → GTm {i} n n k A reflR
+trGTm n u k A reflR x = x
+
+weakenTmCommutes : {n : ℕ} (k : Fin (suc n)) (A : TmExpr n) → weakenTm' last (weakenTm' k A) ≡ weakenTm' (prev k) (weakenTm' last A)
+weakenTmCommutes {n = n} k A = trGTm n (n + 0) k A (n+0 n) (weakenCommutesTm' 0 k (trTmExpr (!R (n+0 n)) A))
+
+weakenMorCommutes : (k : Fin (suc n)) (δ : Mor n m) → weakenMor' last (weakenMor' k δ) ≡ weakenMor' (prev k) (weakenMor' last δ)
+weakenMorCommutes {m = zero} k ◇ = refl
+weakenMorCommutes {m = suc m} k (δ , u) rewrite weakenMorCommutes k δ | weakenTmCommutes k u = refl
 
 -- weakenMor^ : (k : ℕ) (δ : Mor n m) → Mor (k + n) m
 -- weakenMor^ k ◇ = ◇
@@ -208,9 +221,9 @@ postulate
 weaken[]Ty : (A : TyExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTy' k (A [ δ ]Ty) ≡ A [ weakenMor' k δ ]Ty
 weaken[]Tm : (u : TmExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTm' k (u [ δ ]Tm) ≡ u [ weakenMor' k δ ]Tm
 
+weaken[]Ty (el v) δ k rewrite weaken[]Tm v δ k = refl
 weaken[]Ty (pi A B) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor δ , var last) (prev k) | weakenMorCommutes k δ = refl
 weaken[]Ty uu δ k = refl
-weaken[]Ty (el v) δ k rewrite weaken[]Tm v δ k = refl
 
 weaken[]Tm (var last) (δ , u) k = refl
 weaken[]Tm (var (prev x)) (δ , u) k = weaken[]Tm (var x) δ k
@@ -224,8 +237,8 @@ idMor (suc n) = weakenMor (idMor n) , var last
 [idMor]Ty : {n : ℕ} (A : TyExpr n) → A [ idMor n ]Ty ≡ A
 [idMor]Tm : {n : ℕ} (u : TmExpr n) → u [ idMor n ]Tm ≡ u
 
-[idMor]Ty (pi A B) rewrite [idMor]Ty A | [idMor]Ty B = refl
 [idMor]Ty uu = refl
+[idMor]Ty (pi A B) rewrite [idMor]Ty A | [idMor]Ty B = refl
 [idMor]Ty (el v) rewrite [idMor]Tm v = refl
 
 [idMor]Tm {n = zero} (var ())
