@@ -76,9 +76,9 @@ data Derivable where
 
   -- Rules for app
   App : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f a : TmExpr n}
-      → (dA : Derivable (Γ ⊢ A)) (dB : Derivable ((Γ , A) ⊢ B)) (df : Derivable (Γ ⊢ f :> pi A B)) (da : Derivable (Γ ⊢ a :> A)) → Derivable (Γ ⊢ app A B f a :> B [ idMor n , a ]Ty)
+      → (dA : Derivable (Γ ⊢ A)) (dB : Derivable ((Γ , A) ⊢ B)) (df : Derivable (Γ ⊢ f :> pi A B)) (da : Derivable (Γ ⊢ a :> A)) → Derivable (Γ ⊢ app A B f a :> substTy B a)
   AppCong : {n : ℕ} {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {f f' a a' : TmExpr n}
-      → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> B [ idMor n , a ]Ty)
+      → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
 
   -- Rules for UU
   UU : {Γ : Ctx n}
