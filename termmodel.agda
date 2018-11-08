@@ -38,8 +38,8 @@ EquivRel.tra (ObEquiv n) p q = CtxTran p q
 MorEquiv : (n m : ℕ) → EquivRel (DMor n m)
 EquivRel._≃_ (MorEquiv n m) (dmor (Γ , _) (Δ , _) δ _) (dmor (Γ' , _) (Δ' , _) δ' _) = ((⊢ Γ == Γ') × (⊢ Δ == Δ')) × (Γ ⊢ δ == δ' ∷> Δ)
 EquivRel.ref (MorEquiv n m) (dmor (_ , dΓ) (_ , dΔ) _ dδ) = (CtxRefl dΓ , CtxRefl dΔ) , (MorRefl dδ)
-EquivRel.sym (MorEquiv n m) {a = a} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm (der (rhs a)) δ=) Γ= Δ=
-EquivRel.tra (MorEquiv n m) {a = a} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran (der (rhs a)) δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
+EquivRel.sym (MorEquiv n m) {a = a} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm (der (lhs a)) (der (rhs a)) δ=) Γ= Δ=
+EquivRel.tra (MorEquiv n m) {a = a} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran (der (lhs a)) (der (rhs a)) δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
 
 ObS : ℕ → Set
 ObS n = DCtx n // ObEquiv n
@@ -97,10 +97,10 @@ ftS : {n : ℕ} → ObS (suc n) → ObS n
 ftS {n = n} = //-rec (ObS n) (ftS-// n) (λ {((Γ , _) , (_ , _)) ((Γ' , _) , (_ , _)) r → eq (fst r)})
 
 ppS-// : (X : DCtx (suc n)) → MorS (suc n) n
-ppS-// {n = n} Γd@((Γ , A), (dΓ , dA)) = proj (dmor Γd (Γ , dΓ) (weakenMor (idMor n)) (WeakMor (idMorDerivable dΓ)))
+ppS-// {n = n} Γd@((Γ , A), (dΓ , dA)) = proj (dmor Γd (Γ , dΓ) (weakenMor (idMor n)) (WeakMor A (idMorDerivable dΓ)))
 
 ppS-eq : (X X' : DCtx (suc n)) (_ : EquivRel._≃_ (ObEquiv (suc n)) X X') → ppS-// X ≡ ppS-// X'
-ppS-eq ((Γ , A), (dΓ , dA)) ((Γ' , A'), (dΓ' , dA')) (dΓ= , dA=) = eq (((dΓ= , dA=) , dΓ=) , (MorRefl (WeakMor (idMorDerivable dΓ))))
+ppS-eq ((Γ , A), (dΓ , dA)) ((Γ' , A'), (dΓ' , dA')) (dΓ= , dA=) = eq (((dΓ= , dA=) , dΓ=) , (MorRefl (WeakMor A (idMorDerivable dΓ))))
 
 ppS : (X : ObS (suc n)) → MorS (suc n) n
 ppS {n = n} = //-rec _ ppS-// ppS-eq
@@ -153,9 +153,9 @@ starS : (f : MorS m n) (X : ObS (suc n)) (_ : ∂₁S f ≡ ftS X) → ObS (suc 
 starS = //-elimPiCstIdCst starS-// #TODOP#
 
 qqS-// : (f : DMor m n) (X : DCtx (suc n)) (_ : ∂₁S (proj f) ≡ ftS (proj X)) → MorS (suc m) (suc n)
-qqS-// f@(dmor (Γ , dΓ) (Δ' , dΔ') δ dδ) X@((Δ , A) , (dΔ , dA)) p = proj (dmor (starS-//-u f X p) X (weakenMor δ , var last) ((WeakMor (ConvMor dδ (CtxRefl dΓ) (reflect p))) , aux))  where
+qqS-// f@(dmor (Γ , dΓ) (Δ' , dΔ') δ dδ) X@((Δ , A) , (dΔ , dA)) p = proj (dmor (starS-//-u f X p) X (weakenMor δ , var last) ((WeakMor _ (ConvMor dδ (CtxRefl dΓ) (reflect p))) , aux))  where
   aux : Derivable ((Γ , (A [ δ ]Ty)) ⊢ var last :> (A [ weakenMor δ ]Ty))
-  aux = congTm (weaken[]Ty A δ last) refl (VarRule last (WeakTy (SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflect p)))))
+  aux = congTm (weaken[]Ty A δ last) refl (VarLast (SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflect p)))) 
 
 qqS : (f : MorS m n) (X : ObS (suc n)) (_ : ∂₁S f ≡ ftS X) → MorS (suc m) (suc n)
 qqS = //-elimPiCstIdCst qqS-// #TODOP#
@@ -179,8 +179,10 @@ ssS-// : (f : DMor m (suc n)) → MorS m (suc m)
 ssS-// f = proj (ssS-//-u f)
 
 ssS-eq : (f f' : DMor m (suc n)) (_ : EquivRel._≃_ (MorEquiv m (suc n)) f f') → ssS-// f ≡ ssS-// f'
-ssS-eq {m = m} f@(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) f'@(dmor (Γ' , dΓ') ((Δ' , B'), (dΔ' , dB')) (δ' , u') (dδ' , du')) p@((dΓ= , (dΔ= , dB , dB' , dB=)) , (dδ= , du=))
-  = eq {a = ssS-//-u f} {b = ssS-//-u f'} ((dΓ= , (dΓ= , SubstTy dB dδ , SubstTy dB' dδ' , (SubstTySubstEq dB= dδ=))) , (MorRefl (idMorDerivable dΓ) , congTmEq (! ([idMor]Ty _)) du=))
+ssS-eq {m = m} f@(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) f'@(dmor (Γ' , dΓ') ((Δ' , B'), (dΔ' , dB')) (δ' , u') (dδ' , du')) p@((dΓ= , (dΔ= , dB , dB' , dB= , dB=')) , (dδ= , du=))
+  = eq {a = ssS-//-u f} {b = ssS-//-u f'} ((dΓ= , (dΓ= , SubstTy dB dδ , SubstTy dB' dδ' ,
+  (TyTran (SubstTy dB (MorEqMor2 dΓ dΔ dδ=)) (SubstTyMorEq dB dδ dδ=) (SubstTyEq dB= (MorEqMor2 dΓ dΔ dδ=))) ,
+  TyTran (SubstTy dB (ConvMor (MorEqMor2 dΓ dΔ dδ=) dΓ= (CtxRefl dΔ))) (SubstTyMorEq dB (MorEqMor1 dΓ' dΔ (ConvMorEq dδ= dΓ= (CtxRefl dΔ))) (ConvMorEq dδ= dΓ= (CtxRefl dΔ))) (SubstTyEq dB= (ConvMor (MorEqMor2 dΓ dΔ dδ=) (dΓ=) (CtxRefl dΔ))) )) , (MorRefl (idMorDerivable dΓ) , congTmEqTy (! ([idMor]Ty _)) du=))
 
 ssS : (f : MorS m (suc n)) → MorS m (suc m)
 ssS {n = n} = //-rec _ ssS-// ssS-eq
@@ -189,7 +191,7 @@ ss₀S : (f : MorS m (suc n)) → ∂₀S (ssS f) ≡ ∂₀S f
 ss₀S = //-elimId _ _ (λ {(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) → refl})
 
 ss₁S-// : (f : DMor m (suc n)) → ∂₁S (ssS (proj f)) ≡ starS (compS (ppS (∂₁S (proj f))) (proj f) (! (pp₀S _))) (∂₁S (proj f)) (comp₁S (ppS (∂₁S (proj f))) (proj f) (! (pp₀S _)) ∙ pp₁S (∂₁S (proj f)))
-ss₁S-// (dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) = ap-irr (λ x z → proj ((Γ , B [ x ]Ty) , z)) (! (weakenidMor[]Mor δ u))
+ss₁S-// (dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) = ap-irr (λ x z → proj ((Γ , B [ x ]Ty) , z)) (! (weakenMorInsert (idMor _) δ u ∙ idMor[]Mor δ))
 
 ss₁S : (f : MorS m (suc n)) → ∂₁S (ssS f) ≡ starS (compS (ppS (∂₁S f)) f (! (pp₀S _))) (∂₁S f) (comp₁S (ppS (∂₁S f)) f (! (pp₀S _)) ∙ pp₁S (∂₁S f))
 ss₁S = //-elimId _ _ ss₁S-//
@@ -210,7 +212,7 @@ star-idS : {n : ℕ} (X : ObS (suc n)) → starS (idS n (ftS X)) X (id₁S n (ft
 star-idS = //-elimId _ _ (λ {((Γ , A), (dΓ , dA)) → ap-irr (λ x z → proj ((Γ , x) , z)) ([idMor]Ty A)})
 
 qq-idS : (X : ObS (suc n)) → qqS (idS n (ftS X)) X (id₁S n (ftS X)) ≡ idS (suc n) X
-qq-idS {n = n} = //-elimId _ _ (λ {((Γ , A), (dΓ , dA)) → ap-irr2 (λ x z t → (proj (dmor ((Γ , x) , (dΓ , z)) ((Γ , A), (dΓ , dA)) (weakenMor' last (idMor n) , var last) t))) ([idMor]Ty A) {b = SubstTy dA (idMorDerivable dΓ)} {b' = dA} {c = (WeakMor (idMorDerivable dΓ)) , (congTm (weaken[]Ty A (idMor n) last) refl (VarRule last (WeakTy (SubstTy dA (idMorDerivable dΓ)))))} {c' = (WeakMor (idMorDerivable dΓ)) , (congTm (ap weakenTy (! ([idMor]Ty A)) ∙ weaken[]Ty A (idMor n) last) refl (VarRule last (WeakTy dA)))}})
+qq-idS {n = n} = //-elimId _ _ (λ {((Γ , A), (dΓ , dA)) → ap-irr2 (λ x z t → (proj (dmor ((Γ , x) , (dΓ , z)) ((Γ , A), (dΓ , dA)) (weakenMor' last (idMor n) , var last) t))) ([idMor]Ty A) {b = SubstTy dA (idMorDerivable dΓ)} {b' = dA} {c = (WeakMor (A [ idMor _ ]Ty) (idMorDerivable dΓ)) , (congTm (weaken[]Ty A (idMor n) last) refl (VarLast (congTy (! ([idMor]Ty _)) dA)))} {c' = (WeakMor A (idMorDerivable dΓ)) , (congTm (ap weakenTy (! ([idMor]Ty A)) ∙ weaken[]Ty A (idMor n) last) refl (VarLast dA))}})
 
 star-compS-// : (g : DMor m k) (f : DMor n m) (X : DCtx (suc k)) (p : ∂₁S (proj f) ≡ ∂₀S (proj g)) (q : ∂₁S (proj g) ≡ ftS (proj X)) → starS (compS (proj g) (proj f) p) (proj X) (comp₁S (proj g) (proj f) p ∙ q) ≡ starS (proj f) (starS (proj g) (proj X) q) (p ∙ ! (ft-starS (proj g) (proj X) q))
 star-compS-// (dmor Δd@(Δ , dΔ) Θd θ dθ) (dmor Γd@(Γ , dΓ) Δd'@(Δ' , dΔ') δ dδ) ((Γ' , A), (dΓ' , dA)) p q =

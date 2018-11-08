@@ -31,10 +31,6 @@ data Mor (n : ℕ) : ℕ → Set where
   ◇ : Mor n 0
   _,_ : {m : ℕ} (δ : Mor n m) (u : TmExpr n) → Mor n (suc m)
 
-
-proj1 : Ctx (suc n) → TyExpr n
-proj1 = {!snd!}
-
 {- Weakening -}
 
 -- position : Fin n -> ℕ

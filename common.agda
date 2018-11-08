@@ -54,6 +54,8 @@ ap f refl = refl
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
 
+infixr 4 _∙_
+
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
 
@@ -78,6 +80,7 @@ data Fin : ℕ → Set where
 _-F_ : (n : ℕ) (k : Fin n) → ℕ
 n -F last = n
 suc n -F prev k = n -F k
+
 
 {- Partiality monad -}
 

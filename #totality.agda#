@@ -66,8 +66,8 @@ getTy⟦⟧ : {Γ : Ctx n} (X : Ob n) {A : TyExpr n} {u : TmExpr n} (du : Deriva
 ⟦subst⟧Ty X Y (El dv) dδ = {!need rewrite!}
 
 ⟦subst⟧Tm X Y (VarLast dA) dδ = {!!}
-⟦subst⟧Tm X Y (VarPrev dk) dδ = ?
-⟦subst⟧Tm X Y (Conv du dA= dA) dδ = ?
+⟦subst⟧Tm X Y (VarPrev dk) dδ = {!!}
+⟦subst⟧Tm X Y (Conv du dA= dA) dδ = {!!}
 ⟦subst⟧Tm X Y (Lam dA dB du) dδ = {!!}
 ⟦subst⟧Tm X Y (App dA dB df da) dδ = {!!}
 
@@ -83,8 +83,8 @@ isTotal⟦⟧Ty X (El dv) = (isTotal⟦⟧Tm X dv , (getTy⟦⟧ X dv {!UU!} , t
 
 
 isTotal⟦⟧Tm X (VarLast dA) = tt
-isTotal⟦⟧Tm X (VarPrev dk) = ?
-isTotal⟦⟧Tm X (Conv du dA= dA) = ?
+isTotal⟦⟧Tm X (VarPrev dk) = {!!}
+isTotal⟦⟧Tm X (Conv du dA= dA) = {!!}
 isTotal⟦⟧Tm X {u = lam A B u} (Lam dA dB du) =
   (isTotal⟦⟧Ty X dA ,
   (isTotal⟦⟧Ty (toCtx (⟦⟧Ty X A dA)) dB ,
@@ -106,8 +106,8 @@ isTotal⟦⟧Mor {Δ = Δ , B} X Y {δ , u} (dδ , du) =
   ((morTm₁ (totalify (⟦ u ⟧Tm X) (isTotal⟦⟧Tm X du)) ∙ ((ap toCtx (getTy⟦⟧ X du {!!}) ∙ {!⟦subst⟧Ty!}) ∙ ! qq₀)) , tt))))
 
 getTy⟦⟧ X (VarLast dA) dA' = {!!}
-getTy⟦⟧ X (VarPrev dk) dA' = ?
-getTy⟦⟧ X (Conv du dA= dA) dA' = ? -- getTy⟦⟧ X du dA ∙ ⟦⟧TyEq X dA= (isTotal⟦⟧Ty X dA) (isTotal⟦⟧Ty X dA')
+getTy⟦⟧ X (VarPrev dk) dA' = {!!}
+getTy⟦⟧ X (Conv du dA= dA) dA' = {!!} -- getTy⟦⟧ X du dA ∙ ⟦⟧TyEq X dA= (isTotal⟦⟧Ty X dA) (isTotal⟦⟧Ty X dA')
 getTy⟦⟧ X (Lam dA dB du) dA' = lamStrTy
 getTy⟦⟧ X (App dA dB df da) dA' = appStrTy ∙ ! {!!}
 
@@ -117,7 +117,7 @@ apB-irr : {A C : Set} {B : A → Prop} (f : (a : A) (b : Box (B a)) → C) {a a'
 apB-irr f refl = refl
 
 ⟦⟧TyEq X (TySymm dA=) dA dA' = ! (⟦⟧TyEq X dA= dA' dA)
-⟦⟧TyEq X (TyTran dA= dB= dB) dA dA' = ? --⟦⟧TyEq X dA= dA (isTotal⟦⟧Ty X dB) ∙ ⟦⟧TyEq X dB= (isTotal⟦⟧Ty X dB) dA'
+⟦⟧TyEq X (TyTran dA= dB= dB) dA dA' = {!!} --⟦⟧TyEq X dA= dA (isTotal⟦⟧Ty X dB) ∙ ⟦⟧TyEq X dB= (isTotal⟦⟧Ty X dB) dA'
 ⟦⟧TyEq X {A = pi A B} {A' = pi A' B'} (PiCong dA dA= dB=) ([A] , ([B] , tt)) ([A'] , ([B'] , tt)) = {!!}
 ⟦⟧TyEq X UUCong dA dA' = refl
 ⟦⟧TyEq X (ElCong dv=) dA dA' = ap-irr (ElStr X) {!⟦⟧TmEq X dv=!}
