@@ -33,6 +33,10 @@ data Mor (n : ℕ) : ℕ → Set where
 
 {- Weakening -}
 
+-- position : Fin n -> ℕ
+-- position {n = n} last = n
+-- position {n = suc n} (prev x) = position {n = n} x
+
 weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
 weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
 weakenVar' : (k : Fin (suc n)) → Fin n → Fin (suc n)
@@ -55,6 +59,7 @@ weakenTy = weakenTy' last
 weakenTm : TmExpr n → TmExpr (suc n)
 weakenTm = weakenTm' last
 
+
 weakenMor' : (k : Fin (suc n)) → Mor n m → Mor (suc n) m
 weakenMor' k ◇ = ◇
 weakenMor' k (δ , u) = (weakenMor' k δ , weakenTm' k u)
@@ -62,11 +67,12 @@ weakenMor' k (δ , u) = (weakenMor' k δ , weakenTm' k u)
 weakenMor : Mor n m → Mor (suc n) m
 weakenMor = weakenMor' last
 
-{- Substitution -}
+-- {- Substitution -}
 
-substTy : TyExpr (suc m + n) → TmExpr n → TyExpr (m + n)
-substTm : TmExpr (suc m + n) → TmExpr n → TmExpr (m + n)
-substVar : Fin (suc m + n) → TmExpr n → TmExpr (m + n)
+
+substTy : TyExpr (m + suc n) → TmExpr n → TyExpr (m + n)
+substTm : TmExpr (m + suc n) → TmExpr n → TmExpr (m + n)
+substVar : Fin (m + suc n) → TmExpr n → TmExpr (m + n)
 
 substTy (pi A B) u = pi (substTy A u) (substTy B u)
 substTy uu u = uu
@@ -86,8 +92,93 @@ substVar {m = suc m} (prev x) u = weakenTm (substVar x u)
 infix 42 _[_]Ty
 infix 42 _[_]Tm
 
+n+0 : n + zero ≡ n
+n+0 {zero} = refl
+n+0 {suc n} = ap suc n+0
+
+n+suc : n + (suc m) ≡ (suc n) + m
+n+suc {n = zero} = refl
+n+suc {n = suc n} = ap suc n+suc
+
+transport : {A : Set} (P : A -> Set) {a b : A} (p : a ≡ b) -> P a -> P b
+transport _ refl x = x
+ 
+trFin : (n ≡ m) → Fin n → Fin m
+trFin refl x = x
+
+prev^ : (m : ℕ) → Fin (suc n) → Fin (suc (n + m))
+prev^ {n = n} zero k = trFin (ap suc (! n+0)) k
+prev^ {n = n} (suc m) k = trFin (ap suc (! n+suc)) (prev (prev^ m k))
+
+-- first : Fin (suc n)
+-- first {zero} = last
+-- first {suc n} = prev first
+
+-- n+1 : n + 1 ≡  suc n
+-- n+1 {zero} = refl
+-- n+1 {suc n} = ap suc n+1
+
+-- shiftTy' : (k : Fin (suc n)) ->  TyExpr n -> TyExpr (n + 1)
+-- shiftTm' : (k : Fin (suc n)) -> TmExpr n -> TmExpr (n + 1)
+-- shiftVar : (k : Fin (suc n)) -> Fin n -> Fin (n + 1) 
+
+-- shiftTy' k (pi A B) = pi (shiftTy' k A) (shiftTy' (prev k) B)
+-- shiftTy' k uu = uu
+-- shiftTy' k (el v) = el (shiftTm' k v)
+
+-- shiftTm' k (var x) = var (shiftVar k x)
+-- shiftTm' k (lam A B u) = lam (shiftTy' k A) (shiftTy' (prev k) B) (shiftTm' (prev k) u)
+-- shiftTm' k (app A B f a) = app (shiftTy' k A) (shiftTy' (prev k) B) (shiftTm' k f) (shiftTm' k a) 
+
+-- shiftVar last x = transport Fin (! n+1) (prev x)
+-- shiftVar (prev k) last = last
+-- shiftVar (prev k) (prev x) = prev (shiftVar k x)
+
+
+-- shiftTy : TyExpr n -> TyExpr (n + 1)
+-- shiftTy = shiftTy' first
+
+-- shiftTm : TmExpr n -> TmExpr (n + 1)
+-- shiftTm = shiftTm' first
+
+shiftTy^ : TyExpr n -> TyExpr (n + m)
+shiftTy^ {m = zero} A = transport TyExpr (! n+0) A
+shiftTy^ {m = suc m} A = transport TyExpr (! n+suc) ((weakenTy' (prev^ m last) (shiftTy^ {m = m} A)))
+
+shiftTm^ : TmExpr n -> TmExpr (n + m)
+shiftTm^ {m = zero} t = transport TmExpr (! n+0) t
+shiftTm^ {m = suc m} t = transport TmExpr (! n+suc) ((weakenTm' (prev^ m last) (shiftTm^ {m = m} t)))
+
+-- shiftTy : TyExpr n -> TyExpr (suc n)
+-- shiftTm : TmExpr n -> TmExpr (suc n)
+
+-- shiftTy = weakenTy' first
+-- shiftTm = weakenTm' first
+
+-- shiftTy^ : {m : ℕ} -> TyExpr n -> TyExpr (n + m)
+-- shiftTy^ {m = zero} A = transport TyExpr (! n+0) A
+-- shiftTy^ {m = suc m} A = transport TyExpr (! n+suc) (shiftTy^ (shiftTy A))
+
+-- shiftTm^ : {m : ℕ} -> TmExpr n -> TmExpr (n + m)
+-- shiftTm^ {m = zero} t = transport TmExpr (! n+0) t
+-- shiftTm^ {m = suc m} t = transport TmExpr (! n+suc) (shiftTm^ (shiftTm t))
+
+
+_[_]Ty' : {m n k : ℕ} -> TyExpr (k + n) -> (δ : Mor m n) -> TyExpr (k + m)
+_[_]Tm' : {m n k : ℕ} -> TmExpr (k + n) -> (δ : Mor m n) -> TmExpr (k + m)
+
+A [ ◇ ]Ty' = shiftTy^ (transport TyExpr n+0 A)
+A [ δ , u ]Ty' = substTy (transport TyExpr (! n+suc) ((transport TyExpr n+suc A) [ δ ]Ty')) u
+
+t [ ◇ ]Tm' = shiftTm^ (transport TmExpr n+0 t)
+t [ δ , u ]Tm' = substTm (transport TmExpr (! n+suc) (((transport TmExpr n+suc t) [ δ ]Tm'))) u 
+
 _[_]Ty : {n m : ℕ} → TyExpr n → (δ : Mor m n) → TyExpr m
 _[_]Tm : {n m : ℕ} → TmExpr n → (δ : Mor m n) → TmExpr m
+
+-- A [ δ ]Ty = A [ δ ]Ty'
+-- t [ δ ]Tm = t [ δ ]Tm'
+
 
 pi A B [ δ ]Ty = pi (A [ δ ]Ty) (B [ (weakenMor δ , var last) ]Ty)
 uu [ δ ]Ty = uu

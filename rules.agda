@@ -121,6 +121,27 @@ data Derivable where
   WeakTmEq : {Γ : Ctx n} {T : TyExpr n} {u u' : TmExpr n} {A : TyExpr n}
        → Derivable (Γ ⊢ u == u' :> A) → Derivable ((Γ , T) ⊢ weakenTm u == weakenTm u' :> weakenTy A)
 
+{- Substitution is admissable -}
+
+
+SubstTy : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ : Mor n m}
+       → .(_ : Derivable (Δ ⊢ A)) → .(_ : Γ ⊢ δ ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty)
+SubstTm : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ : Mor n m}
+       → Derivable (Δ ⊢ u :> A) → (Γ ⊢ δ ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm :> A [ δ ]Ty)
+SubstTyEq : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ : Mor n m}
+       → .(_ : Derivable (Δ ⊢ A == A')) → .(_ : Γ ⊢ δ ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ ]Ty)
+SubstTmEq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ : Mor n m}
+       → Derivable (Δ ⊢ u == u' :> A) → (Γ ⊢ δ ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u' [ δ ]Tm :> A [ δ ]Ty)
+SubstTySubstEq : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m}
+       → Derivable (Δ ⊢ A == A') → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
+SubstTmSubstEq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m}
+       → Derivable (Δ ⊢ u == u' :> A) → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u' [ δ' ]Tm :> A [ δ' ]Ty)
+
+
+substTy 
+
+
+
 {- Congruence with respect to the type in derivability of term expressions -}
 
 congTy : {Γ : Ctx n} {A A' : TyExpr n} → A ≡ A' → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A')
@@ -151,12 +172,12 @@ TmRefl : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A
 TyRefl (Pi dA dB) = PiCong (TyRefl dA) (TyRefl dB)
 TyRefl UU = UUCong
 TyRefl (El dv) = ElCong (TmRefl dv)
-TyRefl (SubstTy dA dδ) = SubstTyEq (TyRefl dA) dδ
+--TyRefl (SubstTy dA dδ) = SubstTyEq (TyRefl dA) dδ
 TyRefl (WeakTy dA) = WeakTyEq (TyRefl dA)
 
 TmRefl (VarRule x∈ dA) = VarCong x∈ dA
 TmRefl (Conv du dA dA=) = ConvEq (TmRefl du) dA dA=
-TmRefl (SubstTm du dδ) = SubstTmEq (TmRefl du) dδ
+--TmRefl (SubstTm du dδ) = SubstTmEq (TmRefl du) dδ
 TmRefl (Lam dA dB du) = LamCong (TyRefl dA) (TyRefl dB) (TmRefl du)
 TmRefl (App dA dB df da) = AppCong (TyRefl dA) (TyRefl dB) (TmRefl df) (TmRefl da)
 TmRefl (WeakTm du) = WeakTmEq (TmRefl du)
