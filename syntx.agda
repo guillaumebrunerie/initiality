@@ -1,8 +1,6 @@
-{-# OPTIONS --rewriting --allow-unsolved-metas --prop  #-}
--- The flag --no-termination-check is enabled because of issue #3332
+{-# OPTIONS --rewriting --allow-unsolved-metas --prop #-}
  
 open import common
-open import Agda.Builtin.Size
 
 {- Syntax of term- and type-expressions, using de Bruijn indices -}
 variable
@@ -31,9 +29,6 @@ data Mor (n : ℕ) : ℕ → Set where
   ◇ : Mor n 0
   _,_ : {m : ℕ} (δ : Mor n m) (u : TmExpr n) → Mor n (suc m)
 
-
-proj1 : Ctx (suc n) → TyExpr n
-proj1 = {!snd!}
 
 {- Weakening -}
 

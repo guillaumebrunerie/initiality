@@ -177,9 +177,12 @@ module M (C : CCat) where
   trim last X = X
   trim (prev k) X = trim k (ft X)
 
+  last-ty : (X : Ob (suc n)) → Ty X 0
+  toCtx (last-ty X) = star (pp X) X pp₁
+  toCtxEq (last-ty X) = ft-star ∙ pp₀
+
   last-var : (X : Ob (suc n)) → Tm X 0
-  toCtx (getTy (last-var X)) = star (pp X) X pp₁
-  toCtxEq (getTy (last-var X)) = ft-star ∙ pp₀
+  getTy (last-var X) = last-ty X
   morTm (last-var X) = ss (id X)
   morTm₀ (last-var X) = ss₀ ∙ (id₀ ∙ ! (ft-star ∙ pp₀))
   morTm₁ (last-var X) = ss₁ ∙ ap2-irr star (id-left' ∙ ap pp id₁) id₁
@@ -189,12 +192,26 @@ module M (C : CCat) where
   var-unweakened last X = last-var X
   var-unweakened (prev k) X = var-unweakened k (ft X)
 
-  weaken : (k : Fin n) {X : Ob n} → Tm (trim k X) 0 → Tm X 0
-  weaken last x = x
-  weaken (prev k) {X} x = star^tm-with-eqs (pp X) pp₁ pp₀ (weaken k x)
+  weakenCTy : {X : Ob (suc n)} → Ty (ft X) 0 → Ty X 0
+  toCtx (weakenCTy {X = X} (A-ctx , A-eq)) = toCtx (star^ (pp X) (A-ctx , (A-eq ∙ ! pp₁)))
+  toCtxEq (weakenCTy A) = ft-star ∙ pp₀
 
-  var : (k : Fin n) (X : Ob n) → Tm X 0
-  var k X = weaken k (var-unweakened k X)
+  weakenCTm : {X : Ob (suc n)} → Tm (ft X) 0 → Tm X 0
+  getTy (weakenCTm u) = weakenCTy (getTy u)
+  morTm (weakenCTm {X = X} u) = ss (comp (morTm u) (pp X) (pp₁ ∙ ! (toCtxEq (ft' (getTy u))) ∙ ! (morTm₀ u)))
+  morTm₀ (weakenCTm u) = ss₀ ∙ comp₀ ∙ pp₀ ∙ ! (toCtxEq (ft' (weakenCTy (getTy u))))
+  morTm₁ (weakenCTm u) = ss₁ ∙ ap2-irr star (! (assoc {q = morTm₁ u ∙ ! (pp₀ ∙ comp₁ ∙ morTm₁ u)}) ∙ ap2-irr comp (ap2-irr comp (ap pp (comp₁ ∙ morTm₁ u)) refl ∙ eqTm u ∙ ap id (toCtxEq (getTy u) ∙ ! pp₁)) refl ∙ id-right) (comp₁ ∙ morTm₁ u)
+  eqTm (weakenCTm {X = X} u) =
+    ap2-irr comp (ap pp (! (ap2-irr star (! (assoc {q = morTm₁ u ∙ ! (pp₀ ∙ comp₁ ∙ morTm₁ u)}) ∙ ap2-irr comp (ap2-irr comp (ap pp (comp₁ ∙ morTm₁ u)) refl ∙ eqTm u ∙ ap id (toCtxEq (getTy u) ∙ ! pp₁)) refl ∙ id-right) (comp₁ ∙ morTm₁ u)))) refl
+    ∙ ss-pp {f = comp (morTm u) (pp X) (pp₁ ∙ ! (toCtxEq (ft' (getTy u))) ∙ ! (morTm₀ u))}
+    ∙ ap id (comp₀ ∙ pp₀ ∙ ! (ft-star ∙ pp₀))
+
+  weakenCTm^ : (k : Fin n) {X : Ob n} → Tm (trim k X) 0 → Tm X 0
+  weakenCTm^ last x = x
+  weakenCTm^ (prev k) {X} x = weakenCTm (weakenCTm^ k x)
+
+  varC : (k : Fin n) (X : Ob n) → Tm X 0
+  varC k X = weakenCTm^ k (var-unweakened k X)
 
   substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' A) → Ty X m
   toCtx (substCTy X A u p) = star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p)
@@ -244,7 +261,7 @@ record StructuredCCat : Set₁ where
     lamStrTy : {X : Ob n} {A : Ty X 0} {B : Ty X 1} {u : Tm X 1} {p : ft' B ≡ A} {q : getTy u ≡ B} → getTy (lamStr X A B u p q) ≡ PiStr X A B p
     appStrTy : {n : ℕ} {X : Ob n} {A : Ty X 0} {B : Ty X 1} {f : Tm X 0} {a : Tm X 0} {p : ft' B ≡ A} {q : getTy f ≡ PiStr X A B p} {r : getTy a ≡ A}
              → getTy (appStr X A B f a p q r) ≡ substCTy X B a (r ∙ ! p)
-    betaStr : {n : ℕ} (X : Ob n) (A : Ty X 0) (B : Ty X 1) (u : Tm X 1) (a : Tm X 0) (p : ft' B ≡ A) (q : getTy u ≡ B) (r : getTy a ≡ A)
+    betaStr : {n : ℕ} {X : Ob n} {A : Ty X 0} {B : Ty X 1} {u : Tm X 1} {a : Tm X 0} {p : ft' B ≡ A} {q : getTy u ≡ B} {r : getTy a ≡ A}
             → appStr X A B (lamStr X A B u p q) a p lamStrTy r ≡ substCTm X u a (r ∙ ! (ap ft' q ∙ p))
 
 open StructuredCCat

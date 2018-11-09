@@ -4,6 +4,7 @@ open import Agda.Primitive
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
+open import Agda.Builtin.Size public
 
 {- Relevant equality (used only in a few places, where we need to transport along it) -}
 

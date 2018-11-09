@@ -249,7 +249,7 @@ ss-compS-// U@((Θ' , C), (dΘ' , dC)) g@(dmor (Δ' , dΔ') (Θ , dΘ) θ dθ) f
 ss-compS : {m n k : ℕ} (U : ObS (suc k)) (g : MorS n k) (f : MorS m (suc n)) (g₁ : ∂₁S g ≡ ftS U) (f₁ : ∂₁S f ≡ starS g U g₁) {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ssS f ≡ ssS (compS (qqS g U g₁) f (! (qq₀S g U g₁ ∙ ! f₁)))
 ss-compS = //-elimPiCstCstIdIdId ss-compS-//
 
-{- The syntactic model itself -}
+{- The syntactic contextual category -}
 
 synCCat : CCat
 Ob synCCat = ObS
@@ -290,3 +290,60 @@ star-comp synCCat {g = g} {f = f} {p = p} {X = X} q = star-compS g f X p q
 ss-pp synCCat {f = f} = ss-ppS f
 ss-qq synCCat {f = f} = ss-qqS f
 ss-comp synCCat {U = U} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U g f g₁ f₁
+
+open StructuredCCat
+open M synCCat
+
+{- The syntactic structured contextual category -}
+
+ftS^ : (k : ℕ) → DCtx (k + n) → DCtx n
+ftS^ zero (Γ , dΓ) = (Γ , dΓ)
+ftS^ (suc k) Γd = ftS^ k (dft Γd)
+
+ft^-proj : (k : ℕ) (X : DCtx (k + n)) → ft^ k (proj X) ≡ proj (ftS^ k X)
+ft^-proj zero X = refl
+ft^-proj (suc k) X = ft^-proj k (dft X)
+
+record TyS {n : ℕ} (X : DCtx n) (k : ℕ) : Set where
+  constructor _,_
+  field
+    toCtx : DCtx (suc k + n)
+    toCtxEq : ftS^ (suc k) toCtx ≡ X
+open TyS
+
+TyS≃ : {n : ℕ} (X : DCtx n) (k : ℕ) → EquivRel (TyS X k)
+EquivRel._≃_ (TyS≃ X k) ((Γ , _) , _) ((Γ' , _) , _) = ⊢ Γ == Γ'
+EquivRel.ref (TyS≃ X k) ((Γ , dΓ) , _) = CtxRefl dΓ
+EquivRel.sym (TyS≃ X k) p = CtxSymm p
+EquivRel.tra (TyS≃ X k) p q = CtxTran p q
+
+fromTyS : {n : ℕ} (X : DCtx n) (k : ℕ) → TyS X k → Ty (proj X) k
+fromTyS X k T = proj (toCtx T) , ft^-proj k (dft (toCtx T)) ∙ ap proj (toCtxEq T)
+
+toTyS : {n : ℕ} (X : DCtx n) (k : ℕ) → Ty (proj X) k → TyS X k // TyS≃ X k
+toTyS X k (T , T=) = //-rec _ (λ Γ → proj (Γ , {!reflect T=!})) {!!} T
+
+PiStrS-//  : (X : DCtx n) (A : TyS X 0) (B : TyS X 1) (p : ftS^ 1 (toCtx B) ≡ toCtx A) → Ctx (suc n)
+PiStrS-// (Γ , dΓ) (((_ , A), _) , _) (((_ , B), _) , _) p = (Γ , pi A B)
+
+PiStrS-//' : (X : DCtx n) (A : TyS X 0) (B : TyS X 1) (p : ftS^ 1 (toCtx B) ≡ toCtx A) → ⊢ PiStrS-// X A B p
+PiStrS-//' (Γ , dΓ) (((.Γ , A) , (_ , dA)) , refl) ((((.Γ , _) , B) , ((_ , _) , dB)) , refl) refl = (dΓ , Pi dA dB)
+
+PiStrS : (X : ObS n) (A : Ty X 0) (B : Ty X 1) → ft' B ≡ A → Ty X 0
+PiStrS = {!!}
+
+strSynCCat : StructuredCCat
+ccat strSynCCat = synCCat
+PiStr strSynCCat = {!!}
+lamStr strSynCCat = {!!}
+appStr strSynCCat = {!!}
+UUStr strSynCCat = {!!}
+ElStr strSynCCat = {!!}
+PiStrNat strSynCCat = {!!}
+lamStrNat strSynCCat = {!!}
+appStrNat strSynCCat = {!!}
+UUStrNat strSynCCat = {!!}
+ElStrNat strSynCCat = {!!}
+lamStrTy strSynCCat = {!!}
+appStrTy strSynCCat = {!!}
+betaStr strSynCCat = {!!}
