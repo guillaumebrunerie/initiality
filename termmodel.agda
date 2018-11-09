@@ -327,58 +327,56 @@ ss-qq synCCat {f = f} = ss-qqS f
 ss-comp synCCat {U = U} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U g f g₁ f₁
 
 open StructuredCCat
-open M synCCat
 
 {- The syntactic structured contextual category -}
 
-ftS^ : (k : ℕ) → DCtx (k + n) → DCtx n
-ftS^ zero (Γ , dΓ) = (Γ , dΓ)
-ftS^ (suc k) Γd = ftS^ k (dft Γd)
+PiStrS-//  : (X : DCtx (suc (suc n))) → ObS (suc n)
+PiStrS-// (((Γ , A) , B), ((dΓ , dA) , dB)) = proj ((Γ , pi A B) , (dΓ , Pi dA dB))
 
-ft^-proj : (k : ℕ) (X : DCtx (k + n)) → ft^ k (proj X) ≡ proj (ftS^ k X)
-ft^-proj zero X = refl
-ft^-proj (suc k) X = ft^-proj k (dft X)
+PiStrS-eq : {Γ Γ' : DCtx (suc (suc n))} → ⊢ ctx Γ == ctx Γ' → PiStrS-// Γ ≡ PiStrS-// Γ'
+PiStrS-eq {Γ  = (((Γ  , A)  , B),  ((dΓ  , dA)  , dB))}
+          {Γ' = (((Γ' , A') , B'), ((dΓ' , dA') , dB'))}
+          ((dΓ= , dA , dA' , dA= , dA=') , (dB , dB' , dB= , dB='))
+          = eq (dΓ= , Pi dA dB , Pi dA' dB' , PiCong dA dA= dB= , PiCong (ConvTy dA dΓ=) dA=' (ConvTyEq dB=' (CtxSymm (CtxRefl dΓ' , ConvTy dA dΓ= , dA' , dA=' , dA='))))
 
-record TyS {n : ℕ} (X : DCtx n) (k : ℕ) : Set where
-  constructor _,_
-  field
-    toCtx : DCtx (suc k + n)
-    toCtxEq : ftS^ (suc k) toCtx ≡ X
-open TyS
+PiStrS : (B : ObS (suc (suc n))) → ObS (suc n)
+PiStrS = //-rec PiStrS-// PiStrS-eq
 
-TyS≃ : {n : ℕ} (X : DCtx n) (k : ℕ) → EquivRel (TyS X k)
-EquivRel._≃_ (TyS≃ X k) ((Γ , _) , _) ((Γ' , _) , _) = ⊢ Γ == Γ'
-EquivRel.ref (TyS≃ X k) ((Γ , dΓ) , _) = CtxRefl dΓ
-EquivRel.sym (TyS≃ X k) p = CtxSymm p
-EquivRel.tra (TyS≃ X k) p q = CtxTran p q
+PiStr=S-// : (Γ : DCtx (suc (suc n))) → ftS (PiStrS-// Γ) ≡ ftS (ftS (proj Γ))
+PiStr=S-// (((Γ  , A)  , B),  ((dΓ  , dA)  , dB)) = refl
 
-fromTyS : {n : ℕ} (X : DCtx n) (k : ℕ) → TyS X k → Ty (proj X) k
-fromTyS X k T = proj (toCtx T) , ft^-proj k (dft (toCtx T)) ∙ ap proj (toCtxEq T)
+PiStr=S : (B : ObS (suc (suc n))) → ftS (PiStrS B) ≡ ftS (ftS B)
+PiStr=S = //-elimP PiStr=S-//
+    -- lamStr  : (u : MorC (suc n) (suc (suc n))) (us : is-section u) → MorC n (suc n)
+    -- lamStrs : {u : MorC (suc n) (suc (suc n))} {us : is-section u} → is-section (lamStr u us)
+    -- lamStr₁ : {u : MorC (suc n) (suc (suc n))} {us : is-section u} → ∂₁ (lamStr u us) ≡ PiStr (∂₁ u)
 
-toTyS : {n : ℕ} (X : DCtx n) (k : ℕ) → Ty (proj X) k → TyS X k // TyS≃ X k
-toTyS X k (T , T=) = //-rec (λ Γ → proj (Γ , {!reflect T=!})) {!!} T
+is-sectionS : (u : MorS n (suc n)) → Prop
+is-sectionS u = compS (ppS (∂₁S u)) u (! (pp₀S (∂₁S u))) ≡ idS _ (∂₀S u)
 
-PiStrS-//  : (X : DCtx n) (A : TyS X 0) (B : TyS X 1) (p : ftS^ 1 (toCtx B) ≡ toCtx A) → Ctx (suc n)
-PiStrS-// (Γ , dΓ) (((_ , A), _) , _) (((_ , B), _) , _) p = (Γ , pi A B)
+lamStrS-// : (u : DMor (suc n) (suc (suc n))) (us : is-sectionS (proj u)) → MorS n (suc n)
+lamStrS-// (dmor _ (((Γ , A) , B) , ((dΓ , dA) , dB)) ((_ , _) , u) ((_ , _) , du)) us = proj (dmor (Γ , dΓ) ((Γ , pi A B), (dΓ , Pi dA dB)) (idMor _ , lam A B u) (idMorDerivable dΓ , congTm {!should maybe be done using rewrites!} refl (Lam dA dB {!we should use [us] here, I guess!})))
 
-PiStrS-//' : (X : DCtx n) (A : TyS X 0) (B : TyS X 1) (p : ftS^ 1 (toCtx B) ≡ toCtx A) → ⊢ PiStrS-// X A B p
-PiStrS-//' (Γ , dΓ) (((.Γ , A) , (_ , dA)) , refl) ((((.Γ , _) , B) , ((_ , _) , dB)) , refl) refl = (dΓ , Pi dA dB)
-
-PiStrS : (X : ObS n) (A : Ty X 0) (B : Ty X 1) → ft' B ≡ A → Ty X 0
-PiStrS = {!!}
+lamStrS : (u : MorS (suc n) (suc (suc n))) (us : is-sectionS u) → MorS n (suc n)
+lamStrS = //-elim-PiP lamStrS-// {!!}
 
 strSynCCat : StructuredCCat
 ccat strSynCCat = synCCat
-PiStr strSynCCat = {!!}
+PiStr strSynCCat = PiStrS
+PiStr= strSynCCat {B = B} = PiStr=S B
 lamStr strSynCCat = {!!}
+lamStrs strSynCCat = {!!}
+lamStr₁ strSynCCat = {!!}
 appStr strSynCCat = {!!}
+appStrs strSynCCat = {!!}
+appStr₁ strSynCCat = {!!}
 UUStr strSynCCat = {!!}
+UUStr= strSynCCat = {!!}
 ElStr strSynCCat = {!!}
+ElStr= strSynCCat = {!!}
 PiStrNat strSynCCat = {!!}
 lamStrNat strSynCCat = {!!}
 appStrNat strSynCCat = {!!}
 UUStrNat strSynCCat = {!!}
 ElStrNat strSynCCat = {!!}
-lamStrTy strSynCCat = {!!}
-appStrTy strSynCCat = {!!}
 betaStr strSynCCat = {!!}
