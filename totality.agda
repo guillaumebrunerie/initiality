@@ -9,7 +9,6 @@ module _ (C : StructuredCCat) where
 
 open StructuredCCat C
 open CCat ccat renaming (Mor to MorC)
-open M ccat
 open import partialinterpretation C
 
 {- Predicate saying whether an object "respects" a context in the sense that the types in Γ correspond to their interpretation in X.
@@ -17,11 +16,11 @@ open import partialinterpretation C
 
 respectsCtx : (X : Ob n) (Γ : Ctx n) → Prop
 respectsCtx {zero} X ◇ = Unit
-respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A ⟧Ty (ft X))) (λ Aᵈ → toCtx (totalify (⟦ A ⟧Ty (ft X)) Aᵈ) ≡ X)
+respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A ⟧Ty (ft X))) (λ Aᵈ → totalify (⟦ A ⟧Ty (ft X)) Aᵈ ≡ X)
 
-respectsCtxExt : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) (A : TyExpr n) (Aᵈ : isDefined (⟦ A ⟧Ty X))
-              → respectsCtx (toCtx (totalify (⟦ A ⟧Ty X) Aᵈ)) (Γ , A)
-respectsCtxExt X r A Aᵈ rewrite (toCtxEq (totalify (⟦ A ⟧Ty X) Aᵈ)) = r , (Aᵈ , refl)
+-- respectsCtxExt : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) (A : TyExpr n) (Aᵈ : isDefined (⟦ A ⟧Ty X))
+--               → respectsCtx (totalify (⟦ A ⟧Ty X) Aᵈ) (Γ , A)
+-- respectsCtxExt X r A Aᵈ rewrite (toCtxEq (totalify (⟦ A ⟧Ty X) Aᵈ)) = r , (Aᵈ , refl)
 
 {- Totality of the partial interpretation functions -}
 

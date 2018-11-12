@@ -118,3 +118,17 @@ ap2-irr f refl refl = refl
 
 variable
   {n n' m k l} : ℕ
+
+{- Axioms that we use -}
+
+-- Dependent function extensionality
+postulate
+  funext  : ∀ {l l'} {A : Set l}  {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
+
+-- Function extensionality for function with domain Prop
+postulate
+  funextP : ∀ {l l'} {A : Prop l} {B : Set l'} {f g : A → B} (h : (x : A) → f x ≡ g x) → f ≡ g
+
+-- Propositional extensionality, using Prop
+postulate
+  prop-ext : {A B : Prop} (f : A → B) (g : B → A) → A ≡ B
