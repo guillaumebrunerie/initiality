@@ -510,7 +510,7 @@ appStr₁ strSynCCat = {!!}
 UUStr strSynCCat = UUStrS
 UUStr= strSynCCat {X = X} = UUStr=S X
 ElStr strSynCCat = ElStrS
-ElStr= strSynCCat {u = u} {us = us} {u₁ = u₁} = ElStr=S u us u₁
+ElStr= strSynCCat {v = v} {vs = vs} {v₁ = v₁} = ElStr=S v vs v₁
 PiStrNat strSynCCat g {B = B} {p = p} = PiStrNatS g B p
 lamStrNat strSynCCat = {!!}
 appStrNat strSynCCat = {!!}
