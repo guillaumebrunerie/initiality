@@ -359,6 +359,8 @@ record StructuredCCatMor (C D : StructuredCCat) : Set where
     UUStr→ : {n : ℕ} (X : Ob (ccat C) n) → Ob→ (UUStr C X) ≡ UUStr D (Ob→ X)
     ElStr→ : {n : ℕ} (v : MorC (ccat C) n (suc n)) (vs : is-section C v) (v₁ : ∂₁ (ccat C) v ≡ UUStr C (∂₀ (ccat C) v))
            → Ob→ (ElStr C v vs v₁) ≡ ElStr D (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ (∂₀ (ccat C) v) ∙ ap (UUStr D) ∂₀→)
+
+
   --   PiStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (p : ft'C B ≡ A)
   --          → Ty→ (PiStr C X A B p) ≡ PiStr D (Ob→ X) (Ty→ A) (Ty→ B) (! (ft'→ B) ∙ ap Ty→ p)
   --   lamStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (u : TmC X 1) (p : ft'C B ≡ A) (q : getTy u ≡ B)
