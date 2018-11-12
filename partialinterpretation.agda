@@ -70,7 +70,7 @@ eqTm (shiftTm p t) = eqTm t
   return (toCtx [A])
 
 ⟦_⟧Mor : (δ : Mor n m) (X : Ob n) (Y : Ob m) → Partial (MorC n m)
-⟦ ◇ ⟧Mor X Y = return (ptmor X)
+⟦ ◇ ⟧Mor X pt = return (ptmor X)
 ⟦ δ , u ⟧Mor X Y = do
   [δ] ← ⟦ δ ⟧Mor X (ft Y)
   [u] ← ⟦ u ⟧Tm X
@@ -78,3 +78,4 @@ eqTm (shiftTm p t) = eqTm t
   ∂₁δ ← assume (∂₁ [δ] ≡ ft Y)
   uTy ← assume (toCtx (getTy [u]) ≡ star [δ] Y (∂₁δ .unbox))
   return (comp (qq [δ] Y (∂₁δ .unbox)) (morTm [u]) (morTm₁ [u] ∙ uTy .unbox ∙ ! qq₀))
+

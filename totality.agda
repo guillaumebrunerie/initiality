@@ -123,7 +123,7 @@ getTy⟦⟧ : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) {A : TyExpr n} {u :
 -- isTotal⟦⟧Ctx {Γ = Γ , A} (dΓ , dA) = (isTotal⟦⟧Ctx dΓ , (isTotal⟦⟧Ty dΓ dA , tt))
 
 isTotal⟦⟧Ty X r UU = tt
-isTotal⟦⟧Ty {Γ = Γ} X r {A = pi A B} (Pi dA dB) = (isTotal⟦⟧Ty X r dA , (isTotal⟦⟧Ty (toCtx (⟦⟧Ty X r dA)) (respectsCtxExt X r A (isTotal⟦⟧Ty X r dA)) dB , tt)) where
+isTotal⟦⟧Ty {Γ = Γ} X r {A = pi A B} (Pi dA dB) = (isTotal⟦⟧Ty X r dA , (isTotal⟦⟧Ty (toCtx (⟦⟧Ty X r dA)) (respectsCtxExt X r A (isTotal⟦⟧Ty X r dA)) dB , tt))
 isTotal⟦⟧Ty X r (El dv) = (isTotal⟦⟧Tm X r dv , (getTy⟦⟧ X r dv tt , tt))
 
 isTotal⟦⟧Tm X r (VarLast dA) = tt
@@ -157,10 +157,45 @@ isTotal⟦⟧Tm X r {u = app A B f a} (App dA dB df da) =
 ⟦⟧TyEq X r UUCong Aᵈ A'ᵈ = refl
 ⟦⟧TyEq X r (ElCong dv=) (vᵈ , _) (v'ᵈ , _) rewrite ⟦⟧TmEq X r dv= vᵈ v'ᵈ = refl
 
+dTyEqTy : {Γ : Ctx n} {A A' : TyExpr n} {X : Ob n} (r : respectsCtx X Γ) → isDefined (⟦ A ⟧Ty X) → Derivable (Γ ⊢ A == A') → isDefined (⟦ A' ⟧Ty X)
+TyEqdTy : {Γ : Ctx n} {A A' : TyExpr n} {X : Ob n} (r : respectsCtx X Γ) → isDefined (⟦ A' ⟧Ty X) → Derivable (Γ ⊢ A == A') → isDefined (⟦ A ⟧Ty X)
+dTmEqTm : {Γ : Ctx n} {A : TyExpr n} {X : Ob n} {u v : TmExpr n} (r : respectsCtx X Γ) → isDefined (⟦ u ⟧Tm X) → Derivable (Γ ⊢ u == v :> A) → isDefined (⟦ v ⟧Tm X)
+TmEqdTm : {Γ : Ctx n} {A : TyExpr n} {X : Ob n} {u v : TmExpr n} (r : respectsCtx X Γ) → isDefined (⟦ v ⟧Tm X) → Derivable (Γ ⊢ u == v :> A) → isDefined (⟦ u ⟧Tm X)
+
+dTyEqTy r Aᵈ (TySymm dB=) = TyEqdTy r Aᵈ dB=
+dTyEqTy r Aᵈ (TyTran dB dA= dB=) = dTyEqTy r (dTyEqTy r Aᵈ dA=) dB=
+dTyEqTy r Aᵈ (PiCong dA dA= dB=) = {!!}
+dTyEqTy r Aᵈ UUCong = isTotal⟦⟧Ty _ r UU
+dTyEqTy r (vᵈ , vTy , tt) (ElCong dv=) = {!!} , {!!} , dTmEqTm r vᵈ {!dv=!}
+
+TyEqdTy r A'ᵈ (TySymm dB=) = dTyEqTy r A'ᵈ dB=
+TyEqdTy r A'ᵈ (TyTran dB dA= dB=) = TyEqdTy r (TyEqdTy r A'ᵈ dB=) dA=
+TyEqdTy r A'ᵈ (PiCong dA dA= dB=) = {!!}
+TyEqdTy r A'ᵈ UUCong = isTotal⟦⟧Ty _ r UU
+TyEqdTy r A'ᵈ (ElCong dv=) = {!!}
+
+dTmEqTm r uᵈ (VarLastCong dA) = tt
+dTmEqTm r uᵈ (VarPrevCong dA dk=) = tt
+dTmEqTm r uᵈ (TmSymm dv=) = TmEqdTm r uᵈ dv=
+dTmEqTm r uᵈ (TmTran du= dv=) = dTmEqTm r (dTmEqTm r uᵈ du=) dv=
+dTmEqTm r uᵈ (ConvEq dA du= dA=) = dTmEqTm r uᵈ du=
+dTmEqTm r (Aᵈ , Bᵈ , uᵈ , uTy , tt) (LamCong dA dA= dB= du=) = {!!} , {!!} , {!!} , {!!} , tt
+dTmEqTm r uᵈ (AppCong dA dA= dB= df= da=) = {!!}
+dTmEqTm r uᵈ (Beta dA dB du da) = {!!}
+
+TmEqdTm r vᵈ (VarLastCong dA) = tt
+TmEqdTm r vᵈ (VarPrevCong dA dk=) = tt
+TmEqdTm r vᵈ (TmSymm dv=) = dTmEqTm r vᵈ dv=
+TmEqdTm r vᵈ (TmTran du= dv=) = TmEqdTm r (TmEqdTm r vᵈ dv=) du=
+TmEqdTm r vᵈ (ConvEq dA du= dA=) = TmEqdTm r vᵈ du=
+TmEqdTm r vᵈ (LamCong dA dA= dB= du=) = {!!}
+TmEqdTm r vᵈ (AppCong dA dA= dB= df= da=) = {!!}
+TmEqdTm r vᵈ (Beta dA dB du da) = {!!}
+
 ⟦⟧TmEq X r (VarLastCong dA) tt tt = refl
 ⟦⟧TmEq X r (VarPrevCong dA dx) tt tt = ap weakenCTm (⟦⟧TmEq (ft X) (fst r) dx tt tt)
 ⟦⟧TmEq X r (TmSymm du=) uᵈ u'ᵈ = ! (⟦⟧TmEq X r du= u'ᵈ uᵈ)
-⟦⟧TmEq X r (TmTran du= du'=) uᵈ u'ᵈ = ⟦⟧TmEq X r du= uᵈ {!!} ∙ ⟦⟧TmEq X r du'= {!!} u'ᵈ
+⟦⟧TmEq X r (TmTran du= du'=) uᵈ u'ᵈ = ⟦⟧TmEq X r du= uᵈ {!!} ∙ ⟦⟧TmEq X r du'= (TmEqdTm r u'ᵈ du'=) u'ᵈ
 ⟦⟧TmEq X r (ConvEq dA' du= dA=) uᵈ u'ᵈ = ⟦⟧TmEq X r du= uᵈ u'ᵈ
 ⟦⟧TmEq X r {u = lam A B u} (LamCong dA dA= dB= du=) (Aᵈ , Bᵈ , uᵈ , _) (A'ᵈ , B'ᵈ , u'ᵈ , _)
   rewrite ! (⟦⟧TyEq X r dA= Aᵈ A'ᵈ)
