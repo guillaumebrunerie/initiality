@@ -25,7 +25,7 @@ open CCat ccat renaming (Mor to MorC)
   [v]₁ ← assume (∂₁ [v] ≡ UUStr (∂₀ [v]))
   return (ElStr [v] (unbox [v]s) (unbox [v]₁))
 
-⟦ var x ⟧Tm X = return {!!} --(varC x X)
+⟦ var x ⟧Tm X = return (varC x X)
 ⟦ lam A _ u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm [A]
