@@ -127,7 +127,7 @@ postulate
 
 -- Function extensionality for function with domain Prop
 postulate
-  funextP : ∀ {l l'} {A : Prop l} {B : Set l'} {f g : A → B} (h : (x : A) → f x ≡ g x) → f ≡ g
+  funextP : ∀ {l l'} {A : Prop l} {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
 
 -- Propositional extensionality, using Prop
 postulate
