@@ -2,30 +2,46 @@
 
 open import common
 open import termmodel
-open import partialinterpretation
-open import totality
+import partialinterpretation
+import totality
 open import contextualcat
 open import quotients
 
-module _ (C : StructuredCCat) where
+module _ (sC : StructuredCCat) where
 
 open StructuredCCat
 open CCat
-open StructuredCCatMor
 open CCatMor
-open DMor
-open DCtx
+open partialinterpretation sC
+open totality sC
 
-Ob/ : DCtx n → Ob (ccat C) n
-Ob/ (Γ , dΓ) = ⟦⟧Ctx C Γ dΓ
+private
+  C = ccat sC
 
-Mor/ : DMor n m → Mor (ccat C) n m
-Mor/ (dmor Γd Δd δ dδ) = ⟦⟧Mor C (Ob/ Γd) (Ob/ Δd) δ dδ
+{- Existence of a morphism between the contextual categories (not yet structured) -}
 
-f₀ : CCatMor synCCat (ccat C)
-Ob→ f₀ = //-rec _ Ob/ #TODOP#
-Mor→ f₀ = //-rec _ Mor/ #TODOP#
-∂₀→ f₀ {X = X} = //-elimId (λ δ → Ob→ f₀ (∂₀S δ)) (λ δ → ∂₀ (ccat C) (Mor→ f₀ δ)) (λ δ → {!!}) X
+Ob/ : DCtx n → Ob C n
+Ob/ (Γ , dΓ) = totalify ⟦ Γ ⟧Ctx (isTotal⟦⟧Ctx dΓ)
+
+Ob→S : ObS n → Ob C n
+Ob→S = //-rec Ob/ {!!}
+
+Mor/ : DMor n m → Mor C n m
+Mor/ (dmor Γd Δd δ dδ) = totalify (⟦ δ ⟧Mor (Ob/ Γd) (Ob/ Δd)) (isTotal⟦⟧Mor (Ob/ Γd) (Ob/ Δd) {!TODO, Γ respects its interpretation!} {!idem!} dδ)
+
+Mor→S : MorS n m → Mor C n m
+Mor→S = //-rec Mor/ {!!}
+
+∂₀/ : (X : DMor n m) → Ob→S (∂₀S (proj X)) ≡ ∂₀ C (Mor→S (proj X))
+∂₀/ X@(dmor (Γ , dΓ) _ δ dδ) = ! (∂₀⟦⟧Mor _ _ δ {δᵈ = isTotal⟦⟧Mor _ _ {!!} {!!} dδ})
+
+∂₀→S : (X : MorS n m) → Ob→S (∂₀S X) ≡ ∂₀ C (Mor→S X)
+∂₀→S = //-elimP ∂₀/
+
+f₀ : CCatMor synCCat C
+Ob→ f₀ = Ob→S
+Mor→ f₀ = Mor→S
+∂₀→ f₀ {X = X} = ∂₀→S X
 ∂₁→ f₀ = {!!}
 id→ f₀ = {!!}
 comp→ f₀ = {!!}
@@ -37,8 +53,12 @@ ss→ f₀ = {!!}
 pt→ f₀ = {!!}
 ptmor→ f₀ = {!!}
 
-{- Existence -}
-f : StructuredCCatMor strSynCCat C
+
+{- Existence of a morphism between the structured contextual categories -}
+
+open StructuredCCatMor
+
+f : StructuredCCatMor strSynCCat sC
 ccat→ f = {!!}
 PiStr→ f = {!!}
 lamStr→ f = {!!}
@@ -46,6 +66,8 @@ appStr→ f = {!!}
 UUStr→ f = {!!}
 ElStr→ f = {!!}
 
-{- Uniqueness -}
-uniqueness : (f g : StructuredCCatMor strSynCCat C) → f ≡ g
+
+{- Uniqueness of the morphism -}
+
+uniqueness : (f g : StructuredCCatMor strSynCCat sC) → f ≡ g
 uniqueness f g = {!!}

@@ -1,4 +1,4 @@
-{-# OPTIONS --prop #-}
+{-# OPTIONS --prop --allow-unsolved-metas #-}
 
 open import common
 open import syntx
@@ -18,6 +18,7 @@ respectsCtx : (X : Ob n) (Γ : Ctx n) → Prop
 respectsCtx {zero} X ◇ = Unit
 respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A ⟧Ty (ft X))) (λ Aᵈ → totalify (⟦ A ⟧Ty (ft X)) Aᵈ ≡ X)
 
+
 {- Totality of the partial interpretation functions -}
 
 isTotal⟦⟧Ty  : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) → isDefined (⟦ A ⟧Ty X)
@@ -27,7 +28,8 @@ isTotal⟦⟧Mor : {Γ : Ctx n} (X : Ob n) {Δ : Ctx m} (Y : Ob m) (r : respects
 ⟦⟧Ty : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) → Ob (suc n)
 ⟦⟧Ty X r {A = A} dA = totalify (⟦ A ⟧Ty X) (isTotal⟦⟧Ty X r dA)
 
-{- Various compatibilities -}
+
+{- Various lemmas saying that the interpretation functions are well-behaved -}
 
 ∂₀⟦⟧Mor : (X : Ob n) (Y : Ob m) (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₀ (totalify (⟦ δ ⟧Mor X Y) δᵈ) ≡ X
 ∂₁⟦⟧Mor : (X : Ob n) (Y : Ob m) (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₁ (totalify (⟦ δ ⟧Mor X Y) δᵈ) ≡ Y
@@ -42,12 +44,14 @@ respectsCtxExt : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) (A : TyExpr n) {
               → respectsCtx (totalify (⟦ A ⟧Ty X) Aᵈ) (Γ , A)
 respectsCtxExt {Γ = Γ} X r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , refl
 
+
 {- Interpretation of definitional equalities -}
 
 ⟦⟧TyEq : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) {A A' : TyExpr n} (dA= : Derivable (Γ ⊢ A == A')) (Aᵈ : isDefined (⟦ A ⟧Ty X)) (A'ᵈ : isDefined (⟦ A' ⟧Ty X))
         → totalify (⟦ A ⟧Ty X) Aᵈ ≡ totalify (⟦ A' ⟧Ty X) A'ᵈ
 ⟦⟧TmEq : {Γ : Ctx n} (X : Ob n) (r : respectsCtx X Γ) {A : TyExpr n} {u u' : TmExpr n} (du= : Derivable (Γ ⊢ u == u' :> A)) (uᵈ : isDefined (⟦ u ⟧Tm X)) (u'ᵈ : isDefined (⟦ u' ⟧Tm X))
         → totalify (⟦ u ⟧Tm X) uᵈ ≡ totalify (⟦ u' ⟧Tm X) u'ᵈ
+
 
 {- Interpretation of total substitutions -}
 
@@ -64,6 +68,7 @@ respectsCtxExt {Γ = Γ} X r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , ref
               ≡ star (totalify (⟦ δ ⟧Mor X Y) δᵈ) (totalify (⟦ A ⟧Ty Y) Aᵈ) (∂₁⟦⟧Mor X Y δ ∙ ! (⟦⟧Ty-ft A))
 
 -- TODO: for terms
+
 
 {- Definitions -}
 
@@ -158,3 +163,6 @@ isTotal⟦⟧Mor X {Δ = Δ , B} Y r r' {δ , u} (dδ , du) =
 ⟦tsubst⟧Ty= X Y (pi A B) (Aᵈ , Bᵈ , tt) δ δᵈ = ! (PiStrNat (totalify (⟦ δ ⟧Mor X Y) δᵈ) {p = (ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A) ∙ ! (∂₁⟦⟧Mor X Y δ)} ∙ {!annoying recursive calls!})
 ⟦tsubst⟧Ty= X Y uu Aᵈ δ δᵈ = ! (UUStrNat (totalify (⟦ δ ⟧Mor X Y) δᵈ) {p = ! (∂₁⟦⟧Mor X Y δ)} ∙ ap UUStr (∂₀⟦⟧Mor X Y δ))
 ⟦tsubst⟧Ty= X Y (el v) Aᵈ δ δᵈ = ! (ElStrNat (totalify (⟦ δ ⟧Mor X Y) δᵈ) {p = ⟦⟧Tm₀ v ∙ ! (∂₁⟦⟧Mor X Y δ)} ∙ ap-irr2 ElStr {!⟦tsubst⟧Tm=  --TODO!})
+
+isTotal⟦⟧Ctx : {Γ : Ctx n} (dΓ : ⊢ Γ) → isDefined (⟦ Γ ⟧Ctx)
+isTotal⟦⟧Ctx dΓ = {!!}

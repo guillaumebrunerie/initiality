@@ -11,8 +11,91 @@ data Judgment : Set where
   _⊢_==_ : (Γ : Ctx n) → TyExpr n → TyExpr n → Judgment
   _⊢_==_:>_ : (Γ : Ctx n) → TmExpr n → TmExpr n → TyExpr n → Judgment
 
+
 {- Derivability of judgments, the typing rules of the type theory -}
-data Derivable : Judgment → Prop
+
+data Derivable : Judgment → Prop where
+
+  -- Variable rules
+  VarLast : {Γ : Ctx n} {A : TyExpr n}
+    → Derivable (Γ ⊢ A)
+    → Derivable ((Γ , A) ⊢ var last :> weakenTy A)
+  VarPrev : {Γ : Ctx n} {B : TyExpr n} {k : Fin n} {A : TyExpr n}
+    → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ var k :> A)
+    → Derivable ((Γ , B) ⊢ var (prev k) :> weakenTy A)
+          
+  -- Congruence for variables
+  VarLastCong : {Γ : Ctx n} {A : TyExpr n}
+    → Derivable (Γ ⊢ A)
+    → Derivable ((Γ , A) ⊢ var last == var last :> weakenTy A)
+  VarPrevCong : {Γ : Ctx n} {B : TyExpr n} {k k' : Fin n} {A : TyExpr n}
+    → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ var k == var k' :> A)
+    → Derivable ((Γ , B) ⊢ var (prev k) == var (prev k') :> weakenTy A)
+          
+  -- Symmetry and transitivity for types
+  TySymm : {Γ : Ctx n} {A B : TyExpr n}
+    → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == A)
+  TyTran : {Γ : Ctx n} {A B C : TyExpr n}
+    → Derivable (Γ ⊢ B) → Derivable (Γ ⊢ A == B)→ Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
+
+  -- Symmetry and transitivity for terms
+  TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
+    → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ v == u :> A)
+  TmTran : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n}
+    → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
+
+  -- Conversion rules
+  Conv : {Γ : Ctx n} {u : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u :> B)
+  ConvEq : {Γ : Ctx n} {u u' : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u == u' :> B)
+
+  -- Rules for Pi
+  Pi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} 
+    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ pi A B)
+  PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
+    → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
+
+  -- Rules for lambda
+  Lam : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)}
+    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B)
+    → Derivable (Γ ⊢ lam A B u :> pi A B)
+  LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
+    → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable ((Γ , A) ⊢ u == u' :> B)
+    → Derivable (Γ ⊢ lam A B u == lam A' B' u' :> pi A B)
+
+  -- Rules for app
+  App : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f a : TmExpr n}
+    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B) → Derivable (Γ ⊢ a :> A)
+    → Derivable (Γ ⊢ app A B f a :> substTy B a)
+  AppCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {f f' a a' : TmExpr n}
+    → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A)
+    → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
+
+  -- Rules for UU
+  UU : {Γ : Ctx n}
+    → Derivable (Γ ⊢ uu)
+  UUCong : {Γ : Ctx n}
+    → Derivable (Γ ⊢ uu == uu)
+
+  -- Rules for El
+  El : {Γ : Ctx n} {v : TmExpr n}
+    → Derivable (Γ ⊢ v :> uu) → Derivable (Γ ⊢ el v)
+  ElCong : {Γ : Ctx n} {v v' : TmExpr n}
+    → Derivable (Γ ⊢ v == v' :> uu) → Derivable (Γ ⊢ el v == el v')
+
+  -- Beta-reduction
+  Beta : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} {a : TmExpr n}
+    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ a :> A)
+    → Derivable (Γ ⊢ app A B (lam A B u) a == substTm u a :> substTy B a)
+
+
+{- Derivability of contexts, context equality, context morphisms, and context morphism equality -}
 
 ⊢_ : Ctx n → Prop
 ⊢ ◇ = Unit
@@ -29,76 +112,6 @@ _⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Prop
 _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
 Γ ⊢ ◇ == ◇ ∷> ◇ = Unit
 Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == u' :> A [ δ ]Ty)
-
-data Derivable where
-
-    -- Variable rule
-  VarLast : {Γ : Ctx n} {A : TyExpr n}
-          → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ var last :> weakenTy A)
-  VarPrev : {Γ : Ctx n} {B : TyExpr n} {k : Fin n} {A : TyExpr n}
-          → Derivable (Γ ⊢ A)
-          → Derivable (Γ ⊢ var k :> A)
-          → Derivable ((Γ , B) ⊢ var (prev k) :> weakenTy A)
-          
-  -- Congruence for variables
-  VarLastCong : {Γ : Ctx n} {A : TyExpr n}
-          → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ var last == var last :> weakenTy A)
-  VarPrevCong : {Γ : Ctx n} {B : TyExpr n} {k k' : Fin n} {A : TyExpr n}
-          → Derivable (Γ ⊢ A)
-          → Derivable (Γ ⊢ var k == var k' :> A)
-          → Derivable ((Γ , B) ⊢ var (prev k) == var (prev k') :> weakenTy A)
-          
-  -- Symmetry and transitivity for types
-  TySymm : {Γ : Ctx n} {A B : TyExpr n} → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == A)
-  TyTran : {Γ : Ctx n} {A B C : TyExpr n} → Derivable (Γ ⊢ B) → Derivable (Γ ⊢ A == B)→ Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
-
-  -- Symmetry and transitivity for terms
-  TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
-         → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ v == u :> A)
-  TmTran : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n}
-         → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
-
-  -- Conversion rule
-  Conv : {Γ : Ctx n} {u : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
-       → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u :> B)
-  ConvEq : {Γ : Ctx n} {u u' : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
-       → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u == u' :> B)
-
-  -- Rules for Pi
-  Pi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} 
-     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ pi A B)
-  PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} → Derivable (Γ ⊢ A)
-     → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
-
-  -- Rules for lambda
-  Lam : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)}
-      → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ lam A B u :> pi A B)
-  LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
-      → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B')
-      → Derivable ((Γ , A) ⊢ u == u' :> B) → Derivable (Γ ⊢ lam A B u == lam A' B' u' :> pi A B)
-
-  -- Rules for app
-  App : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f a : TmExpr n}
-      → (dA : Derivable (Γ ⊢ A)) (dB : Derivable ((Γ , A) ⊢ B)) (df : Derivable (Γ ⊢ f :> pi A B)) (da : Derivable (Γ ⊢ a :> A)) → Derivable (Γ ⊢ app A B f a :> substTy B a)
-  AppCong : {n : ℕ} {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {f f' a a' : TmExpr n}
-      → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
-
-  -- Rules for UU
-  UU : {Γ : Ctx n}
-     → Derivable (Γ ⊢ uu)
-  UUCong : {Γ : Ctx n}
-     → Derivable (Γ ⊢ uu == uu)
-
-  -- Rules for El
-  El : {Γ : Ctx n} {v : TmExpr n}
-     → Derivable (Γ ⊢ v :> uu) → Derivable (Γ ⊢ el v)
-  ElCong : {Γ : Ctx n} {v v' : TmExpr n}
-     → Derivable (Γ ⊢ v == v' :> uu) → Derivable (Γ ⊢ el v == el v')
-
-  -- Beta-reduction
-  Beta : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} {a : TmExpr n}
-       → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ a :> A)
-       → Derivable (Γ ⊢ app A B (lam A B u) a == substTm u a :> substTy B a)
 
 
 {- Congruence with respect to the type in derivability of term expressions -}
@@ -124,7 +137,8 @@ congMor refl refl refl dδ = dδ
 congMorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' θ θ' : Mor n m} → Γ ≡ Γ' → Δ ≡ Δ' → δ ≡ δ' → θ ≡ θ' → Γ ⊢ δ == θ ∷> Δ → Γ' ⊢ δ' == θ' ∷> Δ'
 congMorEq refl refl refl refl dδ= = dδ=
 
-{- All reflexivity rules are admissible -}
+
+{- Reflexivity rules -}
 
 TyRefl : {Γ : Ctx n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A)
 TmRefl : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ u == u :> A)
@@ -133,14 +147,14 @@ TyRefl (Pi dA dB) = PiCong dA (TyRefl dA) (TyRefl dB)
 TyRefl UU = UUCong
 TyRefl (El dv) = ElCong (TmRefl dv)
 
-congTyRefl : {Γ : Ctx n} {A A' : TyExpr n} → Derivable (Γ ⊢ A) → A ≡ A' → Derivable (Γ ⊢ A == A')
-congTyRefl dA refl = TyRefl dA
-
 TmRefl (VarLast dA) = VarLastCong dA
 TmRefl (VarPrev dA dk) = VarPrevCong dA (TmRefl dk) 
 TmRefl (Conv dA du dA=) = ConvEq dA (TmRefl du) dA=
 TmRefl (Lam dA dB du) = LamCong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
 TmRefl (App dA dB df da) = AppCong dA (TyRefl dA) (TyRefl dB) (TmRefl df) (TmRefl da)
+
+congTyRefl : {Γ : Ctx n} {A A' : TyExpr n} → Derivable (Γ ⊢ A) → A ≡ A' → Derivable (Γ ⊢ A == A')
+congTyRefl dA refl = TyRefl dA
 
 congTmRefl : {Γ : Ctx n} {A : TyExpr n} {u u' : TmExpr n} → Derivable (Γ ⊢ u :> A) → u ≡ u' → Derivable (Γ ⊢ u == u' :> A)
 congTmRefl du refl = TmRefl du
@@ -152,7 +166,6 @@ CtxRefl {Γ = Γ , A} (dΓ , dA) = (CtxRefl dΓ , dA , dA , TyRefl dA , TyRefl d
 MorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ ∷> Δ)
 MorRefl {Δ = ◇} {δ = ◇} dδ = tt
 MorRefl {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorRefl dδ , TmRefl du
-
 
 congMorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → δ ≡ δ' → Γ ⊢ δ ∷> Δ → Γ ⊢ δ == δ' ∷> Δ
 congMorRefl refl dδ = MorRefl dδ
@@ -193,10 +206,6 @@ WeakMorEq {Δ = Δ , B} T {δ = δ , u} {δ' , u'} (dδ , du) = (WeakMorEq T dδ
 
 weakenDerLast : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} {A : TyExpr m } → Derivable (Δ ⊢ A) → (Γ ⊢ δ ∷> Δ) → Derivable ((Γ , (A [ δ ]Ty)) ⊢ var last :> (A [ weakenMor δ ]Ty))
 weakenDerLast {Γ = Γ} {δ = δ} {A = A} dA dδ rewrite ! (weaken[]Ty A δ last) = VarLast (SubstTy dA dδ)
-
-idMorDerivable : {Γ : Ctx n} →  ⊢ Γ → (Γ ⊢ idMor n ∷> Γ)
-idMorDerivable {Γ = ◇} tt = tt
-idMorDerivable {Γ = Γ , A} (dΓ , dA) = WeakMor A (idMorDerivable dΓ) , congTm (ap weakenTy (! ([idMor]Ty A)) ∙ weaken[]Ty A (idMor _) last) refl (VarLast dA)
 
 
 SubstTy {A = pi A B} (Pi dA dB) dδ = Pi (SubstTy dA dδ) (SubstTy dB (WeakMor (A [ _ ]Ty) dδ , weakenDerLast dA dδ))
@@ -277,14 +286,6 @@ WeakTm = WeakTm' last
 WeakTyEq = WeakTyEq' last
 WeakTmEq = WeakTmEq' last
 
-SubstTyFullEq : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m} → Derivable (Δ ⊢ A') → (Γ ⊢ δ ∷> Δ)
-       → Derivable (Δ ⊢ A == A') → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
-SubstTmFullEq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u' :> A) → (Γ ⊢ δ ∷> Δ) 
-       → Derivable (Δ ⊢ u == u' :> A) → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u' [ δ' ]Tm :> A [ δ ]Ty)
-
-SubstTyFullEq dA' dδ dA= dδ= = TyTran (SubstTy dA' dδ) (SubstTyEq dA= dδ) (SubstTyMorEq dA' dδ dδ=)
-SubstTmFullEq du' dδ du= dδ= = TmTran (SubstTmEq du= dδ) (SubstTmMorEq du' dδ dδ=)
-
 
 SubstMor : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ : Mor m k} {δ : Mor n m} → (Δ ⊢ θ ∷> Θ) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ θ [ δ ]Mor ∷> Θ)
 SubstMor {Θ = ◇} {θ = ◇} tt dδ = tt
@@ -298,6 +299,13 @@ SubstMorEq {Θ = Θ , C} {θ = θ , w} {θ' = θ' , w'} (dθ= , dw) dδ = SubstM
 SubstMorMorEq : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ : Mor m k} {δ δ' : Mor n m} → (Δ ⊢ θ ∷> Θ) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ θ [ δ ]Mor == θ [ δ' ]Mor ∷> Θ)
 SubstMorMorEq {Θ = ◇} {◇} tt dδ dδ= = tt
 SubstMorMorEq {Θ = Θ , C} {θ , w} (dθ , dw) dδ dδ= = SubstMorMorEq dθ dδ dδ= , congTmEqTy ([]Ty-assoc _ θ C) (SubstTmMorEq dw dδ dδ=)
+
+
+{- Derivability of the identity morphism -}
+
+idMorDerivable : {Γ : Ctx n} →  ⊢ Γ → (Γ ⊢ idMor n ∷> Γ)
+idMorDerivable {Γ = ◇} tt = tt
+idMorDerivable {Γ = Γ , A} (dΓ , dA) = WeakMor A (idMorDerivable dΓ) , congTm (ap weakenTy (! ([idMor]Ty A)) ∙ weaken[]Ty A (idMor _) last) refl (VarLast dA)
 
 
 {- Conversion rules for types and terms are admissible -}
@@ -333,7 +341,16 @@ ConvTmEq (AppCong dA dA= dB= df= da=) dΓ= = AppCong (ConvTy dA dΓ=) (ConvTyEq 
 ConvTmEq (Beta dA dB du da) dΓ= = Beta (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm du (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm da dΓ=)
 
 
-{- Admissible rules regarding derivable contexts -}
+{- Various other admissible rules -}
+
+CtxSymm : {Γ Δ : Ctx n} → ⊢ Γ == Δ → ⊢ Δ == Γ
+CtxSymm {Γ = ◇} {Δ = ◇} tt = tt
+CtxSymm {Γ = Γ , A} {Δ , B} (dΓ= , dA , dB , dA= , dA=') = (CtxSymm dΓ=) , dB , dA , TySymm dA=' , TySymm dA=
+
+CtxTran : {Γ Δ Θ : Ctx n} → ⊢ Γ == Δ → ⊢ Δ == Θ → ⊢ Γ == Θ
+CtxTran {Γ = ◇} {Δ = ◇} {Θ = ◇} tt tt = tt
+CtxTran {Γ = Γ , A} {Δ , B} {Θ , C} (dΓ= , dA , dB , dA= , dA=') (dΔ= , dB' , dC , dB= , dB=') = CtxTran dΓ= dΔ= , dA , dC , TyTran (ConvTy dB (CtxSymm dΓ=)) dA= (ConvTyEq dB= (CtxSymm dΓ=)) , TyTran (ConvTy dB dΔ=) (ConvTyEq dA=' dΔ=) dB='
+
 
 CtxEqCtx1 : {Γ Γ' : Ctx n} → ⊢ Γ == Γ' → ⊢ Γ
 CtxEqCtx1 {Γ = ◇} {Γ' = ◇} tt = tt
@@ -343,16 +360,11 @@ CtxEqCtx2 : {Γ Γ' : Ctx n} → ⊢ Γ == Γ' → ⊢ Γ'
 CtxEqCtx2 {Γ = ◇} {Γ' = ◇} tt = tt
 CtxEqCtx2 {Γ = Γ , A} {Γ' = Γ' , A'} (dΓ= , dA , dA' , dA=) = CtxEqCtx2 dΓ= , dA'
 
-CtxSymm : {Γ Δ : Ctx n} → ⊢ Γ == Δ → ⊢ Δ == Γ
-CtxSymm {Γ = ◇} {Δ = ◇} tt = tt
-CtxSymm {Γ = Γ , A} {Δ , B} (dΓ= , dA , dB , dA= , dA=') = (CtxSymm dΓ=) , dB , dA , TySymm dA=' , TySymm dA=
-
 
 TyEqTy1 : {Γ : Ctx n} {A B : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ A)
 TyEqTy2 : {Γ : Ctx n} {A B : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B)
 TmEqTm1 : {Γ : Ctx n} {u u' : TmExpr n} {A : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ u :> A)
 TmEqTm2 : {Γ : Ctx n} {u u' : TmExpr n} {A : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ u' :> A)
-
 
 TyEqTy1 dΓ (TySymm dA=) = TyEqTy2 dΓ dA=
 TyEqTy1 dΓ (TyTran dB dA= dB=) = TyEqTy1 dΓ dA=
@@ -417,9 +429,23 @@ TmEqTm2 dΓ (AppCong dA dA= dB= df= da=) = Conv
 TmEqTm2 dΓ (Beta dA dB du da) = SubstTm du ((idMorDerivable dΓ) , (Conv dA da (congTyEq refl (!([idMor]Ty _)) (TyRefl dA))))
 
 
-CtxTran : {Γ Δ Θ : Ctx n} → ⊢ Γ == Δ → ⊢ Δ == Θ → ⊢ Γ == Θ
-CtxTran {Γ = ◇} {Δ = ◇} {Θ = ◇} tt tt = tt
-CtxTran {Γ = Γ , A} {Δ , B} {Θ , C} (dΓ= , dA , dB , dA= , dA=') (dΔ= , dB' , dC , dB= , dB=') = CtxTran dΓ= dΔ= , dA , dC , TyTran (ConvTy dB (CtxSymm dΓ=)) dA= (ConvTyEq dB= (CtxSymm dΓ=)) , TyTran (ConvTy dB dΔ=) (ConvTyEq dA=' dΔ=) dB='
+MorEqMor1 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ δ ∷> Δ)
+MorEqMor2 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ δ' ∷> Δ)
+
+MorEqMor1 {Δ = ◇} {δ = ◇} {◇} _ _ dδ= = tt
+MorEqMor1 {Δ = Δ , B} {δ = δ , u} {δ' , u'} dΓ (dΔ , _) (dδ= , du=) = (MorEqMor1 dΓ dΔ dδ=) , TmEqTm1 dΓ du=
+
+MorEqMor2 {Δ = ◇} {δ = ◇} {◇} _ _ dδ= = tt
+MorEqMor2 {Δ = Δ , B} {δ = δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ= , du=) = (MorEqMor2 dΓ dΔ dδ=) , Conv (SubstTy dB (MorEqMor1 dΓ dΔ dδ=)) (TmEqTm2 dΓ du=) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ=) dδ=)
+
+
+MorSymm : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ ∷> Δ
+MorSymm {Δ = ◇} {◇} {◇} _ _ tt = tt
+MorSymm {Δ = Δ , B} {δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ , du) = MorSymm dΓ dΔ dδ , ConvEq (SubstTy dB (MorEqMor1 dΓ dΔ dδ)) (TmSymm du) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ) dδ)
+
+MorTran : {Γ : Ctx n} {Δ : Ctx m} {δ δ' δ'' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ'' ∷> Δ → Γ ⊢ δ == δ'' ∷> Δ
+MorTran {Δ = ◇} {◇} {◇} {◇} _ _ tt tt = tt
+MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du) (dδ' , du') = (MorTran dΓ dΔ dδ dδ') , TmTran du (ConvEq (SubstTy dB (MorEqMor2 dΓ dΔ dδ)) du' (SubstTyMorEq dB (MorEqMor2 dΓ dΔ dδ) (MorSymm dΓ dΔ dδ)))
 
 
 DerTmTy : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
@@ -436,46 +462,30 @@ ConvTm2 du dΓ= dA= = ConvTm (Conv (DerTmTy (CtxEqCtx1 dΓ=) du) du dA=) dΓ=
 ConvTmEq2 : {Γ Δ : Ctx n} {u u' : TmExpr n} {A A' : TyExpr n} → Derivable (Γ ⊢ u == u' :> A) → (⊢ Γ == Δ) → Derivable (Γ ⊢ A == A') → Derivable (Δ ⊢ u == u' :> A')
 ConvTmEq2 du= dΓ= dA= = ConvTmEq (ConvEq (TyEqTy1 (CtxEqCtx1 dΓ=) dA=) du= dA=) dΓ=
 
-{- Admissible rules regarding derivable morphisms -}
-
 ConvMor : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ : Mor n m} → (Γ ⊢ δ ∷> Δ) → (⊢ Γ == Γ') → (⊢ Δ == Δ') → (Γ' ⊢ δ ∷> Δ')
 ConvMor {Δ = ◇} {Δ' = ◇} {δ = ◇} dδ dΓ= dΔ= = tt
 ConvMor {Δ = Δ , B} {Δ' = Δ' , B'} {δ = δ , u} (dδ , du) dΓ= (dΔ= , dB , dB' ,  dB= , dB=') =
         ConvMor dδ dΓ= dΔ= , Conv (ConvTy (SubstTy dB dδ) dΓ=) (ConvTm du dΓ=) (SubstTyEq dB= (ConvMor dδ dΓ= (CtxRefl (CtxEqCtx1 dΔ=))))
 
-eqMorDer : {Γ Γ' : Ctx n} → ⊢ Γ == Γ' → Γ' ⊢ idMor n ∷> Γ
-eqMorDer dΓ= = ConvMor (idMorDerivable (CtxEqCtx1 dΓ=)) dΓ= (CtxRefl (CtxEqCtx1 dΓ=))
-
-
-MorEqMor1 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ δ ∷> Δ)
-MorEqMor2 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ δ' ∷> Δ)
-
-MorEqMor1 {Δ = ◇} {δ = ◇} {◇} _ _ dδ= = tt
-MorEqMor1 {Δ = Δ , B} {δ = δ , u} {δ' , u'} dΓ (dΔ , _) (dδ= , du=) = (MorEqMor1 dΓ dΔ dδ=) , TmEqTm1 dΓ du=
-
-MorEqMor2 {Δ = ◇} {δ = ◇} {◇} _ _ dδ= = tt
-MorEqMor2 {Δ = Δ , B} {δ = δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ= , du=) = (MorEqMor2 dΓ dΔ dδ=) , Conv (SubstTy dB (MorEqMor1 dΓ dΔ dδ=)) (TmEqTm2 dΓ du=) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ=) dδ=)
-
-
 ConvMorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' : Mor n m} → (Γ ⊢ δ == δ' ∷> Δ) → (⊢ Γ == Γ') → (⊢ Δ == Δ') → (Γ' ⊢ δ == δ' ∷> Δ')
 ConvMorEq {Δ = ◇} {Δ' = ◇} {δ = ◇} {◇} dδ= dΓ= dΔ= = tt
 ConvMorEq {Δ = Δ , B} {Δ' = Δ' , B'} {δ = δ , u} {δ' , u₁} (dδ= , du=) dΓ= (dΔ= , dB , dB' , dB= , dB=') = (ConvMorEq dδ= dΓ= dΔ=) , ConvTmEq (ConvEq (SubstTy dB (MorEqMor1 (CtxEqCtx1 dΓ=) (CtxEqCtx1 dΔ=) dδ=)) du= (SubstTyEq dB= (MorEqMor1 (CtxEqCtx1 dΓ=) (CtxEqCtx1 dΔ=) dδ=))) dΓ=
 
+eqMorDer : {Γ Γ' : Ctx n} → ⊢ Γ == Γ' → Γ' ⊢ idMor n ∷> Γ
+eqMorDer dΓ= = ConvMor (idMorDerivable (CtxEqCtx1 dΓ=)) dΓ= (CtxRefl (CtxEqCtx1 dΓ=))
 
-MorSymm : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ ∷> Δ
-MorSymm {Δ = ◇} {◇} {◇} _ _ tt = tt
-MorSymm {Δ = Δ , B} {δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ , du) = MorSymm dΓ dΔ dδ , ConvEq (SubstTy dB (MorEqMor1 dΓ dΔ dδ)) (TmSymm du) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ) dδ)
+-- Should those functions be replaced by [SubstTyMorEq2]?
+SubstTyFullEq : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m} → Derivable (Δ ⊢ A') → (Γ ⊢ δ ∷> Δ)
+       → Derivable (Δ ⊢ A == A') → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
+SubstTyFullEq dA' dδ dA= dδ= = TyTran (SubstTy dA' dδ) (SubstTyEq dA= dδ) (SubstTyMorEq dA' dδ dδ=)
 
-MorTran : {Γ : Ctx n} {Δ : Ctx m} {δ δ' δ'' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ'' ∷> Δ → Γ ⊢ δ == δ'' ∷> Δ
-MorTran {Δ = ◇} {◇} {◇} {◇} _ _ tt tt = tt
-MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du) (dδ' , du') = (MorTran dΓ dΔ dδ dδ') , TmTran du (ConvEq (SubstTy dB (MorEqMor2 dΓ dΔ dδ)) du' (SubstTyMorEq dB (MorEqMor2 dΓ dΔ dδ) (MorSymm dΓ dΔ dδ)))
-
+SubstTmFullEq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u' :> A) → (Γ ⊢ δ ∷> Δ) 
+       → Derivable (Δ ⊢ u == u' :> A) → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u' [ δ' ]Tm :> A [ δ ]Ty)
+SubstTmFullEq du' dδ du= dδ= = TmTran (SubstTmEq du= dδ) (SubstTmMorEq du' dδ dδ=)
 
 SubstMorFullEq : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ θ' : Mor m k} {δ δ' : Mor n m} → (⊢ Δ) → (⊢ Θ) → (Δ ⊢ θ' ∷> Θ) → (Δ ⊢ θ == θ' ∷> Θ) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ θ [ δ ]Mor == θ' [ δ' ]Mor ∷> Θ)
 SubstMorFullEq {Θ = ◇} {◇} {◇} dΔ tt dθ' tt dδ dδ= = tt
 SubstMorFullEq {Θ = Θ , C} {θ , w} {θ' , w'} dΔ (dΘ , dC) (dθ' , dw') (dθ= , dw=) dδ dδ= = (SubstMorFullEq dΔ dΘ dθ' dθ= dδ dδ=) , congTmEqTy ([]Ty-assoc _ θ C) (SubstTmFullEq (Conv (SubstTy dC dθ') dw' (SubstTyMorEq dC dθ' (MorSymm dΔ dΘ dθ=))) dδ dw= dδ=) 
-
-
 
 SubstTyMorEq2 : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m}
               → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A == A') → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)

@@ -6,7 +6,7 @@ open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
 open import Agda.Builtin.Size public
 
-{- Relevant equality (used only in a few places, where we need to transport along it) -}
+{- Relevant equality (used only in a few places, when we need to transport along it) -}
 
 data _≡R_ {l} {A : Set l} (a : A) : A → Set where
   reflR : a ≡R a
@@ -17,6 +17,7 @@ data _≡R_ {l} {A : Set l} (a : A) : A → Set where
 apR : {A B : Set} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
 apR f reflR = reflR
 
+
 {- Rewriting -}
 
 abstract
@@ -24,9 +25,8 @@ abstract
   a ↦ b = a ≡R b
 {-# BUILTIN REWRITE _↦_ #-}
 
-{- Prop things -}
 
-infixr 42 _×_
+{- Constructions for Prop -}
 
 record Σ (A : Prop) (B : A → Prop) : Prop where
   constructor _,_
@@ -40,14 +40,19 @@ infixr 4 _,_
 _×_ : (A B : Prop) → Prop
 A × B = Σ A (λ _ → B)
 
+infixr 42 _×_
+
 record Unit : Prop where
   constructor tt
 
+
 {- Prop-valued equality -}
-infix 4 _≡_
+
 data _≡_ {l} {A : Set l} (x : A) : A → Prop where
   refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_ #-}
+
+infix 4 _≡_
 
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
@@ -60,7 +65,8 @@ infixr 4 _∙_
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
 
-{- Boxing -}
+
+{- Lifting from Prop to Set -}
 
 record Box {l} (P : Prop l) : Set l where
   constructor box
@@ -68,9 +74,6 @@ record Box {l} (P : Prop l) : Set l where
     unbox : P
 open Box public
 
--- -- Not used
--- data Squash {l} (A : Set l) : Prop l where
---   sq : A → Squash A
 
 {- Finite sets -}
 
@@ -82,8 +85,12 @@ _-F_ : (n : ℕ) (k : Fin n) → ℕ
 n -F last = n
 suc n -F prev k = n -F k
 
+_-F'_ : (n : ℕ) (k : Fin (suc n)) → ℕ
+n -F' last = n
+suc n -F' prev k = n -F' k
 
-{- Partiality monad -}
+
+{- The partiality monad -}
 
 record Partial (A : Set) : Set₁ where
   field
@@ -93,15 +100,16 @@ open Partial public
 
 return : {A : Set} → A → Partial A
 isDefined (return x) = Unit
-totalify (return x) tt = x
+totalify (return x) _ = x
 
 _>>=_ : {A B : Set} → Partial A → (A → Partial B) → Partial B
 isDefined (a >>= f) = Σ (isDefined a) (λ x → isDefined (f (totalify a x)))
-totalify (a >>= f) (a₀ , b₀) = totalify (f (totalify a a₀)) b₀
+totalify (a >>= f) x = totalify (f (totalify a (fst x))) (snd x)
 
 assume : (P : Prop) → Partial (Box P)
 isDefined (assume P) = P
 unbox (totalify (assume P) x) = x
+
 
 {- Helper functions for proof irrelevance -}
 
@@ -114,21 +122,20 @@ ap-irr2 f refl = refl
 ap2-irr : {A C D : Set} {B : A → C → Prop} (f : (a : A) (c : C) (b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
 ap2-irr f refl refl = refl
 
+{- Axioms -}
+
+postulate
+  -- Dependent function extensionality
+  funext  : ∀ {l l'} {A : Set l}  {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
+
+  -- Dependent function extensionality for function with domain Prop, does not seem to follow from [funext]
+  funextP : ∀ {l l'} {A : Prop l} {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
+
+  -- Propositional extensionality
+  prop-ext : {A B : Prop} (f : A → B) (g : B → A) → A ≡ B
+
+
 {- Generalized variables -}
 
 variable
   {n n' m k l} : ℕ
-
-{- Axioms that we use -}
-
--- Dependent function extensionality
-postulate
-  funext  : ∀ {l l'} {A : Set l}  {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
-
--- Function extensionality for function with domain Prop
-postulate
-  funextP : ∀ {l l'} {A : Prop l} {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
-
--- Propositional extensionality, using Prop
-postulate
-  prop-ext : {A B : Prop} (f : A → B) (g : B → A) → A ≡ B

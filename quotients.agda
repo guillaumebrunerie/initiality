@@ -37,7 +37,8 @@ module _ {A : Set} {R : EquivRel A} where
 
     {- Dependent elimination rule -}
 
-    //-elim : ∀ {l} {B : A // R → Set l} (proj* : (a : A) → B (proj a)) (eq* : {a b : A} (r : a ≃ b) → PathOver B (eq r) (proj* a) (proj* b)) → (x : A // R) → B x
+    //-elim : ∀ {l} {B : A // R → Set l} (proj* : (a : A) → B (proj a)) (eq* : {a b : A} (r : a ≃ b) → PathOver B (eq r) (proj* a) (proj* b))
+            → (x : A // R) → B x
 
     {- Reduction rule -}
 
@@ -89,7 +90,8 @@ PathOver-CstPropPi : ∀ {l l' l''} {A : Set l} {B : Prop l'} {C : A → B → S
                   → PathOver (λ x → ((y : B) → C x y)) p u u'
 PathOver-CstPropPi {p = refl} f = PathOver-refl-to (funextP (λ y → PathOver-refl-from (f y)))
 
-{- Elimination rules that we actually use -}
+
+{- Elimination rules that we actually use (most of the time) -}
 
 module _ {A : Set} {R : EquivRel A} where
 
@@ -109,11 +111,11 @@ module _ {A : Set} {R : EquivRel A} where
   //-elim-PiS : ∀ {l l'} {B : Set l} {C : A // R → B → Set l'} (proj* : (a : A) (b : B) → C (proj a) b) (eq* : {a b : A} (r : a ≃ b) (y : B) → PathOver (λ x → C x y) (eq r) (proj* a y) (proj* b y)) → (x : A // R) → (y : B) → C x y
   //-elim-PiS proj* eq* = //-elim proj* (λ r → PathOver-CstPi (eq* r))
 
-  -- Dependent elimination in a dependent type of the form x.((y : B x) → C) with B a Prop
+  -- Dependent elimination in a dependent type of the form x.(B x → C) with B a Prop
   //-elim-PiP : ∀ {l l'} {B : A // R → Prop l} {C : Set l'} (proj* : (a : A) (b : B (proj a)) → C) (eq* : {a a' : A} (r : a ≃ a') (y : B (proj a)) (y' : B (proj a')) → proj* a y ≡ proj* a' y') → (x : A // R) → (y : B x) → C
   //-elim-PiP proj* eq* = //-elim proj* (λ r → PathOver-Prop→Cst (eq* r))
 
-  -- Dependent elimination in a dependent type of the form x.((y : B x) → C x) with B a Prop
+  -- Dependent elimination in a dependent type of the form x.(B x → C x) with B a Prop
   //-elim-PiP2 : ∀ {l l'} {B : A // R → Prop l} {C : A // R → Set l'} (proj* : (a : A) (b : B (proj a)) → C (proj a)) (eq* : {a a' : A} (r : a ≃ a') (y : B (proj a)) (y' : B (proj a')) → PathOver C (eq r) (proj* a y) (proj* a' y')) → (x : A // R) → (y : B x) → C x
   //-elim-PiP2 proj* eq* = //-elim proj* (λ r → PathOver-Prop→ (eq* r))
 
@@ -122,18 +124,20 @@ module _ {A : Set} {R : EquivRel A} where
                  → (x : A // R) → PathOver (λ y → (B x y → C)) p (u x) (v x)
   //-elimP-PiP proj* = //-elimP (λ a → PathOver-Prop→Cst (proj* a))
 
-{- Effectiveness of quotients, using propositional extensionality -}
+{- Effectiveness of quotients, this uses propositional extensionality -}
 
 module _ {A : Set} {R : EquivRel A} where
 
-  instance
-    _ = R
+  private
+    instance
+      _ = R
 
-  _≃'_ : (a : A) (c : A // R) → Prop
-  _≃'_ a = //-rec {R = R} (λ b → a ≃ b) (λ r → prop-ext (λ z → tra {A = A} z r) λ z → tra {A = A} z (sym {A = A} r))
+    -- The "Codes" fibration
+    _≃'_ : (a : A) (c : A // R) → Prop
+    _≃'_ a = //-rec (λ b → a ≃ b) (λ r → prop-ext (λ z → tra {A = A} z r) (λ z → tra {A = A} z (sym {A = A} r)))
 
-  reflect' : {a : A} (c : A // R) → proj a ≡ c → a ≃' c
-  reflect' {a} c refl = ref a
+    reflect' : {a : A} (c : A // R) → proj a ≡ c → a ≃' c
+    reflect' {a} c refl = ref a
 
   reflect : {a b : A} → proj a ≡ proj b → a ≃ b
   reflect {b = b} p = reflect' (proj b) p

@@ -58,7 +58,6 @@ record CCat : Set₁ where
     ss-qq : {m n : ℕ} {f : Mor m (suc n)} → f ≡ comp (qq (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)) (ss f) (ss₁ ∙ ! qq₀)
     ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
 
-
   {- Variables -}
 
   trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F k)
@@ -96,6 +95,7 @@ record CCat : Set₁ where
 
   varC : (k : Fin n) (X : Ob n) → Mor n (suc n)
   varC k X = weakenCTm^ k (var-unweakened k X) (var-unweakened₀ k X)
+
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -166,6 +166,9 @@ record StructuredCCat : Set₁ where
 
 open StructuredCCat
 
+
+{- Morphisms of contextual categories -}
+
 record CCatMor (C D : CCat) : Set where
   open CCat
   field
@@ -183,9 +186,13 @@ record CCatMor (C D : CCat) : Set where
     pt→ : Ob→ (pt C) ≡ pt D
     ptmor→ : {X : Ob C n} → Mor→ (ptmor C X) ≡ ptmor D (Ob→ X)
 
+
+{- Morphisms of structured contextual categories -}
+
 record StructuredCCatMor (sC sD : StructuredCCat) : Set where
-  C = ccat sC
-  D = ccat sD
+  private
+    C = ccat sC
+    D = ccat sD
 
   field
     ccat→ : CCatMor C D
@@ -196,13 +203,12 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
   preserve-section : {n : ℕ} {u : Mor C n (suc n)} (us : is-section sC u) → is-section sD (Mor→ u)
   preserve-section us = ap2-irr (comp D) (ap (λ z → pp D z) (! ∂₁→) ∙ ! pp→) refl ∙ ! comp→ ∙ ! (ap (id D) (! ∂₀→) ∙ ! id→ ∙ ap Mor→ (! us)) 
 
-
   field
-    PiStr→  : {n : ℕ} (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)
-    lamStr→ : {n : ℕ} (u : Mor C (suc n) (suc (suc n))) (us : is-section sC u)
+    PiStr→  : (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)
+    lamStr→ : (u : Mor C (suc n) (suc (suc n))) (us : is-section sC u)
             → Mor→ (lamStr sC u us) ≡ lamStr sD (Mor→ u) (preserve-section us)
-    appStr→ : {n : ℕ} (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fs : is-section sC f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (as : is-section sC a) (a₁ : ∂₁ C a ≡ ft C B)
+    appStr→ : (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fs : is-section sC f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (as : is-section sC a) (a₁ : ∂₁ C a ≡ ft C B)
             → Mor→ (appStr sC B f fs f₁ a as a₁) ≡ appStr sD (Ob→ B) (Mor→ f) (preserve-section fs) ((! ∂₁→) ∙ ap Ob→ f₁ ∙ PiStr→ B) (Mor→ a) (preserve-section as) ((! ∂₁→) ∙ ap Ob→ a₁ ∙ ft→)
-    UUStr→ : {n : ℕ} (X : Ob C n) → Ob→ (UUStr sC X) ≡ UUStr sD (Ob→ X)
-    ElStr→ : {n : ℕ} (v : Mor C n (suc n)) (vs : is-section sC v) (v₁ : ∂₁ C v ≡ UUStr sC (∂₀ C v))
+    UUStr→ : (X : Ob C n) → Ob→ (UUStr sC X) ≡ UUStr sD (Ob→ X)
+    ElStr→ : (v : Mor C n (suc n)) (vs : is-section sC v) (v₁ : ∂₁ C v ≡ UUStr sC (∂₀ C v))
            → Ob→ (ElStr sC v vs v₁) ≡ ElStr sD (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ (∂₀ C v) ∙ ap (UUStr sD) ∂₀→)

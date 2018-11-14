@@ -15,7 +15,7 @@ record DCtx (n : ℕ) : Set where
   field
     ctx : Ctx n
     der : ⊢ ctx
-open DCtx
+open DCtx public
 
 record DMor (n m : ℕ) : Set where
   constructor dmor
@@ -24,10 +24,7 @@ record DMor (n m : ℕ) : Set where
     rhs : DCtx m
     mor : Mor n m
     morDer : ctx lhs ⊢ mor ∷> ctx rhs
-open DMor
-
-pair-DMor : (δ : DMor n m) {u : TmExpr n} {A : TyExpr m} (dA : Derivable (ctx (rhs δ) ⊢ A)) (du : Derivable (ctx (lhs δ) ⊢ u :> A [ mor δ ]Ty)) → DMor n (suc m)
-pair-DMor (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) {u = u} {A = A} dA du = dmor (Γ , dΓ) ((Δ , A) , (dΔ , dA)) (δ , u) (dδ , du)
+open DMor public
 
 instance
   ObEquiv : (n : ℕ) → EquivRel (DCtx n)
@@ -39,8 +36,11 @@ instance
   MorEquiv : (n m : ℕ) → EquivRel (DMor n m)
   EquivRel._≃_ (MorEquiv n m) (dmor (Γ , _) (Δ , _) δ _) (dmor (Γ' , _) (Δ' , _) δ' _) = ((⊢ Γ == Γ') × (⊢ Δ == Δ')) × (Γ ⊢ δ == δ' ∷> Δ)
   EquivRel.ref (MorEquiv n m) (dmor (_ , dΓ) (_ , dΔ) _ dδ) = (CtxRefl dΓ , CtxRefl dΔ) , (MorRefl dδ)
-  EquivRel.sym (MorEquiv n m) {a = a} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm (der (lhs a)) (der (rhs a)) δ=) Γ= Δ=
-  EquivRel.tra (MorEquiv n m) {a = a} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran (der (lhs a)) (der (rhs a)) δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
+  EquivRel.sym (MorEquiv n m) {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm dΓ dΔ δ=) Γ= Δ=
+  EquivRel.tra (MorEquiv n m) {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran dΓ dΔ δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
+
+
+{- The syntactic contextual category -}
 
 ObS : ℕ → Set
 ObS n = DCtx n // ObEquiv n
@@ -69,10 +69,6 @@ id₁S n = //-elimP (λ Γ → refl)
 compS-// : (g : DMor m k) (f : DMor n m) (_ : ∂₁S (proj f) ≡ ∂₀S (proj g)) → MorS n k
 compS-// (dmor Δd@(Δ , dΔ) Θd θ dθ) (dmor Γd@(Γ , dΓ) Δd'@(Δ' , dΔ') δ dδ) p = proj (dmor Γd Θd (θ [ δ ]Mor) (SubstMor dθ (ConvMor dδ (CtxRefl dΓ) (reflect p))))
 
--- postulate
---   #TODO# : {A : Set} → A
---   #TODOP# : {A : Prop} → A
-
 compS-eq : (g g' : DMor m k) (r : g ≃ g') (f f' : DMor n m) (r' : f ≃ f') (p : ∂₁S (proj f) ≡ ∂₀S (proj g)) (q : ∂₁S (proj f') ≡ ∂₀S (proj g')) → compS-// g f p ≡ compS-// g' f' q
 compS-eq (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) (dmor (Γ' , dΓ') (Δ' , dΔ') δ' dδ') ((dΓ= , dΔ=) , dδ=) (dmor (Γ'' , dΓ'') (Δ'' , dΔ'') δ'' dδ'') (dmor (Γ''' , dΓ''') (Δ''' , dΔ''') δ''' dδ''') ((dΓ''= , dΔ''=) ,  dδ''=) p q =
   eq ((dΓ''= , dΔ=) , SubstMorFullEq dΔ'' dΔ (ConvMor dδ' (CtxSymm (CtxTran (reflect p) dΓ=)) (CtxSymm dΔ=)) (ConvMorEq dδ= (CtxSymm (CtxTran (reflect p) (CtxRefl dΓ))) (CtxRefl dΔ)) dδ'' dδ''=)
@@ -96,11 +92,8 @@ comp₁S-// g f p = refl
 comp₁S : (g : MorS m k) (f : MorS n m) (p : ∂₁S f ≡ ∂₀S g) → ∂₁S (compS g f p) ≡ ∂₁S g
 comp₁S = //-elimP (λ g → //-elimP (comp₁S-// g))
 
-dft : DCtx (suc n) → DCtx n
-dft ((Γ , A), (dΓ , dA)) = (Γ , dΓ)
-
 ftS-// : {n : ℕ} → DCtx (suc n) → ObS n
-ftS-// Γ = proj (dft Γ)
+ftS-// ((Γ , A), (dΓ , dA)) = proj (Γ , dΓ)
 
 ftS-eq : {Γ Γ' : DCtx (suc n)} → ⊢ ctx Γ == ctx Γ' → ftS-// Γ ≡ ftS-// Γ'
 ftS-eq {Γ = (_ , _) , _} {(_ , _) , _} r = eq (fst r)
@@ -222,7 +215,7 @@ qq₁S : (f : MorS m n) (X : ObS (suc n)) (p : ∂₁S f ≡ ftS X) → ∂₁S 
 qq₁S = //-elimP (λ f → //-elimP (qq₁S-// f))
 
 ssS-//-u : (f : DMor m (suc n)) → DMor m (suc m)
-ssS-//-u {m = m} f@(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) = pair-DMor (idS-u m (Γ , dΓ)) (SubstTy dB dδ) (congTm (! ([idMor]Ty _)) refl du)
+ssS-//-u {m = m} f@(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) = dmor (Γ , dΓ) ((Γ , B [ δ ]Ty) , (dΓ , SubstTy dB dδ)) (idMor _ , u) (idMorDerivable _ , congTm (! ([idMor]Ty _)) refl du)
 
 ssS-// : (f : DMor m (suc n)) → MorS m (suc m)
 ssS-// f = proj (ssS-//-u f)
@@ -285,8 +278,6 @@ ss-compS-// U@((Θ' , C), (dΘ' , dC)) g@(dmor (Δ' , dΔ') (Θ , dΘ) θ dθ) f
 ss-compS : {m n k : ℕ} (U : ObS (suc k)) (g : MorS n k) (f : MorS m (suc n)) (g₁ : ∂₁S g ≡ ftS U) (f₁ : ∂₁S f ≡ starS g U g₁) {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ssS f ≡ ssS (compS (qqS g U g₁) f (! (qq₀S g U g₁ ∙ ! f₁)))
 ss-compS = //-elimP (λ U → //-elimP (λ g → //-elimP (ss-compS-// U g)))
 
-{- The syntactic contextual category -}
-
 synCCat : CCat
 Ob synCCat = ObS
 CCat.Mor synCCat = MorS
@@ -327,6 +318,9 @@ ss-pp synCCat {f = f} = ss-ppS f
 ss-qq synCCat {f = f} = ss-qqS f
 ss-comp synCCat {U = U} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U g f g₁ f₁
 
+
+{- The syntactic structured contextual category -}
+
 open StructuredCCat
 
 is-sectionS : (u : MorS n (suc n)) → Prop
@@ -346,8 +340,6 @@ sectionS-eq-ctx us with reflect us
 
 is-section₀S : {u : MorS n (suc n)} (us : is-sectionS u) → ∂₀S u ≡ ftS (∂₁S u)
 is-section₀S {u = u} us = ! (id₁S _ (∂₀S u)) ∙ ap ∂₁S (! us) ∙ comp₁S (ppS (∂₁S u)) u (! (pp₀S _)) ∙ pp₁S (∂₁S u)
-
-{- The syntactic structured contextual category -}
 
 PiStrS-//  : (X : DCtx (suc (suc n))) → ObS (suc n)
 PiStrS-// (((Γ , A) , B), ((dΓ , dA) , dB)) = proj ((Γ , pi A B) , (dΓ , Pi dA dB))
