@@ -58,6 +58,20 @@ record CCat : Set₁ where
     ss-qq : {m n : ℕ} {f : Mor m (suc n)} → f ≡ comp (qq (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)) (ss f) (ss₁ ∙ ! qq₀)
     ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
 
+  {- Sections of [pp] -}
+
+  is-section : (u : Mor n (suc n)) → Prop
+  is-section u = comp (pp (∂₁ u)) u (! pp₀) ≡ id (∂₀ u)
+
+  is-section₀ : {u : Mor n (suc n)} (us : is-section u) → ∂₀ u ≡ ft (∂₁ u)
+  is-section₀ us = ! id₁ ∙ ap ∂₁ (! us) ∙ comp₁ ∙ pp₁
+
+  ss-is-section : {m n : ℕ} {f : Mor m (suc n)} → is-section (ss f)
+  ss-is-section {m} {n} {f} = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
+
+  ss-comp-section₁ : {m n : ℕ} {g : Mor m n} {f : Mor n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
+  ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
+
   {- Variables -}
 
   trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F k)
@@ -74,28 +88,48 @@ record CCat : Set₁ where
   var-unweakened last X = last-var X
   var-unweakened (prev k) X = var-unweakened k (ft X)
 
+  var-unweakeneds : {n : ℕ} (k : Fin n) (X : Ob n) → is-section (var-unweakened k X)
+  var-unweakeneds last X = ss-is-section
+  var-unweakeneds (prev k) X = var-unweakeneds k (ft X)
+
   var-unweakened₀ : {n : ℕ} (k : Fin n) (X : Ob n) → ∂₀ (var-unweakened k X) ≡ trim k X
   var-unweakened₀ last X = ss₀ ∙ id₀
   var-unweakened₀ (prev k) X = var-unweakened₀ k (ft X)
 
-  weakenCTm : {X : Ob (suc n)} (u : Mor n (suc n)) (u₀ : ∂₀ u ≡ ft X) → Mor (suc n) (suc (suc n))
-  weakenCTm {X = X} u u₀ = ss (comp u (pp X) (pp₁ ∙ ! u₀))
+  weakenCTm : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → Mor (suc n) (suc (suc n))
+  weakenCTm {X = X} u _ u₀ = ss (comp u (pp X) (pp₁ ∙ ! u₀))
 
-  weakenCTm₀ : {X : Ob (suc n)} (u : Mor n (suc n)) (u₀ : ∂₀ u ≡ ft X) → ∂₀ (weakenCTm u u₀) ≡ X
-  weakenCTm₀ u u₀ = ss₀ ∙ comp₀ ∙ pp₀
+  weakenCTms : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → is-section (weakenCTm u us u₀)
+  weakenCTms u us u₀ = ss-is-section
 
-  weakenCTm^  : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (u₀ : ∂₀ u ≡ trim k X) → Mor n (suc n)
-  weakenCTm^₀ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (u₀ : ∂₀ u ≡ trim k X) → ∂₀ (weakenCTm^ k u u₀) ≡ X
+  weakenCTm₀ : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → ∂₀ (weakenCTm u us u₀) ≡ X
+  weakenCTm₀ _ _ _ = ss₀ ∙ comp₀ ∙ pp₀
 
-  weakenCTm^ last u _ = u
-  weakenCTm^ (prev k) {X} u u₀ = weakenCTm (weakenCTm^ k u u₀) (weakenCTm^₀ k u u₀)
+  weakenCTm^  : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → Mor n (suc n)
+  weakenCTm^s : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → is-section (weakenCTm^ k u us u₀)
+  weakenCTm^₀ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → ∂₀ (weakenCTm^ k u us u₀) ≡ X
+--  weakenCTm^₁ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → ∂₁ (weakenCTm^ k u us u₀) ≡ {!∂₁ u!}
 
-  weakenCTm^₀ last u u₀ = u₀
-  weakenCTm^₀ (prev k) u u₀ = weakenCTm₀ (weakenCTm^ k u u₀) (weakenCTm^₀ k u u₀)
+  weakenCTm^ last u _ _ = u
+  weakenCTm^ (prev k) {X} u us u₀ = weakenCTm (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
+
+  weakenCTm^s last u us u₀ = us
+  weakenCTm^s (prev k) u us u₀ = weakenCTms (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
+
+  weakenCTm^₀ last u _ u₀ = u₀
+  weakenCTm^₀ (prev k) u us u₀ = weakenCTm₀ (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
 
   varC : (k : Fin n) (X : Ob n) → Mor n (suc n)
-  varC k X = weakenCTm^ k (var-unweakened k X) (var-unweakened₀ k X)
+  varC k X = weakenCTm^ k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
 
+  varCs : (k : Fin n) (X : Ob n) → is-section (varC k X)
+  varCs k X = weakenCTm^s k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
+
+  varC₀ : (k : Fin n) (X : Ob n) → ∂₀ (varC k X) ≡ X
+  varC₀ k X = weakenCTm^₀ k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
+
+  -- varC₁ : (k : Fin n) (X : Ob n) → ∂₁ (varC k X) ≡ {!!}
+  -- varC₁ k X = {!weakenCTm^₀ k (var-unweakened k X) (var-unweakened₀ k X) (var-unweakeneds k X)!}
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -104,18 +138,6 @@ record StructuredCCat : Set₁ where
     ccat : CCat
 
   open CCat ccat renaming (Mor to MorC)
-
-  is-section : (u : MorC n (suc n)) → Prop
-  is-section u = comp (pp (∂₁ u)) u (! pp₀) ≡ id (∂₀ u)
-
-  is-section₀ : {u : MorC n (suc n)} (us : is-section u) → ∂₀ u ≡ ft (∂₁ u)
-  is-section₀ us = ! id₁ ∙ ap ∂₁ (! us) ∙ comp₁ ∙ pp₁
-
-  ss-is-section : {m n : ℕ} {f : MorC m (suc n)} → is-section (ss f)
-  ss-is-section {m} {n} {f} = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
-
-  ss-comp-section₁ : {m n : ℕ} {g : MorC m n} {f : MorC n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
-  ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
 
   field
     -- Additional structure on contextual categories
@@ -200,15 +222,15 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
   open CCatMor ccat→
   open CCat
 
-  preserve-section : {n : ℕ} {u : Mor C n (suc n)} (us : is-section sC u) → is-section sD (Mor→ u)
+  preserve-section : {n : ℕ} {u : Mor C n (suc n)} (us : is-section C u) → is-section D (Mor→ u)
   preserve-section us = ap2-irr (comp D) (ap (λ z → pp D z) (! ∂₁→) ∙ ! pp→) refl ∙ ! comp→ ∙ ! (ap (id D) (! ∂₀→) ∙ ! id→ ∙ ap Mor→ (! us)) 
 
   field
     PiStr→  : (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)
-    lamStr→ : (u : Mor C (suc n) (suc (suc n))) (us : is-section sC u)
+    lamStr→ : (u : Mor C (suc n) (suc (suc n))) (us : is-section C u)
             → Mor→ (lamStr sC u us) ≡ lamStr sD (Mor→ u) (preserve-section us)
-    appStr→ : (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fs : is-section sC f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (as : is-section sC a) (a₁ : ∂₁ C a ≡ ft C B)
+    appStr→ : (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fs : is-section C f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (as : is-section C a) (a₁ : ∂₁ C a ≡ ft C B)
             → Mor→ (appStr sC B f fs f₁ a as a₁) ≡ appStr sD (Ob→ B) (Mor→ f) (preserve-section fs) ((! ∂₁→) ∙ ap Ob→ f₁ ∙ PiStr→ B) (Mor→ a) (preserve-section as) ((! ∂₁→) ∙ ap Ob→ a₁ ∙ ft→)
     UUStr→ : (X : Ob C n) → Ob→ (UUStr sC X) ≡ UUStr sD (Ob→ X)
-    ElStr→ : (v : Mor C n (suc n)) (vs : is-section sC v) (v₁ : ∂₁ C v ≡ UUStr sC (∂₀ C v))
+    ElStr→ : (v : Mor C n (suc n)) (vs : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC (∂₀ C v))
            → Ob→ (ElStr sC v vs v₁) ≡ ElStr sD (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ (∂₀ C v) ∙ ap (UUStr sD) ∂₀→)

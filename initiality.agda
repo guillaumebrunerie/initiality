@@ -27,13 +27,13 @@ Ob→S : ObS n → Ob C n
 Ob→S = //-rec Ob/ {!!}
 
 Mor/ : DMor n m → Mor C n m
-Mor/ (dmor Γd Δd δ dδ) = totalify (⟦ δ ⟧Mor (Ob/ Γd) (Ob/ Δd)) (isTotal⟦⟧Mor (Ob/ Γd) (Ob/ Δd) {!TODO, Γ respects its interpretation!} {!idem!} dδ)
+Mor/ (dmor Γd Δd δ dδ) = totalify (⟦ δ ⟧Mor (Ob/ Γd) (Ob/ Δd)) (isTotal⟦⟧Mor (Ob/ Γd) (Ob/ Δd) (respects⟦⟧Ctx _ _) (respects⟦⟧Ctx _ _) dδ)
 
 Mor→S : MorS n m → Mor C n m
 Mor→S = //-rec Mor/ {!!}
 
 ∂₀/ : (X : DMor n m) → Ob→S (∂₀S (proj X)) ≡ ∂₀ C (Mor→S (proj X))
-∂₀/ X@(dmor (Γ , dΓ) _ δ dδ) = ! (∂₀⟦⟧Mor _ _ δ {δᵈ = isTotal⟦⟧Mor _ _ {!!} {!!} dδ})
+∂₀/ X@(dmor (Γ , dΓ) _ δ dδ) = ! (∂₀⟦⟧Mor _ _ δ {δᵈ = isTotal⟦⟧Mor _ _ (respects⟦⟧Ctx _ _) (respects⟦⟧Ctx _ _) dδ})
 
 ∂₀→S : (X : MorS n m) → Ob→S (∂₀S X) ≡ ∂₀ C (Mor→S X)
 ∂₀→S = //-elimP ∂₀/
@@ -59,7 +59,7 @@ ptmor→ f₀ = {!!}
 open StructuredCCatMor
 
 f : StructuredCCatMor strSynCCat sC
-ccat→ f = {!!}
+ccat→ f = f₀
 PiStr→ f = {!!}
 lamStr→ f = {!!}
 appStr→ f = {!!}
