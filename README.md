@@ -7,6 +7,20 @@ Pi-types, a base type called U, and a dependent type called El. This is work in 
 It requires a quite recent version of the master branch of Agda (to have the `variable` keyword,
 `Prop` and all sorts of fancy stuff).
 
+Metatheory
+----------
+
+We are using standard Agda with the sort `Prop` of strict propositions
+(see https://hal.inria.fr/hal-01859964v2/document) and sized types.
+The other axioms that we are using are:
+- dependent function extensionality (three axioms, for the cases when the domain is a set, a
+  proposition, or implicit)
+- propositional extensionality, phrased with `Prop`
+- existence of quotients for `Prop`-valued equivalence relations
+The flag `--prop` enables `Prop`, the flag `--rewriting` is used for adding definitional reduction
+rules for the quotients. Almost everything compiles with `--without-K` as well, except for the
+`PathOver-refl-from` lemma, but it’s not yet clear to me whether it actually requires K.
+
 Files
 -----
 

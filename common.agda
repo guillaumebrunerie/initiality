@@ -1,6 +1,6 @@
-{-# OPTIONS --rewriting --prop #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
-open import Agda.Primitive
+open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
@@ -81,14 +81,12 @@ data Fin : ℕ → Set where
   last : {n : ℕ} → Fin (suc n)
   prev : {n : ℕ} → Fin n → Fin (suc n)
 
-_-F_ : (n : ℕ) (k : Fin n) → ℕ
-n -F last = n
-suc n -F prev k = n -F k
-
 _-F'_ : (n : ℕ) (k : Fin (suc n)) → ℕ
 n -F' last = n
 suc n -F' prev k = n -F' k
 
+_-F_ : (n : ℕ) (k : Fin n) → ℕ
+n -F k = suc (n -F' prev k)
 
 {- The partiality monad -}
 

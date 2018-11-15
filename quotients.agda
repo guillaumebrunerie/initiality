@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 
@@ -6,7 +6,7 @@ open import common
 
 -- This is the regular PathOver, but Prop-valued. We cannot define it by recursion on [p] because we
 -- cannot eliminate from Prop to Set, but defining it as an inductive family is fine.
-data PathOver {l l'} {A : Set l} (B : A → Set l') {a : A} : {a' : A} (p : a ≡ a') → B a → B a' → Prop where
+data PathOver {l l'} {A : Set l} (B : A → Set l') {a : A} : {a' : A} (p : a ≡ a') → B a → B a' → Prop (l ⊔ l') where
   reflo : {u : B a} → PathOver B refl u u
 
 {- Equivalence relations -}
@@ -54,10 +54,12 @@ PathOver-refl-to : ∀ {l l'} {A : Set l} {B : A → Set l'} {a : A} {u u' : B a
                  → PathOver B refl u u'
 PathOver-refl-to refl = reflo
 
-PathOver-refl-from : ∀ {l l'} {A : Set l} {B : A → Set l'} {a : A} {u u' : B a}
+-- Works with K
+postulate
+  PathOver-refl-from : ∀ {l l'} {A : Set l} {B : A → Set l'} {a : A} {u u' : B a}
                  → PathOver B refl u u'
                  → u ≡ u'
-PathOver-refl-from reflo = refl
+--PathOver-refl-from reflo = refl
 
 PathOver-Box : ∀ {l l'} {A : Set l} (B : A → Prop l') {a a' : A} (p : a ≡ a') (u : Box (B a)) (u' : Box (B a')) → PathOver (λ x → Box (B x)) p u u'
 PathOver-Box B refl u u' = reflo

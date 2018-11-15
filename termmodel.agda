@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --allow-unsolved-metas --prop #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import contextualcat
@@ -280,45 +280,45 @@ ss-compS = //-elimP (λ U → //-elimP (λ g → //-elimP (ss-compS-// U g)))
 
 {- The syntactic contextual category -}
 
--- synCCat : CCat
--- Ob synCCat = ObS
--- CCat.Mor synCCat = MorS
--- ∂₀ synCCat = ∂₀S
--- ∂₁ synCCat = ∂₁S
--- id synCCat = idS _
--- id₀ synCCat {n = n} {X = X} = id₀S n X
--- id₁ synCCat {n = n} {X = X} = id₁S n X
--- comp synCCat = compS
--- comp₀ synCCat {g = g} {f = f} {p = p} = comp₀S g f p
--- comp₁ synCCat {g = g} {f = f} {p = p} = comp₁S g f p
--- ft synCCat = ftS
--- pp synCCat = ppS
--- pp₀ synCCat {X = X} = pp₀S X
--- pp₁ synCCat {X = X} = pp₁S X
--- star synCCat = starS
--- qq synCCat = qqS
--- qq₀ synCCat {f = f} {X = X} {p = p} = qq₀S f X p
--- qq₁ synCCat {f = f} {X = X} {p = p} = qq₁S f X p
--- ss synCCat = ssS
--- ss₀ synCCat {f = f} = ss₀S f
--- ss₁ synCCat {f = f} = ss₁S f
--- pt synCCat = ptS
--- pt-unique synCCat = pt-uniqueS
--- ptmor synCCat = ptmorS
--- ptmor₀ synCCat {X = X} = ptmor₀S X
--- ptmor₁ synCCat {X = X} = ptmor₁S X
--- ptmor-unique synCCat = ptmor-uniqueS
--- id-right synCCat {f = f} = id-rightS f
--- id-left synCCat {f = f} = id-leftS f
--- assoc synCCat {h = h} {g = g} {f = f} {p = p} {q = q} = assocS h g f p q
--- ft-star synCCat {f = f} {X = X} {p = p} = ft-starS f X p
--- pp-qq synCCat {f = f} {X = X} {p = p} = pp-qqS f X p
--- star-id synCCat {X = X} = star-idS X
--- qq-id synCCat {X = X} = qq-idS X
--- star-comp synCCat {g = g} {f = f} {p = p} {X = X} q = star-compS g f X p q
--- ss-pp synCCat {f = f} = ss-ppS f
--- ss-qq synCCat {f = f} = ss-qqS f
--- ss-comp synCCat {U = U} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U g f g₁ f₁
+synCCat : CCat
+Ob synCCat = ObS
+CCat.Mor synCCat = MorS
+∂₀ synCCat = ∂₀S
+∂₁ synCCat = ∂₁S
+id synCCat = idS _
+id₀ synCCat {n = n} {X = X} = id₀S n X
+id₁ synCCat {n = n} {X = X} = id₁S n X
+comp synCCat = compS
+comp₀ synCCat {g = g} {f = f} {p = p} = comp₀S g f p
+comp₁ synCCat {g = g} {f = f} {p = p} = comp₁S g f p
+ft synCCat = ftS
+pp synCCat = ppS
+pp₀ synCCat {X = X} = pp₀S X
+pp₁ synCCat {X = X} = pp₁S X
+star synCCat = starS
+qq synCCat = qqS
+qq₀ synCCat {f = f} {X = X} {p = p} = qq₀S f X p
+qq₁ synCCat {f = f} {X = X} {p = p} = qq₁S f X p
+ss synCCat = ssS
+ss₀ synCCat {f = f} = ss₀S f
+ss₁ synCCat {f = f} = ss₁S f
+pt synCCat = ptS
+pt-unique synCCat = pt-uniqueS
+ptmor synCCat = ptmorS
+ptmor₀ synCCat {X = X} = ptmor₀S X
+ptmor₁ synCCat {X = X} = ptmor₁S X
+ptmor-unique synCCat = ptmor-uniqueS
+id-right synCCat {f = f} = id-rightS f
+id-left synCCat {f = f} = id-leftS f
+assoc synCCat {h = h} {g = g} {f = f} {p = p} {q = q} = assocS h g f p q
+ft-star synCCat {f = f} {X = X} {p = p} = ft-starS f X p
+pp-qq synCCat {f = f} {X = X} {p = p} = pp-qqS f X p
+star-id synCCat {X = X} = star-idS X
+qq-id synCCat {X = X} = qq-idS X
+star-comp synCCat {g = g} {f = f} {p = p} {X = X} q = star-compS g f X p q
+ss-pp synCCat {f = f} = ss-ppS f
+ss-qq synCCat {f = f} = ss-qqS f
+ss-comp synCCat {U = U} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U g f g₁ f₁
 
 
 {- The syntactic structured contextual category -}
@@ -603,11 +603,12 @@ lamStrNatS : (g : MorS n m) (u : MorS (suc m) (suc (suc m))) (us : is-sectionS u
 lamStrNatS = //-elimP (λ g → //-elimP (λ u → lamStrNatS-// g u))
 
 
-appStr₀S : {B : ObS (suc (suc n))} {f : MorS n (suc n)} {fs : is-sectionS f} {f₁ : ∂₁S f ≡ PiStrS B} {a : MorS n (suc n)} (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → ∂₀S (appStrS B f fs f₁ a as a₁) ≡ ftS (ftS B)
-appStr₀S {B = B} {f} {fs} {f₁} as a₁ = is-section₀S (appStrsS {!!} {!!} {!!} {!!} {!!} {!!} {!!}) ∙ ap ftS (appStr₁S {!!} {!!} {!!} {!!} {!!} {!!} {!!}) ∙ (ft-starS {!!} {!!} {!!}) ∙ is-section₀S as ∙ ap ftS a₁
+-- appStr₀S : {B : ObS (suc (suc n))} {f : MorS n (suc n)} {fs : is-sectionS f} {f₁ : ∂₁S f ≡ PiStrS B} {a : MorS n (suc n)} (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → ∂₀S (appStrS B f fs f₁ a as a₁) ≡ ftS (ftS B)
+-- appStr₀S {B = B} {f} {fs} {f₁} as a₁ = is-section₀S (appStrsS {!!} {!!} {!!} {!!} {!!} {!!} {!!}) ∙ ap ftS (appStr₁S {!!} {!!} {!!} {!!} {!!} {!!} {!!}) ∙ (ft-starS {!!} {!!} {!!}) ∙ is-section₀S as ∙ ap ftS a₁
 
 
-appStrNatS : (g : MorS n m) {B : ObS (suc (suc m))} {f : MorS m (suc m)} {fs : is-sectionS f} {f₁ : ∂₁S f ≡ PiStrS B} {a : MorS m (suc m)} {as : is-sectionS a} {a₁ : ∂₁S a ≡ ftS B} {p : ftS (ftS B) ≡ ∂₁S g}              → ssS (compS (appStrS B f fs f₁ a as a₁) g (! (appStr₀S as a₁ ∙ p))) ≡ appStrS (starS (qqS g (ftS B) (! p)) B (qq₁S {!!} {!!} {!!})) (ssS (compS f g (! (is-section₀S fs ∙ ap ftS f₁ ∙ (PiStr=S {!!}) ∙ p)))) (ss-is-sectionS {!!}) (ss-comp-section₁S {!!} {!!} fs {!!} ∙ ap2-irr starS refl f₁ ∙ (PiStrNatS g B p)) (ssS (compS a g (! (is-section₀S as ∙ ap ftS a₁ ∙ p)))) (ss-is-sectionS {!!}) (ss-comp-section₁S {!!} {!!} as {!!} ∙ ! (ft-starS {!!} {!!} {!!} ∙ qq₀S {!!} {!!} {!!} ∙ ap2-irr starS refl (! a₁)))
+-- appStrNatS : (g : MorS n m) {B : ObS (suc (suc m))} {f : MorS m (suc m)} {fs : is-sectionS f} {f₁ : ∂₁S f ≡ PiStrS B} {a : MorS m (suc m)} {as : is-sectionS a} {a₁ : ∂₁S a ≡ ftS B} {p : ftS (ftS B) ≡ ∂₁S g}              → ssS (compS (appStrS B f fs f₁ a as a₁) g (! (appStr₀S as a₁ ∙ p))) ≡ appStrS (starS (qqS g (ftS B) (! p)) B (qq₁S {!!} {!!} {!!})) (ssS (compS f g (! (is-section₀S fs ∙ ap ftS f₁ ∙ (PiStr=S {!!}) ∙ p)))) (ss-is-sectionS {!!}) (ss-comp-section₁S {!!} {!!} fs {!!} ∙ ap2-irr starS refl f₁ ∙ (PiStrNatS g B p)) (ssS (compS a g (! (is-section₀S as ∙ ap ftS a₁ ∙ p)))) (ss-is-sectionS {!!}) (ss-comp-section₁S {!!} {!!} as {!!} ∙ ! (ft-starS {!!} {!!} {!!} ∙ qq₀S {!!} {!!} {!!} ∙ ap2-irr starS refl (! a₁)))
+-- appStrNatS = ?
 
 UUStrNatS-// : (g : DMor n m) (X : DCtx m) (p : proj X ≡ ∂₁S (proj g)) → starS (proj g) (UUStrS (proj X)) (! p ∙ ! (UUStr=S (proj X))) ≡ UUStrS (∂₀S (proj g))
 UUStrNatS-// (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) (_ , _) p = refl
@@ -672,23 +673,23 @@ betaStrS : (u : MorS (suc n) (suc (suc n))) (us : is-sectionS u) (a : MorS n (su
             → appStrS (∂₁S u) (lamStrS u us) (lamStrsS u us) (lamStr₁S u us) a as a₁ ≡ ssS (compS u a (a₁ ∙ ! (is-section₀S us)))
 betaStrS = //-elimP (λ u us → //-elimP (betaStrS-// u us))
 
--- strSynCCat : StructuredCCat
--- ccat strSynCCat = synCCat
--- PiStr strSynCCat = PiStrS
--- PiStr= strSynCCat {B = B} = PiStr=S B
--- lamStr strSynCCat = lamStrS
--- lamStrs strSynCCat {u = u} {us = us} = lamStrsS u us
--- lamStr₁ strSynCCat {u = u} {us = us} = lamStr₁S u us
--- appStr strSynCCat = appStrS
--- appStrs strSynCCat {B = B} {f = f} {fs = fs} {f₁ = f₁} {a = a} {as = as} {a₁ = a₁} = appStrsS B f fs f₁ a as a₁
--- appStr₁ strSynCCat {B = B} {f = f} {fs = fs} {f₁ = f₁} {a = a} {as = as} {a₁ = a₁} = appStr₁S B f fs f₁ a as a₁
--- UUStr strSynCCat = UUStrS
--- UUStr= strSynCCat {X = X} = UUStr=S X
--- ElStr strSynCCat = ElStrS
--- ElStr= strSynCCat {v = v} {vs = vs} {v₁ = v₁} = ElStr=S v vs v₁
--- PiStrNat strSynCCat g {B = B} {p = p} = PiStrNatS g B p
--- lamStrNat strSynCCat = {!!}
--- appStrNat strSynCCat = {!!}
--- UUStrNat strSynCCat g {X = X} {p = p} = UUStrNatS g X p
--- ElStrNat strSynCCat = {!!}
--- betaStr strSynCCat {u = u} {us = us} {a = a} {as = as} {a₁ = a₁} = betaStrS u us a as a₁
+strSynCCat : StructuredCCat
+ccat strSynCCat = synCCat
+PiStr strSynCCat = PiStrS
+PiStr= strSynCCat {B = B} = PiStr=S B
+lamStr strSynCCat = lamStrS
+lamStrs strSynCCat {u = u} {us = us} = lamStrsS u us
+lamStr₁ strSynCCat {u = u} {us = us} = lamStr₁S u us
+appStr strSynCCat = appStrS
+appStrs strSynCCat {B = B} {f = f} {fs = fs} {f₁ = f₁} {a = a} {as = as} {a₁ = a₁} = appStrsS B f fs f₁ a as a₁
+appStr₁ strSynCCat {B = B} {f = f} {fs = fs} {f₁ = f₁} {a = a} {as = as} {a₁ = a₁} = appStr₁S B f fs f₁ a as a₁
+UUStr strSynCCat = UUStrS
+UUStr= strSynCCat {X = X} = UUStr=S X
+ElStr strSynCCat = ElStrS
+ElStr= strSynCCat {v = v} {vs = vs} {v₁ = v₁} = ElStr=S v vs v₁
+PiStrNat strSynCCat g {B = B} {p = p} = PiStrNatS g B p
+lamStrNat strSynCCat = {!!}
+appStrNat strSynCCat = {!!}
+UUStrNat strSynCCat g {X = X} {p = p} = UUStrNatS g X p
+ElStrNat strSynCCat = {!!}
+betaStr strSynCCat {u = u} {us = us} {a = a} {as = as} {a₁ = a₁} = betaStrS u us a as a₁

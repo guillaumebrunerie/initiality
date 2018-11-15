@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --allow-unsolved-metas --prop #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common hiding (_,_)
 
@@ -74,27 +74,8 @@ record CCat : Set₁ where
 
   {- Variables -}
 
-  trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F k)
-  trim last X = X
-  trim (prev k) X = trim k (ft X)
-
-  last-ty : (X : Ob (suc n)) → Ob (suc (suc n))
-  last-ty X = star (pp X) X pp₁
-
   last-var : (X : Ob (suc n)) → Mor (suc n) (suc (suc n))
   last-var X = ss (id X)
-
-  var-unweakened : {n : ℕ} (k : Fin n) (X : Ob n) → Mor (n -F k) (suc (n -F k))
-  var-unweakened last X = last-var X
-  var-unweakened (prev k) X = var-unweakened k (ft X)
-
-  var-unweakeneds : {n : ℕ} (k : Fin n) (X : Ob n) → is-section (var-unweakened k X)
-  var-unweakeneds last X = ss-is-section
-  var-unweakeneds (prev k) X = var-unweakeneds k (ft X)
-
-  var-unweakened₀ : {n : ℕ} (k : Fin n) (X : Ob n) → ∂₀ (var-unweakened k X) ≡ trim k X
-  var-unweakened₀ last X = ss₀ ∙ id₀
-  var-unweakened₀ (prev k) X = var-unweakened₀ k (ft X)
 
   weakenCTm : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → Mor (suc n) (suc (suc n))
   weakenCTm {X = X} u _ u₀ = ss (comp u (pp X) (pp₁ ∙ ! u₀))
@@ -104,32 +85,6 @@ record CCat : Set₁ where
 
   weakenCTm₀ : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → ∂₀ (weakenCTm u us u₀) ≡ X
   weakenCTm₀ _ _ _ = ss₀ ∙ comp₀ ∙ pp₀
-
-  weakenCTm^  : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → Mor n (suc n)
-  weakenCTm^s : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → is-section (weakenCTm^ k u us u₀)
-  weakenCTm^₀ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → ∂₀ (weakenCTm^ k u us u₀) ≡ X
---  weakenCTm^₁ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → ∂₁ (weakenCTm^ k u us u₀) ≡ {!∂₁ u!}
-
-  weakenCTm^ last u _ _ = u
-  weakenCTm^ (prev k) {X} u us u₀ = weakenCTm (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
-
-  weakenCTm^s last u us u₀ = us
-  weakenCTm^s (prev k) u us u₀ = weakenCTms (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
-
-  weakenCTm^₀ last u _ u₀ = u₀
-  weakenCTm^₀ (prev k) u us u₀ = weakenCTm₀ (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
-
-  varC : (k : Fin n) (X : Ob n) → Mor n (suc n)
-  varC k X = weakenCTm^ k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
-
-  varCs : (k : Fin n) (X : Ob n) → is-section (varC k X)
-  varCs k X = weakenCTm^s k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
-
-  varC₀ : (k : Fin n) (X : Ob n) → ∂₀ (varC k X) ≡ X
-  varC₀ k X = weakenCTm^₀ k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
-
-  -- varC₁ : (k : Fin n) (X : Ob n) → ∂₁ (varC k X) ≡ {!!}
-  -- varC₁ k X = {!weakenCTm^₀ k (var-unweakened k X) (var-unweakened₀ k X) (var-unweakeneds k X)!}
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
