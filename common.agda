@@ -95,20 +95,21 @@ suc n -F' prev k = n -F' k
 record Partial (A : Set) : Set₁ where
   field
     isDefined : Prop
-    totalify : isDefined → A
+    _$_ : isDefined → A
+  infix 5 _$_
 open Partial public
 
 return : {A : Set} → A → Partial A
 isDefined (return x) = Unit
-totalify (return x) _ = x
+_$_ (return x) tt = x
 
 _>>=_ : {A B : Set} → Partial A → (A → Partial B) → Partial B
-isDefined (a >>= f) = Σ (isDefined a) (λ x → isDefined (f (totalify a x)))
-totalify (a >>= f) x = totalify (f (totalify a (fst x))) (snd x)
+isDefined (a >>= f) = Σ (isDefined a) (λ x → isDefined (f (a $ x)))
+_$_ (a >>= f) x = f (a $ fst x) $ snd x
 
 assume : (P : Prop) → Partial (Box P)
 isDefined (assume P) = P
-unbox (totalify (assume P) x) = x
+unbox (_$_ (assume P) x) = x
 
 
 {- Helper functions for proof irrelevance -}
@@ -130,6 +131,9 @@ postulate
 
   -- Dependent function extensionality for function with domain Prop, does not seem to follow from [funext]
   funextP : ∀ {l l'} {A : Prop l} {B : A → Set l'} {f g : (a : A) → B a} (h : (x : A) → f x ≡ g x) → f ≡ g
+
+  -- Dependent function extensionality for implicit function spaces
+  funextI : ∀ {l l'} {A : Set l} {B : A → Set l'} {f g : {a : A} → B a} (h : (x : A) → f {x} ≡ g {x}) → (λ {x} → f {x}) ≡ (λ {x} → g {x})
 
   -- Propositional extensionality
   prop-ext : {A B : Prop} (f : A → B) (g : B → A) → A ≡ B
