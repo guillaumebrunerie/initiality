@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import contextualcat
@@ -215,7 +215,7 @@ qq₁S : (f : MorS m n) (X : ObS (suc n)) (p : ∂₁S f ≡ ftS X) → ∂₁S 
 qq₁S = //-elimP (λ f → //-elimP (qq₁S-// f))
 
 ssS-//-u : (f : DMor m (suc n)) → DMor m (suc m)
-ssS-//-u {m = m} f@(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) = dmor (Γ , dΓ) ((Γ , B [ δ ]Ty) , (dΓ , SubstTy dB dδ)) (idMor _ , u) (idMorDerivable _ , congTm (! ([idMor]Ty _)) refl du)
+ssS-//-u {m = m} f@(dmor (Γ , dΓ) ((Δ , B), (dΔ , dB)) (δ , u) (dδ , du)) = dmor (Γ , dΓ) ((Γ , B [ δ ]Ty) , (dΓ , SubstTy dB dδ)) (idMor _ , u) (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl du)
 
 ssS-// : (f : DMor m (suc n)) → MorS m (suc m)
 ssS-// f = proj (ssS-//-u f)
