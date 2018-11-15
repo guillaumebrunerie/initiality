@@ -18,3 +18,4 @@ Files
 - `termmodel.agda`: the term model
 - `partialinterpretation.agda`: the partial interpretation function
 - `totality.agda`: totality of the partial interpretation function
+- `initiality.agda`: initiality of the term model

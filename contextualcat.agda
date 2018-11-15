@@ -58,174 +58,78 @@ record CCat : Set₁ where
     ss-qq : {m n : ℕ} {f : Mor m (suc n)} → f ≡ comp (qq (comp (pp (∂₁ f)) f (! pp₀)) (∂₁ f) (comp₁ ∙ pp₁)) (ss f) (ss₁ ∙ ! qq₀)
     ss-comp : {m n k : ℕ} {U : Ob (suc k)} {g : Mor n k} {g₁ : ∂₁ g ≡ ft U} {f : Mor m (suc n)} {f₁ : ∂₁ f ≡ star g U g₁} {-g₀ : ∂₀ g ≡ ft (∂₁ f)-} → ss f ≡ ss (comp (qq g U g₁) f (! (qq₀ ∙ ! f₁)))
 
--- {- Some properties and structures on a contextual category -}
+  {- Sections of [pp] -}
 
--- module M (C : CCat) where
+  is-section : (u : Mor n (suc n)) → Prop
+  is-section u = comp (pp (∂₁ u)) u (! pp₀) ≡ id (∂₀ u)
 
---   open CCat C
+  is-section₀ : {u : Mor n (suc n)} (us : is-section u) → ∂₀ u ≡ ft (∂₁ u)
+  is-section₀ us = ! id₁ ∙ ap ∂₁ (! us) ∙ comp₁ ∙ pp₁
 
---   id-left' : {f : Mor n m} {X : Ob n} {p : ∂₁ (id X) ≡ ∂₀ f} → comp f (id X) p ≡ f
---   id-left' {f = f} {X} {p} = ap-irr (comp f) (ap id (! id₁ ∙ p)) ∙ id-left
+  ss-is-section : {m n : ℕ} {f : Mor m (suc n)} → is-section (ss f)
+  ss-is-section {m} {n} {f} = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
 
---   {- [Ty X n] represents types in a context iterated n times from X -}
+  ss-comp-section₁ : {m n : ℕ} {g : Mor m n} {f : Mor n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
+  ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
 
---   ft^ : (m : ℕ) → Ob (m + n) → Ob n
---   ft^ 0 X = X
---   ft^ (suc m) X = ft^ m (ft X)
+  {- Variables -}
 
---   record TyPred {m : ℕ} (X : Ob m) (n : ℕ) : Set where
---     constructor _,_
---     field
---       toCtx : Ob (n + m)
---       toCtxEq : ft^ n toCtx ≡ X
---   open TyPred public
+  trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F k)
+  trim last X = X
+  trim (prev k) X = trim k (ft X)
 
---   Ty : {m : ℕ} (X : Ob m) (n : ℕ) → Set
---   Ty X n = TyPred X (suc n)
+  last-ty : (X : Ob (suc n)) → Ob (suc (suc n))
+  last-ty X = star (pp X) X pp₁
 
---   ft' : {n : ℕ} {X : Ob n} → TyPred X (suc m) → TyPred X m
---   ft' (Y , p) = (ft Y , p)
+  last-var : (X : Ob (suc n)) → Mor (suc n) (suc (suc n))
+  last-var X = ss (id X)
 
---   {- Definition of the iterated star and qq operations -}
+  var-unweakened : {n : ℕ} (k : Fin n) (X : Ob n) → Mor (n -F k) (suc (n -F k))
+  var-unweakened last X = last-var X
+  var-unweakened (prev k) X = var-unweakened k (ft X)
 
---   star^-with-eqs : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) {Y : Ob m} (q : ∂₀ f ≡ Y) → TyPred X n → TyPred Y n
---   qq^-with-eqs    : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) (Z : TyPred X n) → Mor (n + m) (n + k)
---   qq^₀-with-eqs  : {m n k : ℕ} {f : Mor m k} {X : Ob k} {p : ∂₁ f ≡ X} {Y : Ob m} {q : ∂₀ f ≡ Y} {Z : TyPred X n} → ∂₀ (qq^-with-eqs f p Z) ≡ toCtx (star^-with-eqs f p q Z)
---   qq^₁-with-eqs  : {m n k : ℕ} {f : Mor m k} {X : Ob k} {p : ∂₁ f ≡ X} {Z : TyPred X n} → ∂₁ (qq^-with-eqs f p Z) ≡ toCtx Z
+  var-unweakeneds : {n : ℕ} (k : Fin n) (X : Ob n) → is-section (var-unweakened k X)
+  var-unweakeneds last X = ss-is-section
+  var-unweakeneds (prev k) X = var-unweakeneds k (ft X)
 
---   toCtx (star^-with-eqs {n = zero} f p {Y = Y} q (X , r)) = Y
---   toCtxEq (star^-with-eqs {n = zero} f p q (X , r)) = refl
---   toCtx (star^-with-eqs {n = suc n} f p q (X , r)) = star (qq^-with-eqs f p (ft' (X , r))) X qq^₁-with-eqs
---   toCtxEq (star^-with-eqs {n = suc n} f p q (X , r)) = ap (ft^ n) (ft-star ∙ qq^₀-with-eqs) ∙ toCtxEq (star^-with-eqs f p q (ft' (X , r)))
+  var-unweakened₀ : {n : ℕ} (k : Fin n) (X : Ob n) → ∂₀ (var-unweakened k X) ≡ trim k X
+  var-unweakened₀ last X = ss₀ ∙ id₀
+  var-unweakened₀ (prev k) X = var-unweakened₀ k (ft X)
 
---   qq^-with-eqs {n = 0} f p (X , r) = f
---   qq^-with-eqs {n = suc n} f p (X , r) = qq (qq^-with-eqs f p (ft' (X , r))) X (qq^₁-with-eqs {Z = ft' (X , r)})
+  weakenCTm : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → Mor (suc n) (suc (suc n))
+  weakenCTm {X = X} u _ u₀ = ss (comp u (pp X) (pp₁ ∙ ! u₀))
 
---   qq^₀-with-eqs {n = 0} {q = q} = q
---   qq^₀-with-eqs {n = suc n} = qq₀
+  weakenCTms : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → is-section (weakenCTm u us u₀)
+  weakenCTms u us u₀ = ss-is-section
 
---   qq^₁-with-eqs {n = 0} {p = p} {Z = Z} = p ∙ ! (toCtxEq Z)
---   qq^₁-with-eqs {n = suc n}     = qq₁
+  weakenCTm₀ : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → ∂₀ (weakenCTm u us u₀) ≡ X
+  weakenCTm₀ _ _ _ = ss₀ ∙ comp₀ ∙ pp₀
 
---   star^ : (f : Mor m k) → TyPred (∂₁ f) n → TyPred (∂₀ f) n
---   star^ f = star^-with-eqs f refl refl
+  weakenCTm^  : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → Mor n (suc n)
+  weakenCTm^s : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → is-section (weakenCTm^ k u us u₀)
+  weakenCTm^₀ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → ∂₀ (weakenCTm^ k u us u₀) ≡ X
+--  weakenCTm^₁ : (k : Fin n) {X : Ob n} (u : Mor (n -F k) (suc (n -F k))) (us : is-section u) (u₀ : ∂₀ u ≡ trim k X) → ∂₁ (weakenCTm^ k u us u₀) ≡ {!∂₁ u!}
 
---   qq^   : {m n k : ℕ} (f : Mor m k) (X : TyPred (∂₁ f) n) → Mor (n + m) (n + k)
---   qq^ f = qq^-with-eqs f refl
+  weakenCTm^ last u _ _ = u
+  weakenCTm^ (prev k) {X} u us u₀ = weakenCTm (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
 
---   qq^₀ : {m n k : ℕ} {f : Mor m k} {X : TyPred (∂₁ f) n} → ∂₀ (qq^ f X) ≡ toCtx (star^ f X)
---   qq^₀ {f = f} {X = X} = qq^₀-with-eqs {f = f} {p = refl} {q = refl} {Z = X}
+  weakenCTm^s last u us u₀ = us
+  weakenCTm^s (prev k) u us u₀ = weakenCTms (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
 
---   qq^₁ : {m n k : ℕ} {f : Mor m k} {X : TyPred (∂₁ f) n} → ∂₁ (qq^ f X) ≡ toCtx X
---   qq^₁ {f = f} {X = X} = qq^₁-with-eqs {f = f} {p = refl} {Z = X}
+  weakenCTm^₀ last u _ u₀ = u₀
+  weakenCTm^₀ (prev k) u us u₀ = weakenCTm₀ (weakenCTm^ k u us u₀) (weakenCTm^s k u us u₀) (weakenCTm^₀ k u us u₀)
 
---   --
+  varC : (k : Fin n) (X : Ob n) → Mor n (suc n)
+  varC k X = weakenCTm^ k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
 
---   ft-star^ : {n m k : ℕ} {f : Mor m k} (X : Ty (∂₁ f) n) (p : ft^ (suc n) (toCtx X) ≡ ∂₁ f) → ft' (star^ f X) ≡ star^ f (ft' X)
---   ft-star^ {zero}  _ _ = ap-irr _,_ ft-star
---   ft-star^ {suc n} _ _ = ap-irr _,_ (ft-star ∙ qq₀)
-  
---   {- Identity laws for the iterated star and qq operations -}
+  varCs : (k : Fin n) (X : Ob n) → is-section (varC k X)
+  varCs k X = weakenCTm^s k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
 
---   star^-id : {m n : ℕ} {X : Ob (n + m)} → toCtx (star^ {n = n} (id (ft^ n X)) (X , ! id₁)) ≡ X
---   qq^-id   : {m n : ℕ} {X : Ob (n + m)} → qq^ (id (ft^ n X)) (X , ! id₁) ≡ id X
+  varC₀ : (k : Fin n) (X : Ob n) → ∂₀ (varC k X) ≡ X
+  varC₀ k X = weakenCTm^₀ k (var-unweakened k X) (var-unweakeneds k X) (var-unweakened₀ k X)
 
---   star^-id {n = 0} = id₀
---   star^-id {n = suc n} = ap-irr (λ x y → star x _ y) (qq^-id {n = n} {X = ft _}) ∙ star-id
-
---   qq^-id {n = 0} = refl
---   qq^-id {n = suc n} = ap-irr (λ x y → qq x _ y) (qq^-id {n = n}) ∙ qq-id
-
---   {- Composition laws for the iterated star and qq operations -}
---   -- TODO
-
---   {- [Tm X n] represents terms in a context iterated n times from X -}
-
---   record Tm {k : ℕ} (X : Ob k) (n : ℕ) : Set where
---     field
---       getTy : Ty X n
---       morTm : Mor (n + k) (suc (n + k))
---       morTm₀ : ∂₀ morTm ≡ toCtx (ft' getTy)
---       morTm₁ : ∂₁ morTm ≡ toCtx getTy
---       eqTm : comp (pp (toCtx getTy)) morTm (morTm₁ ∙ ! pp₀) ≡ id (toCtx (ft' getTy))
---   open Tm public
-
---   star^tm : (f : Mor m k) → Tm (∂₁ f) n → Tm (∂₀ f) n
---   getTy (star^tm f s) = star^ f (getTy s)
---   morTm (star^tm f s) = ss (comp (morTm s) (qq^ f (ft' (getTy s))) (qq^₁ {f = f} ∙ ! (morTm₀ s)))
---   morTm₀ (star^tm f s) = (ss₀ ∙ (comp₀ ∙ qq^₀ {f = f})) ∙ ! (ap toCtx (ft-star^ (getTy s) (toCtxEq (getTy s))))
---   morTm₁ (star^tm f s) = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ (ap-irr (λ x y → comp x (qq^ f _) y) (ap-irr (λ x y → comp (pp x) _ y) (comp₁ ∙ morTm₁ s) ∙ (eqTm s ∙ ap id (! (qq^₁ {f = f})))) ∙ id-right)) (comp₁ ∙ morTm₁ s)
---   eqTm (star^tm f s) =
---     ap-irr (λ x y → comp x (morTm (star^tm f s)) y)
---      (ap pp (ap2-irr star (! (! (assoc {q = ! (pp₀ ∙ comp₁)})
---                               ∙ (ap-irr (λ x y → comp x (qq^ f (ft (toCtx (getTy s)) , toCtxEq (getTy s))) y)
---                                  (ap-irr (λ x y → comp x (morTm s) y)
---                                   (ap pp (comp₁ ∙ morTm₁ s))
---                                  ∙ (eqTm s ∙ ap id (! (qq^₁ {f = f}))))
---                                  ∙ id-right)))
---                           (! (comp₁ ∙ morTm₁ s))))
---      ∙ (ss-pp {f = comp (morTm s) (qq^ f (ft' (getTy s))) (qq^₁ {f = f} ∙ ! (morTm₀ s))}
---        ∙ ap id (comp₀ ∙ (qq^₀ {f = f} ∙ ! (ft-star ∙ qq^₀ {f = f}))))
-
---   postulate
---     star^tm-with-eqs : {m n k : ℕ} (f : Mor m k) {X : Ob k} (p : ∂₁ f ≡ X) {Y : Ob m} (q : ∂₀ f ≡ Y) → Tm X n → Tm Y n
--- --  star^tm-with-eqs = {!!} -- f reflR reflR = star^tm f
-
---   {- Variables -}
-
---   trim : {n : ℕ} (k : Fin n) (X : Ob n) → Ob (n -F k)
---   trim last X = X
---   trim (prev k) X = trim k (ft X)
-
---   last-ty : (X : Ob (suc n)) → Ty X 0
---   toCtx (last-ty X) = star (pp X) X pp₁
---   toCtxEq (last-ty X) = ft-star ∙ pp₀
-
---   last-var : (X : Ob (suc n)) → Tm X 0
---   getTy (last-var X) = last-ty X
---   morTm (last-var X) = ss (id X)
---   morTm₀ (last-var X) = ss₀ ∙ (id₀ ∙ ! (ft-star ∙ pp₀))
---   morTm₁ (last-var X) = ss₁ ∙ ap2-irr star (id-left' ∙ ap pp id₁) id₁
---   eqTm (last-var X) = ap-irr (λ x y → comp x (ss (id X)) y) (ap pp (ap2-irr star (! (id-left' ∙ ap pp id₁)) (! id₁))) ∙ (ss-pp {f = id X} ∙ ap id (id₀ ∙ ! (ft-star ∙ pp₀)))
-
---   var-unweakened : {n : ℕ} (k : Fin n) (X : Ob n) → Tm (trim k X) 0
---   var-unweakened last X = last-var X
---   var-unweakened (prev k) X = var-unweakened k (ft X)
-
---   weakenCTy : {X : Ob (suc n)} → Ty (ft X) 0 → Ty X 0
---   toCtx (weakenCTy {X = X} (A-ctx , A-eq)) = toCtx (star^ (pp X) (A-ctx , (A-eq ∙ ! pp₁)))
---   toCtxEq (weakenCTy A) = ft-star ∙ pp₀
-
---   weakenCTm : {X : Ob (suc n)} → Tm (ft X) 0 → Tm X 0
---   getTy (weakenCTm u) = weakenCTy (getTy u)
---   morTm (weakenCTm {X = X} u) = ss (comp (morTm u) (pp X) (pp₁ ∙ ! (toCtxEq (ft' (getTy u))) ∙ ! (morTm₀ u)))
---   morTm₀ (weakenCTm u) = ss₀ ∙ comp₀ ∙ pp₀ ∙ ! (toCtxEq (ft' (weakenCTy (getTy u))))
---   morTm₁ (weakenCTm u) = ss₁ ∙ ap2-irr star (! (assoc {q = morTm₁ u ∙ ! (pp₀ ∙ comp₁ ∙ morTm₁ u)}) ∙ ap2-irr comp (ap2-irr comp (ap pp (comp₁ ∙ morTm₁ u)) refl ∙ eqTm u ∙ ap id (toCtxEq (getTy u) ∙ ! pp₁)) refl ∙ id-right) (comp₁ ∙ morTm₁ u)
---   eqTm (weakenCTm {X = X} u) =
---     ap2-irr comp (ap pp (! (ap2-irr star (! (assoc {q = morTm₁ u ∙ ! (pp₀ ∙ comp₁ ∙ morTm₁ u)}) ∙ ap2-irr comp (ap2-irr comp (ap pp (comp₁ ∙ morTm₁ u)) refl ∙ eqTm u ∙ ap id (toCtxEq (getTy u) ∙ ! pp₁)) refl ∙ id-right) (comp₁ ∙ morTm₁ u)))) refl
---     ∙ ss-pp {f = comp (morTm u) (pp X) (pp₁ ∙ ! (toCtxEq (ft' (getTy u))) ∙ ! (morTm₀ u))}
---     ∙ ap id (comp₀ ∙ pp₀ ∙ ! (ft-star ∙ pp₀))
-
---   weakenCTm^ : (k : Fin n) {X : Ob n} → Tm (trim k X) 0 → Tm X 0
---   weakenCTm^ last x = x
---   weakenCTm^ (prev k) {X} x = weakenCTm (weakenCTm^ k x)
-
---   varC : (k : Fin n) (X : Ob n) → Tm X 0
---   varC k X = weakenCTm^ k (var-unweakened k X)
-
---   substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' A) → Ty X m
---   toCtx (substCTy X A u p) = star (morTm u) (toCtx A) (morTm₁ u ∙ ap toCtx p)
---   toCtxEq (substCTy {m = m} X A u p) = ap (ft^ m) (ft-star ∙ morTm₀ u) ∙ (ap (λ z → ft^ m (toCtx (ft' z))) p ∙ toCtxEq A)
-
---   ft-substCTy : (X : Ob n) (A : Ty X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' A) → ft (toCtx (substCTy X A u p)) ≡ ft (ft (toCtx A))
---   ft-substCTy X A u p = ft-star ∙ (morTm₀ u ∙ ap ft (ap toCtx p))
-
---   substCTm : (X : Ob n) (v : Tm X (suc m)) (u : Tm X m) (p : getTy u ≡ ft' (getTy v)) → Tm X m
---   getTy (substCTm X v u p) = substCTy X (getTy v) u p
---   morTm (substCTm X v u p) = ss (comp (morTm v) (morTm u) (morTm₁ u ∙ (ap toCtx p ∙ ! (morTm₀ v))))
---   morTm₀ (substCTm X v u p) = ss₀ ∙ (comp₀ ∙ (morTm₀ u ∙ (ap toCtx (ap ft' p) ∙ ! (ft-substCTy X (getTy v) u p))))
---   morTm₁ (substCTm X v u p) = ss₁ ∙ (star-comp pp₁ ∙ (star-comp (morTm₁ v ∙ ! (ft-star ∙ (pp₀ ∙ (comp₁ ∙ morTm₁ v)))) ∙ ap-irr (star (morTm u)) (! (star-comp {p = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))} pp₁) ∙ (ap2-irr star (ap2-irr comp (ap pp (comp₁ ∙ morTm₁ v)) refl ∙ eqTm v) (comp₁ ∙ morTm₁ v) ∙ star-id) ) ))
---   eqTm (substCTm X v u p) = ap2-irr comp (ap pp (ap2-irr star (! (! (assoc {q = morTm₁ v ∙ ! (pp₀ ∙ (comp₁ ∙ morTm₁ v))}) ∙ (ap2-irr comp (ap2-irr comp (ap pp (comp₁ {p = morTm₁ u ∙ ! (morTm₀ v ∙ ! (ap toCtx p))} ∙ morTm₁ v)) refl ∙ (eqTm v ∙ ap id (! (morTm₁ u ∙ ap toCtx p)))) refl ∙ id-right))) (! (comp₁ ∙ morTm₁ v)))) refl ∙ (ss-pp {f = comp (morTm v) (morTm u) _} ∙ ap id (comp₀ ∙ (morTm₀ u ∙ ! (ft-substCTy X (getTy v) u p ∙ ! (ap ft (ap toCtx p))))))
+  -- varC₁ : (k : Fin n) (X : Ob n) → ∂₁ (varC k X) ≡ {!!}
+  -- varC₁ k X = {!weakenCTm^₀ k (var-unweakened k X) (var-unweakened₀ k X) (var-unweakeneds k X)!}
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -235,18 +139,6 @@ record StructuredCCat : Set₁ where
 
   open CCat ccat renaming (Mor to MorC)
   -- open M ccat
-
-  is-section : (u : MorC n (suc n)) → Prop
-  is-section u = comp (pp (∂₁ u)) u (! pp₀) ≡ id (∂₀ u)
-
-  is-section₀ : {u : MorC n (suc n)} (us : is-section u) → ∂₀ u ≡ ft (∂₁ u)
-  is-section₀ us = ! id₁ ∙ ap ∂₁ (! us) ∙ comp₁ ∙ pp₁
-
-  ss-is-section : {m n : ℕ} {f : MorC m (suc n)} → is-section (ss f)
-  ss-is-section {m} {n} {f} = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
-
-  ss-comp-section₁ : {m n : ℕ} {g : MorC m n} {f : MorC n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
-  ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {h = pp (∂₁ (comp _ _ p))} {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
 
   field
     -- Additional structure on contextual categories
@@ -280,7 +172,12 @@ record StructuredCCat : Set₁ where
               → star g (PiStr B) (! (PiStr= ∙ p)) ≡ PiStr (star (qq g (ft B) (! p)) B qq₁)
     lamStrNat : {n m : ℕ} (g : MorC n m) {u : MorC (suc m) (suc (suc m))} {us : is-section u} {p : ft (∂₀ u) ≡ ∂₁ g}
               → ss (comp (lamStr u us) g (! (lamStr₀ us ∙ p))) ≡ lamStr (ss (comp u (qq g (∂₀ u) (! p)) qq₁)) ss-is-section 
-    appStrNat : {n m : ℕ} (g : MorC n m) {B : Ob (suc (suc m))} {f : MorC m (suc m)} {fs : is-section f} {f₁ : ∂₁ f ≡ PiStr B} {a : MorC m (suc m)} {as : is-section a} {a₁ : ∂₁ a ≡ ft B} {p : ft (ft B) ≡ ∂₁ g}              → ss (comp (appStr B f fs f₁ a as a₁) g (! (appStr₀ as a₁ ∙ p))) ≡ appStr (star (qq g (ft B) (! p)) B qq₁) (ss (comp f g (! (is-section₀ fs ∙ ap ft f₁ ∙ PiStr= ∙ p)))) ss-is-section (ss-comp-section₁ fs ∙ ap2-irr star refl f₁ ∙ (PiStrNat g {B = B} {p = p})) (ss (comp a g (! (is-section₀ as ∙ ap ft a₁ ∙ p)))) ss-is-section (ss-comp-section₁ as ∙ ! (ft-star ∙ qq₀ ∙ ap2-irr star refl (! a₁)))
+    appStrNat : {n m : ℕ} (g : MorC n m) {B : Ob (suc (suc m))} {f : MorC m (suc m)} {fs : is-section f} {f₁ : ∂₁ f ≡ PiStr B}
+                {a : MorC m (suc m)} {as : is-section a} {a₁ : ∂₁ a ≡ ft B} {p : ft (ft B) ≡ ∂₁ g}
+              → ss (comp (appStr B f fs f₁ a as a₁) g (! (appStr₀ as a₁ ∙ p)))
+                ≡ appStr (star (qq g (ft B) (! p)) B qq₁)
+                         (ss (comp f g (! (is-section₀ fs ∙ ap ft f₁ ∙ PiStr= ∙ p)))) ss-is-section (ss-comp-section₁ fs ∙ ap2-irr star refl f₁ ∙ (PiStrNat g {B = B} {p = p}))
+                         (ss (comp a g (! (is-section₀ as ∙ ap ft a₁ ∙ p)))) ss-is-section (ss-comp-section₁ as ∙ ap2-irr star refl a₁ ∙ ! (ft-star ∙ qq₀))
     UUStrNat : {n m : ℕ} (g : MorC n m) {X : Ob m} {p : X ≡ ∂₁ g}
              → star g (UUStr X) (! p ∙ ! UUStr=) ≡ UUStr (∂₀ g)
     ElStrNat : {n m : ℕ} (g : MorC n m) {v : MorC m (suc m)} {vs : is-section v} {v₁ : ∂₁ v ≡ UUStr (∂₀ v)} {p : ∂₀ v ≡ ∂₁ g}
@@ -291,6 +188,9 @@ record StructuredCCat : Set₁ where
             → appStr (∂₁ u) (lamStr u us) lamStrs lamStr₁ a as a₁ ≡ ss (comp u a (a₁ ∙ ! (is-section₀ us)))
 
 open StructuredCCat
+
+
+{- Morphisms of contextual categories -}
 
 record CCatMor (C D : CCat) : Set where
   open CCat
@@ -310,63 +210,48 @@ record CCatMor (C D : CCat) : Set where
     ptmor→ : {X : Ob C n} → Mor→ (ptmor C X) ≡ ptmor D (Ob→ X)
 
 
--- module TyTm→ {C D : CCat} (f : CCatMor C D) where
+{- Morphisms of structured contextual categories -}
 
---   open CCatMor f
---   open CCat
---   open M
-  
---   ft^→ : (m : ℕ) {X : Ob C (m + n)} → Ob→ (ft^ C m X) ≡ ft^ D m (Ob→ X)
---   ft^→ zero = refl
---   ft^→ (suc m) = ft^→ m ∙ ap (ft^ D m) ft→
+record StructuredCCatMor (sC sD : StructuredCCat) : Set where
+  private
+    C = ccat sC
+    D = ccat sD
 
---   Ty→ : {X : Ob C m} → Ty C X n → Ty D (Ob→ X) n
---   toCtx (Ty→ ty) = Ob→ (toCtx ty)
---   toCtxEq (Ty→ {n = n} ty) = ! (ft^→ (suc n)) ∙ ap Ob→ (toCtxEq ty)
-
---   ft'→ : {X : Ob C n} (ty : Ty C X (suc m)) → Ty→ (ft' C ty) ≡ ft' D (Ty→ ty)
---   ft'→ ty = ap-irr _,_ ft→
-
---   Tm→ : {X : Ob C m} → Tm C X n → Tm D (Ob→ X) n
---   getTy (Tm→ tm) = Ty→ (getTy tm)
---   morTm (Tm→ tm) = Mor→ (morTm tm)
---   morTm₀ (Tm→ tm) = ! ∂₀→ ∙ (ap Ob→ (morTm₀ tm) ∙ ft→)
---   morTm₁ (Tm→ tm) = ! ∂₁→ ∙ ap Ob→ (morTm₁ tm)
---   eqTm (Tm→ tm) = ap-irr (λ x z → comp D x (Mor→ (morTm tm)) z) (! pp→) ∙ (! comp→ ∙ (ap Mor→ (eqTm tm) ∙ (id→ ∙ ap (id D) ft→)))
-
-
-record StructuredCCatMor (C D : StructuredCCat) : Set where
   field
-    ccat→ : CCatMor (ccat C) (ccat D)
+    ccat→ : CCatMor C D
     
   open CCatMor ccat→
-  open CCat renaming (Mor to MorC)
---  open CCat (ccat C) renaming (Ob to ObC; Mor to MorC)
---  open M (ccat C) renaming (Ty to TyC; Tm to TmC; ft' to ft'C)
---  open CCat (ccat D) renaming (comp to compD)
+  open CCat
 
---  open TyTm→ ccat→
-  preserve-section : {n : ℕ} {u : MorC (ccat C) n (suc n)} (us : is-section C u) → is-section D (Mor→ u)
-  preserve-section us = ap2-irr (comp (ccat D)) (ap (λ z → pp (ccat D) z) (! ∂₁→) ∙ ! pp→) refl ∙ ! comp→ ∙ ! (ap (id (ccat D)) (! ∂₀→) ∙ ! id→ ∙ ap Mor→ (! us)) 
-
+  preserve-section : {n : ℕ} {u : Mor C n (suc n)} (us : is-section C u) → is-section D (Mor→ u)
+  preserve-section us = ap2-irr (comp D) (ap (λ z → pp D z) (! ∂₁→) ∙ ! pp→) refl ∙ ! comp→ ∙ ! (ap (id D) (! ∂₀→) ∙ ! id→ ∙ ap Mor→ (! us)) 
 
   field
-    PiStr→  : {n : ℕ} (B : Ob (ccat C) (suc (suc n))) → Ob→ (PiStr C B) ≡ PiStr D (Ob→ B)
-    lamStr→ : {n : ℕ} (u : MorC (ccat C) (suc n) (suc (suc n))) (us : is-section C u)
-            → Mor→ (lamStr C u us) ≡ lamStr D (Mor→ u) (preserve-section us)
-    appStr→ : {n : ℕ} (B : Ob (ccat C) (suc (suc n))) {f : MorC (ccat C) n (suc n)} (fs : is-section C f) (f₁ : ∂₁ (ccat C) f ≡ PiStr C B) {a : MorC (ccat C) n (suc n)} (as : is-section C a) (a₁ : ∂₁ (ccat C) a ≡ ft (ccat C) B)
-            → Mor→ (appStr C B f fs f₁ a as a₁) ≡ appStr D (Ob→ B) (Mor→ f) (preserve-section fs) ((! ∂₁→) ∙ ap Ob→ f₁ ∙ PiStr→ B) (Mor→ a) (preserve-section as) ((! ∂₁→) ∙ ap Ob→ a₁ ∙ ft→)
-    UUStr→ : {n : ℕ} (X : Ob (ccat C) n) → Ob→ (UUStr C X) ≡ UUStr D (Ob→ X)
-    ElStr→ : {n : ℕ} (v : MorC (ccat C) n (suc n)) (vs : is-section C v) (v₁ : ∂₁ (ccat C) v ≡ UUStr C (∂₀ (ccat C) v))
-           → Ob→ (ElStr C v vs v₁) ≡ ElStr D (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ (∂₀ (ccat C) v) ∙ ap (UUStr D) ∂₀→)
+    PiStr→  : (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)
+    lamStr→ : (u : Mor C (suc n) (suc (suc n))) (us : is-section C u)
+            → Mor→ (lamStr sC u us) ≡ lamStr sD (Mor→ u) (preserve-section us)
+    appStr→ : (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fs : is-section C f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (as : is-section C a) (a₁ : ∂₁ C a ≡ ft C B)
+            → Mor→ (appStr sC B f fs f₁ a as a₁) ≡ appStr sD (Ob→ B) (Mor→ f) (preserve-section fs) ((! ∂₁→) ∙ ap Ob→ f₁ ∙ PiStr→ B) (Mor→ a) (preserve-section as) ((! ∂₁→) ∙ ap Ob→ a₁ ∙ ft→)
+    UUStr→ : (X : Ob C n) → Ob→ (UUStr sC X) ≡ UUStr sD (Ob→ X)
+    ElStr→ : (v : Mor C n (suc n)) (vs : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC (∂₀ C v))
+           → Ob→ (ElStr sC v vs v₁) ≡ ElStr sD (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ (∂₀ C v) ∙ ap (UUStr sD) ∂₀→)
 
 
-  --   PiStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (p : ft'C B ≡ A)
-  --          → Ty→ (PiStr C X A B p) ≡ PiStr D (Ob→ X) (Ty→ A) (Ty→ B) (! (ft'→ B) ∙ ap Ty→ p)
-  --   lamStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (u : TmC X 1) (p : ft'C B ≡ A) (q : getTy u ≡ B)
-  --          → Tm→ (lamStr C X A B u p q) ≡ lamStr D (Ob→ X) (Ty→ A) (Ty→ B) (Tm→ u) (! (ft'→ B) ∙ ap Ty→ p) (ap Ty→ q)
-  --   appStr→ : (X : ObC n) (A : TyC X 0) (B : TyC X 1) (f : TmC X 0) (a : TmC X 0) (p : ft'C B ≡ A) (q : getTy f ≡ PiStr C X A B p) (r : getTy a ≡ A)
-  --          → Tm→ (appStr C X A B f a p q r) ≡ appStr D (Ob→ X) (Ty→ A) (Ty→ B) (Tm→ f) (Tm→ a) (! (ft'→ B) ∙ ap Ty→ p) (ap Ty→ q ∙ PiStr→ X A B p) (ap Ty→ r)
-  --   UUStr→ : (X : ObC n) → Ty→ (UUStr C X) ≡ UUStr D (Ob→ X)
-  --   ElStr→ : (X : ObC n) (v : TmC X 0) (p : getTy v ≡ UUStr C X)
-  --          → Ty→ (ElStr C X v p) ≡ ElStr D (Ob→ X) (Tm→ v) (ap Ty→ p ∙ UUStr→ X)
+module _ {sC sD : StructuredCCat} where
+  open StructuredCCatMor
+  open CCatMor
+  open CCat
+
+  {- Equalities between morphisms between structured contextual categories -}
+
+  structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
+                      → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
+                      → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
+                      → f ≡ g
+  structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ n → funextI (λ m → funext k)))  where
+
+    lemma : {f g : StructuredCCatMor sC sD}
+            → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
+            → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
+            → f ≡ g
+    lemma refl refl = refl

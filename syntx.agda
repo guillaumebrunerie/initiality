@@ -2,9 +2,11 @@
  
 open import common
 
-{- Syntax of term- and type-expressions, using de Bruijn indices -}
+-- Somehow it doesn’t work to put that in common…
 variable
   {i} : Size
+
+{- Syntax of term- and type-expressions, using de Bruijn indices -}
 
 data TyExpr : {i : Size} → ℕ → Set
 data TmExpr : {i : Size} → ℕ → Set
@@ -19,6 +21,7 @@ data TmExpr where
   lam : (A : TyExpr {i} n) (B : TyExpr {i} (suc n)) (u : TmExpr {i} (suc n)) → TmExpr {↑ i} n
   app : (A : TyExpr {i} n) (B : TyExpr {i} (suc n)) (f : TmExpr {i} n) (a : TmExpr {i} n) → TmExpr {↑ i} n
 
+
 {- Contexts and context morphisms -}
 
 data Ctx : ℕ → Set where
@@ -31,10 +34,6 @@ data Mor (n : ℕ) : ℕ → Set where
 
 
 {- Weakening -}
-
--- position : Fin n -> ℕ
--- position {n = n} last = n
--- position {n = suc n} (prev x) = position {n = n} x
 
 weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
 weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
@@ -52,6 +51,7 @@ weakenVar' last = prev
 weakenVar' (prev k) last = last
 weakenVar' (prev k) (prev x) = prev (weakenVar' k x)
 
+
 weakenTy : TyExpr n → TyExpr (suc n)
 weakenTy = weakenTy' last
 
@@ -66,11 +66,7 @@ weakenMor' k (δ , u) = (weakenMor' k δ , weakenTm' k u)
 weakenMor : Mor n m → Mor (suc n) m
 weakenMor = weakenMor' last
 
-_-F'_ : (n : ℕ) (k : Fin (suc n)) -> ℕ
-n -F' last = n
-suc n -F' prev k = n -F' k
-
-weakenCtx : (k : Fin (suc n)) (Γ : Ctx n) (T : TyExpr (n -F' k)) -> Ctx (suc n)
+weakenCtx : (k : Fin (suc n)) (Γ : Ctx n) (T : TyExpr (n -F' k)) → Ctx (suc n)
 weakenCtx last Γ T = Γ , T
 weakenCtx {n = zero} (prev ()) ◇ T
 weakenCtx (prev k) (Γ , A) T = weakenCtx k Γ T , weakenTy' k A 
@@ -85,13 +81,11 @@ insertMor (prev ()) u ◇
 insertMor (prev k) u (δ , u') = insertMor k u δ  , u'
 
 weakenCommutesInsert : (k : Fin (suc m)) (l : Fin (suc n)) (u : TmExpr n) (δ : Mor n m) → insertMor k (weakenTm' l u) (weakenMor' l δ) ≡ weakenMor' l (insertMor k u δ)
-
 weakenCommutesInsert last l u ◇ = refl
 weakenCommutesInsert (prev ()) l u ◇ 
 weakenCommutesInsert last l u (δ , u') = refl
 weakenCommutesInsert (prev k) l u (δ , u') rewrite weakenCommutesInsert k l u δ = refl
 
--- -- {- Substitution -}
 
 {- Total substitutions -}
 
@@ -114,15 +108,20 @@ _[_]Mor : {n m k : ℕ} → Mor n k → (δ : Mor m n) → Mor m k
 ◇ [ δ ]Mor = ◇
 (γ , u) [ δ ]Mor = (γ [ δ ]Mor , u [ δ ]Tm)
 
--- {- Partial substitution is special case of total substitution -}
+{- Partial substitutions as a special case of total substitutions -}
 
 substTy : TyExpr (suc n) → TmExpr n → TyExpr n
 substTm : TmExpr (suc n) → TmExpr n → TmExpr n
 
-substTy {n = n} A t = A [ idMor n , t ]Ty
-substTm {n = n} u t = u [ idMor n , t ]Tm
+substTy A t = A [ idMor _ , t ]Ty
+substTm u t = u [ idMor _ , t ]Tm
+
 
 {- Weakening commutes with weakening -}
+
+-- This is rather technical because the induction hypothesis doesn’t typecheck without a lot of
+-- transports everywhere. Additionally, we are using relevant equality here as we need to transport
+-- into sets.
 
 n+0 : (n : ℕ) → (n + 0) ≡R n
 n+0 0 = reflR
@@ -169,6 +168,7 @@ FVar n m u k A p =
 trFVar : {i : Size} (n : ℕ) (m : ℕ) (u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡R suc (n + m)) → FVar n m u k A p → FVar n m (suc (n + m)) k A reflR
 trFVar n m u k A reflR x = x
 
+
 weakenCommutesTy'' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (suc (n + m))) → FTy n m (suc (n + m)) k A reflR
 weakenCommutesTy' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {i} (n + m)) → weakenTy' (prev^ m last) (weakenTy' (prev^ m k) A) ≡ weakenTy' (prev^ m (prev k)) (weakenTy' (prev^ m last) A)
 
@@ -176,6 +176,7 @@ weakenCommutesTm'' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (suc 
 weakenCommutesTm' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {i} (n + m)) → weakenTm' (prev^ m last) (weakenTm' (prev^ m k) A) ≡ weakenTm' (prev^ m (prev k)) (weakenTm' (prev^ m last) A)
 
 weakenCommutesVar' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : Fin (n + m)) → weakenVar' (prev^ m last) (weakenVar' (prev^ m k) A) ≡ weakenVar' (prev^ m (prev k)) (weakenVar' (prev^ m last) A)
+
 
 weakenCommutesTy'' {n = n} m k A = trFTy n m (n + suc m) k A (n+suc n m) (weakenCommutesTy' (suc m) k (trTyExpr (!R (n+suc n m)) A))
 
@@ -195,6 +196,7 @@ weakenCommutesVar' {n = n} (suc m) k x with n + suc m | n+suc n m
 ... | _ | reflR with x
 ...   | last = refl
 ...   | prev x' = ap prev (weakenCommutesVar' m k x')
+
 
 GTy : (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr {i} n) (p : u ≡R n) → Prop
 GTy n u k A p =
@@ -222,9 +224,9 @@ weakenMorCommutes : (k : Fin (suc n)) (δ : Mor n m) → weakenMor' last (weaken
 weakenMorCommutes {m = zero} k ◇ = refl
 weakenMorCommutes {m = suc m} k (δ , u) rewrite weakenMorCommutes k δ | weakenTmCommutes k u = refl
 
-{- Properties of substitution and weakening -}
 
---Weaken commutes with total substitution
+{- Weakening commutes with total substitution -}
+
 weaken[]Ty : (A : TyExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTy' k (A [ δ ]Ty) ≡ A [ weakenMor' k δ ]Ty
 weaken[]Tm : (u : TmExpr n) (δ : Mor m n) (k : Fin (suc m)) → weakenTm' k (u [ δ ]Tm) ≡ u [ weakenMor' k δ ]Tm
 
@@ -240,9 +242,11 @@ weaken[]Tm (app A B f a) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMo
 weaken[]Mor : (θ : Mor n k) (δ : Mor m n) (k : Fin (suc m)) → weakenMor' k (θ [ δ ]Mor) ≡ (θ [ weakenMor' k δ ]Mor)
 
 weaken[]Mor ◇ _ k = refl
-weaken[]Mor (θ , u) δ k = ap (λ z → (z , _)) (weaken[]Mor θ δ k) ∙ ap (λ z → _ , z) (weaken[]Tm u δ k)
+weaken[]Mor (θ , u) δ k rewrite weaken[]Mor θ δ k | weaken[]Tm u δ k = refl
 
---Substituting a morphism where a term is inserted into a type/term/morphism that is weakened at that point does nothing
+
+{- Substituting a morphism where a term is inserted into a type/term/morphism that is weakened at that point does nothing -}
+
 weakenTyInsert' : (k : Fin (suc m)) (A : TyExpr m) (δ : Mor n m) (t : TmExpr n) -> weakenTy' k A [ insertMor k t δ ]Ty ≡ A [ δ ]Ty
 weakenTmInsert' : (k : Fin (suc m)) (u : TmExpr m) (δ : Mor n m) (t : TmExpr n) -> weakenTm' k u [ insertMor k t δ ]Tm ≡ u [ δ ]Tm
 
@@ -279,7 +283,8 @@ weakenMorInsert (θ , u) δ t rewrite weakenMorInsert θ δ t | weakenTmInsert u
 [weakenMor]Tm δ w = weakenTmInsert w (weakenMor δ) (var last) ∙ ! (weaken[]Tm w δ last)
 
 
---Substitution by the identity morphism does nothing
+{- Substitution by the identity morphism does nothing -}
+
 [idMor]Ty : (A : TyExpr n) → A [ idMor n ]Ty ≡ A
 [idMor]Tm : (u : TmExpr n) → u [ idMor n ]Tm ≡ u
 
@@ -302,7 +307,9 @@ idMor[]Mor : (δ : Mor n m) → idMor m [ δ ]Mor ≡ δ
 idMor[]Mor {m = zero} ◇ = refl
 idMor[]Mor {m = suc m} (δ , u) rewrite weakenMorInsert (idMor m) δ u | idMor[]Mor δ  = refl
 
---Substitution is associative
+
+{- Substitution is associative -}
+
 []Ty-assoc : (δ : Mor n m) (θ : Mor m k) (A : TyExpr k) → A [ θ ]Ty [ δ ]Ty ≡ A [ θ [ δ ]Mor ]Ty
 []Tm-assoc : (δ : Mor n m) (θ : Mor m k) (u : TmExpr k) → u [ θ ]Tm [ δ ]Tm ≡ u [ θ [ δ ]Mor ]Tm
 
@@ -319,7 +326,10 @@ idMor[]Mor {m = suc m} (δ , u) rewrite weakenMorInsert (idMor m) δ u | idMor[]
 []Mor-assoc δ θ ◇ = refl
 []Mor-assoc δ θ (φ , w) rewrite []Mor-assoc δ θ φ | []Tm-assoc δ θ w = refl
 
---Substituting a weakened term in a weaken type/term is the same as weakening the substitution
+
+{- Substituting a weakened term in a weaken type/term is the same as weakening the substitution -}
+
+-- TODO: rewrite with rewrite?
 weakenCommutesSubstTy : (k : Fin (suc n)) (B : TyExpr (suc n)) (a : TmExpr n) -> substTy (weakenTy' (prev k) B) (weakenTm' k a) ≡ weakenTy' k (substTy B a)
 weakenCommutesSubstTm : (k : Fin (suc n)) (u : TmExpr (suc n)) (a : TmExpr n) -> substTm (weakenTm' (prev k) u) (weakenTm' k a) ≡ weakenTm' k (substTm u a)
 
@@ -330,6 +340,7 @@ weakenCommutesSubstTy k B a = ap (λ z → substTy (weakenTy' (prev k) z) _) (! 
                               ap (λ z → B [ z , weakenTm' _ _ ]Ty) (weakenMorInsert _ _ _ ∙ [idMor]Mor (weakenMor' _ (idMor _))) ∙
                               ! (weaken[]Ty B (idMor _ , _) _)
  
+-- TODO: rewrite with rewrite?
 weakenCommutesSubstTm k u a = ap (λ z → substTm (weakenTm' (prev k) z) _) (! ([idMor]Tm u)) ∙
                               ap (λ z → substTm z _ ) (weaken[]Tm u (idMor _) _) ∙ 
                               []Tm-assoc ((weakenMor' last (idMor _) , var last) , weakenTm' _ _) (weakenMor' (prev k) (weakenMor' last (idMor _)) , var last) u ∙
@@ -343,7 +354,9 @@ weakenSubstTm : (u : TmExpr n) (t : TmExpr n) -> substTm (weakenTm u) t ≡ u
 weakenSubstTy A u = weakenTyInsert A (idMor _) u ∙ ([idMor]Ty _)
 weakenSubstTm u t = weakenTmInsert u (idMor _) t ∙ ([idMor]Tm _)
 
--- Totalsubstitution commutes with partial substitution
+{- Total substitution commutes with partial substitution -}
+
+-- TODO: rewrite with rewrite?
 substCommutes[]Ty : (B : TyExpr (suc m)) (a : TmExpr m) (δ : Mor n m) → substTy (B [ weakenMor δ , var last ]Ty) (a [ δ ]Tm) ≡ (substTy B a) [ δ ]Ty
 substCommutes[]Ty B a δ = []Ty-assoc (idMor _ , (a [ δ ]Tm)) (weakenMor' last δ , var last) B ∙
                           ap (λ z → B [ z , (a [ δ ]Tm) ]Ty) (weakenMorInsert δ (idMor _) (a [ δ ]Tm)) ∙
@@ -351,6 +364,7 @@ substCommutes[]Ty B a δ = []Ty-assoc (idMor _ , (a [ δ ]Tm)) (weakenMor' last 
                           ! ([]Ty-assoc δ (idMor _ , a) B ∙
                             ap (λ z → B [ z , (a [ δ ]Tm) ]Ty) (idMor[]Mor δ))
 
+-- TODO: rewrite with rewrite?
 substCommutes[]Tm : (u : TmExpr (suc m)) (a : TmExpr m) (δ : Mor n m) → substTm (u [ weakenMor δ , var last ]Tm) (a [ δ ]Tm) ≡ (substTm u a) [ δ ]Tm
 substCommutes[]Tm B a δ = []Tm-assoc (idMor _ , (a [ δ ]Tm)) (weakenMor' last δ , var last) B ∙
                           ap (λ z → B [ z , (a [ δ ]Tm) ]Tm) (weakenMorInsert δ (idMor _) (a [ δ ]Tm)) ∙

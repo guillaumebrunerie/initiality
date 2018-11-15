@@ -9,7 +9,7 @@ module _ (C : StructuredCCat) where
 open StructuredCCat C
 open CCat ccat renaming (Mor to MorC)
 
-{- The partial interpretation functions -}
+{- Partial interpretation of types and terms -}
 
 ⟦_⟧Ty : TyExpr n → (X : Ob n) → Partial (Ob (suc n))
 ⟦_⟧Tm : TmExpr n → (X : Ob n) → Partial (MorC n (suc n))
@@ -25,7 +25,7 @@ open CCat ccat renaming (Mor to MorC)
   [v]₁ ← assume (∂₁ [v] ≡ UUStr (∂₀ [v]))
   return (ElStr [v] (unbox [v]s) (unbox [v]₁))
 
-⟦ var x ⟧Tm X = return {!!} --(varC x X)
+⟦ var x ⟧Tm X = return (varC x X)
 ⟦ lam A _ u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm [A]
@@ -42,7 +42,8 @@ open CCat ccat renaming (Mor to MorC)
   [a]₁ ← assume (∂₁ [a] ≡ ft [B])
   return (appStr [B] [f] (unbox [f]s) (unbox [f]₁) [a] (unbox [a]s) (unbox [a]₁))
 
-{- We can now interpret contexts and context morphisms -}
+
+{- Partial interpretation of contexts and context morphisms -}
 
 ⟦_⟧Ctx : (Γ : Ctx n) → Partial (Ob n)
 ⟦ ◇ ⟧Ctx = return pt
