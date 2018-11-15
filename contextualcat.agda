@@ -246,7 +246,7 @@ record StructuredCCat : Set₁ where
   ss-is-section {m} {n} {f} = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
 
   ss-comp-section₁ : {m n : ℕ} {g : MorC m n} {f : MorC n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
-  ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
+  ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {h = pp (∂₁ (comp _ _ p))} {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
 
   field
     -- Additional structure on contextual categories
