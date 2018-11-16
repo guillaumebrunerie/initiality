@@ -44,6 +44,13 @@ respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A �
 ⟦idMor⟧ᵈ : {X Y : Ob n} → Y ≡ X → isDefined (⟦ idMor n ⟧Mor X Y)
 ⟦idMor⟧= : {X : Ob n} → ⟦ idMor n ⟧Mor X X $ ⟦idMor⟧ᵈ {X = X} refl ≡ id X
 
+⟦weaken⟧ᵈ : {X+ : Ob (suc n)} {X : Ob n} (X= : ft X+ ≡ X) {Y+ : Ob (suc m)} {Y : Ob m} (Y= : ft Y+ ≡ Y) (δ : Mor n m)
+           → isDefined (⟦ δ ⟧Mor X Y)
+           → isDefined (⟦ weakenMor δ ⟧Mor X+ Y)
+⟦weaken⟧= : {X+ : Ob (suc n)} {X : Ob n} (X= : ft X+ ≡ X) {Y+ : Ob (suc m)} {Y : Ob m} (Y= : ft Y+ ≡ Y) (δ : Mor n m)
+           → (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
+           → ⟦ weakenMor δ ⟧Mor X+ Y $ ⟦weaken⟧ᵈ X= Y= δ δᵈ ≡ comp (pp Y+) (qq (⟦ δ ⟧Mor X Y $ δᵈ) Y+ (⟦⟧Mor₁ δ ∙ ! Y=)) (qq₁ ∙ ! pp₀)
+
 ⟦weaken+⟧ᵈ : {X+ : Ob (suc n)} {X : Ob n} (X= : ft X+ ≡ X) {Y+ : Ob (suc m)} {Y : Ob m} (Y= : ft Y+ ≡ Y) (δ : Mor n m)
            → isDefined (⟦ δ ⟧Mor X Y)
            → isDefined (⟦ weakenMor δ , var last ⟧Mor X+ Y+)
@@ -107,7 +114,7 @@ postulate
 ⟦⟧Tyᵈ r {A = el v} (El dv) = (⟦⟧Tmᵈ r dv , ⟦⟧Tmₛ v , (⟦⟧Tm₁ r v dv ∙ ap UUStr (! (⟦⟧Tm₀ v))) , tt)
 
 ⟦⟧Tmᵈ r (VarLast dA) = tt
-⟦⟧Tmᵈ r {u = var (prev x)} (VarPrev dA dx) = (⟦⟧Tmᵈ (fst r) dx , ⟦⟧Tmₛ (var x) , ⟦⟧Tm₀ (var x) , tt)
+⟦⟧Tmᵈ r {u = var (prev x)} (VarPrev dA dx) = (⟦⟧Tmᵈ (fst r) dx , ⟦⟧Tm₀ (var x) , tt)
 ⟦⟧Tmᵈ r (Conv dA du dA=) = ⟦⟧Tmᵈ r du
 ⟦⟧Tmᵈ r {u = lam A B u} (Lam dA dB du) =
   (⟦⟧Tyᵈ r dA ,
@@ -147,16 +154,16 @@ postulate
 ⟦⟧Ty-ft (el v) = ElStr= ∙ ⟦⟧Tm₀ v
 
 ⟦⟧Tmₛ (var last) = ss-is-section
-⟦⟧Tmₛ (var (prev x)) = weakenCTms _ (⟦⟧Tmₛ (var x)) (⟦⟧Tm₀ (var x))
+⟦⟧Tmₛ (var (prev x)) = ss-is-section
 ⟦⟧Tmₛ (lam A B u) = lamStrs
 ⟦⟧Tmₛ (app A B f a) = appStrs
 
 ⟦⟧Tm₀ (var last) = ss₀ ∙ id₀
-⟦⟧Tm₀ (var (prev x)) = weakenCTm₀ _ (⟦⟧Tmₛ (var x)) (⟦⟧Tm₀ (var x))
+⟦⟧Tm₀ (var (prev x)) = ss₀ ∙ comp₀ ∙ pp₀
 ⟦⟧Tm₀ (lam A B u) = lamStr₀ (⟦⟧Tmₛ u) ∙ ap ft (⟦⟧Tm₀ u) ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₀ (app A B f a) = appStr₀ (⟦⟧Tmₛ a) _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 
-⟦⟧Tm₁ r (var last) (VarLast dA) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left ∙ refl) id₁ ∙ {!!}
+⟦⟧Tm₁ r (var last) (VarLast dA) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left ∙ refl) id₁ ∙ {! !}
 ⟦⟧Tm₁ r (var (prev k)) (VarPrev {A = A} dA dk) = {!!} -- TODO
 ⟦⟧Tm₁ r u (Conv dA du dA=) = ⟦⟧Tm₁ r u du ∙ ⟦⟧TyEq r dA= (⟦⟧Tyᵈ r dA) _
 ⟦⟧Tm₁ r (lam A B u) (Lam dA dB du) = lamStr₁ ∙ ap PiStr (⟦⟧Tm₁ (respectsCtxExt r A) u du)
@@ -168,12 +175,19 @@ postulate
 ⟦⟧Tm₁-ft (app A B f a) = ap ft appStr₁ ∙ ft-star ∙ ⟦⟧Tm₀ a
 
 ⟦idMor⟧ᵈ {zero} refl = tt
-⟦idMor⟧ᵈ {suc n} refl = ({!weakening defined!} , tt , ⟦⟧Mor₁ (weakenMor (idMor n)) , {!!} , tt)
+⟦idMor⟧ᵈ {suc n} {Y = Y} refl = (⟦weaken⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {Y = ft Y} refl) , tt , ⟦⟧Mor₁ (weakenMor (idMor n)) , (ss₁ ∙ ap2-irr star (! (⟦weaken⟧= refl refl (idMor n) (⟦idMor⟧ᵈ {Y = ft Y} refl) ∙ ap2-irr comp (ap pp (! id₁)) (ap2-irr qq ⟦idMor⟧= refl ∙ qq-id))) id₁) , tt)
 
 ⟦idMor⟧= {zero} = ! (ptmor-unique _ (id _) id₀ (id₁ ∙ pt-unique _))
 ⟦idMor⟧= {suc n} = {!interpretation of weakening!}
 
-⟦weaken+⟧ᵈ refl refl δ δᵈ = ({!weakening defined!} , tt , ⟦⟧Mor₁ (weakenMor δ) , {!!} , tt)
+⟦weaken⟧ᵈ refl refl ◇ tt = tt
+⟦weaken⟧ᵈ refl refl (δ , u) (δᵈ , uᵈ) = (⟦weaken⟧ᵈ refl refl δ δᵈ , {!!} , ⟦⟧Mor₁ (weakenMor δ) , {!!} , tt)
+
+⟦weaken⟧= refl refl ◇ tt = ! (ptmor-unique _ _ (comp₀ ∙ qq₀ ∙ {!?????!}) (comp₁ ∙ pp₁ ∙ pt-unique _))
+⟦weaken⟧= refl refl (δ , u) (δᵈ , uᵈ) = {!!}
+
+⟦weaken+⟧ᵈ refl refl δ δᵈ = (⟦weaken⟧ᵈ refl refl δ δᵈ , tt , ⟦⟧Mor₁ (weakenMor δ) , (ss₁ ∙ {!!}) , tt)
+
 ⟦weaken+⟧= refl refl δ δᵈ = {!!}
 
 
@@ -187,7 +201,7 @@ postulate
 ⟦⟧TmEq r (VarLastCong dA) tt tt = refl
 ⟦⟧TmEq r (VarPrevCong {k = k} {k' = k'} dA dx) _ _ = ap ss (ap2-irr comp (⟦⟧TmEq (fst r) dx _ _) refl)
 ⟦⟧TmEq r (TmSymm du=) uᵈ u'ᵈ = ! (⟦⟧TmEq r du= u'ᵈ uᵈ)
-⟦⟧TmEq r (TmTran du= du'=) uᵈ u'ᵈ = ⟦⟧TmEq r du= uᵈ {!add as argument to TmTran!} ∙ ⟦⟧TmEq r du'= {!add as argument to TmTran!} u'ᵈ
+⟦⟧TmEq r (TmTran dv du= du'=) uᵈ u'ᵈ = ⟦⟧TmEq r du= uᵈ (⟦⟧Tmᵈ r dv) ∙ ⟦⟧TmEq r du'= (⟦⟧Tmᵈ r dv) u'ᵈ
 ⟦⟧TmEq r (ConvEq dA' du= dA=) uᵈ u'ᵈ = ⟦⟧TmEq r du= uᵈ u'ᵈ
 ⟦⟧TmEq r {u = lam A B u} (LamCong dA dA= dB= du=) (Aᵈ , uᵈ , utmᵈ , _) (A'ᵈ , u'ᵈ , utm'ᵈ , _)
   rewrite ! (⟦⟧TyEq r dA= Aᵈ A'ᵈ)

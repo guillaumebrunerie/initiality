@@ -72,20 +72,6 @@ record CCat : Set₁ where
   ss-comp-section₁ : {m n : ℕ} {g : Mor m n} {f : Mor n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
   ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
 
-  {- Variables -}
-
-  last-var : (X : Ob (suc n)) → Mor (suc n) (suc (suc n))
-  last-var X = ss (id X)
-
-  weakenCTm : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → Mor (suc n) (suc (suc n))
-  weakenCTm {X = X} u _ u₀ = ss (comp u (pp X) (pp₁ ∙ ! u₀))
-
-  weakenCTms : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → is-section (weakenCTm u us u₀)
-  weakenCTms u us u₀ = ss-is-section
-
-  weakenCTm₀ : {X : Ob (suc n)} (u : Mor n (suc n)) (us : is-section u) (u₀ : ∂₀ u ≡ ft X) → ∂₀ (weakenCTm u us u₀) ≡ X
-  weakenCTm₀ _ _ _ = ss₀ ∙ comp₀ ∙ pp₀
-
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
 record StructuredCCat : Set₁ where

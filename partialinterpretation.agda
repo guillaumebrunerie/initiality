@@ -25,12 +25,11 @@ open CCat ccat renaming (Mor to MorC)
   [v]₁ ← assume (∂₁ [v] ≡ UUStr (∂₀ [v]))
   return (ElStr [v] (unbox [v]s) (unbox [v]₁))
 
-⟦ var last ⟧Tm X = return (last-var X)
+⟦ var last ⟧Tm X = return (ss (id X))
 ⟦ var (prev x) ⟧Tm X = do
   [x] ← ⟦ var x ⟧Tm (ft X)
-  [x]ₛ ← assume (is-section [x])
   [x]₀ ← assume (∂₀ [x] ≡ ft X)
-  return (weakenCTm [x] (unbox [x]ₛ) (unbox [x]₀))
+  return (ss (comp [x] (pp X) (pp₁ ∙ ! (unbox [x]₀))))
 ⟦ lam A _ u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm [A]

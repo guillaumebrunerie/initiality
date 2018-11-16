@@ -44,7 +44,7 @@ data Derivable : Judgment → Prop where
   TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
     → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ v == u :> A)
   TmTran : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n}
-    → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
+    → Derivable (Γ ⊢ v :> A) → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
 
   -- Conversion rules
   Conv : {Γ : Ctx n} {u : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
@@ -228,7 +228,7 @@ SubstTyEq {A = el v} (ElCong dv=) dδ = ElCong (SubstTmEq dv= dδ)
 SubstTmEq {δ = δ , u} (VarLastCong {A = A} dA=) (_ , du) rewrite weakenTyInsert A δ u = TmRefl du
 SubstTmEq {δ = δ , u} (VarPrevCong {A = A} _ dA=) (dδ , du) rewrite weakenTyInsert A δ u = SubstTmEq dA= dδ 
 SubstTmEq (TmSymm du=) dδ = TmSymm (SubstTmEq du= dδ)
-SubstTmEq (TmTran du= dv=) dδ = TmTran (SubstTmEq du= dδ) (SubstTmEq dv= dδ)
+SubstTmEq (TmTran dv du= dv=) dδ = TmTran (SubstTm dv dδ) (SubstTmEq du= dδ) (SubstTmEq dv= dδ)
 SubstTmEq (ConvEq dA du= dA=) dδ = ConvEq (SubstTy dA dδ) (SubstTmEq du= dδ) (SubstTyEq dA= dδ) 
 SubstTmEq (LamCong dA dA= dB= du=) dδ = LamCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor _ dδ , weakenDerLast dA dδ)) (SubstTmEq du= ((WeakMor _ dδ) , (weakenDerLast dA dδ)))
 SubstTmEq {δ = δ} (AppCong {B = B} {a = a} dA dA= dB= df= da=) dδ rewrite ! (substCommutes[]Ty B a δ)= AppCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor _ dδ , weakenDerLast dA dδ)) (SubstTmEq df= dδ) (SubstTmEq da= dδ) 
@@ -270,7 +270,7 @@ WeakTmEq' (prev k) T {u = var last} {var last} (VarLastCong {A = A} dA) rewrite 
 WeakTmEq' last T {u = var (prev x)} (VarPrevCong dA dk=) = VarPrevCong (WeakTy' last _ dA) (WeakTmEq' last _ dk=)
 WeakTmEq' (prev k) T {u = var (prev x)} (VarPrevCong {A = A} dA dk=) rewrite ! (weakenTyCommutes k A) = VarPrevCong (WeakTy' k T dA) (WeakTmEq' k T dk=)
 WeakTmEq' k T {u = u} (TmSymm du=) = TmSymm (WeakTmEq' k T du=)
-WeakTmEq' k T {u = u} (TmTran du= dv=) = TmTran (WeakTmEq' k T du=) (WeakTmEq' k T dv=)
+WeakTmEq' k T {u = u} (TmTran dv du= dv=) = TmTran (WeakTm' k T dv) (WeakTmEq' k T du=) (WeakTmEq' k T dv=)
 WeakTmEq' k T {u = u} (ConvEq dA du= dA=) = ConvEq (WeakTy' k T dA) (WeakTmEq' k T du=) (WeakTyEq' k T dA=)
 WeakTmEq' k T {u = lam A B u} (LamCong dA dA= dB= du=) = LamCong (WeakTy' k T dA) (WeakTyEq' k T dA=) (WeakTyEq' (prev k) T dB=) (WeakTmEq' (prev k) T du=)
 WeakTmEq' k T {u = app A B f a} (AppCong dA dA= dB= df= da=) rewrite ! (weakenCommutesSubstTy k B a) = AppCong (WeakTy' k T dA) (WeakTyEq' k T dA=) (WeakTyEq' (prev k) T dB=) (WeakTmEq' k T  df=) (WeakTmEq' k T da=)
@@ -334,7 +334,7 @@ ConvTm (App dA dB df da) dΓ= = App (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , Con
 ConvTmEq  {Δ = Δ , B} (VarLastCong {A = A} dA) (dΓ= , dA' , dB , dA= , dA=') = ConvEq (WeakTy B dB) (VarLastCong dB) (WeakTyEq B (TySymm dA='))
 ConvTmEq {Γ = Γ , B} {Δ , B'} (VarPrevCong {A = A} dA dk=) (dΓ= , dA , dB , dA=) = VarPrevCong (ConvTy dA dΓ=) (ConvTmEq dk= dΓ=)
 ConvTmEq (TmSymm du=) dΓ= = TmSymm (ConvTmEq du= dΓ=)
-ConvTmEq (TmTran du= dv=) dΓ= = TmTran (ConvTmEq du= dΓ=) (ConvTmEq dv= dΓ=)
+ConvTmEq (TmTran dv du= dv=) dΓ= = TmTran (ConvTm dv dΓ=) (ConvTmEq du= dΓ=) (ConvTmEq dv= dΓ=)
 ConvTmEq (ConvEq dA du= dA=) dΓ= = ConvEq (ConvTy dA dΓ=) (ConvTmEq du= dΓ=) (ConvTyEq dA= dΓ=)
 ConvTmEq (LamCong dA dA= dB= du=) dΓ= = LamCong (ConvTy dA dΓ=) (ConvTyEq dA= dΓ=) (ConvTyEq dB= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTmEq du= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=)))
 ConvTmEq (AppCong dA dA= dB= df= da=) dΓ= = AppCong (ConvTy dA dΓ=) (ConvTyEq dA= dΓ=) (ConvTyEq dB= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTmEq df= dΓ=) (ConvTmEq da= dΓ=)
@@ -381,7 +381,7 @@ TyEqTy2 dΓ (ElCong dv=) = El (TmEqTm2 dΓ dv=)
 TmEqTm1 dΓ (VarLastCong dA) = VarLast dA
 TmEqTm1 (dΓ , dA) (VarPrevCong dA' dk=) = VarPrev dA' (TmEqTm1 dΓ dk=)
 TmEqTm1 dΓ (TmSymm du=) = TmEqTm2 dΓ du= 
-TmEqTm1 dΓ (TmTran du= dv=) = TmEqTm1 dΓ du=
+TmEqTm1 dΓ (TmTran dv du= dv=) = TmEqTm1 dΓ du=
 TmEqTm1 dΓ (ConvEq dA du= dA=) = Conv dA (TmEqTm1 dΓ du=) dA=
 TmEqTm1 dΓ (LamCong dA dA= dB= du=) = Lam (TyEqTy1 dΓ dA=) (TyEqTy1 (dΓ , dA) dB=) (TmEqTm1 (dΓ , dA) du=)
 TmEqTm1 dΓ (AppCong dA dA= dB= df= da=) = App (TyEqTy1 dΓ dA=) (TyEqTy1 (dΓ , dA) dB=) (TmEqTm1 dΓ df=) (TmEqTm1 dΓ da=)
@@ -390,7 +390,7 @@ TmEqTm1 dΓ (Beta dA dB du da) = App dA dB (Lam dA dB du) da
 TmEqTm2 dΓ (VarLastCong dA) = VarLast dA
 TmEqTm2 (dΓ , dA) (VarPrevCong dA' dk=) = VarPrev dA' (TmEqTm2 dΓ dk=)
 TmEqTm2 dΓ (TmSymm du=) = TmEqTm1 dΓ du=
-TmEqTm2 dΓ (TmTran du= dv=) = TmEqTm2 dΓ dv=
+TmEqTm2 dΓ (TmTran dv du= dv=) = TmEqTm2 dΓ dv=
 TmEqTm2 dΓ (ConvEq dA du= dA=) =  Conv dA (TmEqTm2 dΓ du=) dA=
 TmEqTm2 dΓ (LamCong dA dA= dB= du=) = Conv
              (Pi
@@ -445,7 +445,7 @@ MorSymm {Δ = Δ , B} {δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ , du) = MorSymm d�
 
 MorTran : {Γ : Ctx n} {Δ : Ctx m} {δ δ' δ'' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ'' ∷> Δ → Γ ⊢ δ == δ'' ∷> Δ
 MorTran {Δ = ◇} {◇} {◇} {◇} _ _ tt tt = tt
-MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du) (dδ' , du') = (MorTran dΓ dΔ dδ dδ') , TmTran du (ConvEq (SubstTy dB (MorEqMor2 dΓ dΔ dδ)) du' (SubstTyMorEq dB (MorEqMor2 dΓ dΔ dδ) (MorSymm dΓ dΔ dδ)))
+MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du) (dδ' , du') = (MorTran dΓ dΔ dδ dδ') , TmTran (TmEqTm2 dΓ du) du (ConvEq (SubstTy dB (MorEqMor2 dΓ dΔ dδ)) du' (SubstTyMorEq dB (MorEqMor2 dΓ dΔ dδ) (MorSymm dΓ dΔ dδ)))
 
 
 DerTmTy : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
@@ -481,7 +481,7 @@ SubstTyFullEq dA' dδ dA= dδ= = TyTran (SubstTy dA' dδ) (SubstTyEq dA= dδ) (S
 
 SubstTmFullEq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u' :> A) → (Γ ⊢ δ ∷> Δ) 
        → Derivable (Δ ⊢ u == u' :> A) → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u' [ δ' ]Tm :> A [ δ ]Ty)
-SubstTmFullEq du' dδ du= dδ= = TmTran (SubstTmEq du= dδ) (SubstTmMorEq du' dδ dδ=)
+SubstTmFullEq du' dδ du= dδ= = TmTran (SubstTm du' dδ) (SubstTmEq du= dδ) (SubstTmMorEq du' dδ dδ=)
 
 SubstMorFullEq : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ θ' : Mor m k} {δ δ' : Mor n m} → (⊢ Δ) → (⊢ Θ) → (Δ ⊢ θ' ∷> Θ) → (Δ ⊢ θ == θ' ∷> Θ) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ θ [ δ ]Mor == θ' [ δ' ]Mor ∷> Θ)
 SubstMorFullEq {Θ = ◇} {◇} {◇} dΔ tt dθ' tt dδ dδ= = tt
