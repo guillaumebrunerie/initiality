@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --allow-unsolved-metas --prop #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
  
 open import common
 

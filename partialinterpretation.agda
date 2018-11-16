@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import syntx
@@ -21,26 +21,30 @@ open CCat ccat renaming (Mor to MorC)
 ⟦ uu ⟧Ty X = return (UUStr X)
 ⟦ el v ⟧Ty X = do
   [v] ← ⟦ v ⟧Tm X
-  [v]s ← assume (is-section [v])
+  [v]ₛ ← assume (is-section [v])
   [v]₁ ← assume (∂₁ [v] ≡ UUStr (∂₀ [v]))
-  return (ElStr [v] (unbox [v]s) (unbox [v]₁))
+  return (ElStr [v] (unbox [v]ₛ) (unbox [v]₁))
 
-⟦ var x ⟧Tm X = return (varC x X)
+⟦ var last ⟧Tm X = return (ss (id X))
+⟦ var (prev x) ⟧Tm X = do
+  [x] ← ⟦ var x ⟧Tm (ft X)
+  [x]₀ ← assume (∂₀ [x] ≡ ft X)
+  return (ss (comp [x] (pp X) (pp₁ ∙ ! (unbox [x]₀))))
 ⟦ lam A _ u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm [A]
-  [u]s ← assume (is-section [u])
-  return (lamStr [u] (unbox [u]s))
+  [u]ₛ ← assume (is-section [u])
+  return (lamStr [u] (unbox [u]ₛ))
 ⟦ app A B f a ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
   [f] ← ⟦ f ⟧Tm X
-  [f]s ← assume (is-section [f])
-  [f]₁ ← assume (∂₁ [f] ≡ PiStr [B])
   [a] ← ⟦ a ⟧Tm X
-  [a]s ← assume (is-section [a])
+  [f]ₛ ← assume (is-section [f])
+  [f]₁ ← assume (∂₁ [f] ≡ PiStr [B])
+  [a]ₛ ← assume (is-section [a])
   [a]₁ ← assume (∂₁ [a] ≡ ft [B])
-  return (appStr [B] [f] (unbox [f]s) (unbox [f]₁) [a] (unbox [a]s) (unbox [a]₁))
+  return (appStr [B] [f] (unbox [f]ₛ) (unbox [f]₁) [a] (unbox [a]ₛ) (unbox [a]₁))
 
 
 {- Partial interpretation of contexts and context morphisms -}
@@ -53,11 +57,10 @@ open CCat ccat renaming (Mor to MorC)
   return [A]
 
 ⟦_⟧Mor : (δ : Mor n m) (X : Ob n) (Y : Ob m) → Partial (MorC n m)
-⟦ ◇ ⟧Mor X pt = return (ptmor X)
+⟦ ◇ ⟧Mor X Y = return (ptmor X)
 ⟦ δ , u ⟧Mor X Y = do
   [δ] ← ⟦ δ ⟧Mor X (ft Y)
   [u] ← ⟦ u ⟧Tm X
-  
   [δ]₁ ← assume (∂₁ [δ] ≡ ft Y)
   [u]₁ ← assume (∂₁ [u] ≡ star [δ] Y (unbox [δ]₁))
   return (comp (qq [δ] Y (unbox [δ]₁)) [u] (unbox [u]₁ ∙ ! qq₀))

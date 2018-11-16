@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import quotients
@@ -55,10 +55,16 @@ Mor→S = //-rec Mor/ (λ {a} {b} r → Mor/-eq {δ = a} {δ' = b} r)
 ∂₁→S = //-elimP ∂₁/
 
 id/ : (X : DCtx n) → Mor→S (idS n (proj X)) ≡ id C (Ob→S (proj X))
-id/ (Γ , dΓ) = ⟦idMor⟧=
+id/ (Γ , dΓ) = ⟦idMor⟧= refl
 
 id→S : (X : ObS n) → Mor→S (idS n X) ≡ id C (Ob→S X)
 id→S = //-elimP id/
+
+ft/ : (X : DCtx (suc n)) → Ob→S (ftS (proj X)) ≡ ft C (Ob→S (proj X))
+ft/ ((Γ , A) , (dΓ , dA)) = ! (⟦⟧Ty-ft A)
+
+ft→S : (X : ObS (suc n)) → Ob→S (ftS X) ≡ ft C (Ob→S X)
+ft→S = //-elimP ft/
 
 ptmor→S : (X : ObS n) → Mor→S (ptmorS X) ≡ ptmor C (Ob→S X)
 ptmor→S = //-elimP (λ _ → refl)
@@ -70,7 +76,7 @@ Mor→ f₀ = Mor→S
 ∂₁→ f₀ {X = X} = ∂₁→S X
 id→ f₀ {X = X} = id→S X
 comp→ f₀ = {!!}
-ft→ f₀ = {!!}
+ft→ f₀ {X = X} = ft→S X
 pp→ f₀ = {!!}
 star→ f₀ = {!!}
 qq→ f₀ = {!!}
@@ -121,16 +127,16 @@ module _ (sf sg : StructuredCCatMor strSynCCat sC) where
 
   uniqueness-Ob-// (◇ , tt) = pt→ f ∙ ! (pt→ g)
   uniqueness-Ob-// ((Γ , pi A B) , (dΓ , Pi dA dB)) = PiStr→ sf (proj (((Γ , A) , B) , ((dΓ , dA) , dB))) ∙ ap (PiStr sC) (uniqueness-Ob-// (((Γ , A) , B) , ((dΓ , dA) , dB))) ∙ ! (PiStr→ sg (proj (((Γ , A) , B) , ((dΓ , dA) , dB))))
-  uniqueness-Ob-// ((Γ , uu) , (dΓ , A)) = UUStr→ sf (proj (Γ , dΓ)) ∙ ap (UUStr sC) (uniqueness-Ob-// (Γ , dΓ)) ∙ ! (UUStr→ sg (proj (Γ , dΓ)))
+  uniqueness-Ob-// ((Γ , uu) , (dΓ , UU)) = UUStr→ sf (proj (Γ , dΓ)) ∙ ap (UUStr sC) (uniqueness-Ob-// (Γ , dΓ)) ∙ ! (UUStr→ sg (proj (Γ , dΓ)))
   uniqueness-Ob-// ((Γ , el v) , (dΓ , El dv)) =
     let thing = eq ((CtxRefl dΓ , CtxRefl dΓ) , MorSymm dΓ dΓ (congMorRefl (! (weakenMorInsert _ _ _ ∙ idMor[]Mor _)) (idMorDerivable dΓ)))
-    in ElStr→ sf (proj (dmor (Γ , dΓ) ((Γ , uu) , (dΓ , UU)) (idMor _ , v) (idMorDerivable dΓ , dv))) thing refl ∙ ap-irr2 (ElStr sC) (uniqueness-Mor-// _) ∙ ! (ElStr→ sg (proj (dmor (Γ , dΓ) ((Γ , uu) , (dΓ , UU)) (idMor _ , v) (idMorDerivable dΓ , dv))) thing refl)
+    in ElStr→ sf (proj (dmor (Γ , dΓ) ((Γ , uu) , (dΓ , UU)) (idMor _ , v) (idMorDerivable dΓ , dv))) thing refl
+      ∙ ap-irr2 (ElStr sC) (uniqueness-Mor-// _)
+      ∙ ! (ElStr→ sg (proj (dmor (Γ , dΓ) ((Γ , uu) , (dΓ , UU)) (idMor _ , v) (idMorDerivable dΓ , dv))) thing refl)
 
   uniqueness-Mor-// (dmor (Γ , dΓ) (◇ , tt) ◇ tt) = ptmor→ f {X = proj (Γ , dΓ)} ∙ ap (ptmor C) (uniqueness-Ob-// (Γ , dΓ)) ∙ ! (ptmor→ g)
-  uniqueness-Mor-// (dmor (Γ , dΓ) ((Δ , B) , (dΔ , dB)) (δ , var last) (dδ , du)) = {!!}
-  uniqueness-Mor-// (dmor (Γ , dΓ) ((Δ , B) , (dΔ , dB)) (δ , var (prev x)) (dδ , du)) = {!!}
-  uniqueness-Mor-// (dmor (Γ , dΓ) ((Δ , B) , (dΔ , dB)) (δ , lam A B₁ u) (dδ , du)) = {!lamStr→ sf ? ? ∙ ? ∙ ! ?!}
-  uniqueness-Mor-// (dmor (Γ , dΓ) ((Δ , B) , (dΔ , dB)) (δ , app A B₁ u u₁) (dδ , du)) = {!appStr→ sf ? ? ? ? ? ∙ ?!}
+  uniqueness-Mor-// (dmor (Γ , dΓ) ((Δ , C) , (dΔ , dC)) (δ , u) (dδ , du)) = {!du!}
+  -- TODO: We need to split (δ , u) into a combination of pp, qq, ss, and do the appropriate thing for each
 
   uniqueness-Ob : (X : ObS n) → Ob→ f X ≡ Ob→ g X
   uniqueness-Ob = //-elimP uniqueness-Ob-//
