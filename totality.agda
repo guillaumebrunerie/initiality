@@ -23,16 +23,10 @@ respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A �
 
 ⟦⟧Tyᵈ  : {Γ : Ctx n} {X : Ob n} (r : respectsCtx X Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) → isDefined (⟦ A ⟧Ty X)
 ⟦⟧Tmᵈ  : {Γ : Ctx n} {X : Ob n} (r : respectsCtx X Γ) {A : TyExpr n} {u : TmExpr n} (du : Derivable (Γ ⊢ u :> A)) → isDefined (⟦ u ⟧Tm X)
-⟦⟧Morᵈ : {Γ : Ctx n} {X : Ob n} {Δ : Ctx m} {Y : Ob m} (r : respectsCtx X Γ) (r' : respectsCtx Y Δ) {δ : Mor n m} (dδ : Γ ⊢ δ ∷> Δ) → isDefined (⟦ δ ⟧Mor X Y)
-
-⟦⟧Ty : {Γ : Ctx n} {X : Ob n} (r : respectsCtx X Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) → Ob (suc n)
-⟦⟧Ty {X = X} r {A = A} dA = ⟦ A ⟧Ty X $ ⟦⟧Tyᵈ r dA
+⟦⟧Morᵈ : {Γ : Ctx n} {Δ : Ctx m} {X : Ob n} {Y : Ob m} (r : respectsCtx X Γ) (r' : respectsCtx Y Δ) {δ : Mor n m} (dδ : Γ ⊢ δ ∷> Δ) → isDefined (⟦ δ ⟧Mor X Y)
 
 
 {- Various lemmas saying that the interpretation functions are well-behaved -}
-
-⟦⟧Mor₀ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₀ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ X
-⟦⟧Mor₁ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₁ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ Y
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 
@@ -41,8 +35,11 @@ respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A �
 ⟦⟧Tm₁ : {Γ : Ctx n} {X : Ob n} (r : respectsCtx X Γ) (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} {A : TyExpr n} {Aᵈ : isDefined (⟦ A ⟧Ty X)} (du : Derivable (Γ ⊢ u :> A)) → ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ ⟦ A ⟧Ty X $ Aᵈ
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
 
+⟦⟧Mor₀ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₀ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ X
+⟦⟧Mor₁ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₁ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ Y
+
 ⟦idMor⟧ᵈ : {X Y : Ob n} → Y ≡ X → isDefined (⟦ idMor n ⟧Mor X Y)
-⟦idMor⟧= : {X : Ob n} → ⟦ idMor n ⟧Mor X X $ ⟦idMor⟧ᵈ {X = X} refl ≡ id X
+⟦idMor⟧= : {X Y : Ob n} (p : Y ≡ X) → ⟦ idMor n ⟧Mor X Y $ ⟦idMor⟧ᵈ p ≡ id X
 
 ⟦weaken⟧ᵈ : {X+ : Ob (suc n)} {X : Ob n} (X= : ft X+ ≡ X) {Y+ : Ob (suc m)} {Y : Ob m} (Y= : ft Y+ ≡ Y) (δ : Mor n m)
            → isDefined (⟦ δ ⟧Mor X Y)
@@ -57,11 +54,6 @@ respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A �
 ⟦weaken+⟧= : {X+ : Ob (suc n)} {X : Ob n} (X= : ft X+ ≡ X) {Y+ : Ob (suc m)} {Y : Ob m} (Y= : ft Y+ ≡ Y) (δ : Mor n m)
            → (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
            → ⟦ weakenMor δ , var last ⟧Mor X+ Y+ $ ⟦weaken+⟧ᵈ X= Y= δ δᵈ ≡ qq (⟦ δ ⟧Mor X Y $ δᵈ) Y+ (⟦⟧Mor₁ δ ∙ ! Y=)
-
-
-respectsCtxExt : {Γ : Ctx n} {X : Ob n} (r : respectsCtx X Γ) (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)}
-              → respectsCtx (⟦ A ⟧Ty X $ Aᵈ) (Γ , A)
-respectsCtxExt r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , refl
 
 
 {- Interpretation of definitional equalities -}
@@ -98,8 +90,7 @@ respectsCtxExt r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , refl
             → ⟦ u [ δ ]Tm ⟧Tm X $ ⟦tsubst⟧Tmᵈ u uᵈ δᵈ
               ≡ ss (comp (⟦ u ⟧Tm Y $ uᵈ) (⟦ δ ⟧Mor X Y $ δᵈ) (⟦⟧Mor₁ δ ∙ ! (⟦⟧Tm₀ u)))
 
-postulate
-  ⟦tsubst⟧Tm₁ : {X : Ob n} {Y : Ob m} (u : TmExpr m)
+⟦tsubst⟧Tm₁ : {X : Ob n} {Y : Ob m} (u : TmExpr m)
             (uᵈ : isDefined (⟦ u ⟧Tm Y))
             (δ : Mor n m)
             (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
@@ -109,8 +100,12 @@ postulate
 
 {- Definitions -}
 
+respectsCtxExt : {Γ : Ctx n} {X : Ob n} (r : respectsCtx X Γ) (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)}
+              → respectsCtx (⟦ A ⟧Ty X $ Aᵈ) (Γ , A)
+respectsCtxExt r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , refl
+
 ⟦⟧Tyᵈ r UU = tt
-⟦⟧Tyᵈ r {A = pi A B} (Pi dA dB) = (⟦⟧Tyᵈ r dA , (⟦⟧Tyᵈ (respectsCtxExt r A) dB) , tt)
+⟦⟧Tyᵈ r {A = pi A B} (Pi dA dB) = (⟦⟧Tyᵈ r dA , ⟦⟧Tyᵈ (respectsCtxExt r A) dB , tt)
 ⟦⟧Tyᵈ r {A = el v} (El dv) = (⟦⟧Tmᵈ r dv , ⟦⟧Tmₛ v , (⟦⟧Tm₁ r v dv ∙ ap UUStr (! (⟦⟧Tm₀ v))) , tt)
 
 ⟦⟧Tmᵈ r (VarLast dA) = tt
@@ -121,27 +116,22 @@ postulate
    ⟦⟧Tmᵈ (respectsCtxExt r A) du ,
    ⟦⟧Tmₛ u , tt)
 ⟦⟧Tmᵈ r {u = app A B f a} (App dA dB df da) =
-  let X+ = ⟦ A ⟧Ty _ $ ⟦⟧Tyᵈ r dA
-      r+ = respectsCtxExt r A
-  in
   (⟦⟧Tyᵈ r dA ,
-   ⟦⟧Tyᵈ r+ dB ,
+   ⟦⟧Tyᵈ (respectsCtxExt r A) dB ,
    ⟦⟧Tmᵈ r df ,
+   ⟦⟧Tmᵈ r da ,
    ⟦⟧Tmₛ f ,
    ⟦⟧Tm₁ r f df ,
-   ⟦⟧Tmᵈ r da ,
    ⟦⟧Tmₛ a ,
    (⟦⟧Tm₁ r a da ∙ ! (⟦⟧Ty-ft B)) , tt)
 
 ⟦⟧Morᵈ {Δ = ◇} r r' {◇} tt = tt
-⟦⟧Morᵈ {Δ = Δ , B} r r' {δ , u} (dδ , du) =
-  let δᵈ = ⟦⟧Morᵈ r (fst r') dδ
-      Bᵈ = fst (snd r')
-  in
+⟦⟧Morᵈ {Δ = Δ , B} r (r' , Bᵈ , B=) {δ , u} (dδ , du) =
+  let δᵈ = ⟦⟧Morᵈ r r' dδ in
   (δᵈ ,
    ⟦⟧Tmᵈ r du ,
    ⟦⟧Mor₁ δ ,
-   (⟦⟧Tm₁ r u {Aᵈ = ⟦tsubst⟧Tyᵈ B Bᵈ δᵈ} du ∙ ⟦tsubst⟧Ty= B Bᵈ δ δᵈ ∙ ap2-irr star refl (snd (snd r'))) , tt)
+   (⟦⟧Tm₁ r u {Aᵈ = ⟦tsubst⟧Tyᵈ B Bᵈ δᵈ} du ∙ ⟦tsubst⟧Ty= B Bᵈ δ δᵈ ∙ ap2-irr star refl B=) , tt)
 
 ⟦⟧Mor₀ ◇ = ptmor₀
 ⟦⟧Mor₀ (δ , u) = comp₀ ∙ ⟦⟧Tm₀ u
@@ -163,11 +153,11 @@ postulate
 ⟦⟧Tm₀ (lam A B u) = lamStr₀ (⟦⟧Tmₛ u) ∙ ap ft (⟦⟧Tm₀ u) ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₀ (app A B f a) = appStr₀ (⟦⟧Tmₛ a) _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 
-⟦⟧Tm₁ r (var last) (VarLast dA) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left ∙ refl) id₁ ∙ {! !}
-⟦⟧Tm₁ r (var (prev k)) (VarPrev {A = A} dA dk) = {!!} -- TODO
+⟦⟧Tm₁ r (var last) (VarLast dA) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left ∙ refl) id₁ ∙ {!!}
+⟦⟧Tm₁ r (var (prev k)) (VarPrev {A = A} dA dk) = ss₁ ∙ {!!} -- TODO
 ⟦⟧Tm₁ r u (Conv dA du dA=) = ⟦⟧Tm₁ r u du ∙ ⟦⟧TyEq r dA= (⟦⟧Tyᵈ r dA) _
 ⟦⟧Tm₁ r (lam A B u) (Lam dA dB du) = lamStr₁ ∙ ap PiStr (⟦⟧Tm₁ (respectsCtxExt r A) u du)
-⟦⟧Tm₁ {X = X} r (app A B f a) (App dA dB df da) = appStr₁ ∙ ! (⟦tsubst⟧Ty= B (⟦⟧Tyᵈ (respectsCtxExt r A) dB) _ (⟦idMor⟧ᵈ {Y = ft (⟦ A ⟧Ty X $ ⟦⟧Tyᵈ r dA)} (⟦⟧Ty-ft A) , ⟦⟧Tmᵈ r da , ⟦⟧Mor₁ (idMor _) , {!!} , tt) ∙ {!⟦ a ⟧Tm = ⟦ idMor , a ⟧Mor!})
+⟦⟧Tm₁ {X = X} r (app A B f a) (App dA dB df da) = appStr₁ ∙ ! (⟦tsubst⟧Ty= B (⟦⟧Tyᵈ (respectsCtxExt r A) dB) _ (⟦idMor⟧ᵈ {Y = ft (⟦ A ⟧Ty X $ ⟦⟧Tyᵈ r dA)} (⟦⟧Ty-ft A) , ⟦⟧Tmᵈ r da , ⟦⟧Mor₁ (idMor _) , {!!} , tt) ∙ ap2-irr star {!!} refl)
 
 ⟦⟧Tm₁-ft (var last) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ id₀
 ⟦⟧Tm₁-ft (var (prev x)) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ comp₀ ∙ pp₀
@@ -175,18 +165,24 @@ postulate
 ⟦⟧Tm₁-ft (app A B f a) = ap ft appStr₁ ∙ ft-star ∙ ⟦⟧Tm₀ a
 
 ⟦idMor⟧ᵈ {zero} refl = tt
-⟦idMor⟧ᵈ {suc n} {Y = Y} refl = (⟦weaken⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {Y = ft Y} refl) , tt , ⟦⟧Mor₁ (weakenMor (idMor n)) , (ss₁ ∙ ap2-irr star (! (⟦weaken⟧= refl refl (idMor n) (⟦idMor⟧ᵈ {Y = ft Y} refl) ∙ ap2-irr comp (ap pp (! id₁)) (ap2-irr qq ⟦idMor⟧= refl ∙ qq-id))) id₁) , tt)
+⟦idMor⟧ᵈ {suc n} {Y = Y} refl = (⟦weaken⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {Y = ft Y} refl) , tt , ⟦⟧Mor₁ (weakenMor (idMor n)) , (ss₁ ∙ ap2-irr star (! (⟦weaken⟧= refl refl (idMor n) (⟦idMor⟧ᵈ {Y = ft Y} refl) ∙ ap2-irr comp (ap pp (! id₁)) (ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id))) id₁) , tt)
 
-⟦idMor⟧= {zero} = ! (ptmor-unique _ (id _) id₀ (id₁ ∙ pt-unique _))
-⟦idMor⟧= {suc n} = {!interpretation of weakening!}
+⟦idMor⟧= {zero} refl = ! (ptmor-unique _ (id _) id₀ (id₁ ∙ pt-unique _))
+⟦idMor⟧= {suc n} refl = ⟦weaken+⟧= refl refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) ∙ ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id
+
+-- lemmaMor : (δ : Mor n m) → weakenMor δ ≡ δ [ weakenMor (idMor n) ]Mor
+-- lemmaMor δ = ap weakenMor (! ([idMor]Mor δ)) ∙ weaken[]Mor δ (idMor _) last
+
+-- lemmaTm : (u : TmExpr n) → weakenTm u ≡ u [ weakenMor (idMor n) ]Tm
+-- lemmaTm u = ap weakenTm (! ([idMor]Tm u)) ∙ weaken[]Tm u (idMor _) last
 
 ⟦weaken⟧ᵈ refl refl ◇ tt = tt
-⟦weaken⟧ᵈ refl refl (δ , u) (δᵈ , uᵈ) = (⟦weaken⟧ᵈ refl refl δ δᵈ , {!!} , ⟦⟧Mor₁ (weakenMor δ) , {!!} , tt)
+⟦weaken⟧ᵈ {X+ = X+} refl refl (δ , u) (δᵈ , uᵈ , _) = (⟦weaken⟧ᵈ refl refl δ δᵈ , {!!} , ⟦⟧Mor₁ (weakenMor δ) , {!!} , tt)  where
 
 ⟦weaken⟧= refl refl ◇ tt = ! (ptmor-unique _ _ (comp₀ ∙ qq₀ ∙ {!?????!}) (comp₁ ∙ pp₁ ∙ pt-unique _))
 ⟦weaken⟧= refl refl (δ , u) (δᵈ , uᵈ) = {!!}
 
-⟦weaken+⟧ᵈ refl refl δ δᵈ = (⟦weaken⟧ᵈ refl refl δ δᵈ , tt , ⟦⟧Mor₁ (weakenMor δ) , (ss₁ ∙ {!!}) , tt)
+⟦weaken+⟧ᵈ refl refl δ δᵈ = (⟦weaken⟧ᵈ refl refl δ δᵈ , tt , ⟦⟧Mor₁ (weakenMor δ) , (ss₁ ∙ (ap2-irr star (ap2-irr comp refl (ap id (! (pp₀ ∙ id₁))) ∙ id-left ∙ ap pp id₁) id₁ ∙ {!!}) ∙ ap2-irr star (! (⟦weaken⟧= refl refl δ δᵈ)) refl) , tt)
 
 ⟦weaken+⟧= refl refl δ δᵈ = {!!}
 
@@ -206,7 +202,7 @@ postulate
 ⟦⟧TmEq r {u = lam A B u} (LamCong dA dA= dB= du=) (Aᵈ , uᵈ , utmᵈ , _) (A'ᵈ , u'ᵈ , utm'ᵈ , _)
   rewrite ! (⟦⟧TyEq r dA= Aᵈ A'ᵈ)
         | ! (⟦⟧TmEq {X = ⟦ A ⟧Ty _ $ Aᵈ} (respectsCtxExt r A) du= uᵈ u'ᵈ) = refl
-⟦⟧TmEq r {u = app A B f a} (AppCong dA dA= dB= df= da=) (Aᵈ , Bᵈ , fᵈ , _ , _ , aᵈ , _) (A'ᵈ , B'ᵈ , f'ᵈ , _ , _ , a'ᵈ , _)
+⟦⟧TmEq r {u = app A B f a} (AppCong dA dA= dB= df= da=) (Aᵈ , Bᵈ , fᵈ , aᵈ , _) (A'ᵈ , B'ᵈ , f'ᵈ , a'ᵈ , _)
   rewrite ! (⟦⟧TyEq r dA= Aᵈ A'ᵈ)
            | ⟦⟧TyEq {X = ⟦ A ⟧Ty _ $ Aᵈ} (respectsCtxExt r A) dB= Bᵈ B'ᵈ
            | ⟦⟧TmEq r df= fᵈ f'ᵈ
@@ -222,9 +218,9 @@ postulate
 ⟦tsubst⟧Tyᵈ (el v) {δ = δ} (vᵈ , vs , v₁ , tt) δᵈ =
   (⟦tsubst⟧Tmᵈ v vᵈ δᵈ ,
    ⟦⟧Tmₛ (v [ _ ]Tm) ,
-   {!(ap ∂₁ (⟦tsubst⟧Tm= X Y v vᵈ _ δᵈ) ∙ (ss₁ ∙ {!!}) ∙ ap UUStr (ap ∂₀ (! (⟦tsubst⟧Tm= X Y v vᵈ _ δᵈ))))!} , tt)
+   ((ap ∂₁ (⟦tsubst⟧Tm= v vᵈ _ δᵈ) ∙ (ss₁ ∙ {!!}) ∙ ap UUStr (ap ∂₀ (! (⟦tsubst⟧Tm= v vᵈ _ δᵈ))))) , tt)
 
-⟦tsubst⟧Ty= (pi A B) (Aᵈ , Bᵈ , tt) δ δᵈ = ! (PiStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = (ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A) ∙ ! (⟦⟧Mor₁ δ)} ∙ {!annoying recursive calls!})
+⟦tsubst⟧Ty= (pi A B) (Aᵈ , Bᵈ , tt) δ δᵈ = ! (PiStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = (ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A) ∙ ! (⟦⟧Mor₁ δ)} ∙ ap PiStr (! (⟦tsubst⟧Ty= B Bᵈ (weakenMor δ , var last) (⟦weaken+⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ) ∙ ap2-irr star (⟦weaken+⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ ∙ ap2-irr qq refl (! (⟦⟧Ty-ft B))) refl)))
 ⟦tsubst⟧Ty= uu Aᵈ δ δᵈ = ! (UUStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = ! (⟦⟧Mor₁ δ)} ∙ ap UUStr (⟦⟧Mor₀ δ))
 ⟦tsubst⟧Ty= (el v) (vᵈ , _) δ δᵈ = ! (ElStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = ⟦⟧Tm₀ v ∙ ! (⟦⟧Mor₁ δ)} ∙ ap-irr2 ElStr (! (⟦tsubst⟧Tm= v vᵈ δ δᵈ)))
 
@@ -235,10 +231,11 @@ postulate
   (⟦tsubst⟧Tyᵈ A Aᵈ δᵈ ,
    ⟦tsubst⟧Tmᵈ u uᵈ (⟦weaken+⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ) ,
    ⟦⟧Tmₛ (u [ weakenMor δ , var last ]Tm) , tt)
-⟦tsubst⟧Tmᵈ (app A B f a) {δ = δ} (Aᵈ , Bᵈ , fᵈ , fs , f₁ , aᵈ , as , a₁ , tt) δᵈ =
+⟦tsubst⟧Tmᵈ (app A B f a) {δ = δ} (Aᵈ , Bᵈ , fᵈ , aᵈ , fs , f₁ , as , a₁ , tt) δᵈ =
   (⟦tsubst⟧Tyᵈ A Aᵈ δᵈ ,
    ⟦tsubst⟧Tyᵈ B Bᵈ (⟦weaken+⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ ) ,
    ⟦tsubst⟧Tmᵈ f fᵈ δᵈ ,
+   ⟦tsubst⟧Tmᵈ a aᵈ δᵈ ,
    ⟦⟧Tmₛ (f [ δ ]Tm) ,
    (⟦tsubst⟧Tm₁ f fᵈ δ δᵈ
     ∙ ap2-irr star refl f₁
@@ -246,7 +243,6 @@ postulate
     ∙ ap PiStr (! (⟦tsubst⟧Ty= B Bᵈ (weakenMor δ , var last) (⟦weaken+⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ)
                   ∙ ap2-irr star (⟦weaken+⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ
                                  ∙ ap2-irr qq refl (! (⟦⟧Ty-ft B))) refl))) ,
-   ⟦tsubst⟧Tmᵈ a aᵈ δᵈ ,
    ⟦⟧Tmₛ (a [ δ ]Tm) ,
    (⟦tsubst⟧Tm₁ a aᵈ δ δᵈ
      ∙ ap2-irr star refl a₁ {b = ⟦⟧Mor₁ δ ∙ ! (⟦⟧Tm₁-ft a)} {b' = ⟦⟧Mor₁ δ ∙ ! (ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A)}
@@ -264,6 +260,8 @@ postulate
 ⟦tsubst⟧Tm= (app A B f a) uᵈ δ δᵈ =
   {!!}
   ∙ ! (appStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A ∙ ! (⟦⟧Mor₁ δ)})
+
+⟦tsubst⟧Tm₁ u uᵈ δ δᵈ = ap ∂₁ (⟦tsubst⟧Tm= u uᵈ δ δᵈ) ∙ ss₁ ∙ ap2-irr star {!!} comp₁
 
 
 {- Any context respects its own interpretation -}

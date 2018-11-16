@@ -55,7 +55,7 @@ Mor→S = //-rec Mor/ (λ {a} {b} r → Mor/-eq {δ = a} {δ' = b} r)
 ∂₁→S = //-elimP ∂₁/
 
 id/ : (X : DCtx n) → Mor→S (idS n (proj X)) ≡ id C (Ob→S (proj X))
-id/ (Γ , dΓ) = ⟦idMor⟧=
+id/ (Γ , dΓ) = ⟦idMor⟧= refl
 
 id→S : (X : ObS n) → Mor→S (idS n X) ≡ id C (Ob→S X)
 id→S = //-elimP id/
