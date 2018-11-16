@@ -655,17 +655,11 @@ UUStrNatS = //-elimP (λ g → //-elimP (UUStrNatS-// g))
 
 
 ElStrNatS-// :  (g : DMor n m) (v : DMor m (suc m)) (vs : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ UUStrS (∂₀S (proj v))) (p : ∂₀S (proj v) ≡ ∂₁S (proj g)) → starS (proj g) (ElStrS (proj v) vs v₁) (! p ∙ ! (ElStr=S (proj v) vs v₁)) ≡ ElStrS (ssS (compS (proj v) (proj g) (! p))) (ss-is-sectionS (compS (proj v) (proj g) (! p))) (ss-comp-section₁S (proj g) (proj v) vs (! p) ∙  ap2-irr starS {a = (proj g)} refl v₁ {b = ! p ∙ (is-section₀S {u = proj v} vs)} {b' = (! p ∙ ! (UUStr=S (∂₀S (proj v))))} ∙ UUStrNatS (proj g) (∂₀S (proj v)) p ∙ ap UUStrS (! (ss₀S (compS (proj v) (proj g) (! p)) ∙ (comp₀S (proj v) (proj g) (! p)))))
-ElStrNatS-// (dmor (Θ , dΘ) (Γ' , dΓ') θ dθ) (dmor (Γ , dΓ) ((Δ , B) , (dΔ , dB)) (δ , v) (dδ ,  dv)) vs v₁ p =
-  let dΓ=Γ' = reflect p
-      ((_ , dΔ=Γ) , dmorv) = reflect vs
-      (_ , dB , _ , dΔB=uu , dΓB=uu) = reflect v₁
-  in
-  refl
+ElStrNatS-// (dmor (Θ , dΘ) (Γ' , dΓ') θ dθ) (dmor (Γ , dΓ) ((Δ , B) , (dΔ , dB)) (δ , v) (dδ ,  dv)) vs v₁ p = refl
 
 
 ElStrNatS :  (g : MorS n m) (v : MorS m (suc m)) (vs : is-sectionS v) (v₁ : ∂₁S v ≡ UUStrS (∂₀S v)) (p : ∂₀S v ≡ ∂₁S g) → starS g (ElStrS v vs v₁) (! p ∙ ! (ElStr=S v vs v₁)) ≡ ElStrS (ssS (compS v g (! p))) (ss-is-sectionS (compS v g (! p))) (ss-comp-section₁S g v vs (! p) ∙ ap2-irr starS {a = g} refl v₁ ∙ UUStrNatS g (∂₀S v) p ∙ ap UUStrS (! (ss₀S (compS v g (! p)) ∙ (comp₀S v g (! p)))))
 ElStrNatS = //-elimP λ g → //-elimP (λ v → ElStrNatS-// g v)  
-
 
 
 betaStrS-// : (u : DMor (suc n) (suc (suc n))) (us : is-sectionS (proj u)) (a : DMor n (suc n)) (as : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (∂₁S (proj u)))
