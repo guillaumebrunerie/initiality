@@ -66,11 +66,14 @@ record CCat : Set₁ where
   is-section₀ : {u : Mor n (suc n)} (us : is-section u) → ∂₀ u ≡ ft (∂₁ u)
   is-section₀ us = ! id₁ ∙ ap ∂₁ (! us) ∙ comp₁ ∙ pp₁
 
-  ss-is-section : {m n : ℕ} {f : Mor m (suc n)} → is-section (ss f)
-  ss-is-section {m} {n} {f} = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
+  ss-is-section : {f : Mor m (suc n)} → is-section (ss f)
+  ss-is-section = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
 
-  ss-comp-section₁ : {m n : ℕ} {g : Mor m n} {f : Mor n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
+  ss-comp-section₁ : {g : Mor m n} {f : Mor n (suc n)} (fs : is-section f) {p : ∂₁ g ≡ ∂₀ f} → ∂₁ (ss (comp f g p)) ≡ star g (∂₁ f) (p ∙ is-section₀ fs)
   ss-comp-section₁ fs {p} = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ fs ∙ ap id (! p)) refl ∙ id-right ) comp₁
+
+  ss-of-section : (u : Mor n (suc n)) (us : is-section u) → ss u ≡ u
+  ss-of-section u us = ! (ss-qq ∙ ap2-irr comp (ap2-irr qq us refl {b' = id₁ ∙ is-section₀ us} ∙ ap2-irr qq (ap id (! (ap ft ss₁ ∙ ft-star ∙ comp₀))) (! (ss₁ ∙ ap2-irr star (us ∙ ap id (is-section₀ us)) refl ∙ star-id)) ∙ qq-id) refl ∙ id-right)
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -165,7 +168,7 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
   open CCat
 
   preserve-section : {n : ℕ} {u : Mor C n (suc n)} (us : is-section C u) → is-section D (Mor→ u)
-  preserve-section us = ap2-irr (comp D) (ap (λ z → pp D z) (! ∂₁→) ∙ ! pp→) refl ∙ ! comp→ ∙ ! (ap (id D) (! ∂₀→) ∙ ! id→ ∙ ap Mor→ (! us)) 
+  preserve-section us = ! (comp→ ∙ ap2-irr (comp D) (pp→ ∙ ap (pp D) ∂₁→) refl) ∙ ap Mor→ us ∙ id→ ∙ ap (id D) ∂₀→
 
   field
     PiStr→  : (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)

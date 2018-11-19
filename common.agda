@@ -1,7 +1,7 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
 open import Agda.Primitive public
-open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_)
+open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
 open import Agda.Builtin.Size public
@@ -65,6 +65,8 @@ infixr 4 _∙_
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
 
+squash≡ : {A : Set} {a b : A} → a ≡R b → a ≡ b
+squash≡ reflR = refl
 
 {- Lifting from Prop to Set -}
 
@@ -141,3 +143,62 @@ postulate
 
 variable
   {n n' m k l} : ℕ
+
+{- Well-founded induction on ℕ -}
+
+data _<_ : ℕ → ℕ → Prop where
+ <-refl : n < suc n
+ <-suc : n < m → n < suc m
+
+data Acc (n : ℕ) : Prop where
+  acc : ({k : ℕ} → (k < n) → Acc k) → Acc n
+
+<-+ : (m : ℕ) → m + n ≡ k → n < suc k
+<-+ zero refl = <-refl
+<-+ (suc m) refl = <-suc (<-+ m refl)
+
+<-pos : (n m : ℕ) → 0 < m → n < (m + n)
+<-pos n zero ()
+<-pos n (suc m) e = <-+ m refl
+
+suc-pos : (n : ℕ) → 0 < suc n
+suc-pos zero = <-refl
+suc-pos (suc n) = <-suc (suc-pos n)
+
+WO-Nat : (n : ℕ) → Acc n
+WO-lemma : (n k : ℕ) → (k < n) → Acc k
+
+WO-Nat n = acc (λ e → WO-lemma n _ e)
+
+WO-lemma zero k ()
+WO-lemma (suc n) .n <-refl = WO-Nat n
+WO-lemma (suc n) k (<-suc e) = WO-lemma n k e
+
+{- Lemmas about addition -}
+
++-zero : (n : ℕ) → n ≡ n + zero
++-zero zero = refl
++-zero (suc n) = ap suc (+-zero n)
+
++-suc : (n m : ℕ) → suc (n + m) ≡ n + suc m
++-suc zero m = refl
++-suc (suc n) m = ap suc (+-suc n m)
+
++-comm : (n m : ℕ) → n + m ≡ m + n
++-comm zero m = +-zero m
++-comm (suc n) m = ap suc (+-comm n m) ∙ +-suc m n
+
++-assoc : (n m k : ℕ) → n + m + k ≡ n + (m + k)
++-assoc zero m k = refl
++-assoc (suc n) m k = ap suc (+-assoc n m k)
+
+{- Equational reasoning -}
+
+infix  2 _∎
+infixr 2 _≡⟨_⟩_
+
+_≡⟨_⟩_ : {A : Set} (x : A) {y z : A} → x ≡ y → y ≡ z → x ≡ z
+_ ≡⟨ p1 ⟩ p2 = p1 ∙ p2
+
+_∎ : ∀ {i} {A : Set i} (x : A) → x ≡ x
+_∎ _ = refl
