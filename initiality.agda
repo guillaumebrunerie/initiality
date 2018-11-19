@@ -82,7 +82,8 @@ ft→S : (X : ObS (suc n)) → Ob→S (ftS X) ≡ ft (Ob→S X)
 ft→S = //-elimP ft/
 
 pp/ : (X : DCtx (suc n)) → Mor→S (ppS (proj X)) ≡ pp (Ob→S (proj X))
-pp/ ((Γ , A) , (dΓ , dA)) = ⟦weaken⟧= (ap ft (! pp₀)) (⟦⟧Ty-ft A) (idMor _) (⟦idMor⟧ᵈ (! (ap ft pp₀ ∙ ⟦⟧Ty-ft A))) ∙ ap2-irr comp refl (ap2-irr qq (⟦idMor⟧= (! (⟦⟧Ty-ft A) ∙ ap ft (! pp₀))) (! pp₀) ∙ qq-id) ∙ id-left
+pp/ ((Γ , A) , (dΓ , dA)) = ⟦weakenMor⟧= (ap ft (! pp₀)) (idMor _) (⟦idMor⟧ᵈ (! (ap ft pp₀ ∙ ⟦⟧Ty-ft A))) ∙ ap2-irr comp (⟦idMor⟧= (! (⟦⟧Ty-ft A) ∙ ap ft (! pp₀)) ∙ ap id (! pp₁ ∙ ap ∂₁ (ap pp pp₀))) refl ∙ id-right
+--⟦weakenMor⟧= (ap ft (! pp₀)) (⟦⟧Ty-ft A) (idMor _) (⟦idMor⟧ᵈ (! (ap ft pp₀ ∙ ⟦⟧Ty-ft A))) ∙ ap2-irr comp refl (ap2-irr qq (⟦idMor⟧= (! (⟦⟧Ty-ft A) ∙ ap ft (! pp₀))) (! pp₀) ∙ qq-id) ∙ id-left
 
 pp→S : (X : ObS (suc n)) → Mor→S (ppS X) ≡ pp (Ob→S X)
 pp→S = //-elimP pp/
@@ -98,7 +99,8 @@ star→S = //-elimP (λ f → //-elimP (star/ f))
 qq/ : (f : DMor m n) (X : DCtx (suc n)) (p : ∂₁S (proj f) ≡ ftS (proj X)) → Mor→S (qqS (proj f) (proj X) p) ≡ qq (Mor→S (proj f)) (Ob→S (proj X)) (! (∂₁→S (proj f)) ∙ ap Ob→S p ∙ ft→S (proj X))
 qq/ (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) ((Δ' , A) , (dΔ' , dA')) p =
   let dA = ConvTy dA' (reflect (! p)) in
-  ⟦weaken+⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A ∙ ⟦⟧CtxEq (reflect (! p))) δ (⟦⟧Morᵈ respects⟦⟧Ctx respects⟦⟧Ctx dδ)
+  ⟦weakenMorVar⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A ∙ ⟦⟧CtxEq (reflect (! p))) δ (⟦⟧Morᵈ respects⟦⟧Ctx respects⟦⟧Ctx dδ) (⟦tsubst⟧Ty= {X = ⟦ Γ ⟧Ctx $ (⟦⟧Ctxᵈ dΓ)} {Y = ⟦ Δ ⟧Ctx $ (⟦⟧Ctxᵈ dΔ)} A (⟦⟧Tyᵈ respects⟦⟧Ctx dA) δ (⟦⟧Morᵈ respects⟦⟧Ctx respects⟦⟧Ctx dδ) ∙ ap2-irr star refl (ap-irr (λ z p₁ → ⟦ A ⟧Ty z $ p₁) (⟦⟧CtxEq (reflect p))))
+-- ⟦weakenMorVar⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A ∙ ⟦⟧CtxEq (reflect (! p))) δ (⟦⟧Morᵈ respects⟦⟧Ctx respects⟦⟧Ctx dδ)
 
 qq→S : (f : MorS m n) (X : ObS (suc n)) (p : ∂₁S f ≡ ftS X) → Mor→S (qqS f X p) ≡ qq (Mor→S f) (Ob→S X) (! (∂₁→S f) ∙ ap Ob→S p ∙ ft→S X)
 qq→S = //-elimP (λ f → //-elimP (qq/ f))

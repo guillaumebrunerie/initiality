@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import syntx
@@ -428,9 +428,9 @@ apApp h refl refl refl = refl
 ⟦subst⟧Ty= {X = X} refl B Bᵈ uᵈ q = ⟦tsubst⟧Ty= B Bᵈ (idMor _ , _) (⟦idMor⟧ᵈ {X = ft X} refl , uᵈ , ⟦⟧Mor₁ (idMor _) , (q ∙ ! (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)) , tt) ∙ ap2-irr star {!!} refl
 
 
-⟦idMor+⟧ᵈ refl u uᵈ = ?
+⟦idMor+⟧ᵈ refl u uᵈ = {!!}
 
-⟦idMor+⟧= refl u uᵈ = ?
+⟦idMor+⟧= refl u uᵈ = {!!}
 
 {- Any context respects its own interpretation -}
 
