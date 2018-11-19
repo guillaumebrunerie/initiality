@@ -65,6 +65,8 @@ infixr 4 _∙_
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
 
+squash≡ : {A : Set} {a b : A} → a ≡R b → a ≡ b
+squash≡ reflR = refl
 
 {- Lifting from Prop to Set -}
 
