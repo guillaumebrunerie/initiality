@@ -128,8 +128,8 @@ record StructuredCCat : Set₁ where
              → star g (ElStr v vs v₁) (! p ∙ ! ElStr=) ≡ ElStr (ss (comp v g (! p))) ss-is-section (ss-comp-section₁ vs ∙ ap2-irr star refl v₁ ∙ UUStrNat g {X = ∂₀ v} {p = p} ∙ ap UUStr (! (ss₀ ∙ comp₀)) )
 
 
-    betaStr : {u : MorC (suc n) (suc (suc n))} {us : is-section u} {a : MorC n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft (∂₁ u)}
-            → appStr (∂₁ u) (lamStr u us) lamStrs lamStr₁ a as a₁ ≡ ss (comp u a (a₁ ∙ ! (is-section₀ us)))
+    betaStr : {B : Ob (suc (suc n))} {u : MorC (suc n) (suc (suc n))} {us : is-section u} {u₁ : ∂₁ u ≡ B} {a : MorC n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft (∂₁ u)}
+            → appStr B (lamStr u us) lamStrs (lamStr₁ ∙ ap PiStr u₁) a as (a₁ ∙ ap ft u₁) ≡ ss (comp u a (a₁ ∙ ! (is-section₀ us)))
 
 open StructuredCCat
 
