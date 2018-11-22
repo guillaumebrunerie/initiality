@@ -225,15 +225,8 @@ ap2-irr2 : {A B E : Set} {C D : (a : A) (b : B) → Prop} (f : (a : A) (b : B) (
 ap2-irr2 f refl refl = refl
 
 ElStr/ : (v : DMor n (suc n)) (vs : CCat.is-section synCCat (proj v)) (v₁ : ∂₁S (proj v) ≡ UUStrS (∂₀S (proj v))) {w1 : _} {w2 : _} → Ob→S (ElStrS (proj v) vs v₁) ≡ ElStr sC (Mor→S (proj v)) w1 w2
-ElStr/ (dmor (Γv , dΓv) ((Γv' , Av'), (dΓv' , dAv')) (δv , v) (dδv , dv)) vs v₁ =
-  let
-      δv= : Γv ⊢ δv == idMor _ ∷> Γv'
-      δv= = congMorEq refl refl (weakenMorInsert _ _ _ ∙ idMor[]Mor δv) refl (snd (reflect vs))
-
-      dΓv=' : ⊢ Γv' == Γv
-      dΓv=' = snd (fst (reflect vs))
-  in
-  ap-irr2 (ElStr sC) (! (ap2-irr comp (ap2-irr qq (⟦⟧MorEq {Γ' = Γv} {Δ' = Γv'} respects⟦⟧Ctx δv= ∙ ⟦idMor⟧= (⟦⟧Ty-ft Av' ∙ ⟦⟧CtxEq dΓv=') ∙ ap id (! (⟦⟧Tm₁-ft v))) (! (⟦⟧Tm₁ respects⟦⟧Ctx v dv ∙ ⟦tsubst⟧Ty= Av' (⟦⟧Tyᵈ respects⟦⟧Ctx  dAv') δv (⟦⟧Morᵈ respects⟦⟧Ctx respects⟦⟧Ctx dδv) ∙ ap2-irr star (⟦⟧MorEq {Γ' = Γv} {Δ' = Γv'} respects⟦⟧Ctx δv= ∙ ⟦idMor⟧= (⟦⟧CtxEq dΓv=') ∙ ap id (! (⟦⟧Ty-ft Av' ∙ ⟦⟧CtxEq dΓv='))) refl ∙ star-id)) ∙ qq-id) refl ∙ id-right))
+ElStr/ vv@(dmor (Γv , dΓv) ((Γv' , Av'), (dΓv' , dAv')) (δv , v) (dδv , dv)) vs v₁ =
+  ap-irr2 (ElStr sC) (! (lemmaMor→S vv vs Γv dΓv uu UU v₁))
 
 ElStr→S : (v : MorS n (suc n)) (vs : CCat.is-section synCCat v) (v₁ : ∂₁S v ≡ UUStrS (∂₀S v)) {w1 : _} {w2 : _} → Ob→S (ElStrS v vs v₁) ≡ ElStr sC (Mor→S v) w1 w2
 ElStr→S = //-elimP ElStr/

@@ -702,9 +702,13 @@ betaStrS-// uu@(dmor ((Γ , A) , (dΓ , dA)) (((Γ' , A') , B) , ((dΓ' , dA') ,
    in
    eq ((dΓ'= , (dΓ'= ,, SubstTyMorEq dB (idMorDerivable dΓ' , da[]) (MorTran dΓ' (dΓ' , dA') eq2 eq1))) , MorRefl (idMorDerivable dΓ') , congTmEqTy (! ([idMor]Ty _)) (TmTran (TmEqTm1 dΓ' du[]=) (Beta dA' dB du' da) du[]=))
 
-betaStrS : (u : MorS (suc n) (suc (suc n))) (us : is-sectionS u) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS (∂₁S u))
+betaStrS' : (u : MorS (suc n) (suc (suc n))) (us : is-sectionS u) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS (∂₁S u))
             → appStrS (∂₁S u) (lamStrS u us) (lamStrsS u us) (lamStr₁S u us) a as a₁ ≡ ssS (compS u a (a₁ ∙ ! (is-section₀S us)))
-betaStrS = //-elimP (λ u us → //-elimP (betaStrS-// u us))
+betaStrS' = //-elimP (λ u us → //-elimP (betaStrS-// u us))
+
+betaStrS : (B : ObS (suc (suc n))) (u : MorS (suc n) (suc (suc n))) (us : is-sectionS u) (u₁ : ∂₁S u ≡ B) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS (∂₁S u))
+            → appStrS B (lamStrS u us) (lamStrsS u us) (lamStr₁S u us ∙ ap PiStrS u₁) a as (a₁ ∙ ap ftS u₁) ≡ ssS (compS u a (a₁ ∙ ! (is-section₀S us)))
+betaStrS B u us refl = betaStrS' u us
 
 strSynCCat : StructuredCCat
 ccat strSynCCat = synCCat
@@ -725,4 +729,4 @@ lamStrNat strSynCCat g {u} {us} {p}= lamStrNatS g u us p
 appStrNat strSynCCat g {B} {f} {fs} {f₁} {a} {as} {a₁} {p} = appStrNatS g B f fs f₁ a as a₁ p
 UUStrNat strSynCCat g {X = X} {p = p} = UUStrNatS g X p
 ElStrNat strSynCCat g {v} {vs} {p} {q} = ElStrNatS g v vs p q
-betaStr strSynCCat {u = u} {us = us} {a = a} {as = as} {a₁ = a₁} = betaStrS u us a as a₁
+betaStr strSynCCat {B = B} {u = u} {us = us} {u₁ = u₁} {a = a} {as = as} {a₁ = a₁} = betaStrS B u us u₁ a as a₁

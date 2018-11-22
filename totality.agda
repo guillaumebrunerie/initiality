@@ -207,12 +207,12 @@ qq^₀ {suc n} (prev k) X= = qq₀
             → ⟦ substTy B u ⟧Ty Y $ ⟦subst⟧Tyᵈ p B Bᵈ uᵈ q ≡ star (⟦ u ⟧Tm Y $ uᵈ) (⟦ B ⟧Ty X $ Bᵈ) (q ∙ ! (⟦⟧Ty-ft B))
 
 ⟦idMor+⟧ᵈ : {X : Ob n} {Y : Ob (suc n)} (p : ft Y ≡ X) (u : TmExpr n)
-            (uᵈ : isDefined (⟦ u ⟧Tm X))
+            (uᵈ : isDefined (⟦ u ⟧Tm X)) (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Y)
             → isDefined (⟦ idMor n , u ⟧Mor X Y)
 
 ⟦idMor+⟧= : {X : Ob n} {Y : Ob (suc n)} (p : ft Y ≡ X) (u : TmExpr n)
-            (uᵈ : isDefined (⟦ u ⟧Tm X))
-            → ⟦ idMor n , u ⟧Mor X Y $ ⟦idMor+⟧ᵈ p u uᵈ ≡ ⟦ u ⟧Tm X $ uᵈ
+            (uᵈ : isDefined (⟦ u ⟧Tm X)) (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Y)
+            → ⟦ idMor n , u ⟧Mor X Y $ ⟦idMor+⟧ᵈ p u uᵈ u₁ ≡ ⟦ u ⟧Tm X $ uᵈ
 
 {- Definitions -}
 
@@ -270,10 +270,10 @@ respectsCtxExt r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , refl
 ⟦⟧Tm₀ (app A B f a) = appStr₀ (⟦⟧Tmₛ a) _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 
 ⟦⟧Tm₁ r (var last) (VarLast {A = A} dA) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left ∙ refl) id₁ {b' = pp₁} ∙ ! (⟦weakenTy⟧= refl A (fst (snd r)) ∙ ap2-irr star refl (snd (snd r)))
-⟦⟧Tm₁ r (var (prev k)) (VarPrev {A = A} dA dk) = ss₁ ∙ {!!} -- TODO
+⟦⟧Tm₁ r (var (prev k)) (VarPrev {A = A} dA dk) = ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ ⟦⟧Tmₛ (var k) ∙ ap id (⟦⟧Tm₀ (var k) ∙ ! pp₁)) refl ∙ id-right) (comp₁ ∙ ⟦⟧Tm₁ (fst r) (var k) dk) ∙ ! (⟦weakenTy⟧= refl A (⟦⟧Tyᵈ (fst r) dA))
 ⟦⟧Tm₁ r u (Conv dA du dA=) = ⟦⟧Tm₁ r u du ∙ ⟦⟧TyEq r dA= (⟦⟧Tyᵈ r dA) _
 ⟦⟧Tm₁ r (lam A B u) (Lam dA dB du) = lamStr₁ ∙ ap PiStr (⟦⟧Tm₁ (respectsCtxExt r A) u du)
-⟦⟧Tm₁ {X = X} r (app A B f a) (App dA dB df da) = appStr₁ ∙ ! (⟦tsubst⟧Ty= B (⟦⟧Tyᵈ (respectsCtxExt r A) dB) _ (⟦idMor⟧ᵈ {Y = ft (⟦ A ⟧Ty X $ ⟦⟧Tyᵈ r dA)} (⟦⟧Ty-ft A) , ⟦⟧Tmᵈ r da , ⟦⟧Mor₁ (idMor _) , (⟦⟧Tm₁ r  a da ∙ ! (ap2-irr star (⟦idMor⟧= (⟦⟧Ty-ft A) ∙ ap id (! (⟦⟧Ty-ft A))) refl ∙ star-id)) , tt) ∙ ap2-irr star (⟦idMor+⟧= (⟦⟧Ty-ft A) a (⟦⟧Tmᵈ r da)) refl)
+⟦⟧Tm₁ {X = X} r (app A B f a) (App dA dB df da) = appStr₁ ∙ ! (⟦tsubst⟧Ty= B (⟦⟧Tyᵈ (respectsCtxExt r A) dB) _ (⟦idMor⟧ᵈ {Y = ft (⟦ A ⟧Ty X $ ⟦⟧Tyᵈ r dA)} (⟦⟧Ty-ft A) , ⟦⟧Tmᵈ r da , ⟦⟧Mor₁ (idMor _) , (⟦⟧Tm₁ r  a da ∙ ! (ap2-irr star (⟦idMor⟧= (⟦⟧Ty-ft A) ∙ ap id (! (⟦⟧Ty-ft A))) refl ∙ star-id)) , tt) ∙ ap2-irr star (⟦idMor+⟧= (⟦⟧Ty-ft A) a (⟦⟧Tmᵈ r da) (⟦⟧Tm₁ r a da)) refl)
 
 ⟦⟧Tm₁-ft (var last) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ id₀
 ⟦⟧Tm₁-ft (var (prev x)) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ comp₀ ∙ pp₀
@@ -366,8 +366,10 @@ apApp h refl refl refl = refl
            | ⟦⟧TyEq {X = ⟦ A ⟧Ty _ $ Aᵈ} (respectsCtxExt r A) dB= Bᵈ B'ᵈ
            | ⟦⟧TmEq r df= fᵈ f'ᵈ
            | ⟦⟧TmEq r da= aᵈ a'ᵈ = refl
-⟦⟧TmEq r (Beta dA dB du da) (Aᵈ , Bᵈ , (_ , _ , uᵈ , _) , aᵈ , _) u'ᵈ = {!betaStr ∙ ?!}
-
+⟦⟧TmEq r {u = app A B (lam A B u) a} (Beta dA dB du da) (Aᵈ , Bᵈ , (_ , uᵈ , us , tt) , aᵈ , _ , u₁ , as , a₁ , tt) u'ᵈ =
+  betaStr {us = us} {u₁ = ⟦⟧Tm₁ (respectsCtxExt r A) u du} {as = as} {a₁ = a₁ ∙ ap ft (! (⟦⟧Tm₁ (respectsCtxExt r A) u du))}
+  ∙ ! (⟦tsubst⟧Tm= u uᵈ (idMor _ , a) (⟦idMor+⟧ᵈ (⟦⟧Ty-ft A) a aᵈ (a₁ ∙ ⟦⟧Ty-ft B))
+      ∙ ap ss (ap2-irr comp refl (⟦idMor+⟧= (⟦⟧Ty-ft A) a aᵈ (a₁ ∙ ⟦⟧Ty-ft B))))
 
 ⟦tsubst⟧Tyᵈ (pi A B) {δ = δ} (Aᵈ , Bᵈ , tt) δᵈ =
   (⟦tsubst⟧Tyᵈ A Aᵈ δᵈ ,
@@ -410,27 +412,34 @@ apApp h refl refl refl = refl
          ∙ ap2-irr star refl (! (⟦⟧Ty-ft B)))) , tt)
 
 ⟦tsubst⟧Tm= (var ()) _ ◇ δᵈ
-⟦tsubst⟧Tm= (var last) tt (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = {!!}
-⟦tsubst⟧Tm= (var (prev x)) (xᵈ , _) (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ⟦tsubst⟧Tm= (var x) xᵈ δ δᵈ ∙ {!!}
+⟦tsubst⟧Tm= (var last) tt (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ! (ss-of-section (⟦ u ⟧Tm _ $ uᵈ) (⟦⟧Tmₛ u)) ∙ ss-comp {f₁ = u₁} ∙ ap ss ((! id-right ∙ ap2-irr comp (ap id (comp₁ ∙ qq₁) ∙ ss-qq) refl) ∙ assoc {q = ss₁ ∙ ! qq₀}) ∙ ! (ss-comp {f₁ = comp₁ ∙ ss₁})
+⟦tsubst⟧Tm= (var (prev x)) (xᵈ , _) (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ⟦tsubst⟧Tm= (var x) xᵈ δ δᵈ ∙ ! (ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! (assoc {q = ss₁ ∙ ! qq₀}) ∙ ap2-irr comp (! ss-qq) refl ∙ assoc ∙ ap2-irr comp refl (! assoc ∙ ap2-irr comp pp-qq refl ∙ assoc {p = u₁ ∙ ! pp₀} {q = pp₁ ∙ ft-star} ∙ ap2-irr comp refl (ap2-irr comp (ap pp (! u₁)) refl ∙ ⟦⟧Tmₛ u ∙ ap id (⟦⟧Tm₀ u ∙ ! (⟦⟧Mor₀ δ))) ∙ id-left)))
 ⟦tsubst⟧Tm= (lam A B u) (Aᵈ , uᵈ , _) δ δᵈ =
   ap-irr lamStr (⟦tsubst⟧Tm= u uᵈ (weakenMor δ , var last) (⟦weakenMorVar⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
                 ∙ ap ss (ap2-irr comp refl (⟦weakenMorVar⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ) ∙ ap2-irr qq refl (! (⟦⟧Tm₀ u)))))
   ∙ ! (lamStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = ap ft (⟦⟧Tm₀ u) ∙ ⟦⟧Ty-ft A ∙ ! (⟦⟧Mor₁ δ)})
-⟦tsubst⟧Tm= (app A B f a) uᵈ δ δᵈ =
-  apApp {!!} {!!} {!!} {!!}
+⟦tsubst⟧Tm= (app A B f a) (Aᵈ , Bᵈ , fᵈ , aᵈ , fₛ , f₁ , aₛ , a₁ , tt) δ δᵈ =
+  apApp appStr (⟦tsubst⟧Ty= B Bᵈ (weakenMor δ , var last) (⟦weakenMorVar⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
+                ∙ ap2-irr star (⟦weakenMorVar⟧= (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ) ∙ ap2-irr qq refl (! (⟦⟧Ty-ft B))) refl)
+               (⟦tsubst⟧Tm= f fᵈ δ δᵈ)
+               (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
   ∙ ! (appStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A ∙ ! (⟦⟧Mor₁ δ)})
 
-⟦tsubst⟧Tm₁ u uᵈ δ δᵈ = ap ∂₁ (⟦tsubst⟧Tm= u uᵈ δ δᵈ) ∙ ss₁ ∙ ap2-irr star {!!} comp₁
-
+⟦tsubst⟧Tm₁ u uᵈ δ δᵈ = ap ∂₁ (⟦tsubst⟧Tm= u uᵈ δ δᵈ) ∙ ss₁ ∙ ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ ⟦⟧Tmₛ u ∙ ap id (⟦⟧Tm₀ u ∙ ! (⟦⟧Mor₁ δ))) refl ∙ id-right) comp₁
 
 ⟦subst⟧Tyᵈ {X = X} refl B Bᵈ uᵈ q = ⟦tsubst⟧Tyᵈ B Bᵈ (⟦idMor⟧ᵈ {X = ft X} refl , uᵈ , ⟦⟧Mor₁ (idMor _) , (q ∙ ! (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)) , tt)
 
-⟦subst⟧Ty= {X = X} refl B  {u = u} Bᵈ uᵈ q = ⟦tsubst⟧Ty= B Bᵈ (idMor _ , _) (⟦idMor⟧ᵈ {X = ft X} refl , uᵈ , ⟦⟧Mor₁ (idMor _) , (q ∙ ! (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)) , tt) ∙ ap2-irr star (⟦idMor+⟧= refl u uᵈ) refl
+⟦subst⟧Ty= {X = X} refl B {u = u} Bᵈ uᵈ q = ⟦tsubst⟧Ty= B Bᵈ (idMor _ , _) (⟦idMor⟧ᵈ {X = ft X} refl , uᵈ , ⟦⟧Mor₁ (idMor _) , (q ∙ ! (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)) , tt) ∙ ap2-irr star (⟦idMor+⟧= refl u uᵈ q) refl
 
 
-⟦idMor+⟧ᵈ refl u uᵈ = {!!}
+⟦idMor+⟧ᵈ {X = X} refl u uᵈ u₁ =
+  (⟦idMor⟧ᵈ {X = X} refl ,
+   uᵈ ,
+   ⟦⟧Mor₁ (idMor _) ,
+   (u₁ ∙ ! (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)) , tt)
 
-⟦idMor+⟧= refl u uᵈ = {!!}
+⟦idMor+⟧= refl u uᵈ u₁ =
+  ap2-irr comp (ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id ∙ ap id (! u₁)) refl ∙ id-right
 
 {- Any context respects its own interpretation -}
 
@@ -474,3 +483,4 @@ respects⟦⟧Ctx {Γ = Γ , A} {Γᵈ = Γᵈ , Aᵈ , tt} rewrite ⟦⟧Ty-ft 
   ap2-irr comp (ap2-irr qq (⟦tsubst⟧Mor= refl δ δᵈ θ θᵈ) refl) (⟦tsubst⟧Tm= u uᵈ δ δᵈ) {b' = ss₁ ∙ (ap2-irr star thing (comp₁ ∙ u₁) ∙ ! (star-comp (⟦⟧Mor₁ θ))) ∙ ! qq₀}
   ∙ ap2-irr comp (qq-comp _) refl ∙ assoc {p = ss₁ ∙ ap2-irr star thing (comp₁ ∙ u₁) ∙ ! qq₀} {q = qq₁ ∙ ! qq₀}
   ∙ ! (assoc ∙ ap2-irr comp refl (ss-qq ∙ ap2-irr comp (ap2-irr qq thing (comp₁ ∙ u₁)) refl))
+
