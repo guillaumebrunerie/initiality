@@ -90,6 +90,18 @@ suc n -F' prev k = n -F' k
 _-F_ : (n : ℕ) (k : Fin n) → ℕ
 n -F k = suc (n -F' prev k)
 
+{- Monads -}
+
+record Monad {ℓ ℓ'} (M : Set ℓ → Set ℓ') : Set (lsuc ℓ ⊔ ℓ') where
+  field
+    return : {A : Set ℓ} → A → M A
+    _>>=_ : {A B : Set ℓ} → M A → (A → M B) → M B
+
+  _>>_ : {A B : Set ℓ} → M A → M B → M B
+  a >> b = a >>= (λ _ → b)
+
+open Monad {{…}} public
+
 {- The partiality monad -}
 
 record Partial (A : Set) : Set₁ where
@@ -99,13 +111,12 @@ record Partial (A : Set) : Set₁ where
   infix 5 _$_
 open Partial public
 
-return : {A : Set} → A → Partial A
-isDefined (return x) = Unit
-_$_ (return x) tt = x
-
-_>>=_ : {A B : Set} → Partial A → (A → Partial B) → Partial B
-isDefined (a >>= f) = Σ (isDefined a) (λ x → isDefined (f (a $ x)))
-_$_ (a >>= f) x = f (a $ fst x) $ snd x
+instance
+  PartialityMonad : Monad Partial
+  isDefined (return {{ PartialityMonad }} x) = Unit
+  _$_ (return {{ PartialityMonad }} x) tt = x
+  isDefined (_>>=_ {{ PartialityMonad }} a f) = Σ (isDefined a) (λ x → isDefined (f (a $ x)))
+  _$_ (_>>=_ {{ PartialityMonad }} a f) x = f (a $ fst x) $ snd x
 
 assume : (P : Prop) → Partial (Box P)
 isDefined (assume P) = P
