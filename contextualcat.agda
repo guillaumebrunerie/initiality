@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common hiding (_,_)
 
@@ -77,27 +77,33 @@ record CCat : Set₁ where
 
 
 {- Terms and types -}
-  
+module M (C : CCat) where
+
+  open CCat C
+
   record Ty {n : ℕ} (Γ : Ob n) : Set where
-    constructor _,_
+    constructor _,ft_
     field
       Ty-Ctx   : Ob (suc n)
       Ty-ft    : ft Ty-Ctx ≡ Γ
   open Ty public
 
   Ty= : {Γ : Ob n} {A B : Ty Γ} (p : Ty-Ctx A ≡ Ty-Ctx B) → A ≡ B
-  Ty= {A = A , ftA} {B = B , ftB} p = ap-irr (λ z p₁ → z , p₁) p
+  Ty= {Γ = Γ} {record { Ty-Ctx = A ; Ty-ft = ftA}} {record { Ty-Ctx = B ; Ty-ft = ftB}} p = ap-irr _,ft_ p
 
-  record CtxMor {n m : ℕ} (Γ : Ob m) (Δ : Ob n) : Set where
-    constructor _,_,_
+  Ob-Ty : (Γ : Ob (suc n)) → Ty (ft Γ)
+  Ty-Ctx (Ob-Ty Γ) = Γ
+  Ty-ft (Ob-Ty Γ) = refl
+
+  record CtxMor {n m : ℕ} (Γ : Ob n) (Δ : Ob m) : Set where
+    constructor _,Mor_,_
     field
-      Mor-Mor : Mor m n
+      Mor-Mor : Mor n m
       Mor₀    : ∂₀ Mor-Mor ≡ Γ
       Mor₁    : ∂₁ Mor-Mor ≡ Δ
   open CtxMor public
   
   record Tm {n : ℕ} (Γ : Ob n) (A : Ty Γ) : Set where
-    constructor _,_,_
     field
       Tm-Mor : Mor n (suc n)
       Tmₛ    : is-section Tm-Mor
@@ -106,21 +112,36 @@ record CCat : Set₁ where
     Tm₀ = is-section₀ Tmₛ ∙ ap ft Tm₁ ∙ Ty-ft A     
   open Tm public
 
-  varLastStr : (Γ : Ob (suc n)) (A : Ty Γ) (p : A ≡ ((star (pp Γ) Γ pp₁) , (ft-star ∙ pp₀))) → Tm Γ A
-  Tm-Mor (varLastStr Γ A p) = ss (id Γ)
-  Tmₛ (varLastStr Γ A p) = ss-is-section
-  Tm₁ (varLastStr Γ A p) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left) id₁ ∙ ap Ty-Ctx (! p)
+  ppCtx : {Γ : Ob n} (A : Ty Γ) → CtxMor (Ty-Ctx A) Γ
+  Mor-Mor (ppCtx A) = pp (Ty-Ctx A)
+  Mor₀ (ppCtx A) = pp₀
+  Mor₁ (ppCtx A) = pp₁ ∙ Ty-ft A
 
+  ptmorCtx : (Γ : Ob n) (Y : Ob zero) → CtxMor Γ Y
+  Mor-Mor (ptmorCtx Γ Y) = ptmor Γ
+  Mor₀ (ptmorCtx Γ Y) = ptmor₀
+  Mor₁ (ptmorCtx Γ Y) = ptmor₁ ∙ ! (pt-unique Y)
 
-  Tm-CtxMor : {Γ : Ob n} {A : Ty Γ} (u : Tm Γ A) → CtxMor Γ (Ty-Ctx A)
-  Tm-CtxMor u = Tm-Mor u , Tm₀ u , Tm₁ u
+  compCtx : {Γ : Ob n} {Δ : Ob m} {Θ : Ob k} (θ : CtxMor Δ Θ) (δ : CtxMor Γ Δ) → CtxMor Γ Θ
+  Mor-Mor (compCtx θ δ) = comp (Mor-Mor θ) (Mor-Mor δ) (Mor₁ δ ∙ ! (Mor₀ θ))
+  Mor₀ (compCtx θ δ) = comp₀ ∙ Mor₀ δ
+  Mor₁ (compCtx θ δ) = comp₁ ∙ Mor₁ θ
+
+  qqCtx : {Γ : Ob n} (Δ : Ob (suc m)) (δ : CtxMor Γ (ft Δ)) → CtxMor (star (Mor-Mor δ) Δ (Mor₁ δ)) Δ
+  Mor-Mor (qqCtx Δ δ) = qq (Mor-Mor δ) Δ (Mor₁ δ)
+  Mor₀ (qqCtx Δ δ) = qq₀
+  Mor₁ (qqCtx Δ δ) = qq₁
 
   apTm : {Γ : Ob n} {A B : Ty Γ} (p : A ≡ B) → Tm Γ A → Tm Γ B
   Tm-Mor (apTm p tm) = Tm-Mor tm
   Tmₛ (apTm p tm) = Tmₛ tm
   Tm₁ (apTm p tm) = Tm₁ tm ∙ ap Ty-Ctx p
 
-  
+  Tm-CtxMor : {Γ : Ob n} {A : Ty Γ} (u : Tm Γ A) → CtxMor Γ (Ty-Ctx A)
+  Mor-Mor (Tm-CtxMor u) = Tm-Mor u
+  Mor₀ (Tm-CtxMor u) = Tm₀ u
+  Mor₁ (Tm-CtxMor u) = Tm₁ u
+
   starTy : {Δ : Ob m} (A : Ty Δ) {Γ : Ob n} (g : CtxMor Γ Δ) → Ty Γ
   Ty-Ctx (starTy A g) = star (Mor-Mor g) (Ty-Ctx A) (Mor₁ g ∙ ! (Ty-ft A))
   Ty-ft (starTy A g) = ft-star ∙ (Mor₀ g)
@@ -142,7 +163,41 @@ record CCat : Set₁ where
   Mor₁ (qqCtxMor A g) = qq₁
   
   substTyqqCtx : {Δ : Ob m} (A : Ty Δ) (B : Ty (Ty-Ctx A)) (u : Tm Δ A) {Γ : Ob n} (g : CtxMor Γ Δ)  → substTy (starTy B (qqCtxMor A g)) (starTm u g) ≡  starTy (substTy B u) g
-  substTyqqCtx (A , ftA) (B , ftB) (u , uₛ , u₁) (g , g₀ , g₁) = Ty= (! (star-comp {p = ss₁ ∙ ! (qq₀ ∙ ap2-irr star (! (! (assoc {q = Tm₁ {A = A , ftA} (u , uₛ , u₁) ∙ ! (pp₀ ∙ comp₁ ∙ u₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ uₛ ∙ ap id (Tm₀ {A = A , ftA} (u , uₛ , u₁) ∙ ! g₁)) refl ∙ id-right)) (! (comp₁ ∙ u₁)))} (qq₁ ∙ ! ftB)) ∙ ap2-irr star (ap2-irr comp (! (ap2-irr qq (! (assoc {q = Tm₁ {A = A , ftA}(u , uₛ , u₁) ∙ ! (pp₀ ∙ comp₁ ∙ u₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ uₛ ∙ ap id (Tm₀ {A = A , ftA}(u , uₛ , u₁) ∙ ! g₁)) refl ∙ id-right) (comp₁ ∙ u₁))) refl ∙ ! ss-qq) refl ∙ star-comp (u₁ ∙ ! ftB))
+  substTyqqCtx A'@record { Ty-Ctx = A ; Ty-ft = ftA} B'@record { Ty-Ctx = B ; Ty-ft = ftB} u g  = Ty= (! (star-comp {p = ss₁ ∙ ! (qq₀ ∙ ap2-irr star (! (! (assoc {q = Tm₁ {A = A'} u ∙ ! (pp₀ ∙ comp₁ ∙ (Tm₁ u))}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ (Tmₛ u) ∙ ap id (Tm₀ {A = A'} u ∙ ! (Mor₁ g))) refl ∙ id-right)) (! (comp₁ ∙ (Tm₁ u))))} (qq₁ ∙ ! ftB)) ∙ ap2-irr star (ap2-irr comp (! (ap2-irr qq (! (assoc {q = Tm₁ {A = A'} u ∙ ! (pp₀ ∙ comp₁ ∙ (Tm₁ u))}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ (Tmₛ u) ∙ ap id (Tm₀ {A = A'} u ∙ ! (Mor₁ g))) refl ∙ id-right) (comp₁ ∙ (Tm₁ u)))) refl ∙ ! ss-qq) refl ∙ star-comp (Tm₁ u ∙ ! ftB))
+
+  weakenTy : {Γ : Ob n} (A B : Ty Γ) → Ty (Ty-Ctx B)
+  weakenTy A B = starTy A (ppCtx B)
+
+  trim : (k : Fin n) (X : Ob n) → Ob (n -F k)
+  trim last X = X
+  trim (prev k) X = trim k (ft X)
+  
+  weakenTy^ : (k : Fin n) {Γ : Ob n} (A : Ty (trim k Γ)) → Ty Γ
+  weakenTy^ last A = A
+  weakenTy^ (prev k) A = weakenTy (weakenTy^ k A) (Ob-Ty _)
+
+  Ty-at : (k : Fin n) (Γ : Ob n)  → Ty (trim k Γ)
+  Ty-at k Γ = (starTy (Ob-Ty (trim k Γ)) (ppCtx (Ob-Ty (trim k Γ))))
+
+  var-unweaken : (k : Fin n) (Γ : Ob n) → Tm (trim k Γ) (Ty-at k Γ)
+  Tm-Mor (var-unweaken last Γ) = ss (id Γ)
+  Tmₛ (var-unweaken last Γ) = ss-is-section
+  Tm₁ (var-unweaken last Γ) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp id₁) (ap id (! pp₀)) ∙ id-left) id₁
+  Tm-Mor (var-unweaken (prev k) Γ) = ss (Tm-Mor (var-unweaken k (ft Γ)))
+  Tmₛ (var-unweaken (prev k) Γ) = ss-is-section
+  Tm₁ (var-unweaken (prev k) Γ) = ss₁ ∙ ap2-irr star (ap2-irr comp (ap pp (Tm₁ (var-unweaken k (ft Γ)) ∙ ! (Tm₁ (var-unweaken k (ft Γ))))) refl ∙ (Tmₛ (var-unweaken k (ft Γ))) ∙ ap id (! (ft-star ∙ pp₀ ∙ ! (Tm₀ (var-unweaken k (ft Γ)))))) (Tm₁ (var-unweaken k (ft Γ))) ∙ star-id
+
+  weakenTm : {Γ : Ob n} (A : Ty Γ) (u : Tm Γ A) (B : Ty Γ) → Tm (Ty-Ctx B) (weakenTy A B)
+  weakenTm A u B = starTm u (ppCtx B)
+
+  weakenTm^ : (k : Fin n) {Γ : Ob n} {A : Ty (trim k Γ)} (u : Tm (trim k Γ) A) → Tm Γ (weakenTy^ k A)
+  weakenTm^ last u = u 
+  weakenTm^ (prev k) {Γ} {A} u = weakenTm (weakenTy^ k A) (weakenTm^ k u) (Ob-Ty Γ)
+  
+  varStr : (k : Fin n) (Γ : Ob n) (Y : Ty Γ) (p : Y ≡ weakenTy^ k (Ty-at k Γ)) → Tm Γ Y
+  varStr k Γ Y p  = apTm (! p) (weakenTm^ k (var-unweaken k Γ))
+
+
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -151,6 +206,7 @@ record StructuredCCat : Set₁ where
     ccat : CCat
 
   open CCat ccat renaming (Mor to MorC)
+  open M ccat
   
   field
     -- Additional structure on contextual categories
@@ -221,6 +277,8 @@ open StructuredCCat
 
 record CCatMor (C D : CCat) : Set where
   open CCat
+  open M 
+  
   field
     Ob→ : Ob C n → Ob D n
     Mor→ : Mor C n m → Mor D n m
@@ -237,16 +295,16 @@ record CCatMor (C D : CCat) : Set where
     ptmor→ : {X : Ob C n} → Mor→ (ptmor C X) ≡ ptmor D (Ob→ X)
 
   Ty→ : {Γ : Ob C n} → Ty C Γ → Ty D (Ob→ Γ)
-  Ty-Ctx (Ty→ (A , ftA)) = Ob→ A
-  Ty-ft (Ty→ (A , ftA)) = ! ft→ ∙ ap Ob→ ftA
-
+  Ty-Ctx (Ty→ A) = Ob→ (Ty-Ctx A)
+  Ty-ft (Ty→ A) = ! ft→ ∙ ap Ob→ (Ty-ft A)
+  
   preserve-section : {n : ℕ} {u : Mor C n (suc n)} (us : is-section C u) → is-section D (Mor→ u)
   preserve-section us = ! (comp→ ∙ ap2-irr (comp D) (pp→ ∙ ap (pp D) ∂₁→) refl) ∙ ap Mor→ us ∙ id→ ∙ ap (id D) ∂₀→
 
   Tm→ : {Γ : Ob C n} {A : Ty C Γ} → Tm C Γ A → Tm D (Ob→ Γ) (Ty→ A)
-  Tm-Mor (Tm→ (u , uₛ , u₁)) = Mor→ u
-  Tmₛ (Tm→ (u , uₛ , u₁)) = preserve-section uₛ
-  Tm₁ (Tm→ (u , uₛ , u₁)) = ! ∂₁→ ∙ ap Ob→ u₁
+  Tm-Mor (Tm→ u) = Mor→ (Tm-Mor u)
+  Tmₛ (Tm→ u) = preserve-section (Tmₛ u)
+  Tm₁ (Tm→ u) = ! ∂₁→ ∙ ap Ob→ (Tm₁ u)
 
   substTy→ : {Γ : Ob C n} {A : Ty C Γ} (B : Ty C (Ty-Ctx A)) (a : Tm C Γ A) → substTy D (Ty→ B) (Tm→ a) ≡  Ty→ (substTy C B a)
   substTy→ B a = Ty= D (! star→)
@@ -263,6 +321,7 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
     
   open CCatMor ccat→
   open CCat
+  open M
 
 
   field

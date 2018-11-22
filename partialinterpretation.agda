@@ -7,7 +7,8 @@ open import contextualcat
 module _ (C : StructuredCCat) where
 
 open StructuredCCat C
-open CCat ccat renaming (Mor to MorC; substTy to substTyC)
+open CCat ccat renaming (Mor to MorC)
+open M ccat renaming (substTy to substTyC; weakenTy to weakenTyC; weakenTm to weakenTmC)
 
 {- Partial interpretation of types and terms -}
 
@@ -23,13 +24,9 @@ open CCat ccat renaming (Mor to MorC; substTy to substTyC)
   [v] ← ⟦ v ⟧Tm X (UUStr X)
   return (ElStr X [v])
 
-⟦ var last ⟧Tm X Y = do
-  p ← assume (Y ≡ ((star (pp X) X pp₁) , (ft-star ∙ pp₀)))
-  return (varLastStr X Y (unbox p)) --return (ss (id X))
-⟦ var (prev x) ⟧Tm X Y = {!!}  {-do
-  [x] ← ⟦ var x ⟧Tm (ft X)
-  [x]₀ ← assume (∂₀ [x] ≡ ft X)
-  return (ss (comp [x] (pp X) (pp₁ ∙ ! (unbox [x]₀))))-}
+⟦ var k ⟧Tm X Y = do
+  p ← (assume (Y ≡ weakenTy^ k (Ty-at k X)))
+  return (varStr k X Y (unbox p))
 ⟦ lam A B u ⟧Tm X Y = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty (Ty-Ctx [A])
@@ -47,18 +44,16 @@ open CCat ccat renaming (Mor to MorC; substTy to substTyC)
 
 {- Partial interpretation of contexts and context morphisms -}
 
--- ⟦_⟧Ctx : (Γ : Ctx n) → Partial (Ob n)
--- ⟦ ◇ ⟧Ctx = return pt
--- ⟦ Γ , A ⟧Ctx = do
---   [Γ] ← ⟦ Γ ⟧Ctx
---   [A] ← ⟦ A ⟧Ty [Γ]
---   return [A]
+⟦_⟧Ctx : (Γ : Ctx n) → Partial (Ob n)
+⟦ ◇ ⟧Ctx = return pt
+⟦ Γ , A ⟧Ctx = do
+  [Γ] ← ⟦ Γ ⟧Ctx
+  [A] ← ⟦ A ⟧Ty [Γ]
+  return (Ty-Ctx [A])
 
--- ⟦_⟧Mor : (δ : Mor n m) (X : Ob n) (Y : Ob m) → Partial (MorC n m)
--- ⟦ ◇ ⟧Mor X Y = return (ptmor X)
--- ⟦ δ , u ⟧Mor X Y = do
---   [δ] ← ⟦ δ ⟧Mor X (ft Y)
---   [u] ← ⟦ u ⟧Tm X
---   [δ]₁ ← assume (∂₁ [δ] ≡ ft Y)
---   [u]₁ ← assume (∂₁ [u] ≡ star [δ] Y (unbox [δ]₁))
---   return (comp (qq [δ] Y (unbox [δ]₁)) [u] (unbox [u]₁ ∙ ! qq₀))
+⟦_⟧Mor : (δ : Mor n m) (X : Ob n) (Y : Ob m) → Partial (CtxMor X Y)
+⟦ ◇ ⟧Mor X Y = return (ptmorCtx X Y)
+⟦ δ , u ⟧Mor X Y = do
+  [δ] ← ⟦ δ ⟧Mor X (ft Y)
+  [u] ← ⟦ u ⟧Tm X (starTy (Ob-Ty Y) [δ])
+  return (compCtx (qqCtx Y [δ]) (Tm-CtxMor [u]))
