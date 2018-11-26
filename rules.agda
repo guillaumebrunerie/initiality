@@ -39,7 +39,7 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == A)
   TyTran : {Γ : Ctx n} {A B C : TyExpr n}
     → Derivable (Γ ⊢ B) → Derivable (Γ ⊢ A == B)→ Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
-
+  
   -- Symmetry and transitivity for terms
   TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
     → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ v == u :> A)
@@ -451,7 +451,7 @@ MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du)
 DerTmTy : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
 DerTmTy dΓ (VarLast dA) = WeakTy _ dA
 DerTmTy (dΓ , dB) (VarPrev dA dk) = WeakTy _ (DerTmTy dΓ dk)
-DerTmTy dΓ (Conv dA du dA=) = TyEqTy2 dΓ dA=
+DerTmTy dΓ (Conv dA du dA=) = TyEqTy2 dΓ dA= 
 DerTmTy dΓ (Lam dA dB du) = Pi dA dB
 DerTmTy dΓ (App dA dB df da) = SubstTy dB ((idMorDerivable dΓ) , congTm (! ([idMor]Ty _)) refl da)
 

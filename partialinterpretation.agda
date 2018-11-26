@@ -55,5 +55,6 @@ open M ccat renaming (substTy to substTyC; weakenTy to weakenTyC; weakenTm to we
 ⟦ ◇ ⟧Mor X Y = return (ptmorCtx X Y)
 ⟦ δ , u ⟧Mor X Y = do
   [δ] ← ⟦ δ ⟧Mor X (ft Y)
-  [u] ← ⟦ u ⟧Tm X (starTy (Ob-Ty Y) [δ])
-  return (compCtx (qqCtx Y [δ]) (Tm-CtxMor [u]))
+  [u] ← ⟦ u ⟧Tm X (starTy [δ] (Ob-Ty Y))
+  return (compCtx (qqCtx [δ] (Ob-Ty Y)) (Tm-CtxMor [u]))
+

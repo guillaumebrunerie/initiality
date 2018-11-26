@@ -35,6 +35,7 @@ data Mor (n : ℕ) : ℕ → Set where
 
 {- Weakening -}
 
+
 weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
 weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
 weakenVar' : (k : Fin (suc n)) → Fin n → Fin (suc n)
