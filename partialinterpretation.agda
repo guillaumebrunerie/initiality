@@ -26,21 +26,20 @@ open M ccat renaming (substTy to substTyC; weakenTy to weakenTyC; weakenTm to we
 
 ⟦ var k ⟧Tm X Y = do
   p ← (assume (Y ≡ weakenTy^ k (Ty-at k X)))
-  return (convertTm (varStr k X) (unbox p))
+  return (cong!Tm (unbox p) (varStr k X))
 ⟦ lam A B u ⟧Tm X Y = do
   [A] ← ⟦ A ⟧Ty X
-
-[B] ← ⟦ B ⟧Ty (Ty-Ctx [A])
+  [B] ← ⟦ B ⟧Ty (Ty-Ctx [A])
   [u] ← ⟦ u ⟧Tm (Ty-Ctx [A]) [B]
   p ← assume (Y ≡ PiStr X [A] [B])
-  return (convertTm (lamStr X [A] [B] [u]) (unbox p))
+  return (cong!Tm (unbox p) (lamStr X [A] [B] [u]))
 ⟦ app A B f a ⟧Tm X Y = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty (Ty-Ctx [A])
   [f] ← ⟦ f ⟧Tm X (PiStr X [A] [B])
   [a] ← ⟦ a ⟧Tm X [A]
   p ← assume (Y ≡ substTyC [B] [a])
-  return (convertTm (appStr X [A] [B] [f] [a]) (unbox p))
+  return (cong!Tm (unbox p) (appStr X [A] [B] [f] [a]))
 
 
 {- Partial interpretation of contexts and context morphisms -}

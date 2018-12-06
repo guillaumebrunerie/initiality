@@ -8,7 +8,7 @@ open import Agda.Builtin.Size public
 
 {- Relevant equality (used only in a few places, when we need to transport along it) -}
 
-data _≡R_ {l} {A : Set l} (a : A) : A → Set where
+data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
   reflR : a ≡R a
 
 !R : {A : Set} {a a' : A} → a ≡R a' → a' ≡R a
@@ -21,7 +21,7 @@ apR f reflR = reflR
 {- Rewriting -}
 
 abstract
-  _↦_ : ∀ {l} {A : Set l} → A → A → Set
+  _↦_ : ∀ {l} {A : Set l} → A → A → Set l
   a ↦ b = a ≡R b
 {-# BUILTIN REWRITE _↦_ #-}
 
@@ -48,7 +48,7 @@ record Unit : Prop where
 
 {- Prop-valued equality -}
 
-data _≡_ {l} {A : Set l} (x : A) : A → Prop where
+data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
   refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_ #-}
 

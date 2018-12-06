@@ -93,6 +93,48 @@ PathOver-CstPropPi : ∀ {l l' l''} {A : Set l} {B : Prop l'} {C : A → B → S
                   → PathOver (λ x → ((y : B) → C x y)) p u u'
 PathOver-CstPropPi {p = reflR} f = PathOver-refl-to (funextP (λ y → PathOver-refl-from (f y)))
 
+PathOver-→ : ∀ {l l' l''} {A : Set l} {B : A → Set l'} {C : A → Set l''}
+                  {a a' : A} {p : a ≡R a'} {u : B a → C a} {u' : B a' → C a'}
+                  → ((y : B a) (y' : B a') (r : PathOver B p y y') → PathOver C p (u y) (u' y'))
+                  → PathOver (λ x → (B x → C x)) p u u'
+PathOver-→ {p = reflR} f = PathOver-refl-to (funext λ x → PathOver-refl-from (f x x reflo))
+
+PathOver-→Cst : ∀ {l l' l''} {A : Set l} {B : A → Set l'} {C : Set l''}
+                  {a a' : A} {p : a ≡R a'} {u : B a → C} {u' : B a' → C}
+                  → ((y : B a) (y' : B a') (r : PathOver B p y y') → u y ≡ u' y')
+                  → PathOver (λ x → (B x → C)) p u u'
+PathOver-→Cst {p = reflR} f = PathOver-refl-to (funext (λ x → f x x reflo))
+
+record ΣP {l l'} (A : Set l) (B : A → Prop l') : Set (l ⊔ l') where
+  constructor _,_
+  field
+    fst : A
+    snd : B fst
+open ΣP public
+
+uncurry : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} (C : (a : A) → B a → Set l'') → ΣP A B → Set l''
+uncurry C ab = C (fst ab) (snd ab)
+
+pair≡P : ∀ {l l'} {A : Set l} {B : A → Prop l'} {a a' : A} (p : a ≡R a') {b : B a} {b' : B a'} → _≡R_ {A = ΣP A B} (a , b) (a' , b')
+pair≡P reflR = reflR
+
+-- postulate
+--   pair≡R : ∀ {l l'} {A : Set l} {B : A → Set l'} {a a' : A} (p : a ≡R a') {b : B a} {b' : B a'} (q : PathOver B p b b') → _≡R_ {A = ΣP A B} (a , b) (a' , b')
+--   pair≡R-rew : ∀ {l l'} {A : Set l} {B : A → Set l'} {a : A} {b : B a} → pair≡R (reflR {a = a}) (reflo {B = B} {u = b}) ↦ reflR
+-- {-# REWRITE pair≡R-rew #-}
+
+-- PathOver-Pi : ∀ {l l' l''} {A : Set l} {B : A → Set l'} {C : (a : A) → B a → Set l''}
+--                   {a a' : A} {p : a ≡R a'} {u : (b : B a) → C a b} {u' : (b' : B a') → C a' b'}
+--                   → ((y : B a) (y' : B a') (r : PathOver B p y y') → PathOver (uncurry C) (pair≡R p r) (u y) (u' y'))
+--                   → PathOver (λ x → ((y : B x) → C x y)) p u u'
+-- PathOver-Pi {p = reflR} f = PathOver-refl-to (funext (λ x → PathOver-refl-from (f x x reflo)))
+
+PathOver-PropPi : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} {C : (a : A) → B a → Set l''}
+                  {a a' : A} {p : a ≡R a'} {u : (b : B a) → C a b} {u' : (b' : B a') → C a' b'}
+                  → ((y : B a) (y' : B a') → PathOver (uncurry C) (pair≡P p) (u y) (u' y'))
+                  → PathOver (λ x → ((y : B x) → C x y)) p u u'
+PathOver-PropPi {p = reflR} f = PathOver-refl-to (funextP (λ x → PathOver-refl-from (f x x)))
+
 
 {- Elimination rules that we actually use (most of the time) -}
 
@@ -122,6 +164,11 @@ module _ {A : Set} {R : EquivRel A} where
   //-elim-PiP2 : ∀ {l l'} {B : A // R → Prop l} {C : A // R → Set l'} (proj* : (a : A) (b : B (proj a)) → C (proj a)) (eq* : {a a' : A} (r : a ≃ a') (y : B (proj a)) (y' : B (proj a')) → PathOver C (eqR r) (proj* a y) (proj* a' y')) → (x : A // R) → (y : B x) → C x
   //-elim-PiP2 proj* eq* = //-elim proj* (λ r → PathOver-Prop→ (eq* r))
 
+  -- Dependent elimination in a dependent type of the form x.((y : B x) → C x y) with B a Prop
+  //-elim-PiP3 : ∀ {l l'} {B : A // R → Prop l} {C : (x : A // R) → B x → Set l'} (proj* : (a : A) (b : B (proj a)) → C (proj a) b) (eq* : {a a' : A} (r : a ≃ a') (y : B (proj a)) (y' : B (proj a')) → PathOver (uncurry C) (pair≡P (eqR r)) (proj* a y) (proj* a' y')) → (x : A // R) → (y : B x) → C x y
+  //-elim-PiP3 proj* eq* = //-elim proj* (λ r → PathOver-PropPi (eq* r))
+
+  -- Not sure
   //-elimP-PiP : ∀ {l l'} {X : Set l} {B : A // R → X → Prop l} {x₀ x₁ : X} {p : x₀ ≡R x₁} {C : Set l'} {u : (x : A // R) → B x x₀ → C} {v : (x : A // R) → B x x₁ → C}
                  (proj* : (a : A) (y : B (proj a) x₀) (y' : B (proj a) x₁) → u (proj a) y ≡ v (proj a) y')
                  → (x : A // R) → PathOver (λ y → (B x y → C)) p (u x) (v x)
