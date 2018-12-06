@@ -125,21 +125,25 @@ module M (C : CCat) where
   -- Tm= : {Γ : Ob n} {u v : Tm Γ} (p : getType u ≡ getType v) (q : Tm-Mor u ≡ Tm-Mor v) → u ≡ v
   -- Tm= p q = apTm _,Tm_,_ p q
 
+  convertMorR : {Γ : Ob n} {Δ Δ' : Ob m} (δ : CtxMor Γ Δ) → Δ' ≡ Δ → CtxMor Γ Δ'
+  Mor-Mor (convertMorR δ p) = Mor-Mor δ
+  Mor₀ (convertMorR δ p) = Mor₀ δ
+  Mor₁ (convertMorR δ p) = Mor₁ δ ∙ (! p)
 
-  ppCtx : {Γ : Ob n} {Γ+ : Ob (suc n)} (p : ft Γ+ ≡ Γ) → CtxMor Γ+ Γ
-  Mor-Mor (ppCtx p) = pp _
-  Mor₀ (ppCtx p) = pp₀
-  Mor₁ (ppCtx p) = pp₁ ∙ p
+  ppCtx : {Γ : Ob (suc n)} → CtxMor Γ (ft Γ)
+  Mor-Mor ppCtx = pp _
+  Mor₀ ppCtx = pp₀
+  Mor₁ ppCtx = pp₁
 
-  idCtx : (Γ : Ob n) {Δ : Ob n} (p : Δ ≡ Γ) → CtxMor Γ Δ
-  Mor-Mor (idCtx Γ p) = id Γ
-  Mor₀ (idCtx Γ p) = id₀
-  Mor₁ (idCtx Γ p) = id₁ ∙ (! p)
+  idCtx : (Γ : Ob n) → CtxMor Γ Γ
+  Mor-Mor (idCtx Γ) = id Γ
+  Mor₀ (idCtx Γ) = id₀
+  Mor₁ (idCtx Γ) = id₁
 
-  ptmorCtx : (Γ : Ob n) (Y : Ob zero) → CtxMor Γ Y
-  Mor-Mor (ptmorCtx Γ Y) = ptmor Γ
-  Mor₀ (ptmorCtx Γ Y) = ptmor₀
-  Mor₁ (ptmorCtx Γ Y) = ptmor₁ ∙ ! (pt-unique Y)
+  ptmorCtx : (Γ : Ob n) → CtxMor Γ pt
+  Mor-Mor (ptmorCtx Γ) = ptmor Γ
+  Mor₀ (ptmorCtx Γ) = ptmor₀
+  Mor₁ (ptmorCtx Γ) = ptmor₁
 
   compCtx : {Γ : Ob n} {Δ : Ob m} {Θ : Ob k} (θ : CtxMor Δ Θ) (δ : CtxMor Γ Δ) → CtxMor Γ Θ
   Mor-Mor (compCtx θ δ) = comp (Mor-Mor θ) (Mor-Mor δ) (Mor₁ δ ∙ ! (Mor₀ θ))
@@ -158,10 +162,10 @@ module M (C : CCat) where
   Mor₀ (qqCtx δ A) = qq₀ 
   Mor₁ (qqCtx δ A) = qq₁ 
 
-  transTm : {Γ : Ob n} {A B : Ty Γ} (p : A ≡ B) → Tm Γ A → Tm Γ B
-  Tm-Mor (transTm p tm) = Tm-Mor tm
-  Tmₛ (transTm p tm) = Tmₛ tm
-  Tm₁ (transTm p tm) = Tm₁ tm ∙ ap Ty-Ctx p
+  convertTm : {Γ : Ob n} {A B : Ty Γ} → Tm Γ A → (p : B ≡ A) → Tm Γ B
+  Tm-Mor (convertTm tm p) = Tm-Mor tm
+  Tmₛ (convertTm tm p) = Tmₛ tm
+  Tm₁ (convertTm tm p) = Tm₁ tm ∙ ap Ty-Ctx (! p)
 
   Tm-CtxMor : {Γ : Ob n} {A : Ty Γ} (u : Tm Γ A) → CtxMor Γ (Ty-Ctx A)
   Mor-Mor (Tm-CtxMor u) = Tm-Mor u
@@ -188,7 +192,7 @@ module M (C : CCat) where
   substTyqqCtx A'@record { Ty-Ctx = A ; Ty-ft = ftA} B'@record { Ty-Ctx = B ; Ty-ft = ftB} u g  = Ty= (! (star-comp {p = ss₁ ∙ ! (qq₀ ∙ ap2-irr star (! (! (assoc {q = Tm₁ {A = A'} u ∙ ! (pp₀ ∙ comp₁ ∙ (Tm₁ u))}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ (Tmₛ u) ∙ ap id (Tm₀ {A = A'} u ∙ ! (Mor₁ g))) refl ∙ id-right)) (! (comp₁ ∙ (Tm₁ u))))} (qq₁ ∙ ! ftB)) ∙ ap2-irr star (ap2-irr comp (! (ap2-irr qq (! (assoc {q = Tm₁ {A = A'} u ∙ ! (pp₀ ∙ comp₁ ∙ (Tm₁ u))}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ (Tmₛ u) ∙ ap id (Tm₀ {A = A'} u ∙ ! (Mor₁ g))) refl ∙ id-right) (comp₁ ∙ (Tm₁ u)))) refl ∙ ! ss-qq) refl ∙ star-comp (Tm₁ u ∙ ! ftB))
 
   weakenTy : {Γ : Ob n} (A B : Ty Γ) → Ty (Ty-Ctx B)
-  weakenTy A B = starTy (ppCtx (Ty-ft B)) A
+  weakenTy A B = starTy (convertMorR ppCtx (! (Ty-ft B))) A
 
   trim : (k : Fin n) (X : Ob n) → Ob (n -F k)
   trim last X = X
@@ -199,7 +203,7 @@ module M (C : CCat) where
   weakenTy^ (prev k) A = weakenTy (weakenTy^ k A) (Ob-Ty _)
 
   Ty-at : (k : Fin n) (Γ : Ob n)  → Ty (trim k Γ)
-  Ty-at k Γ = (starTy (ppCtx refl)) (Ob-Ty (trim k Γ))
+  Ty-at k Γ = (starTy ppCtx) (Ob-Ty (trim k Γ))
 
   var-unweaken : (k : Fin n) (Γ : Ob n) → Tm (trim k Γ) (Ty-at k Γ)
   Tm-Mor (var-unweaken last Γ) = ss (id Γ)
@@ -214,14 +218,14 @@ module M (C : CCat) where
   var-unweakenCommutes (prev k) Γ = Tm= (ap ss (ap Tm-Mor (var-unweakenCommutes k (ft Γ))))
 
   weakenTm : {Γ : Ob n} (A : Ty Γ) (u : Tm Γ A) (B : Ty Γ) → Tm (Ty-Ctx B) (weakenTy A B)
-  weakenTm A u B = starTm (ppCtx (Ty-ft B)) u
+  weakenTm A u B = starTm (convertMorR ppCtx (! (Ty-ft B))) u
 
   weakenTm^ : (k : Fin n) {Γ : Ob n} {A : Ty (trim k Γ)} (u : Tm (trim k Γ) A) → Tm Γ (weakenTy^ k A)
   weakenTm^ last u = u 
   weakenTm^ (prev k) {Γ} {A} u = weakenTm (weakenTy^ k A) (weakenTm^ k u) (Ob-Ty Γ)
   
-  varStr : (k : Fin n) (Γ : Ob n) (Y : Ty Γ) (p : Y ≡ weakenTy^ k (Ty-at k Γ)) → Tm Γ Y
-  varStr k Γ Y p  = transTm (! p) (weakenTm^ k (var-unweaken k Γ))
+  varStr : (k : Fin n) (Γ : Ob n) → Tm Γ (weakenTy^ k (Ty-at k Γ))
+  varStr k Γ  = weakenTm^ k (var-unweaken k Γ)
 
 
 
@@ -236,20 +240,20 @@ record StructuredCCat : Set₁ where
   
   field
    PiStr : (Γ : Ob n) (A : Ty Γ) (B : Ty (Ty-Ctx A)) → Ty Γ
-   lamStr : (Γ : Ob n) (A : Ty Γ) (B : Ty (Ty-Ctx A)) (u : Tm (Ty-Ctx A) B) (Y : Ty Γ) (p : Y ≡ PiStr Γ A B) → Tm Γ Y
-   appStr : (Γ : Ob n) (A : Ty Γ) (B : Ty (Ty-Ctx A)) (f : Tm Γ (PiStr Γ A B)) (a : Tm Γ A) (Y : Ty Γ) (p : Y ≡ substTy B a) → Tm Γ Y
+   lamStr : (Γ : Ob n) (A : Ty Γ) (B : Ty (Ty-Ctx A)) (u : Tm (Ty-Ctx A) B) → Tm Γ (PiStr Γ A B)
+   appStr : (Γ : Ob n) (A : Ty Γ) (B : Ty (Ty-Ctx A)) (f : Tm Γ (PiStr Γ A B)) (a : Tm Γ A) → Tm Γ (substTy B a)
    UUStr : (Γ : Ob n) {-(i : ℕ)-} → Ty Γ
    ElStr : (Γ : Ob n) {-(i : ℕ)-} (v : Tm Γ (UUStr Γ {-i-})) → Ty Γ
 
    -- Naturality
 
    PiStrNat  : {Δ : Ob m} {A : Ty Δ} {B : Ty (Ty-Ctx A)} {Γ : Ob n} (g : CtxMor Γ Δ) → PiStr Γ (starTy g A) (starTy (qqCtxMor g A) B) ≡ starTy g (PiStr Δ A B)
-   lamStrNat : {Δ : Ob m} {A : Ty Δ} {B : Ty (Ty-Ctx A)} {u : Tm (Ty-Ctx A) B} {Y : Ty Δ} (p : Y ≡ PiStr Δ A B) {Γ : Ob n} (g : CtxMor Γ Δ) → lamStr Γ (starTy g A) (starTy (qqCtxMor g A) B) (starTm (qqCtxMor g A) u) (starTy g Y) (ap (starTy g) p ∙ ! (PiStrNat g)) ≡ starTm g (lamStr Δ A B u Y p)
-   appStrNat : {Δ : Ob m} {A : Ty Δ} {B : Ty (Ty-Ctx A)} {f : Tm Δ (PiStr Δ A B)} {a : Tm Δ A} {Y : Ty Δ} {p : Y ≡ substTy B a} {Γ : Ob n} (g : CtxMor Γ Δ) → appStr Γ (starTy g A) (starTy (qqCtxMor g A) B) (transTm (! (PiStrNat g)) (starTm g f)) (starTm g a) (starTy g Y) (ap (starTy g) p ∙  ! (substTyqqCtx A B a g)) ≡ starTm g (appStr Δ A B f a Y p)
+   lamStrNat : {Δ : Ob m} {A : Ty Δ} {B : Ty (Ty-Ctx A)} {u : Tm (Ty-Ctx A) B} {Γ : Ob n} (g : CtxMor Γ Δ) → convertTm (lamStr Γ (starTy g A) (starTy (qqCtxMor g A) B) (starTm (qqCtxMor g A) u)) (! (PiStrNat g)) ≡ starTm g (lamStr Δ A B u)
+   appStrNat : {Δ : Ob m} {A : Ty Δ} {B : Ty (Ty-Ctx A)} {f : Tm Δ (PiStr Δ A B)} {a : Tm Δ A} {Γ : Ob n} (g : CtxMor Γ Δ) → convertTm (appStr Γ (starTy g A) (starTy (qqCtxMor g A) B) (convertTm (starTm g f) (PiStrNat g)) (starTm g a)) (! (substTyqqCtx A B a g)) ≡ starTm g (appStr Δ A B f a)
    UUStrNat : {Δ : Ob m} {-(i : ℕ)-} {Γ : Ob n} (g : CtxMor Γ Δ) → UUStr {-i-} Γ ≡ starTy g (UUStr {-i-} Δ)
-   ElStrNat : {Δ : Ob m} {-(i : ℕ)-} {v : Tm Δ (UUStr Δ {-i-})} {Γ : Ob n} (g : CtxMor Γ Δ) → ElStr Γ (transTm (! (UUStrNat g)) (starTm g v)) ≡ starTy g (ElStr Δ v)
+   ElStrNat : {Δ : Ob m} {-(i : ℕ)-} {v : Tm Δ (UUStr Δ {-i-})} {Γ : Ob n} (g : CtxMor Γ Δ) → ElStr Γ (convertTm (starTm g v) (UUStrNat g)) ≡ starTy g (ElStr Δ v)
 
-   betaStr : {Γ : Ob m} {A : Ty Γ} {B : Ty (Ty-Ctx A)} {u : Tm (Ty-Ctx A) B} {a : Tm Γ A} → appStr Γ A B (lamStr Γ A B u (PiStr Γ A B) refl) a (substTy B a) refl ≡ substTm u a
+   betaStr : {Γ : Ob m} {A : Ty Γ} {B : Ty (Ty-Ctx A)} {u : Tm (Ty-Ctx A) B} {a : Tm Γ A} → appStr Γ A B (lamStr Γ A B u) a ≡ substTm u a
 
 
 -- -- --     betaStr : {u : MorC (suc n) (suc (suc n))} {us : is-section u} {a : MorC n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft (∂₁ u)}
@@ -352,10 +356,10 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
 
   field
     PiStr→ : (Γ : Ob C n) (A : Ty C Γ) (B : Ty C (Ty-Ctx A)) → PiStr sD (Ob→ Γ) (Ty→ A) (Ty→ B) ≡ Ty→ (PiStr sC Γ A B)
-    lamStr→ : (Γ : Ob C n) (A : Ty C Γ) (B : Ty C (Ty-Ctx A)) (u : Tm C (Ty-Ctx A) B) (Y : Ty C Γ) (p : Y ≡ PiStr sC Γ A B) →  lamStr sD (Ob→ Γ) (Ty→ A) (Ty→ B) (Tm→ u) (Ty→ Y) (ap Ty→ p ∙  ! (PiStr→ Γ A B)) ≡ Tm→ (lamStr sC Γ A B u Y p) 
-    appStr→ : (Γ : Ob C n) (A : Ty C Γ) (B : Ty C (Ty-Ctx A)) (f : Tm C Γ (PiStr sC Γ A B)) (a : Tm C Γ A) (Y : Ty C Γ) (p : Y ≡ substTy C B a) → appStr sD (Ob→ Γ) (Ty→ A) (Ty→ B) (transTm D (! (PiStr→ Γ A B)) (Tm→ f)) (Tm→ a) (Ty→ Y) (ap Ty→ p ∙ ! (substTy→ B a)) ≡ Tm→ (appStr sC Γ A B f a Y p)
+    lamStr→ : (Γ : Ob C n) (A : Ty C Γ) (B : Ty C (Ty-Ctx A)) (u : Tm C (Ty-Ctx A) B)  → convertTm D (lamStr sD (Ob→ Γ) (Ty→ A) (Ty→ B) (Tm→ u)) (! (PiStr→ Γ A B))  ≡ Tm→ (lamStr sC Γ A B u) 
+    appStr→ : (Γ : Ob C n) (A : Ty C Γ) (B : Ty C (Ty-Ctx A)) (f : Tm C Γ (PiStr sC Γ A B)) (a : Tm C Γ A) → convertTm D (appStr sD (Ob→ Γ) (Ty→ A) (Ty→ B) (convertTm D (Tm→ f) (PiStr→ Γ A B)) (Tm→ a)) (! (substTy→ B a)) ≡ Tm→ (appStr sC Γ A B f a)
     UUStr→ : (Γ : Ob C n) {-(i : ℕ)-} → UUStr sD (Ob→ Γ) ≡ Ty→ (UUStr sC Γ)
-    ElStr→ : (Γ : Ob C n) {-(i : ℕ)-} (v : Tm C Γ (UUStr sC Γ)) → ElStr sD (Ob→ Γ) (transTm D (! (UUStr→ Γ)) (Tm→ v)) ≡ Ty→ (ElStr sC Γ v)
+    ElStr→ : (Γ : Ob C n) {-(i : ℕ)-} (v : Tm C Γ (UUStr sC Γ)) → ElStr sD (Ob→ Γ) (convertTm D (Tm→ v) (UUStr→ Γ)) ≡ Ty→ (ElStr sC Γ v)
   
   -- field
   --   PiStr→  : (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)
