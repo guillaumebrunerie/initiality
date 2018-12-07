@@ -36,7 +36,7 @@ data TmExpr where
   nat : (i : ℕ) → TmExpr {↑ s} n
   zero : TmExpr {s} n
   suc : (u : TmExpr {s} n) → TmExpr {↑ s} n
-  nat-elim : (P : TyExpr {s} (suc n)) (d0 : TmExpr {s} n) (dS : TmExpr {s} (suc n)) (u : TmExpr {s} n) → TmExpr {↑ s} n
+  -- nat-elim : (P : TyExpr {s} (suc n)) (d0 : TmExpr {s} n) (dS : TmExpr {s} (suc n)) (u : TmExpr {s} n) → TmExpr {↑ s} n
 
   id : (i : ℕ) (a u v : TmExpr {s} n) → TmExpr {↑ s} n
   refl : (A : TyExpr {s} n) (u : TmExpr {s} n) → TmExpr {↑ s} n
@@ -90,8 +90,8 @@ weakenTm' k (pr2 A B u) = pr2 (weakenTy' k A) (weakenTy' (prev k) B) (weakenTm' 
 weakenTm' k (nat i) = nat i
 weakenTm' k zero = zero
 weakenTm' k (suc u) = suc (weakenTm' k u)
-weakenTm' k (nat-elim P d0 dS u) = nat-elim (weakenTy' (prev k) P) (weakenTm' k d0)
-                                            (weakenTm' (prev k) dS) (weakenTm' k u)
+--weakenTm' k (nat-elim P d0 dS u) = nat-elim (weakenTy' (prev k) P) (weakenTm' k d0)
+--                                            (weakenTm' (prev (prev k)) dS) (weakenTm' k u)
 weakenTm' k (id i a u v) = id i (weakenTm' k a) (weakenTm' k u) (weakenTm' k v)
 weakenTm' k (refl A u) = refl (weakenTy' k A) (weakenTm' k u)
 -- weakenTm' k (jj A P d a b p) = jj (weakenTy' k A) (weakenTy' (prev (prev (prev k))) P)
@@ -163,8 +163,8 @@ pr2 A B u [ δ ]Tm = pr2 (A [ δ ]Ty) (B [ weakenMor+ δ ]Ty) (u [ δ ]Tm)
 nat i [ δ ]Tm = nat i
 zero [ δ ]Tm = zero
 suc u [ δ ]Tm = suc (u [ δ ]Tm)
-nat-elim P d0 dS u [ δ ]Tm = nat-elim (P [ weakenMor+ δ ]Ty) (d0 [ δ ]Tm) (dS [ weakenMor+ δ ]Tm)
-                                      (u [ δ ]Tm)
+-- nat-elim P d0 dS u [ δ ]Tm = nat-elim (P [ weakenMor+ δ ]Ty) (d0 [ δ ]Tm) (dS [ weakenMor+ (weakenMor+ δ) ]Tm)
+--                                       (u [ δ ]Tm)
 id i a u v [ δ ]Tm = id i (a [ δ ]Tm) (u [ δ ]Tm) (v [ δ ]Tm)
 refl A u [ δ ]Tm = refl (A [ δ ]Ty) (u [ δ ]Tm)
 -- jj A P d a b p [ δ ]Tm = jj (A [ δ ]Ty) (P [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty)
@@ -325,12 +325,12 @@ weakenCommutesTm' m k zero = refl
 weakenCommutesTm' m k (suc u)
   rewrite weakenCommutesTm' m k u
   = refl
-weakenCommutesTm' m k (nat-elim P d0 dS u)
-  rewrite weakenCommutesTy+' m k P
-        | weakenCommutesTm' m k d0
-        | weakenCommutesTm+' m k dS
-        | weakenCommutesTm' m k u
-  = refl
+-- weakenCommutesTm' m k (nat-elim P d0 dS u)
+--   rewrite weakenCommutesTy+' m k P
+--         | weakenCommutesTm' m k d0
+--         | weakenCommutesTm+' m k dS
+--         | weakenCommutesTm' m k u
+--   = refl
 weakenCommutesTm' m k (id i a u v)
   rewrite weakenCommutesTm' m k a
         | weakenCommutesTm' m k u
@@ -409,7 +409,7 @@ weaken[]Tm (pr2 A B u) δ k rewrite weaken[]Ty A δ k | weaken[]Ty B (weakenMor+
 weaken[]Tm (nat i) δ k = refl
 weaken[]Tm (zero) δ k = refl
 weaken[]Tm (suc u) δ k rewrite weaken[]Tm u δ k = refl
-weaken[]Tm (nat-elim P d0 dS u) δ k rewrite weaken[]Ty P (weakenMor+ δ) (prev k) | weaken[]Tm d0 δ k | weaken[]Tm dS (weakenMor+ δ) (prev k) | weaken[]Tm u δ k | weakenMorCommutes k δ = refl
+--weaken[]Tm (nat-elim P d0 dS u) δ k rewrite weaken[]Ty P (weakenMor+ δ) (prev k) | weaken[]Tm d0 δ k |weaken[]Tm dS (weakenMor+ (weakenMor+ δ)) (prev (prev k)) | weaken[]Tm u δ k | weakenMorCommutes k δ = refl
 weaken[]Tm (id i a u v) δ k rewrite weaken[]Tm a δ k | weaken[]Tm u δ k | weaken[]Tm v δ k = refl
 weaken[]Tm (refl A u) δ k rewrite weaken[]Ty A δ k | weaken[]Tm u δ k = refl
 --weaken[]Tm (jj A P d a b p) δ k rewrite weaken[]Ty A δ k | weaken[]
@@ -446,7 +446,7 @@ weakenTmInsert' k (pr2 A B u) δ t rewrite ! (weakenCommutesInsert k last t δ) 
 weakenTmInsert' k (nat i) δ t = refl
 weakenTmInsert' k zero δ t = refl
 weakenTmInsert' k (suc u) δ t rewrite weakenTmInsert' k u δ t = refl
-weakenTmInsert' k (nat-elim P d0 dS u) δ t rewrite ! (weakenCommutesInsert k last t δ) | weakenTyInsert' (prev k) P (weakenMor+ δ) (weakenTm t) | weakenTmInsert' k d0 δ t | weakenTmInsert' (prev k) dS (weakenMor+ δ) (weakenTm t) | weakenTmInsert' k u δ t = refl
+-- weakenTmInsert' k (nat-elim P d0 dS u) δ t rewrite ! (weakenCommutesInsert k last t δ) | weakenTyInsert' (prev k) P (weakenMor+ δ) (weakenTm t) | weakenTmInsert' k d0 δ t | weakenTmInsert' (prev k) dS (weakenMor+ δ) (weakenTm t) | weakenTmInsert' k u δ t = refl
 weakenTmInsert' k (id i a u v) δ t rewrite weakenTmInsert' k a δ t | weakenTmInsert' k u δ t | weakenTmInsert' k v δ t = refl
 weakenTmInsert' k (refl A u) δ t rewrite weakenTyInsert' k A δ t | weakenTmInsert' k u δ t = refl
 --weakenTmInsert' k (jj …) δ t = ?
@@ -533,7 +533,7 @@ unquoteDecl ap-pr2-Tm = generate-ap (quote TmExpr.pr2) ap-pr2-Tm
 unquoteDecl ap-nat-Tm = generate-ap (quote TmExpr.nat) ap-nat-Tm
 unquoteDecl ap-zero-Tm = generate-ap (quote TmExpr.zero) ap-zero-Tm
 unquoteDecl ap-suc-Tm = generate-ap (quote TmExpr.suc) ap-suc-Tm
-unquoteDecl ap-nat-elim-Tm = generate-ap (quote TmExpr.nat-elim) ap-nat-elim-Tm
+--unquoteDecl ap-nat-elim-Tm = generate-ap (quote TmExpr.nat-elim) ap-nat-elim-Tm
 unquoteDecl ap-id-Tm = generate-ap (quote TmExpr.id) ap-id-Tm
 unquoteDecl ap-refl-Tm = generate-ap (quote TmExpr.refl) ap-refl-Tm
 --unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm
@@ -558,7 +558,7 @@ corresponding-ap =
   (quote TmExpr.nat , quote ap-nat-Tm) ∷
   (quote TmExpr.zero , quote ap-zero-Tm) ∷
   (quote TmExpr.suc , quote ap-suc-Tm) ∷
-  (quote TmExpr.nat-elim , quote ap-nat-elim-Tm) ∷
+  --(quote TmExpr.nat-elim , quote ap-nat-elim-Tm) ∷
   (quote TmExpr.id , quote ap-id-Tm) ∷
   (quote TmExpr.refl , quote ap-refl-Tm) ∷ []
   -- (quote TmExpr.jj , quote ap-jj-Tm) ∷ []
