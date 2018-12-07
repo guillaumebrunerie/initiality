@@ -78,16 +78,16 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
 
   -- Rules for UU
-  UU : {Γ : Ctx n}
-    → Derivable (Γ ⊢ uu)
-  UUCong : {Γ : Ctx n}
-    → Derivable (Γ ⊢ uu == uu)
+  UU : {i : ℕ} {Γ : Ctx n}
+    → Derivable (Γ ⊢ uu i)
+  UUCong :  {i : ℕ} {Γ : Ctx n}
+    → Derivable (Γ ⊢ uu i == uu i)
 
   -- Rules for El
-  El : {Γ : Ctx n} {v : TmExpr n}
-    → Derivable (Γ ⊢ v :> uu) → Derivable (Γ ⊢ el v)
-  ElCong : {Γ : Ctx n} {v v' : TmExpr n}
-    → Derivable (Γ ⊢ v == v' :> uu) → Derivable (Γ ⊢ el v == el v')
+  El : {i : ℕ} {Γ : Ctx n} {v : TmExpr n}
+    → Derivable (Γ ⊢ v :> uu i) → Derivable (Γ ⊢ el i v)
+  ElCong : {i : ℕ} {Γ : Ctx n} {v v' : TmExpr n}
+    → Derivable (Γ ⊢ v == v' :> uu i) → Derivable (Γ ⊢ el i v == el i v')
 
   -- Beta-reduction
   Beta : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} {a : TmExpr n}
@@ -209,8 +209,8 @@ weakenDerLast {Γ = Γ} {δ = δ} {A = A} dA dδ rewrite ! (weaken[]Ty A δ last
 
 
 SubstTy {A = pi A B} (Pi dA dB) dδ = Pi (SubstTy dA dδ) (SubstTy dB (WeakMor (A [ _ ]Ty) dδ , weakenDerLast dA dδ))
-SubstTy {A = uu} UU dδ = UU
-SubstTy {A = el v} (El dA) dδ = El (SubstTm dA dδ)
+SubstTy {A = uu i} UU dδ = UU
+SubstTy {A = el i v} (El dA) dδ = El (SubstTm dA dδ)
 
 SubstTm (Conv dA du dA=) dδ = Conv (SubstTy dA dδ) (SubstTm du dδ) (SubstTyEq dA= dδ)
 SubstTm {Δ = (Δ , A)} {var last} {δ = δ , u} (VarLast {A = A'} dA) (dδ , du) rewrite weakenTyInsert A δ u = du
@@ -222,8 +222,8 @@ SubstTm {u = app A B f a} {δ = δ} (App dA dB df da) dδ rewrite ! (substCommut
 SubstTyEq {A = A} (TySymm dA=) dδ = TySymm (SubstTyEq dA= dδ)
 SubstTyEq {A = A} (TyTran dB dA= dB=) dδ = TyTran (SubstTy dB dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= dδ)
 SubstTyEq {A = pi A B} (PiCong dA dA= dB=) dδ = PiCong (SubstTy dA  dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor (A [ _ ]Ty) dδ , weakenDerLast dA dδ))
-SubstTyEq {A = uu} UUCong dδ = UUCong
-SubstTyEq {A = el v} (ElCong dv=) dδ = ElCong (SubstTmEq dv= dδ)
+SubstTyEq {A = uu i} UUCong dδ = UUCong
+SubstTyEq {A = el i v} (ElCong dv=) dδ = ElCong (SubstTmEq dv= dδ)
 
 SubstTmEq {δ = δ , u} (VarLastCong {A = A} dA=) (_ , du) rewrite weakenTyInsert A δ u = TmRefl du
 SubstTmEq {δ = δ , u} (VarPrevCong {A = A} _ dA=) (dδ , du) rewrite weakenTyInsert A δ u = SubstTmEq dA= dδ 
@@ -236,8 +236,8 @@ SubstTmEq  {δ = δ} (Beta {B = B} {u = u} {a = a} dA dB du da) dδ rewrite ! (s
 
 
 SubstTyMorEq {Δ = Δ} {pi A B} (Pi dA dB) dδ dδ= = PiCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB ((WeakMor (A [ _ ]Ty) dδ) , (weakenDerLast dA dδ)) ((WeakMorEq (A [ _ ]Ty) dδ=) , congTmRefl (weakenDerLast dA dδ) refl))
-SubstTyMorEq {A = uu} dA dδ dδ= = UUCong
-SubstTyMorEq {A = el v} (El dv) dδ dδ= = ElCong (SubstTmMorEq dv dδ dδ=)
+SubstTyMorEq {A = uu i} dA dδ dδ= = UUCong
+SubstTyMorEq {A = el i v} (El dv) dδ dδ= = ElCong (SubstTmMorEq dv dδ dδ=)
 
 SubstTmMorEq {u = var last} {δ = δ , u} {δ' = δ' , u'} (VarLast {A = A} dA) dδ (dδ= , du=) rewrite weakenTyInsert A δ u = du=
 SubstTmMorEq {u = var (prev x)} {δ = δ , u} {δ' = δ' , u'} (VarPrev _ dk) (dδ , du) (dδ= , du=) = congTmEqTy (! (weakenTyInsert _ δ u)) (SubstTmMorEq dk dδ dδ=)
@@ -247,8 +247,8 @@ SubstTmMorEq {u = app A B f a} {δ = δ} (App dA dB df da) dδ dδ= rewrite ! (s
 
 
 WeakTy' k T {A = pi A B} (Pi dA dB) = Pi (WeakTy' k T dA) (WeakTy' (prev k) T dB)
-WeakTy' k T {A = uu} UU = UU
-WeakTy' k T {A = el v} (El dv) = El (WeakTm' k T dv)
+WeakTy' k T {A = uu i} UU = UU
+WeakTy' k T {A = el i v} (El dv) = El (WeakTm' k T dv)
 
 WeakTyEq' k T (TySymm dA=) = TySymm (WeakTyEq' k T dA=)
 WeakTyEq' k T (TyTran dB dA= dB=) = TyTran (WeakTy' k T dB) (WeakTyEq' k T dA=) (WeakTyEq' k T dB=)

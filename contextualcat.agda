@@ -75,6 +75,32 @@ record CCat : Set₁ where
   ss-of-section : (u : Mor n (suc n)) (us : is-section u) → ss u ≡ u
   ss-of-section u us = ! (ss-qq ∙ ap2-irr comp (ap2-irr qq us refl {b' = id₁ ∙ is-section₀ us} ∙ ap2-irr qq (ap id (! (ap ft ss₁ ∙ ft-star ∙ comp₀))) (! (ss₁ ∙ ap2-irr star (us ∙ ap id (is-section₀ us)) refl ∙ star-id)) ∙ qq-id) refl ∙ id-right)
 
+  ft^ : (k : Fin (suc n)) (X : Ob n) → Ob (n -F' k)
+  ft^ {n} last X = X
+  ft^ {zero} (prev ()) X
+  ft^ {suc n} (prev k) X = ft^ {n = n} k (ft X)
+
+  star^ : (k : Fin (suc n)) (X+ : Ob (suc (n -F' k))) (X : Ob n) (X= : ft X+ ≡ ft^ k X) → Ob (suc n)
+  qq^ : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (X= : ft X+ ≡ ft^ k X) → Mor (suc n) n
+  qq^₁ : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (X= : ft X+ ≡ ft^ k X) → ∂₁ (qq^ k X=) ≡ X
+  qq^₀ : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (X= : ft X+ ≡ ft^ k X) → ∂₀ (qq^ k X=) ≡ star^ k X+ X X=
+
+  star^ last X+ X X= = X+
+  star^ {n = zero} (prev ()) X+ X X=
+  star^ {n = suc n} (prev k) X+ X X= = star (qq^ k X=) X (qq^₁ k X=)
+
+  qq^ last {X+ = X+} X= = pp X+
+  qq^ {n = zero} (prev ()) X=
+  qq^ {n = suc n} (prev k) {X = X} X= = qq (qq^ k X=) X (qq^₁ k X=)
+
+  qq^₁ {n} last X= = pp₁ ∙ X=
+  qq^₁ {zero} (prev ()) X=
+  qq^₁ {suc n} (prev k) X= = qq₁
+
+  qq^₀ last X= = pp₀
+  qq^₀ {zero} (prev ()) X=
+  qq^₀ {suc n} (prev k) X= = qq₀
+
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
 record StructuredCCat : Set₁ where
@@ -82,36 +108,86 @@ record StructuredCCat : Set₁ where
     ccat : CCat
 
   open CCat ccat renaming (Mor to MorC)
-  -- open M ccat
 
+  {- Additional structure corresponding to type formers -}
   field
-    -- Additional structure on contextual categories
+    UUStr  : (i : ℕ) (X : Ob n) → Ob (suc n)
+    UUStr= : {i : ℕ} {X : Ob n} → ft (UUStr i X) ≡ X
+
+    ElStr  : (i : ℕ) (v : MorC n (suc n)) (vs : is-section v) (v₁ : ∂₁ v ≡ UUStr i (∂₀ v)) → Ob (suc n)
+    ElStr= : {i : ℕ} {v : MorC n (suc n)} {vs : is-section v} {v₁ : ∂₁ v ≡ UUStr i (∂₀ v)} → ft (ElStr i v vs v₁) ≡ ∂₀ v
+
     PiStr  : (B : Ob (suc (suc n))) → Ob (suc n)
     PiStr= : {B : Ob (suc (suc n))} → ft (PiStr B) ≡ ft (ft B)
+
+    SigStr  : (B : Ob (suc (suc n))) → Ob (suc n)
+    SigStr= : {B : Ob (suc (suc n))} → ft (SigStr B) ≡ ft (ft B)
+
+    NatStr  : (X : Ob n) → Ob (suc n)
+    NatStr= : {X : Ob n} → ft (NatStr X) ≡ X
+
+    IdStr   : (a : MorC n (suc n)) (aₛ : is-section a) (b : MorC n (suc n)) (bₛ : is-section b) (p : ∂₁ a ≡ ∂₁ b) → Ob (suc n)
+    IdStr=  : {a : MorC n (suc n)} {aₛ : is-section a} {b : MorC n (suc n)} {bₛ : is-section b} {p : ∂₁ a ≡ ∂₁ b} → ft (IdStr a aₛ b bₛ p) ≡ ∂₀ a
+
+  {- Additional structure corresponding to term formers -}
+  field
+    uuStr  : (i : ℕ) (X : Ob n) → MorC n (suc n)
+    uuStrₛ : {i : ℕ} {X : Ob n} → is-section (uuStr i X)
+    uuStr₁ : {i : ℕ} {X : Ob n} → ∂₁ (uuStr i X) ≡ UUStr (suc i) X
+
+    piStr  : (i : ℕ) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i (∂₀ a)) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)) → MorC n (suc n)
+    piStrₛ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)} → is-section (piStr i a aₛ a₁ b bₛ b₁)
+    piStr₁ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)} → ∂₁ (piStr i a aₛ a₁ b bₛ b₁) ≡ UUStr i (∂₀ a)
 
     lamStr  : (u : MorC (suc n) (suc (suc n))) (us : is-section u) → MorC n (suc n)
     lamStrs : {u : MorC (suc n) (suc (suc n))} {us : is-section u} → is-section (lamStr u us)
     lamStr₁ : {u : MorC (suc n) (suc (suc n))} {us : is-section u} → ∂₁ (lamStr u us) ≡ PiStr (∂₁ u)
 
-  lamStr₀ : {u : MorC (suc n) (suc (suc n))} (us : is-section u) → ∂₀ (lamStr u us) ≡ ft (∂₀ u)
-  lamStr₀ us = is-section₀ lamStrs ∙ ap ft lamStr₁ ∙ PiStr= ∙ ap ft (! (is-section₀ us))
-
-  field
     appStr  : (B : Ob (suc (suc n))) (f : MorC n (suc n)) (fs : is-section f) (f₁ : ∂₁ f ≡ PiStr B) (a : MorC n (suc n)) (as : is-section a) (a₁ : ∂₁ a ≡ ft B) → MorC n (suc n)
     appStrs : {B : Ob (suc (suc n))} {f : MorC n (suc n)} {fs : is-section f} {f₁ : ∂₁ f ≡ PiStr B} {a : MorC n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft B} → is-section (appStr B f fs f₁ a as a₁)
     appStr₁ : {B : Ob (suc (suc n))} {f : MorC n (suc n)} {fs : is-section f} {f₁ : ∂₁ f ≡ PiStr B} {a : MorC n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft B} → ∂₁ (appStr B f fs f₁ a as a₁) ≡ star a B a₁
 
+    sigStr  : (i : ℕ) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i (∂₀ a)) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)) → MorC n (suc n)
+    sigStrₛ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)} → is-section (sigStr i a aₛ a₁ b bₛ b₁)
+    sigStr₁ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)} → ∂₁ (sigStr i a aₛ a₁ b bₛ b₁) ≡ UUStr i (∂₀ a)
+
+    -- pair
+
+    -- pr1
+
+    -- pr2
+
+    -- nat
+
+    -- zero
+
+    -- nat-elim
+
+    -- id
+
+    -- refl
+
+  uuStr₀ : {i : ℕ} (X : Ob n) → ∂₀ (uuStr i X) ≡ X
+  uuStr₀ _ = is-section₀ uuStrₛ ∙ ap ft uuStr₁ ∙ UUStr=
+
+  piStr₀ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} (b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)) → ∂₀ (piStr i a aₛ a₁ b bₛ b₁) ≡ ∂₀ a
+  piStr₀ _ = is-section₀ piStrₛ ∙ ap ft piStr₁ ∙ UUStr=
+
+  lamStr₀ : {u : MorC (suc n) (suc (suc n))} (us : is-section u) → ∂₀ (lamStr u us) ≡ ft (∂₀ u)
+  lamStr₀ us = is-section₀ lamStrs ∙ ap ft lamStr₁ ∙ PiStr= ∙ ap ft (! (is-section₀ us))
+
   appStr₀ : {B : Ob (suc (suc n))} {f : MorC n (suc n)} {fs : is-section f} {f₁ : ∂₁ f ≡ PiStr B} {a : MorC n (suc n)} (as : is-section a) (a₁ : ∂₁ a ≡ ft B) → ∂₀ (appStr B f fs f₁ a as a₁) ≡ ft (ft B)
   appStr₀ as a₁ = is-section₀ appStrs ∙ ap ft appStr₁ ∙ ft-star ∙ is-section₀ as ∙ ap ft a₁
 
+  sigStr₀ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} (b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁)) → ∂₀ (sigStr i a aₛ a₁ b bₛ b₁) ≡ ∂₀ a
+  sigStr₀ _ = is-section₀ sigStrₛ ∙ ap ft sigStr₁ ∙ UUStr=
+
+  {- Additional structure corresponding to naturality -}
   field
-    UUStr  : (X : Ob n) → Ob (suc n)
-    UUStr= : {X : Ob n} → ft (UUStr X) ≡ X
-
-    ElStr  : (v : MorC n (suc n)) (vs : is-section v) (v₁ : ∂₁ v ≡ UUStr (∂₀ v)) → Ob (suc n)
-    ElStr= : {v : MorC n (suc n)} {vs : is-section v} {v₁ : ∂₁ v ≡ UUStr (∂₀ v)} → ft (ElStr v vs v₁) ≡ ∂₀ v
-
-    -- Naturality
+    UUStrNat : {i : ℕ} {n m : ℕ} (g : MorC n m) {X : Ob m} {p : X ≡ ∂₁ g}
+             → star g (UUStr i X) (! p ∙ ! UUStr=) ≡ UUStr i (∂₀ g)
+    ElStrNat : {i : ℕ} {n m : ℕ} (g : MorC n m) {v : MorC m (suc m)} {vs : is-section v} {v₁ : ∂₁ v ≡ UUStr i (∂₀ v)} {p : ∂₀ v ≡ ∂₁ g}
+             → star g (ElStr i v vs v₁) (! p ∙ ! ElStr=) ≡ ElStr i (ss (comp v g (! p))) ss-is-section (ss-comp-section₁ vs ∙ ap2-irr star refl v₁ ∙ UUStrNat g {X = ∂₀ v} {p = p} ∙ ap (UUStr i) (! (ss₀ ∙ comp₀)) )
     PiStrNat  : {n m : ℕ} (g : MorC n m) {B : Ob (suc (suc m))} {p : ft (ft B) ≡ ∂₁ g}
               → star g (PiStr B) (! (PiStr= ∙ p)) ≡ PiStr (star (qq g (ft B) (! p)) B qq₁)
     lamStrNat : {n m : ℕ} (g : MorC n m) {u : MorC (suc m) (suc (suc m))} {us : is-section u} {p : ft (∂₀ u) ≡ ∂₁ g}
@@ -122,11 +198,16 @@ record StructuredCCat : Set₁ where
                 ≡ appStr (star (qq g (ft B) (! p)) B qq₁)
                          (ss (comp f g (! (is-section₀ fs ∙ ap ft f₁ ∙ PiStr= ∙ p)))) ss-is-section (ss-comp-section₁ fs ∙ ap2-irr star refl f₁ ∙ (PiStrNat g {B = B} {p = p}))
                          (ss (comp a g (! (is-section₀ as ∙ ap ft a₁ ∙ p)))) ss-is-section (ss-comp-section₁ as ∙ ap2-irr star refl a₁ ∙ ! (ft-star ∙ qq₀))
-    UUStrNat : {n m : ℕ} (g : MorC n m) {X : Ob m} {p : X ≡ ∂₁ g}
-             → star g (UUStr X) (! p ∙ ! UUStr=) ≡ UUStr (∂₀ g)
-    ElStrNat : {n m : ℕ} (g : MorC n m) {v : MorC m (suc m)} {vs : is-section v} {v₁ : ∂₁ v ≡ UUStr (∂₀ v)} {p : ∂₀ v ≡ ∂₁ g}
-             → star g (ElStr v vs v₁) (! p ∙ ! ElStr=) ≡ ElStr (ss (comp v g (! p))) ss-is-section (ss-comp-section₁ vs ∙ ap2-irr star refl v₁ ∙ UUStrNat g {X = ∂₀ v} {p = p} ∙ ap UUStr (! (ss₀ ∙ comp₀)) )
 
+  {- Additional structure corresponding to equality rules -}
+  field
+    eluuStr : (i : ℕ) (X : Ob n) → ElStr (suc i) (uuStr i X) uuStrₛ (uuStr₁ ∙ ap (UUStr (suc i)) (! (uuStr₀ _))) ≡ UUStr (suc i) X
+
+    elpiStr : (i : ℕ) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i (∂₀ a)) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁))
+            → ElStr i (piStr i a aₛ a₁ b bₛ b₁) piStrₛ (piStr₁ ∙ ap (UUStr i) (! (piStr₀ _))) ≡ PiStr (ElStr i b bₛ (b₁ ∙ ap (UUStr i) (! (is-section₀ bₛ ∙ ap ft b₁ ∙ UUStr=))))
+
+    elsigStr : (i : ℕ) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i (∂₀ a)) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i a aₛ a₁))
+            → ElStr i (sigStr i a aₛ a₁ b bₛ b₁) sigStrₛ (sigStr₁ ∙ ap (UUStr i) (! (sigStr₀ _))) ≡ SigStr (ElStr i b bₛ (b₁ ∙ ap (UUStr i) (! (is-section₀ bₛ ∙ ap ft b₁ ∙ UUStr=))))
 
     betaStr : {B : Ob (suc (suc n))} {u : MorC (suc n) (suc (suc n))} {us : is-section u} {u₁ : ∂₁ u ≡ B} {a : MorC n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft (∂₁ u)}
             → appStr B (lamStr u us) lamStrs (lamStr₁ ∙ ap PiStr u₁) a as (a₁ ∙ ap ft u₁) ≡ ss (comp u a (a₁ ∙ ! (is-section₀ us)))
@@ -176,9 +257,9 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
             → Mor→ (lamStr sC u us) ≡ lamStr sD (Mor→ u) (preserve-section us)
     appStr→ : (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fs : is-section C f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (as : is-section C a) (a₁ : ∂₁ C a ≡ ft C B)
             → Mor→ (appStr sC B f fs f₁ a as a₁) ≡ appStr sD (Ob→ B) (Mor→ f) (preserve-section fs) ((! ∂₁→) ∙ ap Ob→ f₁ ∙ PiStr→ B) (Mor→ a) (preserve-section as) ((! ∂₁→) ∙ ap Ob→ a₁ ∙ ft→)
-    UUStr→ : (X : Ob C n) → Ob→ (UUStr sC X) ≡ UUStr sD (Ob→ X)
-    ElStr→ : (v : Mor C n (suc n)) (vs : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC (∂₀ C v))
-           → Ob→ (ElStr sC v vs v₁) ≡ ElStr sD (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ (∂₀ C v) ∙ ap (UUStr sD) ∂₀→)
+    UUStr→ : (i : ℕ) (X : Ob C n) → Ob→ (UUStr sC i X) ≡ UUStr sD i (Ob→ X)
+    ElStr→ : (i : ℕ) (v : Mor C n (suc n)) (vs : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC i (∂₀ C v))
+           → Ob→ (ElStr sC i v vs v₁) ≡ ElStr sD i (Mor→ v) (preserve-section vs) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ i (∂₀ C v) ∙ ap (UUStr sD i) ∂₀→)
 
 
 module _ {sC sD : StructuredCCat} where
