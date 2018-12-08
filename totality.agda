@@ -244,11 +244,11 @@ qq^= k X= A Aᵈ = ap-irr (λ X → qq^ k {X = X}) (⟦⟧Ty-ft A) {b = X= ∙ a
 
 ⟦weakenTy⟧ᵈ' k {X+ = X+} {X = X} X= (pi A B) (Aᵈ , Bᵈ , tt)  = (⟦weakenTy⟧ᵈ' k X= A Aᵈ , cong⟦⟧Ty {A = weakenTy' (prev k) B} (! (⟦weakenTy⟧=' k X= A Aᵈ ∙ ap2-irr star (qq^=! k X= A Aᵈ) refl)) (⟦weakenTy⟧ᵈ' (prev k) (X= ∙ ap (ft^ k) (! (⟦⟧Ty-ft A))) B Bᵈ)  , tt)
 ⟦weakenTy⟧ᵈ' k X= (uu i) Aᵈ = tt
-⟦weakenTy⟧ᵈ' k X= (el i v) (vᵈ , vs , v₁ , tt) = (⟦weakenTm⟧ᵈ' k X= v vᵈ , ⟦⟧Tmₛ (weakenTm' k v) , (⟦weakenTm⟧₁' k X= v vᵈ ∙ (ap2-irr star refl v₁ ∙ UUStrNat (qq^ k X=) {p = ⟦⟧Tm₀ v ∙ ! (qq^₁ k X=)} ∙ ap (UUStr i) (qq^₀ k X= ∙ ! (⟦⟧Tm₀ (weakenTm' k v))))) , tt)
+⟦weakenTy⟧ᵈ' k X= (el i v) (vᵈ , vₛ , v₁ , tt) = (⟦weakenTm⟧ᵈ' k X= v vᵈ , ⟦⟧Tmₛ (weakenTm' k v) , (⟦weakenTm⟧₁' k X= v vᵈ ∙ (ap2-irr star refl v₁ ∙ UUStrNat (qq^ k X=) {p = ⟦⟧Tm₀ v ∙ ! (qq^₁ k X=)} ∙ ap (UUStr i) (qq^₀ k X= ∙ ! (⟦⟧Tm₀ (weakenTm' k v))))) , tt)
 
 ⟦weakenTy⟧=' k X= (pi A B) (Aᵈ , Bᵈ , tt) = ! (PiStrNat (qq^ k X=) {p = ! (qq^₁ k X= ∙ ! (ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A))} ∙ ap PiStr (! (ap-irr (λ z p → ⟦ weakenTy' (prev k) B ⟧Ty z $ p) (⟦weakenTy⟧=' k X= A Aᵈ ∙ ap2-irr star (qq^=! k X= A Aᵈ) refl) ∙ ⟦weakenTy⟧=' (prev k) (X= ∙ ap (ft^ k) (! (⟦⟧Ty-ft A))) B Bᵈ ∙ ap2-irr star (ap2-irr qq (qq^= k X= A Aᵈ) (! (⟦⟧Ty-ft B))) refl)))
 ⟦weakenTy⟧=' k X= (uu i) uuᵈ = ! (UUStrNat (qq^ k X=) {p = ! (qq^₁ k X=)} ∙ ap (UUStr i) (qq^₀ k X=))
-⟦weakenTy⟧=' k X= (el i v) (vᵈ , vs , v₁ , tt) = ! (ElStrNat (qq^ k X=) {p = ⟦⟧Tm₀ v ∙ ! (qq^₁ k X=)} ∙ ap-irr2 (ElStr i) (! (⟦weakenTm⟧=' k X= v vᵈ)))
+⟦weakenTy⟧=' k X= (el i v) (vᵈ , vₛ , v₁ , tt) = ! (ElStrNat (qq^ k X=) {p = ⟦⟧Tm₀ v ∙ ! (qq^₁ k X=)} ∙ ap-irr2 (ElStr i) (! (⟦weakenTm⟧=' k X= v vᵈ)))
 
 ⟦weakenTm⟧ᵈ' last X= (var last) tt = (tt , (ss₀ ∙ id₀) , tt)
 ⟦weakenTm⟧ᵈ' (prev k) X= (var last) tt = tt
@@ -312,8 +312,8 @@ apApp h refl refl refl = refl
            | ⟦⟧TyEq {X = ⟦ A ⟧Ty _ $ Aᵈ} (respectsCtxExt r A) dB= Bᵈ B'ᵈ
            | ⟦⟧TmEq r df= fᵈ f'ᵈ
            | ⟦⟧TmEq r da= aᵈ a'ᵈ = refl
-⟦⟧TmEq r {u = app A B (lam A B u) a} (Beta dA dB du da) (Aᵈ , Bᵈ , (_ , uᵈ , us , tt) , aᵈ , _ , u₁ , as , a₁ , tt) u'ᵈ =
-  betaStr {us = us} {u₁ = ⟦⟧Tm₁ (respectsCtxExt r A) u du} {as = as} {a₁ = a₁ ∙ ap ft (! (⟦⟧Tm₁ (respectsCtxExt r A) u du))}
+⟦⟧TmEq r {u = app A B (lam A B u) a} (BetaPi dA dB du da) (Aᵈ , Bᵈ , (_ , uᵈ , uₛ , tt) , aᵈ , _ , u₁ , aₛ , a₁ , tt) u'ᵈ =
+  betaPiStr {uₛ = uₛ} {u₁ = ⟦⟧Tm₁ (respectsCtxExt r A) u du} {aₛ = aₛ} {a₁ = a₁ ∙ ap ft (! (⟦⟧Tm₁ (respectsCtxExt r A) u du))}
   ∙ ! (⟦tsubst⟧Tm= u uᵈ (idMor _ , a) (⟦idMor+⟧ᵈ (⟦⟧Ty-ft A) a aᵈ (a₁ ∙ ⟦⟧Ty-ft B))
       ∙ ap ss (ap2-irr comp refl (⟦idMor+⟧= (⟦⟧Ty-ft A) a aᵈ (a₁ ∙ ⟦⟧Ty-ft B))))
 
@@ -322,7 +322,7 @@ apApp h refl refl refl = refl
    ⟦tsubst⟧Tyᵈ B Bᵈ (⟦weakenMorVar⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
   , tt)
 ⟦tsubst⟧Tyᵈ (uu i) tt δᵈ = tt
-⟦tsubst⟧Tyᵈ (el i v) {δ = δ} (vᵈ , vs , v₁ , tt) δᵈ =
+⟦tsubst⟧Tyᵈ (el i v) {δ = δ} (vᵈ , vₛ , v₁ , tt) δᵈ =
   (⟦tsubst⟧Tmᵈ v vᵈ δᵈ ,
    ⟦⟧Tmₛ (v [ δ ]Tm) ,
    (ap ∂₁ (⟦tsubst⟧Tm= v vᵈ δ δᵈ) ∙ ss₁ ∙ (ap2-irr star (! (assoc {q = ! (pp₀ ∙ comp₁)}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ ⟦⟧Tmₛ v ∙ ap idC (⟦⟧Tm₀ v ∙ ! (⟦⟧Mor₁ δ))) refl ∙ id-right) (comp₁ ∙ v₁) ∙ UUStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) {p = ⟦⟧Tm₀ v ∙ ! (⟦⟧Mor₁ δ)}) ∙ (ap (UUStr i) (! (ss₀ ∙ comp₀) ∙ ap ∂₀ (! (⟦tsubst⟧Tm= v vᵈ δ δᵈ))))) , tt)
@@ -338,7 +338,7 @@ apApp h refl refl refl = refl
   (⟦tsubst⟧Tyᵈ A Aᵈ δᵈ ,
    ⟦tsubst⟧Tmᵈ u uᵈ (⟦weakenMorVar⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)) ,
    ⟦⟧Tmₛ (u [ weakenMor δ , var last ]Tm) , tt)
-⟦tsubst⟧Tmᵈ (app A B f a) {δ = δ} (Aᵈ , Bᵈ , fᵈ , aᵈ , fs , f₁ , as , a₁ , tt) δᵈ =
+⟦tsubst⟧Tmᵈ (app A B f a) {δ = δ} (Aᵈ , Bᵈ , fᵈ , aᵈ , fₛ , f₁ , aₛ , a₁ , tt) δᵈ =
   (⟦tsubst⟧Tyᵈ A Aᵈ δᵈ ,
    ⟦tsubst⟧Tyᵈ B Bᵈ (⟦weakenMorVar⟧ᵈ (⟦⟧Ty-ft (A [ δ ]Ty)) (⟦⟧Ty-ft A) δ δᵈ (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)) ,
    ⟦tsubst⟧Tmᵈ f fᵈ δᵈ ,

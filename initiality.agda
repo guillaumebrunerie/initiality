@@ -24,7 +24,7 @@ private
 
 open CCat (ccat sC)
 
-ap-irr-appStr : {B B' : Ob (suc (suc n))} (B= : B ≡ B') {f f' : Mor n (suc n)} {fs : is-section f} {f₁ : ∂₁ f ≡ PiStr sC B} {fs' : is-section f'} {f₁' : ∂₁ f' ≡ PiStr sC B'} (f= : f ≡ f') {a a' : Mor n (suc n)} {as : is-section a} {a₁ : ∂₁ a ≡ ft B} {as' : is-section a'} {a₁' : ∂₁ a' ≡ ft B'} (a= : a ≡ a') → appStr sC B f fs f₁ a as a₁ ≡ appStr sC B' f' fs' f₁' a' as' a₁'
+ap-irr-appStr : {B B' : Ob (suc (suc n))} (B= : B ≡ B') {f f' : Mor n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr sC B} {fₛ' : is-section f'} {f₁' : ∂₁ f' ≡ PiStr sC B'} (f= : f ≡ f') {a a' : Mor n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ ft B} {aₛ' : is-section a'} {a₁' : ∂₁ a' ≡ ft B'} (a= : a ≡ a') → appStr sC B f fₛ f₁ a aₛ a₁ ≡ appStr sC B' f' fₛ' f₁' a' aₛ' a₁'
 ap-irr-appStr refl refl refl = refl
 
 {- Existence of a morphism between the contextual categories (not yet structured) -}
