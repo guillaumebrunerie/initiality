@@ -3,10 +3,10 @@ Introduction
 
 This project aims at giving a formalized proof in Agda of a version of the initiality conjecture. A
 complete proof for a type theory with only Pi-types and a base dependent type is available at commit
-[8e52bc0](https://github.com/guillaumebrunerie/initiality/commit/8e52bc0b50f3e572d4cd9911889f52ae4ae7d5c9). We are now working on extending the type theory.
+[8e52bc0](https://github.com/guillaumebrunerie/initiality/tree/8e52bc0b50f3e572d4cd9911889f52ae4ae7d5c9). We are now working on extending the type theory.
 
 It requires a quite recent version of the master branch of Agda (to have the `variable` keyword,
-`Prop` and various issues fixed). For instance commit [8774611](https://github.com/agda/agda/commit/87746110983690dc87d8880233334e77aaa2b039) works.
+`Prop` and various issues fixed). For instance commit [8774611](https://github.com/agda/agda/tree/87746110983690dc87d8880233334e77aaa2b039) works.
 
 Metatheory
 ----------
