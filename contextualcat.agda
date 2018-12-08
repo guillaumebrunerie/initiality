@@ -111,6 +111,21 @@ record CCat : Set₁ where
   id-left' : {f : Mor n m} {X : Ob n} (p : ∂₀ f ≡ X) → comp f (id X) (id₁ ∙ ! p) ≡ f
   id-left' refl = id-left
 
+  star+ : (g : Mor n m) (A : Ob (suc (suc m))) (A= : ft (ft A) ≡ ∂₁ g) → Ob (suc (suc n))
+  star+ g A A= = star (qq g (ft A) (! A=)) A qq₁
+
+  starTm : (g : Mor n m) (u : Mor m (suc m)) (u₀ : ∂₀ u ≡ ∂₁ g) → Mor n (suc n)
+  starTm g u u₀ = ss (comp u g (! u₀))
+
+  starTm₁ : {g : Mor n m} {u : Mor m (suc m)} (uₛ : is-section u) (u₀ : ∂₀ u ≡ ∂₁ g) {X : Ob (suc m)} (p : ∂₁ u ≡ X) → ∂₁ (starTm g u u₀) ≡ star g X (! u₀ ∙ is-section₀ uₛ p)
+  starTm₁ uₛ u₀ p = ss₁' comp₁ ∙ ap2-irr star (! (assoc {q = ! pp₀}) ∙ ap2-irr comp (uₛ ∙ ap id u₀) refl ∙ id-right) p
+
+  starTm+ : (g : Mor n m) (u : Mor (suc m) (suc (suc m))) (p : ft (∂₀ u) ≡ ∂₁ g) → Mor (suc n) (suc (suc n))
+  starTm+ g u p = ss (comp u (qq g (∂₀ u) (! p)) qq₁)
+
+  starTm+₁ : (g : Mor n m) (u : Mor (suc m) (suc (suc m))) (uₛ : is-section u) {X : Ob (suc (suc m))} (u₁ : ∂₁ u ≡ X) (p : ft (∂₀ u) ≡ ∂₁ g) → ∂₁ (starTm+ g u p) ≡ star+ g X (ap ft (! (is-section₀ uₛ u₁)) ∙ p)
+  starTm+₁ g u uₛ u₁ p = starTm₁ uₛ (! qq₁) u₁ ∙ ap2-irr star (ap2-irr qq refl (is-section₀ uₛ u₁)) refl
+
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -223,35 +238,27 @@ record StructuredCCat : Set₁ where
   pairStr₀ : {B : Ob (suc (suc n))} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ ft B} {b : MorC n (suc n)} {bₛ : is-section b} (b₁ : ∂₁ b ≡ star a B a₁) → ∂₀ (pairStr B a aₛ a₁ b bₛ b₁) ≡ ft (ft B)
   pairStr₀ _ = is-section₀ pairStrₛ pairStr₁ ∙ SigStr=
 
-  -- pr1Str₀
+  pr1Str₀ : {B : Ob (suc (suc n))} {u : MorC n (suc n)} {uₛ : is-section u} (u₁ : ∂₁ u ≡ SigStr B) → ∂₀ (pr1Str B u uₛ u₁) ≡ ft (ft B)
+  pr1Str₀ _ = is-section₀ pr1Strₛ pr1Str₁
 
-  -- pr2Str₀
+  pr2Str₀ : {B : Ob (suc (suc n))} {u : MorC n (suc n)} {uₛ : is-section u} (u₁ : ∂₁ u ≡ SigStr B) → ∂₀ (pr2Str B u uₛ u₁) ≡ ft (ft B)
+  pr2Str₀ _ = is-section₀ pr2Strₛ pr2Str₁ ∙ ft-star ∙ pr1Str₀ _
 
   natStr₀ : {i : ℕ} (X : Ob n) → ∂₀ (natStr i X) ≡ X
   natStr₀ _ = is-section₀ natStrₛ natStr₁ ∙ UUStr=
 
-  -- zeroStr₀
+  zeroStr₀ : (X : Ob n) → ∂₀ (zeroStr X) ≡ X
+  zeroStr₀ _ = is-section₀ zeroStrₛ zeroStr₁ ∙ NatStr=
 
-  -- sucStr₀
+  sucStr₀ : {u : MorC n (suc n)} {uₛ : is-section u} (u₁ : ∂₁ u ≡ NatStr (∂₀ u)) → ∂₀ (sucStr u uₛ u₁) ≡ ∂₀ u
+  sucStr₀ _ = is-section₀ sucStrₛ sucStr₁ ∙ NatStr=
 
   idStr₀ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i a aₛ a₁}
                    {v : MorC n (suc n)} {vₛ : is-section v} (v₁ : ∂₁ v ≡ ElStr i a aₛ a₁) → ∂₀ (idStr i a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ ∂₀ a
   idStr₀ _ = is-section₀ idStrₛ idStr₁ ∙ UUStr=
 
-  star+ : (g : MorC n m) (A : Ob (suc (suc m))) (A= : ft (ft A) ≡ ∂₁ g) → Ob (suc (suc n))
-  star+ g A A= = star (qq g (ft A) (! A=)) A qq₁
-
-  starTm : (g : MorC n m) (u : MorC m (suc m)) (u₀ : ∂₀ u ≡ ∂₁ g) → MorC n (suc n)
-  starTm g u u₀ = ss (comp u g (! u₀))
-
-  starTm₁ : {g : MorC n m} {u : MorC m (suc m)} (uₛ : is-section u) (u₀ : ∂₀ u ≡ ∂₁ g) {X : Ob (suc m)} (p : ∂₁ u ≡ X) → ∂₁ (starTm g u u₀) ≡ star g X (! u₀ ∙ is-section₀ uₛ p)
-  starTm₁ uₛ u₀ p = ss₁' comp₁ ∙ ap2-irr star (! (assoc {q = ! pp₀}) ∙ ap2-irr comp (uₛ ∙ ap id u₀) refl ∙ id-right) p
-
-  starTm+ : (g : MorC n m) (u : MorC (suc m) (suc (suc m))) (p : ft (∂₀ u) ≡ ∂₁ g) → MorC (suc n) (suc (suc n))
-  starTm+ g u p = ss (comp u (qq g (∂₀ u) (! p)) qq₁)
-
-  starTm+₁ : (g : MorC n m) (u : MorC (suc m) (suc (suc m))) (uₛ : is-section u) {X : Ob (suc (suc m))} (u₁ : ∂₁ u ≡ X) (p : ft (∂₀ u) ≡ ∂₁ g) → ∂₁ (starTm+ g u p) ≡ star+ g X (ap ft (! (is-section₀ uₛ u₁)) ∙ p)
-  starTm+₁ g u uₛ u₁ p = starTm₁ uₛ (! qq₁) u₁ ∙ ap2-irr star (ap2-irr qq refl (is-section₀ uₛ u₁)) refl
+  reflStr₀ : {a : MorC n (suc n)} (aₛ : is-section a) → ∂₀ (reflStr a aₛ) ≡ ∂₀ a
+  reflStr₀ _ = is-section₀ reflStrₛ reflStr₁ ∙ IdStr=
 
   {- Additional structure corresponding to naturality -}
   field
@@ -294,9 +301,9 @@ record StructuredCCat : Set₁ where
                                                                               (starTm+ g b b₀) ssₛ
                                                                                 (starTm+₁ g b bₛ b₁ b₀ ∙ UUStrNat _ {p = ! (qq₁ ∙ UUStr=)}
                                                                                  ∙ ap (UUStr i) (qq₀ ∙ ap2-irr star refl UUStr= ∙ ElStrNat g {p = p}))
-    pairStrNat : {n m : ℕ} (g : MorC n m) {B : Ob (suc (suc m))} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ ft B} {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B a₁} {p : ft (ft B) ≡ ∂₁ g}
-                 (let a₀ = is-section₀ aₛ a₁ ∙ p) (let b₀ = is-section₀ bₛ b₁ ∙ ft-star ∙ a₀)
-             → starTm g (pairStr B a aₛ a₁ b bₛ b₁) (pairStr₀ _ ∙ p) ≡ pairStr (star+ g B p) (starTm g a a₀) ssₛ (starTm₁ aₛ a₀ a₁ ∙ ! (ft-star ∙ qq₀)) (starTm g b b₀) ssₛ (starTm₁ bₛ b₀ b₁ ∙ {!!})
+    -- pairStrNat : {n m : ℕ} (g : MorC n m) {B : Ob (suc (suc m))} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ ft B} {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B a₁} {p : ft (ft B) ≡ ∂₁ g}
+    --              (let a₀ = is-section₀ aₛ a₁ ∙ p) (let b₀ = is-section₀ bₛ b₁ ∙ ft-star ∙ a₀)
+    --          → starTm g (pairStr B a aₛ a₁ b bₛ b₁) (pairStr₀ _ ∙ p) ≡ pairStr (star+ g B p) (starTm g a a₀) ssₛ (starTm₁ aₛ a₀ a₁ ∙ ! (ft-star ∙ qq₀)) (starTm g b b₀) ssₛ (starTm₁ bₛ b₀ b₁ ∙ {!!})
 
     -- pr1StrNat
 
@@ -369,14 +376,17 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
   Mor→ₛ : {n : ℕ} {u : Mor C n (suc n)} (uₛ : is-section C u) → is-section D (Mor→ u)
   Mor→ₛ uₛ = ! (comp→ ∙ ap2-irr (comp D) (pp→ ∙ ap (pp D) ∂₁→) refl) ∙ ap Mor→ uₛ ∙ id→ ∙ ap (id D) ∂₀→
 
+  Mor→₁ : {n : ℕ} {u : Mor C n (suc n)} {X : Ob C (suc n)} (u₁ : ∂₁ C u ≡ X) → ∂₁ D (Mor→ u) ≡ Ob→ X
+  Mor→₁ u₁ = ! ∂₁→ ∙ ap Ob→ u₁
+
   field
     UUStr→ : (i : ℕ) (X : Ob C n) → Ob→ (UUStr sC i X) ≡ UUStr sD i (Ob→ X)
     ElStr→ : (i : ℕ) (v : Mor C n (suc n)) (vₛ : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC i (∂₀ C v))
-           → Ob→ (ElStr sC i v vₛ v₁) ≡ ElStr sD i (Mor→ v) (Mor→ₛ vₛ) ((! ∂₁→) ∙ ap Ob→ v₁ ∙ UUStr→ i (∂₀ C v) ∙ ap (UUStr sD i) ∂₀→)
+           → Ob→ (ElStr sC i v vₛ v₁) ≡ ElStr sD i (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ UUStr→ i (∂₀ C v) ∙ ap (UUStr sD i) ∂₀→)
     PiStr→  : (B : Ob C (suc (suc n))) → Ob→ (PiStr sC B) ≡ PiStr sD (Ob→ B)
     SigStr→ : (B : Ob C (suc (suc n))) → Ob→ (SigStr sC B) ≡ SigStr sD (Ob→ B)
     NatStr→ : (X : Ob C n) → Ob→ (NatStr sC X) ≡ NatStr sD (Ob→ X)
-    IdStr→  : (a : Mor C n (suc n)) (aₛ : is-section C a) (b : Mor C n (suc n)) (bₛ : is-section C b) (p : ∂₁ C a ≡ ∂₁ C b) → Ob→ (IdStr sC a aₛ b bₛ p) ≡ IdStr sD (Mor→ a) (Mor→ₛ aₛ) (Mor→ b) (Mor→ₛ bₛ) (! ∂₁→ ∙ ap Ob→ p ∙ ∂₁→)
+    IdStr→  : (a : Mor C n (suc n)) (aₛ : is-section C a) (b : Mor C n (suc n)) (bₛ : is-section C b) (p : ∂₁ C a ≡ ∂₁ C b) → Ob→ (IdStr sC a aₛ b bₛ p) ≡ IdStr sD (Mor→ a) (Mor→ₛ aₛ) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ p ∙ ∂₁→)
 
     -- uuStr→
     -- piStr→
@@ -384,7 +394,7 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
     lamStr→ : (u : Mor C (suc n) (suc (suc n))) (uₛ : is-section C u)
             → Mor→ (lamStr sC u uₛ) ≡ lamStr sD (Mor→ u) (Mor→ₛ uₛ)
     appStr→ : (B : Ob C (suc (suc n))) {f : Mor C n (suc n)} (fₛ : is-section C f) (f₁ : ∂₁ C f ≡ PiStr sC B) {a : Mor C n (suc n)} (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ ft C B)
-            → Mor→ (appStr sC B f fₛ f₁ a aₛ a₁) ≡ appStr sD (Ob→ B) (Mor→ f) (Mor→ₛ fₛ) ((! ∂₁→) ∙ ap Ob→ f₁ ∙ PiStr→ B) (Mor→ a) (Mor→ₛ aₛ) ((! ∂₁→) ∙ ap Ob→ a₁ ∙ ft→)
+            → Mor→ (appStr sC B f fₛ f₁ a aₛ a₁) ≡ appStr sD (Ob→ B) (Mor→ f) (Mor→ₛ fₛ) (Mor→₁ f₁ ∙ PiStr→ B) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ ft→)
 
     -- sigStr→
     -- pairStr→
