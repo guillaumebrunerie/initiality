@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import syntx
@@ -14,19 +14,28 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦_⟧Ty : TyExpr n → (X : Ob n) → Partial (Ob (suc n))
 ⟦_⟧Tm : TmExpr n → (X : Ob n) → Partial (MorC n (suc n))
 
-⟦ pi A B ⟧Ty X = do
-  [A] ← ⟦ A ⟧Ty X
-  [B] ← ⟦ B ⟧Ty [A]
-  return (PiStr [B])
 ⟦ uu i ⟧Ty X = return (UUStr i X)
 ⟦ el i v ⟧Ty X = do
   [v] ← ⟦ v ⟧Tm X
   [v]ₛ ← assume (is-section [v])
   [v]₁ ← assume (∂₁ [v] ≡ UUStr i (∂₀ [v]))
   return (ElStr i [v] (unbox [v]ₛ) (unbox [v]₁))
-⟦ sig A B ⟧Ty X = {!!}
-⟦ nat ⟧Ty X = {!!}
-⟦ id A u v ⟧Ty X = {!!}
+⟦ pi A B ⟧Ty X = do
+  [A] ← ⟦ A ⟧Ty X
+  [B] ← ⟦ B ⟧Ty [A]
+  return (PiStr [B])
+⟦ sig A B ⟧Ty X = do
+  [A] ← ⟦ A ⟧Ty X
+  [B] ← ⟦ B ⟧Ty [A]
+  return (SigStr [B])
+⟦ nat ⟧Ty X = return (NatStr X)
+⟦ id _ u v ⟧Ty X = do
+  [u] ← ⟦ u ⟧Tm X
+  [v] ← ⟦ v ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [v]ₛ ← assume (is-section [v])
+  p ← assume (∂₁ [u] ≡ ∂₁ [v])
+  return (IdStr [u] (unbox [u]ₛ) [v] (unbox [v]ₛ) (unbox p))
 
 
 ⟦ var last ⟧Tm X = return (ss (idC X))
@@ -34,6 +43,15 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [x] ← ⟦ var x ⟧Tm (ft X)
   [x]₀ ← assume (∂₀ [x] ≡ ft X)
   return (ss (comp [x] (pp X) (pp₁ ∙ ! (unbox [x]₀))))
+⟦ uu i ⟧Tm X = return (uuStr i X)
+⟦ pi i a b ⟧Tm X = do
+  [a] ← ⟦ a ⟧Tm X
+  [a]ₛ ← assume (is-section [a])
+  [a]₁ ← assume (∂₁ [a] ≡ UUStr i (∂₀ [a]))
+  [b] ← ⟦ b ⟧Tm (ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
+  [b]ₛ ← assume (is-section [b])
+  [b]₁ ← assume (∂₁ [b] ≡ UUStr i (ElStr i [a] (unbox [a]ₛ) (unbox [a]₁)))
+  return (piStr i [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
 ⟦ lam A _ u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm [A]
@@ -49,18 +67,61 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [a]ₛ ← assume (is-section [a])
   [a]₁ ← assume (∂₁ [a] ≡ ft [B])
   return (appStr [B] [f] (unbox [f]ₛ) (unbox [f]₁) [a] (unbox [a]ₛ) (unbox [a]₁))
-⟦ uu i ⟧Tm X = {!!}
-⟦ pi i x x₁ ⟧Tm X = {!!}
-⟦ sig i x x₁ ⟧Tm X = {!!}
-⟦ pair A B x x₁ ⟧Tm X = {!!}
-⟦ pr1 A B x ⟧Tm X = {!!}
-⟦ pr2 A B x ⟧Tm X = {!!}
-⟦ nat i ⟧Tm X = {!!}
-⟦ zero ⟧Tm X = {!!}
-⟦ suc x ⟧Tm X = {!!}
-⟦ nat-elim P x x₁ x₂ ⟧Tm X = {!!}
-⟦ id i x x₁ x₂ ⟧Tm X = {!!}
-⟦ refl A x ⟧Tm X = {!!}
+⟦ sig i a b ⟧Tm X = do
+  [a] ← ⟦ a ⟧Tm X
+  [a]ₛ ← assume (is-section [a])
+  [a]₁ ← assume (∂₁ [a] ≡ UUStr i (∂₀ [a]))
+  [b] ← ⟦ b ⟧Tm (ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
+  [b]ₛ ← assume (is-section [b])
+  [b]₁ ← assume (∂₁ [b] ≡ UUStr i (ElStr i [a] (unbox [a]ₛ) (unbox [a]₁)))
+  return (sigStr i [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
+⟦ pair A B u v ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
+  [B] ← ⟦ B ⟧Ty [A]
+  [u] ← ⟦ u ⟧Tm X
+  [v] ← ⟦ v ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ ft [B])
+  [v]ₛ ← assume (is-section [v])
+  [v]₁ ← assume (∂₁ [v] ≡ star [u] [B] (unbox [u]₁))
+  return (pairStr [B] [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
+⟦ pr1 A B u ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
+  [B] ← ⟦ B ⟧Ty [A]
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ SigStr [B])
+  return (pr1Str [B] [u] (unbox [u]ₛ) (unbox [u]₁))
+⟦ pr2 A B u ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
+  [B] ← ⟦ B ⟧Ty [A]
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ SigStr [B])
+  return (pr2Str [B] [u] (unbox [u]ₛ) (unbox [u]₁))
+⟦ nat i ⟧Tm X = return (natStr i X)
+⟦ zero ⟧Tm X = return (zeroStr X)
+⟦ suc u ⟧Tm X = do
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ NatStr (∂₀ [u]))
+  return (sucStr [u] (unbox [u]ₛ) (unbox [u]₁))
+--⟦ nat-elim P x x₁ x₂ ⟧Tm X = {!!}
+⟦ id i a u v ⟧Tm X = do
+  [a] ← ⟦ a ⟧Tm X
+  [u] ← ⟦ u ⟧Tm X
+  [v] ← ⟦ v ⟧Tm X
+  [a]ₛ ← assume (is-section [a])
+  [a]₁ ← assume (∂₁ [a] ≡ UUStr i (∂₀ [a]))
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
+  [v]ₛ ← assume (is-section [v])
+  [v]₁ ← assume (∂₁ [v] ≡ ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
+  return (idStr i [a] (unbox [a]ₛ) (unbox [a]₁) [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
+⟦ refl _ u ⟧Tm X = do
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  return (reflStr [u] (unbox [u]ₛ))
 
 {- Partial interpretation of contexts and context morphisms -}
 
@@ -83,22 +144,22 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 {- Basic properties of the partial interpretation functions -}
 
 ⟦⟧Tmₛ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → is-section (⟦ u ⟧Tm X $ uᵈ)
-⟦⟧Tmₛ (var last) = ss-is-section
-⟦⟧Tmₛ (var (prev x)) = ss-is-section
-⟦⟧Tmₛ (lam A B u) = lamStrs
-⟦⟧Tmₛ (app A B f a) = appStrs
+⟦⟧Tmₛ (var last) = ssₛ
+⟦⟧Tmₛ (var (prev x)) = ssₛ
 ⟦⟧Tmₛ (uu i) = uuStrₛ
-⟦⟧Tmₛ (pi i u u₁) = piStrₛ
-⟦⟧Tmₛ (sig i u u₁) = sigStrₛ
-⟦⟧Tmₛ (pair A B u u₁) = {!pairStrₛ!}
-⟦⟧Tmₛ (pr1 A B u) = {!pr1Strₛ!}
-⟦⟧Tmₛ (pr2 A B u) = {!pr2Strₛ!}
-⟦⟧Tmₛ (nat i) = {!natStrₛ!}
-⟦⟧Tmₛ zero = {!zeroStrₛ!}
-⟦⟧Tmₛ (suc u) = {!sucStrₛ!}
-⟦⟧Tmₛ (nat-elim P u u₁ u₂) = {!nat-elimStrₛ!}
-⟦⟧Tmₛ (id i u u₁ u₂) = {!idStrₛ!}
-⟦⟧Tmₛ (refl A u) = {!reflStrₛ!}
+⟦⟧Tmₛ (pi i a b) = piStrₛ
+⟦⟧Tmₛ (lam A B u) = lamStrₛ
+⟦⟧Tmₛ (app A B f a) = appStrₛ
+⟦⟧Tmₛ (sig i a b) = sigStrₛ
+⟦⟧Tmₛ (pair A B u v) = pairStrₛ
+⟦⟧Tmₛ (pr1 A B u) = pr1Strₛ
+⟦⟧Tmₛ (pr2 A B u) = pr2Strₛ
+⟦⟧Tmₛ (nat i) = natStrₛ
+⟦⟧Tmₛ zero = zeroStrₛ
+⟦⟧Tmₛ (suc u) = sucStrₛ
+--⟦⟧Tmₛ (nat-elim P d0 dS u) = {!nat-elimStrₛ!}
+⟦⟧Tmₛ (id i a u v) = idStrₛ
+⟦⟧Tmₛ (refl A u) = reflStrₛ
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 ⟦⟧Tm₀ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ∂₀ (⟦ u ⟧Tm X $ uᵈ) ≡ X
@@ -108,42 +169,42 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Ty-ft (pi A B)  = PiStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 ⟦⟧Ty-ft (sig A B) = SigStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 ⟦⟧Ty-ft nat = NatStr=
-⟦⟧Ty-ft (id A u v) = IdStr= ∙ {!!}
+⟦⟧Ty-ft (id A u v) = IdStr= ∙ ⟦⟧Tm₀ u
 
 ⟦⟧Tm₀ (var last) = ss₀ ∙ id₀
 ⟦⟧Tm₀ (var (prev x)) = ss₀ ∙ comp₀ ∙ pp₀
-⟦⟧Tm₀ (lam A B u) = lamStr₀ (⟦⟧Tmₛ u) ∙ ap ft (⟦⟧Tm₀ u) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₀ (app A B f a) = appStr₀ (⟦⟧Tmₛ a) _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₀ (uu i) = ?
-⟦⟧Tm₀ (pi i u u₁) = ?
-⟦⟧Tm₀ (sig i u u₁) = ?
-⟦⟧Tm₀ (pair A B u u₁) = ?
-⟦⟧Tm₀ (pr1 A B u) = ?
-⟦⟧Tm₀ (pr2 A B u) = ?
-⟦⟧Tm₀ (nat i) = ?
-⟦⟧Tm₀ zero = ?
-⟦⟧Tm₀ (suc u) = ?
-⟦⟧Tm₀ (nat-elim P u u₁ u₂) = ?
-⟦⟧Tm₀ (id i u u₁ u₂) = ?
-⟦⟧Tm₀ (refl A u) = ?
+⟦⟧Tm₀ (uu i) = uuStr₀ _
+⟦⟧Tm₀ (pi i a b) = piStr₀ _ ∙ ⟦⟧Tm₀ a
+⟦⟧Tm₀ (lam A B u) = lamStr₀ _ ∙ ap ft (⟦⟧Tm₀ u) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (app A B f a) = appStr₀ _ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (sig i a b) = sigStr₀ _ ∙ ⟦⟧Tm₀ a
+⟦⟧Tm₀ (pair A B u v) = pairStr₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (pr1 A B u) = pr1Str₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (pr2 A B u) = pr2Str₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (nat i) = natStr₀ _
+⟦⟧Tm₀ zero = zeroStr₀ _
+⟦⟧Tm₀ (suc u) = sucStr₀ _ ∙ ⟦⟧Tm₀ u
+--⟦⟧Tm₀ (nat-elim P d0 dS u) = ?
+⟦⟧Tm₀ (id i a u v) = idStr₀ _ ∙ ⟦⟧Tm₀ a
+⟦⟧Tm₀ (refl A u) = reflStr₀ _ ∙ ⟦⟧Tm₀ u
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
 ⟦⟧Tm₁-ft (var last) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ id₀
 ⟦⟧Tm₁-ft (var (prev x)) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ comp₀ ∙ pp₀
+⟦⟧Tm₁-ft (uu i) = ap ft uuStr₁ ∙ UUStr=
+⟦⟧Tm₁-ft (pi i a b) = ap ft piStr₁ ∙ UUStr= ∙ ⟦⟧Tm₀ a
 ⟦⟧Tm₁-ft (lam A B u) {uᵈ = Aᵈ , _} = ap ft lamStr₁ ∙ PiStr= ∙ ap ft (⟦⟧Tm₁-ft u) ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₁-ft (app A B f a) = ap ft appStr₁ ∙ ft-star ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₁-ft (uu i) = ?
-⟦⟧Tm₁-ft (pi i u u₁) = ?
-⟦⟧Tm₁-ft (sig i u u₁) = ?
-⟦⟧Tm₁-ft (pair A B u u₁) = ?
-⟦⟧Tm₁-ft (pr1 A B u) = ?
-⟦⟧Tm₁-ft (pr2 A B u) = ?
-⟦⟧Tm₁-ft (nat i) = ?
-⟦⟧Tm₁-ft zero = ?
-⟦⟧Tm₁-ft (suc u) = ?
-⟦⟧Tm₁-ft (nat-elim P u u₁ u₂) = ?
-⟦⟧Tm₁-ft (id i u u₁ u₂) = ?
-⟦⟧Tm₁-ft (refl A u) = ?
+⟦⟧Tm₁-ft (sig i a b) = ap ft sigStr₁ ∙ UUStr= ∙ ⟦⟧Tm₀ a
+⟦⟧Tm₁-ft (pair A B u v) = ap ft pairStr₁ ∙ SigStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₁-ft (pr1 A B u) = ap ft pr1Str₁ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₁-ft (pr2 A B u) = ap ft pr2Str₁ ∙ ft-star ∙ pr1Str₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₁-ft (nat i) = ap ft natStr₁ ∙ UUStr=
+⟦⟧Tm₁-ft zero = ap ft zeroStr₁ ∙ NatStr=
+⟦⟧Tm₁-ft (suc u) = ap ft sucStr₁ ∙ NatStr= ∙ ⟦⟧Tm₀ u
+--⟦⟧Tm₁-ft (nat-elim P d0 dS u) = ?
+⟦⟧Tm₁-ft (id i a u v) = ap ft idStr₁ ∙ UUStr= ∙ ⟦⟧Tm₀ a
+⟦⟧Tm₁-ft (refl A u) = ap ft reflStr₁ ∙ IdStr= ∙ ⟦⟧Tm₀ u
 
 ⟦⟧Mor₀ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₀ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ X
 ⟦⟧Mor₀ ◇ = ptmor₀

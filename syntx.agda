@@ -22,6 +22,7 @@ data TyExpr where
 
 data TmExpr where
   var : (x : Fin n) → TmExpr {s} n
+
   uu : (i : ℕ) → TmExpr {s} n
 
   pi : (i : ℕ) (a : TmExpr {s} n) (b : TmExpr {s} (suc n)) → TmExpr {↑ s} n
