@@ -189,22 +189,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tm₀ (refl A u) = reflStr₀ _ ∙ ⟦⟧Tm₀ u
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
-⟦⟧Tm₁-ft (var last) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ id₀
-⟦⟧Tm₁-ft (var (prev x)) = ap ft ss₁ ∙ ft-star ∙ comp₀ ∙ comp₀ ∙ pp₀
-⟦⟧Tm₁-ft (uu i) = ap ft uuStr₁ ∙ UUStr=
-⟦⟧Tm₁-ft (pi i a b) = ap ft piStr₁ ∙ UUStr= ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₁-ft (lam A B u) {uᵈ = Aᵈ , _} = ap ft lamStr₁ ∙ PiStr= ∙ ap ft (⟦⟧Tm₁-ft u) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₁-ft (app A B f a) = ap ft appStr₁ ∙ ft-star ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₁-ft (sig i a b) = ap ft sigStr₁ ∙ UUStr= ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₁-ft (pair A B u v) = ap ft pairStr₁ ∙ SigStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₁-ft (pr1 A B u) = ap ft pr1Str₁ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₁-ft (pr2 A B u) = ap ft pr2Str₁ ∙ ft-star ∙ pr1Str₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₁-ft (nat i) = ap ft natStr₁ ∙ UUStr=
-⟦⟧Tm₁-ft zero = ap ft zeroStr₁ ∙ NatStr=
-⟦⟧Tm₁-ft (suc u) = ap ft sucStr₁ ∙ NatStr= ∙ ⟦⟧Tm₀ u
---⟦⟧Tm₁-ft (nat-elim P d0 dS u) = ?
-⟦⟧Tm₁-ft (id i a u v) = ap ft idStr₁ ∙ UUStr= ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₁-ft (refl A u) = ap ft reflStr₁ ∙ IdStr= ∙ ⟦⟧Tm₀ u
+⟦⟧Tm₁-ft u = ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u
 
 ⟦⟧Mor₀ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₀ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ X
 ⟦⟧Mor₀ ◇ = ptmor₀
