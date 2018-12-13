@@ -54,11 +54,13 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [b]ₛ ← assume (is-section [b])
   [b]₁ ← assume (∂₁ [b] ≡ UUStr i (ElStr i [a] (unbox [a]ₛ) (unbox [a]₁)))
   return (piStr i [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
-⟦ lam A _ u ⟧Tm X = do
+⟦ lam A B u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
+  [B] ← ⟦ B ⟧Ty [A]
   [u] ← ⟦ u ⟧Tm [A]
   [u]ₛ ← assume (is-section [u])
-  return (lamStr [u] (unbox [u]ₛ))
+  [u]₁ ← assume (∂₁ [u] ≡ [B])
+  return (lamStr [B] [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ app A B f a ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
@@ -179,7 +181,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tm₀ (var (prev x)) = ss₀ ∙ comp₀ ∙ pp₀
 ⟦⟧Tm₀ (uu i) = uuStr₀ _
 ⟦⟧Tm₀ (pi i a b) = piStr₀ _ ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₀ (lam A B u) = lamStr₀ _ ∙ ap ft (⟦⟧Tm₀ u) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (lam A B u) = lamStr₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₀ (app A B f a) = appStr₀ _ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₀ (sig i a b) = sigStr₀ _ ∙ ⟦⟧Tm₀ a
 ⟦⟧Tm₀ (pair A B u v) = pairStr₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
