@@ -823,13 +823,15 @@ SubstMorFullEq : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ θ' : Mor m k} {δ �
 SubstMorFullEq {Θ = ◇} {◇} {◇} dΔ tt dθ' tt dδ dδ= = tt
 SubstMorFullEq {Θ = Θ , C} {θ , w} {θ' , w'} dΔ (dΘ , dC) (dθ' , dw') (dθ= , dw=) dδ dδ= = (SubstMorFullEq dΔ dΘ dθ' dθ= dδ dδ=) , congTmEqTy ([]Ty-assoc _ θ C) (SubstTmFullEq (Conv (SubstTy dC dθ') dw' (SubstTyMorEq dC dθ' (MorSymm dΔ dΘ dθ=))) dδ dw= dδ=) 
 
+
 SubstTyMorEq2 : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m}
               → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A == A') → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
 SubstTyMorEq2 dΓ dΔ dA= dδ= =
   let dδ = MorEqMor1 dΓ dΔ dδ=
       dA' = TyEqTy2 dΔ dA=
   in
-  TyTran (SubstTy dA' dδ) (SubstTyEq dA= dδ) (SubstTyMorEq (TyEqTy2 dΔ dA=) dδ dδ=)
+  SubstTyFullEq dA' dδ dA= dδ=
+
 
 _,,_ : {Γ Γ' : Ctx n} {A A' : TyExpr n} → ⊢ Γ == Γ' → Derivable (Γ ⊢ A == A') → ⊢ (Γ , A) == (Γ' , A')
 dΓ= ,, dA= =
