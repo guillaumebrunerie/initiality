@@ -29,13 +29,15 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [B] ← ⟦ B ⟧Ty [A]
   return (SigStr [B])
 ⟦ nat ⟧Ty X = return (NatStr X)
-⟦ id _ u v ⟧Ty X = do
+⟦ id A u v ⟧Ty X = do
+  [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm X
-  [v] ← ⟦ v ⟧Tm X
   [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ [A])
+  [v] ← ⟦ v ⟧Tm X
   [v]ₛ ← assume (is-section [v])
-  p ← assume (∂₁ [u] ≡ ∂₁ [v])
-  return (IdStr [u] (unbox [u]ₛ) [v] (unbox [v]ₛ) (unbox p))
+  [v]₁ ← assume (∂₁ [v] ≡ [A])
+  return (IdStr [A] [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
 
 
 ⟦ var last ⟧Tm X = return (ss (idC X))
@@ -61,9 +63,9 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
   [f] ← ⟦ f ⟧Tm X
-  [a] ← ⟦ a ⟧Tm X
   [f]ₛ ← assume (is-section [f])
   [f]₁ ← assume (∂₁ [f] ≡ PiStr [B])
+  [a] ← ⟦ a ⟧Tm X
   [a]ₛ ← assume (is-section [a])
   [a]₁ ← assume (∂₁ [a] ≡ ft [B])
   return (appStr [B] [f] (unbox [f]ₛ) (unbox [f]₁) [a] (unbox [a]ₛ) (unbox [a]₁))
@@ -79,9 +81,9 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
   [u] ← ⟦ u ⟧Tm X
-  [v] ← ⟦ v ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ ft [B])
+  [v] ← ⟦ v ⟧Tm X
   [v]ₛ ← assume (is-section [v])
   [v]₁ ← assume (∂₁ [v] ≡ star [u] [B] (unbox [u]₁))
   return (pairStr [B] [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
@@ -109,12 +111,12 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 --⟦ nat-elim P x x₁ x₂ ⟧Tm X = {!!}
 ⟦ id i a u v ⟧Tm X = do
   [a] ← ⟦ a ⟧Tm X
-  [u] ← ⟦ u ⟧Tm X
-  [v] ← ⟦ v ⟧Tm X
   [a]ₛ ← assume (is-section [a])
   [a]₁ ← assume (∂₁ [a] ≡ UUStr i (∂₀ [a]))
+  [u] ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
+  [v] ← ⟦ v ⟧Tm X
   [v]ₛ ← assume (is-section [v])
   [v]₁ ← assume (∂₁ [v] ≡ ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
   return (idStr i [a] (unbox [a]ₛ) (unbox [a]₁) [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
@@ -169,7 +171,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Ty-ft (pi A B)  = PiStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 ⟦⟧Ty-ft (sig A B) = SigStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
 ⟦⟧Ty-ft nat = NatStr=
-⟦⟧Ty-ft (id A u v) = IdStr= ∙ ⟦⟧Tm₀ u
+⟦⟧Ty-ft (id A u v) = IdStr= ∙ ⟦⟧Ty-ft A
 
 ⟦⟧Tm₀ (var last) = ss₀ ∙ id₀
 ⟦⟧Tm₀ (var (prev x)) = ss₀ ∙ comp₀ ∙ pp₀
