@@ -215,9 +215,9 @@ record StructuredCCat : Set₁ where
     idStr₁ : {i : ℕ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i a aₛ a₁}
                      {v : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i a aₛ a₁} → ∂₁ (idStr i a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ UUStr i (∂₀ a)
 
-    reflStr  : (a : MorC n (suc n)) (aₛ : is-section a) → MorC n (suc n)
-    reflStrₛ : {a : MorC n (suc n)} {aₛ : is-section a} → is-section (reflStr a aₛ)
-    reflStr₁ : {a : MorC n (suc n)} {aₛ : is-section a} → ∂₁ (reflStr a aₛ) ≡ IdStr (∂₁ a) a aₛ refl a aₛ refl
+    reflStr  : (A : Ob (suc n)) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) → MorC n (suc n)
+    reflStrₛ : {A : Ob (suc n)} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (reflStr A a aₛ a₁)
+    reflStr₁ : {A : Ob (suc n)} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (reflStr A a aₛ a₁) ≡ IdStr A a aₛ a₁ a aₛ a₁
 
     -- jjStr
     -- jjStrₛ
@@ -260,8 +260,8 @@ record StructuredCCat : Set₁ where
                    {v : MorC n (suc n)} {vₛ : is-section v} (v₁ : ∂₁ v ≡ ElStr i a aₛ a₁) → ∂₀ (idStr i a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ ∂₀ a
   idStr₀ _ = is-section₀ idStrₛ idStr₁ ∙ UUStr=
 
-  reflStr₀ : {u : MorC n (suc n)} (uₛ : is-section u) → ∂₀ (reflStr u uₛ) ≡ ∂₀ u
-  reflStr₀ uₛ = is-section₀ reflStrₛ reflStr₁ ∙ IdStr= ∙ ! (is-section₀ uₛ refl)
+  reflStr₀ : {A : Ob (suc n)} {u : MorC n (suc n)} {uₛ : is-section u} (u₁ : ∂₁ u ≡ A) → ∂₀ (reflStr A u uₛ u₁) ≡ ft A
+  reflStr₀ _ = is-section₀ reflStrₛ reflStr₁ ∙ IdStr=
 
   {- Additional structure corresponding to naturality -}
   field
@@ -338,8 +338,9 @@ record StructuredCCat : Set₁ where
              → starTm g (idStr i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₀ _ ∙ p) ≡ idStr i (starTm g a p) ssₛ (starTm₁ aₛ p a₁ ∙ UUStrNat g {p = p} ∙ ap (UUStr i) (! (ss₀ ∙ comp₀)))
                                                                                    (starTm g u u₀) ssₛ (starTm₁ uₛ u₀ u₁ ∙ ElStrNat g {p = p}) (starTm g v v₀) ssₛ (starTm₁ vₛ v₀ v₁ ∙ ElStrNat g {p = p})
 
-    reflStrNat : {n m : ℕ} (g : MorC n m) {u : MorC m (suc m)} {uₛ : is-section u} {p : ∂₀ u ≡ ∂₁ g}
-             → starTm g (reflStr u uₛ) (reflStr₀ _ ∙ p) ≡ reflStr (starTm g u p) ssₛ
+    reflStrNat : {n m : ℕ} (g : MorC n m) {A : Ob (suc m)} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {p : ft A ≡ ∂₁ g}
+                 (let u₀ = is-section₀ uₛ u₁ ∙ p)
+             → starTm g (reflStr A u uₛ u₁) (reflStr₀ _ ∙ p) ≡ reflStr (star g A (! p)) (starTm g u u₀) ssₛ (starTm₁ uₛ u₀ u₁)
 
   {- Additional structure corresponding to equality rules -}
   field
@@ -435,8 +436,8 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
     idStr→ : {i : ℕ} {a : Mor C n (suc n)} {aₛ : is-section C a} {a₁ : ∂₁ C a ≡ UUStr sC i (∂₀ C a)} {u : Mor C n (suc n)} {uₛ : is-section C u} {u₁ : ∂₁ C u ≡ ElStr sC i a aₛ a₁}
                      {v : Mor C n (suc n)} {vₛ : is-section C v} {v₁ : ∂₁ C v ≡ ElStr sC i a aₛ a₁}
             → Mor→ (idStr sC i a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ idStr sD i (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ ∙ ap (UUStr sD i) ∂₀→) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ ElStr→) (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ ElStr→)
-    reflStr→ : {a : Mor C n (suc n)} {aₛ : is-section C a}
-            → Mor→ (reflStr sC a aₛ) ≡ reflStr sD (Mor→ a) (Mor→ₛ aₛ)
+    reflStr→ : {A : Ob C (suc n)} {a : Mor C n (suc n)} {aₛ : is-section C a} {a₁ : ∂₁ C a ≡ A}
+            → Mor→ (reflStr sC A a aₛ a₁) ≡ reflStr sD (Ob→ A) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
 
 
 module _ {sC sD : StructuredCCat} where

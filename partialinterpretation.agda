@@ -120,10 +120,12 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [v]ₛ ← assume (is-section [v])
   [v]₁ ← assume (∂₁ [v] ≡ ElStr i [a] (unbox [a]ₛ) (unbox [a]₁))
   return (idStr i [a] (unbox [a]ₛ) (unbox [a]₁) [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
-⟦ refl _ u ⟧Tm X = do
+⟦ refl A u ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
   [u] ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
-  return (reflStr [u] (unbox [u]ₛ))
+  [u]₁ ← assume (∂₁ [u] ≡ [A])
+  return (reflStr [A] [u] (unbox [u]ₛ) (unbox [u]₁))
 
 {- Partial interpretation of contexts and context morphisms -}
 
@@ -188,7 +190,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tm₀ (suc u) = sucStr₀ _ ∙ ⟦⟧Tm₀ u
 --⟦⟧Tm₀ (nat-elim P d0 dS u) = ?
 ⟦⟧Tm₀ (id i a u v) = idStr₀ _ ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₀ (refl A u) = reflStr₀ _ ∙ ⟦⟧Tm₀ u
+⟦⟧Tm₀ (refl A u) = reflStr₀ _ ∙ ⟦⟧Ty-ft A
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
 ⟦⟧Tm₁-ft u = ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u
