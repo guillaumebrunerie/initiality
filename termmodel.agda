@@ -27,26 +27,26 @@ record DMor (n m : ℕ) : Set where
 open DMor public
 
 instance
-  ObEquiv : (n : ℕ) → EquivRel (DCtx n)
-  EquivRel._≃_ (ObEquiv n) (Γ , _) (Γ' , _) = ⊢ Γ == Γ'
-  EquivRel.ref (ObEquiv n) (Γ , dΓ) = CtxRefl dΓ
-  EquivRel.sym (ObEquiv n) p = CtxSymm p
-  EquivRel.tra (ObEquiv n) p q = CtxTran p q
+  ObEquiv : {n : ℕ} → EquivRel (DCtx n)
+  EquivRel._≃_ ObEquiv (Γ , _) (Γ' , _) = ⊢ Γ == Γ'
+  EquivRel.ref ObEquiv (Γ , dΓ) = CtxRefl dΓ
+  EquivRel.sym ObEquiv p = CtxSymm p
+  EquivRel.tra ObEquiv p q = CtxTran p q
 
-  MorEquiv : (n m : ℕ) → EquivRel (DMor n m)
-  EquivRel._≃_ (MorEquiv n m) (dmor (Γ , _) (Δ , _) δ _) (dmor (Γ' , _) (Δ' , _) δ' _) = ((⊢ Γ == Γ') × (⊢ Δ == Δ')) × (Γ ⊢ δ == δ' ∷> Δ)
-  EquivRel.ref (MorEquiv n m) (dmor (_ , dΓ) (_ , dΔ) _ dδ) = (CtxRefl dΓ , CtxRefl dΔ) , (MorRefl dδ)
-  EquivRel.sym (MorEquiv n m) {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm dΓ dΔ δ=) Γ= Δ=
-  EquivRel.tra (MorEquiv n m) {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran dΓ dΔ δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
+  MorEquiv : {n m : ℕ} → EquivRel (DMor n m)
+  EquivRel._≃_ MorEquiv (dmor (Γ , _) (Δ , _) δ _) (dmor (Γ' , _) (Δ' , _) δ' _) = ((⊢ Γ == Γ') × (⊢ Δ == Δ')) × (Γ ⊢ δ == δ' ∷> Δ)
+  EquivRel.ref MorEquiv (dmor (_ , dΓ) (_ , dΔ) _ dδ) = (CtxRefl dΓ , CtxRefl dΔ) , (MorRefl dδ)
+  EquivRel.sym MorEquiv {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm dΓ dΔ δ=) Γ= Δ=
+  EquivRel.tra MorEquiv {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran dΓ dΔ δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
 
 
 {- The syntactic contextual category -}
 
 ObS : ℕ → Set
-ObS n = DCtx n // ObEquiv n
+ObS n = DCtx n // ObEquiv
 
 MorS : ℕ → ℕ → Set
-MorS n m = DMor n m // MorEquiv n m
+MorS n m = DMor n m // MorEquiv
 
 ∂₀S : {n m : ℕ} → MorS n m → ObS n
 ∂₀S = //-rec (λ δ → proj (lhs δ)) (λ r → eq (fst (fst r)))

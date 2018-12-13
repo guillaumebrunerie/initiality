@@ -114,13 +114,13 @@ open Partial public
 instance
   PartialityMonad : Monad Partial
   isDefined (return {{ PartialityMonad }} x) = Unit
-  _$_ (return {{ PartialityMonad }} x) tt = x
+  return {{ PartialityMonad }} x Partial.$ tt = x
   isDefined (_>>=_ {{ PartialityMonad }} a f) = Σ (isDefined a) (λ x → isDefined (f (a $ x)))
-  _$_ (_>>=_ {{ PartialityMonad }} a f) x = f (a $ fst x) $ snd x
+  _>>=_ {{ PartialityMonad }} a f Partial.$ x = f (a $ fst x) $ snd x
 
 assume : (P : Prop) → Partial (Box P)
 isDefined (assume P) = P
-unbox (_$_ (assume P) x) = x
+unbox (assume P Partial.$ x) = x
 
 
 {- Helper functions for proof irrelevance -}

@@ -12,12 +12,11 @@ open CCat C renaming (Mor to MorC; id to idC)
 open import partialinterpretation sC
 
 {- Predicate saying whether an object "respects" a context in the sense that the types in Γ correspond to their interpretation in X.
-   We cannot use (X ≡ ⟦ Γ ⟧) instead because it fails the termination checker somehow. -}
+   We cannot use (X ≡ ⟦ Γ ⟧) instead because it fails the termination checker somehow (not sure about that anymore, we should try again) -}
 
 respectsCtx : (X : Ob n) (Γ : Ctx n) → Prop
 respectsCtx {zero} X ◇ = Unit
 respectsCtx {suc n} X (Γ , A) = respectsCtx (ft X) Γ × Σ (isDefined (⟦ A ⟧Ty (ft X))) (λ Aᵈ → ⟦ A ⟧Ty (ft X) $ Aᵈ ≡ X)
-
 
 {- Totality of the partial interpretation functions -}
 
