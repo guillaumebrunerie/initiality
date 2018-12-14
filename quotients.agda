@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 
@@ -8,6 +8,9 @@ open import common
 -- [p] makes it impossible to define [PathOver-refl-from] without K.
 data PathOver {l l'} {A : Set l} (B : A → Set l') {a : A} : {a' : A} (p : a ≡R a') → B a → B a' → Prop (l ⊔ l') where
   reflo : {u : B a} → PathOver B reflR u u
+
+uncurrify : ∀ {l} {l'} {l''} {A : Set l} {B : A → Prop l''} (C : (x : A) → B x → Set l') → ΣS A B → Set l'
+uncurrify C (a , b) = C a b
 
 {- Equivalence relations -}
 
@@ -94,6 +97,12 @@ PathOver-CstPropPi : ∀ {l l' l''} {A : Set l} {B : Prop l'} {C : A → B → S
 PathOver-CstPropPi {p = reflR} f = PathOver-refl-to (funextP (λ y → PathOver-refl-from (f y)))
 
 
+PathOver-PropPi : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} {C : (a : A) → B a → Set l''}
+                  {a a' : A} {p : a ≡R a'} {u : (b : B a) → C a b} {u' : (b' : B a') → C a' b'}
+                  → ((y : B a) (y' : B a') → PathOver (uncurrify C) (Σ= p) (u y) (u' y'))
+                  → PathOver (λ x → ((y : B x) → C x y)) p u u'
+PathOver-PropPi {p = reflR} f = PathOver-refl-to (funextP (λ x → PathOver-refl-from (f x x)))
+
 {- Elimination rules that we actually use (most of the time) -}
 
 module _ {A : Set} {R : EquivRel A} where
@@ -126,6 +135,12 @@ module _ {A : Set} {R : EquivRel A} where
                  (proj* : (a : A) (y : B (proj a) x₀) (y' : B (proj a) x₁) → u (proj a) y ≡ v (proj a) y')
                  → (x : A // R) → PathOver (λ y → (B x y → C)) p (u x) (v x)
   //-elimP-PiP proj* = //-elimP (λ a → PathOver-Prop→Cst (proj* a))
+
+
+
+  -- Dependent elimination in a dependent type of the form x.((y : B x) → C x y) with B a Prop
+  //-elim-PiP3 : ∀ {l l'} {B : A // R → Prop l} {C : (x : A // R) → B x → Set l'} (proj* : (a : A) (b : B (proj a)) → C (proj a) b) (eq* : {a a' : A} (r : a ≃ a') (y : B (proj a)) (y' : B (proj a')) → PathOver (uncurrify C) (Σ= (eqR r)) (proj* a y) (proj* a' y')) → (x : A // R) → (y : B x) → C x y
+  //-elim-PiP3 proj* eq* = //-elim proj* (λ r → PathOver-PropPi (eq* r))
 
 {- Effectiveness of quotients, this uses propositional extensionality -}
 

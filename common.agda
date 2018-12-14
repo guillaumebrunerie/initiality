@@ -35,6 +35,13 @@ record Σ (A : Prop) (B : A → Prop) : Prop where
     snd : B fst
 open Σ public
 
+record ΣS {l} {l'} (A : Set l) (B : A → Prop l') : Set (l ⊔ l') where
+  constructor _,_
+  field
+    fst : A
+    snd : B fst
+open ΣS public
+
 infixr 4 _,_
 
 _×_ : (A B : Prop) → Prop
@@ -53,6 +60,10 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
 {-# BUILTIN EQUALITY _≡_ #-}
 
 infix 4 _≡_
+
+
+Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → (a ΣS., b) ≡R (a' , b')
+Σ= reflR = reflR
 
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl

@@ -41,6 +41,21 @@ instance
   EquivRel.sym MorEquiv {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) = (CtxSymm Γ= , CtxSymm Δ=) , ConvMorEq (MorSymm dΓ dΔ δ=) Γ= Δ=
   EquivRel.tra MorEquiv {a = dmor (_ , dΓ) (_ , dΔ) _ _} ((Γ= , Δ=), δ=) ((Γ'= , Δ'=), δ'=) = (CtxTran Γ= Γ'= , CtxTran Δ= Δ'=) , (MorTran dΓ dΔ δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
 
+idMor+ : {Γ : Ctx n} {A : TyExpr n} {a : TmExpr n} → ⊢ Γ → Derivable (Γ ⊢ a :> A) → Γ ⊢ (idMor n , a) ∷> (Γ , A)
+idMor+ dΓ da = (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl da)
+
+idMor+= : {Γ : Ctx n} {A : TyExpr n} {a a' : TmExpr n} → ⊢ Γ → Derivable (Γ ⊢ a == a' :> A) → Γ ⊢ (idMor n , a) == (idMor n , a') ∷> (Γ , A)
+idMor+= dΓ da= = (MorRefl (idMorDerivable dΓ) , congTmEqTy (! ([idMor]Ty _)) da=)
+
+
+Ctx-Ty : (X : DCtx (suc n)) → Ctx n
+Ctx-Ty ((Γ , A) , (dΓ , dA)) = Γ
+
+Ty : (X : DCtx (suc n)) → TyExpr n
+Ty ((_ , A) , (_ , dA)) = A
+
+Tm : (a : DMor n (suc n)) → TmExpr n
+Tm (dmor _ _ (_ , a) _) = a
 
 {- The syntactic contextual category -}
 
@@ -357,6 +372,86 @@ sectionS-eq-ctx us with reflect us
 is-section₀S : {u : MorS n (suc n)} (us : is-sectionS u) → ∂₀S u ≡ ftS (∂₁S u)
 is-section₀S {u = u} us = ! (id₁S _ (∂₀S u)) ∙ ap ∂₁S (! us) ∙ comp₁S (ppS (∂₁S u)) u (! (pp₀S _)) ∙ pp₁S (∂₁S u)
 
+
+DMor-dTm : {Γ : DCtx (suc n)} (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ proj Γ) → Derivable (Ctx-Ty Γ ⊢ Tm a :> Ty Γ)
+DMor-dTm {Γ = ((Γ , A) , (dΓ , dA))} aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da)) aₛ a₁ =
+           let (dΓa'=Γ , Γa'dAA , _ , Γa'dAa=A , ΓdAa=A)  = reflect a₁
+               a₀ : ∂₀S (proj aa) ≡ proj (_ , dΓ)
+               a₀ = is-section₀S {u = proj aa} aₛ ∙ ap ftS a₁
+           in
+           congTm ([idMor]Ty _)
+                  refl
+                  (ConvTm2 da
+                           (reflect a₀)
+                           (SubstTyFullEq dA
+                                          (ConvMor dδa
+                                                   (CtxRefl dΓa)
+                                                   dΓa'=Γ)
+                                          ΓdAa=A
+                                          (ConvMorEq (sectionS-eq {A = Aa} {dA = dAa} {dδ = dδa} {du = da}  aₛ)
+                                                     (CtxRefl dΓa)
+                                                     dΓa'=Γ)))
+                   
+DMor-dTm= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') (a b : DMor n (suc n)) (rab : a ≃ b) (aₛ : is-sectionS (proj a)) (bₛ : is-sectionS (proj b)) (a₁ : ∂₁S (proj a) ≡ proj Γ) (b₁ : ∂₁S (proj b) ≡ proj Γ') → Derivable (Ctx-Ty Γ ⊢ Tm a == Tm b :> Ty Γ)
+DMor-dTm= {Γ = ((Γ , A) , (dΓ , dA))} {Γ' = ((Γ' , dA') , (dΓ' , dA'))} (dΓ= , _ , _ , ΓdA= , _) aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da)) bb@(dmor (Γb , dΓb) ((Γb' , Ab) , (dΓb' , dAb)) (δb , b) (dδb , db)) rab@(_ , _ , Γada=b) aₛ bₛ a₁ b₁ =
+          let (dΓa'=Γ , _ , _ , _ , ΓdAa=A) = reflect a₁ in
+          congTmEqTy ([idMor]Ty A)
+                     (ConvTmEq2 Γada=b
+                                (CtxTran (CtxSymm (sectionS-eq-ctx {dA = dAa} {dδ = dδa} {du = da} aₛ)) dΓa'=Γ)
+                                (SubstTyFullEq dA
+                                               (ConvMor dδa (CtxRefl dΓa) dΓa'=Γ)
+                                               ΓdAa=A
+                                               (ConvMorEq (sectionS-eq {A = Aa} {dA = dAa} {dδ = dδa} {du = da} aₛ) (CtxRefl dΓa) dΓa'=Γ)))
+                                               
+DMor-dMor= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') (a b : DMor n (suc n)) (rab : a ≃ b) (aₛ : is-sectionS (proj a)) (bₛ : is-sectionS (proj b)) (a₁ : ∂₁S (proj a) ≡ proj Γ) (b₁ : ∂₁S (proj b) ≡ proj Γ') → (Ctx-Ty Γ ⊢ mor a == mor b ∷> ctx Γ)
+DMor-dMor= {Γ = ((Γ , A) , (dΓ , dA))} {Γ' = ((Γ' , A') , (dΓ' , dA'))} rΓ@(dΓ= , _ , _ , ΓdA= , _) aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da)) bb@(dmor (Γb , dΓb) ((Γb' , Ab) , (dΓb' , dAb)) (δb , b) (dδb , db)) rab@(_ , _ , Γada=b) aₛ bₛ a₁ b₁ =
+                               let (dΓa'=Γ , _ , _ , Γa'dAa=A , ΓdAa=A) = reflect a₁
+                                   dlhsa= = (CtxTran (reflect (is-section₀S {u = (proj aa)} aₛ)) dΓa'=Γ)
+                                   (dΓb'=Γ' , _ , _ , Γb'dAb=A' , ΓdAb=A') = reflect b₁
+                                   dlhsb= = (CtxTran (reflect (is-section₀S {u = (proj bb)} bₛ)) dΓb'=Γ')
+                               in
+                               (MorTran dΓ dΓ (ConvMorEq (sectionS-eq {A = A} {dA = ConvTy dA (CtxSymm dΓa'=Γ)} {dδ = dδa} {du = Conv (SubstTy dAa dδa) da (SubstTyEq Γa'dAa=A dδa)} aₛ) dlhsa= dΓa'=Γ)
+                                              (MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {A = A} {dA = ConvTy dA (CtxTran dΓ= (CtxSymm dΓb'=Γ'))} {dδ = dδb} {du = Conv (SubstTy dAb dδb) db (SubstTyEq (TyTran (ConvTy dA' (CtxSymm dΓb'=Γ')) Γb'dAb=A' (ConvTyEq (TySymm ΓdA=) (CtxTran dΓ= (CtxSymm dΓb'=Γ')))) dδb)} bₛ) (CtxTran dlhsb= (CtxSymm dΓ=)) (CtxTran dΓb'=Γ' (CtxSymm dΓ=)))) ,
+                                ConvEq dA (DMor-dTm= (dΓ= ,, ΓdA=) aa bb rab aₛ bₛ a₁ b₁) (congTyEq ([idMor]Ty A) refl (SubstTyMorEq dA (idMorDerivable dΓ) (MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {A = A} {dA = ConvTy dA (CtxSymm dΓa'=Γ)} {dδ = dδa} {du = Conv (SubstTy dAa dδa) da (SubstTyEq Γa'dAa=A dδa)} aₛ) dlhsa= dΓa'=Γ)))))
+
+
+--Type formers
+
+UUStrS-//-u : (i : ℕ) → DCtx n → DCtx (suc n)
+UUStrS-//-u i (Γ , dΓ) = ((Γ , uu i) , (dΓ , UU))
+
+UUStrS-// : (i : ℕ) → DCtx n → ObS (suc n)
+UUStrS-// i Γ = proj (UUStrS-//-u i Γ)
+
+UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → ⊢ ctx Γ == ctx Γ' → UUStrS-// i Γ ≡ UUStrS-// i Γ'
+UUStrS-eq dΓ= = eq (dΓ= , UU , UU , UUCong , UUCong)
+
+UUStrS : (i : ℕ) → ObS n → ObS (suc n)
+UUStrS i = //-rec (UUStrS-// i) (λ {a} {b} r → UUStrS-eq {Γ = a} {Γ' = b} r)
+
+
+UUStr=S : (i : ℕ) (X : ObS n) → ftS (UUStrS i X) ≡ X
+UUStr=S i = //-elimP (λ _ → refl)
+
+
+ElStrS-// : (i : ℕ) (v : DMor n (suc n)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ UUStrS i (∂₀S (proj v))) → ObS (suc n)
+ElStrS-// i v vₛ v₁ =
+  proj ((ctx (lhs v) , el i (Tm v)) , (der (lhs v) , El (DMor-dTm v vₛ v₁)))
+
+ElStrS-eq : {i : ℕ} (v v' : DMor n (suc n)) (r : v ≃ v') (vₛ : is-sectionS (proj v)) (v'ₛ : is-sectionS (proj v')) (v₁ : ∂₁S (proj v) ≡ UUStrS i (∂₀S (proj v))) (v'₁ : ∂₁S (proj v') ≡ UUStrS i (∂₀S (proj v'))) → ElStrS-// i v vₛ v₁ ≡ ElStrS-// i v' v'ₛ v'₁
+ElStrS-eq {i = i} v v' r@((dv₀=v'₀ , _) , _) vₛ v'ₛ v₁ v'₁ =
+  eq (dv₀=v'₀ ,, ElCong (DMor-dTm= (dv₀=v'₀ ,, UUCong) v v' r vₛ v'ₛ v₁ v'₁))
+
+ElStrS : (i : ℕ) (u : MorS n (suc n)) (us : is-sectionS u) (u₁ : ∂₁S u ≡ UUStrS i (∂₀S u)) → ObS (suc n)
+ElStrS i = //-elim-PiP2 (ElStrS-// i) (λ r us us' → PathOver-Prop→Cst (ElStrS-eq _ _ r us us'))
+
+
+ElStr=S-// : (i : ℕ) (u : DMor n (suc n)) (us : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ UUStrS i (∂₀S (proj u))) → ftS (ElStrS i (proj u) us u₁) ≡ ∂₀S (proj u)
+ElStr=S-// i (dmor (Γ , dΓ) ((_ , u) , (_ , du)) (δ , v) (dδ , dv~)) us u₁ = refl
+
+ElStr=S : (i : ℕ) (u : MorS n (suc n)) (us : is-sectionS u) (u₁ : ∂₁S u ≡ UUStrS i (∂₀S u)) → ftS (ElStrS i u us u₁) ≡ ∂₀S u
+ElStr=S i = //-elimP (ElStr=S-// i)
+
 PiStrS-//  : (X : DCtx (suc (suc n))) → ObS (suc n)
 PiStrS-// (((Γ , A) , B), ((dΓ , dA) , dB)) = proj ((Γ , pi A B) , (dΓ , Pi dA dB))
 
@@ -412,62 +507,9 @@ NatStr=S-// (Γ , dΓ) = refl
 NatStr=S : (X : ObS n) → ftS (NatStrS X) ≡ X
 NatStr=S = //-elimP NatStr=S-//
 
-Ctx-Ty : (X : DCtx (suc n)) → Ctx n
-Ctx-Ty ((Γ , A) , (dΓ , dA)) = Γ
-
-Ty : (X : DCtx (suc n)) → TyExpr n
-Ty ((_ , A) , (_ , dA)) = A
-
-Tm : (a : DMor n (suc n)) → TmExpr n
-Tm (dmor _ _ (_ , a) _) = a
-
-DMor-dTm : (Γ : DCtx (suc n)) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ proj Γ) → Derivable (Ctx-Ty Γ ⊢ Tm a :> Ty Γ)
-DMor-dTm ((Γ , A) , (dΓ , dA)) aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da)) aₛ a₁ =
-           let (dΓa'=Γ , Γa'dAA , _ , Γa'dAa=A , ΓdAa=A)  = reflect a₁
-               a₀ : ∂₀S (proj aa) ≡ proj (_ , dΓ)
-               a₀ = is-section₀S {u = proj aa} aₛ ∙ ap ftS a₁
-           in
-           congTm
-             ([idMor]Ty _)
-             refl
-             (ConvTm2
-               da
-               (reflect a₀)
-               (SubstTyFullEq
-                 dA
-                 (ConvMor
-                   dδa
-                   (CtxRefl dΓa)
-                   dΓa'=Γ)
-                 ΓdAa=A
-                 (ConvMorEq
-                   (sectionS-eq {A = Aa} {dA = dAa} {dδ = dδa} {du = da}  aₛ)
-                   (CtxRefl dΓa)
-                   dΓa'=Γ
-                 )
-               )
-             )
-
-DMor-dTm= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') (a b : DMor n (suc n)) (rab : a ≃ b) (aₛ : is-sectionS (proj a)) (bₛ : is-sectionS (proj b)) (a₁ : ∂₁S (proj a) ≡ proj Γ) (b₁ : ∂₁S (proj b) ≡ proj Γ') → Derivable (Ctx-Ty Γ ⊢ Tm a == Tm b :> Ty Γ)
-DMor-dTm= {Γ = ((Γ , A) , (dΓ , dA))} {Γ' = ((Γ' , dA') , (dΓ' , dA'))} (dΓ= , _ , _ , ΓdA= , _) aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da)) bb@(dmor (Γb , dΓb) ((Γb' , Ab) , (dΓb' , dAb)) (δb , b) (dδb , db)) rab@(_ , _ , Γada=b) aₛ bₛ a₁ b₁ =
-          let (dΓa'=Γ , _ , _ , _ , ΓdAa=A) = reflect a₁ in
-          congTmEqTy
-            ([idMor]Ty A)
-            (ConvTmEq2
-              Γada=b
-              (CtxTran (CtxSymm (sectionS-eq-ctx {dA = dAa} {dδ = dδa} {du = da} aₛ)) dΓa'=Γ)
-              (SubstTyFullEq
-                dA
-                (ConvMor dδa (CtxRefl dΓa) dΓa'=Γ)
-                ΓdAa=A
-                (ConvMorEq (sectionS-eq {A = Aa} {dA = dAa} {dδ = dδa} {du = da} aₛ) (CtxRefl dΓa) dΓa'=Γ)
-              )
-            )
-
-
 
 IdStrS-// : (Γ : DCtx (suc n)) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ (proj Γ)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ (proj Γ)) → ObS (suc n)
-IdStrS-// ((Γ , A) , (dΓ , dA)) a aₛ a₁ b bₛ b₁  = proj ((Γ , id A (Tm a) (Tm b)) , dΓ , (Id dA (DMor-dTm _ a aₛ a₁) (DMor-dTm _ b bₛ b₁)))
+IdStrS-// ((Γ , A) , (dΓ , dA)) a aₛ a₁ b bₛ b₁  = proj ((Γ , id A (Tm a) (Tm b)) , dΓ , (Id dA (DMor-dTm a aₛ a₁) (DMor-dTm b bₛ b₁)))
 
 IdStrS-eq : (Γ Γ' : DCtx (suc n)) (rΓ : Γ ≃ Γ') (a a' : DMor n (suc n)) (ra : a ≃ a') (aₛ : is-sectionS (proj a)) (a'ₛ : is-sectionS (proj a')) (a₁ : ∂₁S (proj a) ≡ proj Γ) (a'₁ : ∂₁S (proj a') ≡ proj Γ') (b b' : DMor n (suc n)) (rb : b ≃ b') (bₛ : is-sectionS (proj b)) (b'ₛ : is-sectionS (proj b')) (b₁ : ∂₁S (proj b) ≡ proj Γ) (b'₁ : ∂₁S (proj b') ≡ proj Γ') → IdStrS-// Γ a aₛ a₁ b bₛ b₁ ≡ IdStrS-// Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
 IdStrS-eq ((Γ , A) , (dΓ , dA)) ((Γ' , A') , (dΓ' , dA')) rA@(dΓ= , _ , _ , dA= , _) a a' ra aₛ a'ₛ a₁ a'₁ b b' rb bₛ b'ₛ b₁ b'₁ = eq (dΓ= ,, IdCong dA= (DMor-dTm= rA _ _ ra aₛ a'ₛ a₁ a'₁) (DMor-dTm= rA _ _ rb bₛ b'ₛ b₁ b'₁))
@@ -479,6 +521,70 @@ IdStrS = //-elim-PiS
          (λ ra aₛ a'ₛ → PathOver-Prop→Cst λ a₁ a'₁ → funext (//-elimP (λ b → funextP (λ bₛ → funextP (λ b₁ → IdStrS-eq A A (ref A) _ _ ra aₛ a'ₛ a₁ a'₁ b b (ref b) bₛ bₛ b₁ b₁))))))
          (λ rA → //-elimP (λ a → PathOver-CstPropPi (λ aₛ → PathOver-Prop→ (λ a₁ a₁' → PathOver-CstPi (//-elimP λ b → PathOver-CstPropPi (λ bₛ → PathOver-Prop→Cst (λ b₁ b₁' → IdStrS-eq _ _ rA a a (ref a) aₛ aₛ a₁ a₁' b b (ref b) bₛ bₛ b₁ b₁')))))))
 
+
+--Term formers
+
+uuStrS-// : (i : ℕ) (Γ : DCtx n) → MorS n (suc n)
+uuStrS-// i (Γ , dΓ) = proj (dmor (Γ , dΓ) (UUStrS-//-u (suc i) (Γ , dΓ)) ((idMor _ , uu i)) (idMor+ dΓ UUUU))
+
+uuStrS-eq : (i : ℕ) (Γ Γ' : DCtx n) (rΓ : Γ ≃ Γ') → uuStrS-// i Γ ≡ uuStrS-// i Γ'
+uuStrS-eq i (Γ , dΓ) (Γ' , dΓ') dΓ= = eq ((dΓ= , (dΓ= ,, UUCong)) , (idMor+= dΓ UUUUCong))
+
+uuStrS : (i : ℕ) (X : ObS n) → MorS n (suc n)
+uuStrS i = //-rec (λ X → uuStrS-// i X) (λ {a} {b} r → uuStrS-eq i a b r)
+
+
+uuStrSₛ-// : (i : ℕ) (Γ : DCtx n) → is-sectionS (uuStrS i (proj Γ))
+uuStrSₛ-// i (Γ , dΓ) = eq (((CtxRefl dΓ) , (CtxRefl dΓ)) , (congMorEq refl refl ((! (weakenMorInsert _ _ _ ∙ [idMor]Mor _))) refl (MorRefl (idMorDerivable dΓ))))
+
+uuStrSₛ : (i : ℕ) (X : ObS n) → is-sectionS (uuStrS i X)
+uuStrSₛ i = //-elimP λ X → uuStrSₛ-// i X
+
+
+uuStrS₁-// : (i : ℕ) (Γ : DCtx n) → ∂₁S (uuStrS i (proj Γ)) ≡ UUStrS (suc i) (proj Γ)
+uuStrS₁-// i (Γ , dΓ) = refl
+
+uuStrS₁ : (i : ℕ) (X : ObS n) → ∂₁S (uuStrS i X) ≡ UUStrS (suc i) X
+uuStrS₁ i = //-elimP (λ X → uuStrS₁-// i X)
+
+
+piStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) → MorS n (suc n)
+piStrS-// i a aₛ a₁ b bₛ b₁ = proj
+            (dmor (lhs a)
+                  ((ctx (lhs a) , uu i) , (der (lhs a) , UU))
+                  ((idMor _) , (pi i (Tm a) (Tm b)))
+                  (idMor+ (der (lhs a))
+                          (PiUU (DMor-dTm a aₛ a₁) (DMor-dTm b bₛ b₁))))
+
+piStrS-eq : (i : ℕ) (a a' : DMor n (suc n)) (ra : a ≃ a') (aₛ : is-sectionS (proj a)) (a'ₛ : is-sectionS (proj a')) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (a'₁ : ∂₁S (proj a') ≡ UUStrS i (∂₀S (proj a'))) (b b' : DMor (suc n) (suc (suc n))) (rb : b ≃ b') (bₛ : is-sectionS (proj b)) (b'ₛ : is-sectionS (proj b')) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) (b'₁ : ∂₁S (proj b') ≡ UUStrS i (ElStrS i (proj a') a'ₛ a'₁))→ piStrS-// i a aₛ a₁ b bₛ b₁ ≡ piStrS-// i a' a'ₛ a'₁ b' b'ₛ b'₁
+piStrS-eq i a a' ra@((da₀=a'₀ , _) , _) aₛ a'ₛ a₁ a'₁ b b' rb bₛ b'ₛ b₁ b'₁ =
+            eq ((da₀=a'₀ , (da₀=a'₀ ,, UUCong)) ,
+                (idMor+= (der (lhs a))
+                         (PiUUCong (DMor-dTm a aₛ a₁)
+                                   (DMor-dTm= (da₀=a'₀ ,, UUCong) a a' ra aₛ a'ₛ a₁ a'₁)
+                                   (DMor-dTm= ((da₀=a'₀ ,, ElCong (DMor-dTm= (da₀=a'₀ ,, UUCong) a a' ra aₛ a'ₛ a₁ a'₁)) ,, UUCong) b b' rb bₛ b'ₛ b₁ b'₁))))
+
+
+piStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) → MorS n (suc n)
+piStrS i = //-elim-PiP3 (λ a aₛ a₁ → //-elim-PiP2 (λ b bₛ b₁ → piStrS-// i a aₛ a₁ b bₛ b₁)
+                        (λ {b} {b'} rb bₛ b'ₛ → PathOver-Prop→Cst (λ b₁ b'₁ → piStrS-eq i a a (ref a) aₛ aₛ a₁ a₁ b b' rb bₛ b'ₛ b₁ b'₁ )))
+                        (λ {a} {a'} ra aₛ a'ₛ → PathOver-PropPi (λ a₁ a'₁ → PathOver-CstPi (//-elimP (λ b → PathOver-Prop→ (λ bₛ bₛ' → PathOver-Prop→Cst (λ b₁ b₁' → piStrS-eq i a a' ra aₛ a'ₛ a₁ a'₁ b b (ref b) bₛ bₛ' b₁ b₁')))))) 
+
+piStrSₛ-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a))
+      (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a)))
+      (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b))
+      (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) →
+      is-sectionS (piStrS i (proj a) aₛ a₁ (proj b) bₛ b₁)
+piStrSₛ-// i a aₛ a₁ b bₛ b₁ = eq (((CtxRefl (der (lhs a))) , (CtxRefl (der (lhs a)))) , (congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ [idMor]Mor _)) refl (MorRefl (idMorDerivable (der (lhs a))))))
+
+piStrSₛ : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) → is-sectionS (piStrS i a aₛ a₁ b bₛ b₁)
+piStrSₛ i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → piStrSₛ-// i a aₛ a₁ b bₛ b₁))
+
+piStrS₁-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) → ∂₁S (piStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ UUStrS i (∂₀S (proj a))
+piStrS₁-// i a aₛ a₁ b bₛ b₁ = refl
+
+piStrS₁ : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) → ∂₁S (piStrS i a aₛ a₁ b bₛ b₁) ≡ UUStrS i (∂₀S a)
+piStrS₁ i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → piStrS₁-// i a aₛ a₁ b bₛ b₁))
 
 lamStrS-//-der-type : (u : DMor (suc n) (suc (suc n))) (us : is-sectionS (proj u)) → Prop
 lamStrS-//-der-type (dmor (Δ , dΔ) (((Γ , A) , B) , ((dΓ , dA) , dB)) ((δ , v) , u) ((dδ , dv) , du)) us = Γ ⊢ (idMor _ , lam A B u) ∷> (Γ , pi A B)
@@ -517,31 +623,20 @@ lamStr₁S = //-elimP lamStr₁S-//
 
 
 appStrS-// : (B : DCtx (suc (suc n))) (f : DMor n (suc n)) (fs : is-sectionS (proj f)) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj B)) (a : DMor n (suc n)) (as : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) → MorS n (suc n)
-appStrS-// (((Γ , A) , B), ((dΓ , dA) , dB)) ff@(dmor (Γf , dΓf) ((Γf' , Af) , (dΓf' , dAf)) (δf , f) (dδf , df~)) fₛ f₁ aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da~)) aₛ a₁ = 
+appStrS-// (((Γ , A) , B), ((dΓ , dA) , dB)) f fₛ f₁ a aₛ a₁ = 
   proj (dmor
        (Γ , dΓ)
-       ((Γ , substTy B a) ,  (dΓ , SubstTy dB ((idMorDerivable dΓ) , congTm (! ([idMor]Ty A)) refl (DMor-dTm _ aa aₛ a₁))))
-       (idMor _ , app A B f a) (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl (App dA dB (DMor-dTm _ ff fₛ f₁) (DMor-dTm _ aa aₛ a₁)))
+       ((Γ , substTy B (Tm a)) ,  (dΓ , SubstTy dB (idMor+ dΓ (DMor-dTm a aₛ a₁))))
+       (idMor _ , app A B (Tm f) (Tm a)) (idMor+ dΓ (App dA dB (DMor-dTm f fₛ f₁) (DMor-dTm a aₛ a₁)))
        )
  
- 
-
-
-
 appStr-eq : (B B' : DCtx (suc (suc n))) (rB : B ≃ B') (f f' : DMor n (suc n)) (rf : f ≃ f') (fₛ : is-sectionS (proj f)) (f'ₛ : is-sectionS (proj f')) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj B)) (f₁' : ∂₁S (proj f') ≡ PiStrS (proj B')) (a a' : DMor n (suc n)) (ra : a ≃ a') (aₛ : is-sectionS (proj a)) (a'ₛ : is-sectionS (proj a')) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (a'₁ : ∂₁S (proj a') ≡ ftS (proj B')) → appStrS-// B f fₛ f₁ a aₛ a₁ ≡ appStrS-// B' f' f'ₛ f₁' a' a'ₛ a'₁
-appStr-eq (((Γ , A) , B), ((dΓ , dA) , dB))
+appStr-eq (((Γ , A) , B), ((dΓ , dA) , dB)) 
           (((Γ+ , A+) , B+), ((dΓ+ , dA+) , dB+))
           rB@((dΓ= , _ , _ , dA= , _) , _ , _ , dB= , _)
-          ff@(dmor (Γf , dΓf) ((Γf' , Af) , (dΓf' , dAf)) (δf , f) (dδf , df~))
-          ff'@(dmor (Γf+ , dΓf+) ((Γf'+ , Af+) , (dΓf'+ , dAf+)) (δf+ , f+) (dδf+ , df~+))
-          rf@(_ , _ , df=~)
-          fₛ f'ₛ f₁ f'₁
-          aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da~))
-          aa'@(dmor (Γa+ , dΓa+) ((Γa'+ , Aa+) , (dΓa'+ , dAa+)) (δa+ , a+) (dδa+ , da~+))
-          ra@(_ , _ , da=~)
-          aₛ a'ₛ a₁ a'₁ = eq ((dΓ= , (dΓ= ,, SubstTyMorEq2 dΓ (dΓ , dA) dB= ((MorRefl (idMorDerivable dΓ)) , congTmEqTy (! ([idMor]Ty A)) (DMor-dTm= (fst rB) aa aa' ra aₛ a'ₛ a₁ a'₁)))) ,
-                              MorRefl (idMorDerivable dΓ) ,
-                              congTmEqTy (! ([idMor]Ty _)) (AppCong dA dA= dB= (DMor-dTm= (dΓ= ,, PiCong dA dA= dB=) ff ff' rf fₛ f'ₛ f₁ f'₁) (DMor-dTm= (dΓ= ,, dA=) aa aa' ra aₛ a'ₛ a₁ a'₁)))
+          f f' rf fₛ f'ₛ f₁ f'₁ a a' ra  aₛ a'ₛ a₁ a'₁ =
+                                eq ((dΓ= , (dΓ= ,, SubstTyMorEq2 dΓ (dΓ , dA) dB= (idMor+= dΓ (DMor-dTm= (fst rB) a a' ra aₛ a'ₛ a₁ a'₁)))) ,
+                                    (idMor+= dΓ (AppCong dA dA= dB= (DMor-dTm= (dΓ= ,, PiCong dA dA= dB=) f f' rf fₛ f'ₛ f₁ f'₁) (DMor-dTm= (dΓ= ,, dA=) a a' ra aₛ a'ₛ a₁ a'₁))))
 
 appStrS : (B : ObS (suc (suc n))) (f : MorS n (suc n)) (fs : is-sectionS f) (f₁ : ∂₁S f ≡ PiStrS B) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → MorS n (suc n)
 appStrS =
@@ -550,75 +645,110 @@ appStrS =
     (λ rf fs fs' → PathOver-Prop→Cst (λ f₁ f₁' → funext (//-elimP (λ a → funextP (λ as → funextP (λ a₁ → appStr-eq B B (ref B) _ _ rf fs fs' f₁ f₁' a a (ref a) as as a₁ a₁)))))))
     (λ rB → //-elimP λ f → PathOver-CstPropPi (λ fs → PathOver-Prop→ (λ f₁ f₁' → PathOver-CstPi (//-elimP (λ a → PathOver-CstPropPi (λ as → PathOver-Prop→Cst (λ a₁ a₁' → appStr-eq _ _ rB f f (ref f) fs fs f₁ f₁' a a (ref a) as as a₁ a₁')))))))
 
--- appStrₛS-// : (B : DCtx (suc (suc n))) (f : DMor n (suc n)) (fs : is-sectionS (proj f)) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj B)) (a : DMor n (suc n)) (as : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) → is-sectionS (appStrS (proj B) (proj f) fs f₁ (proj a) as a₁)
--- appStrₛS-// (((Γ , A) , B), ((dΓ , dA) , dB)) ff@(dmor (Γf , dΓf) ((Γf' , Af) , (dΓf' , dAf)) (δf , f) (dδf , df~)) fs f₁ aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da~)) as a₁
---   = eq ((CtxRefl dΓ , CtxRefl dΓ) , congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ idMor[]Mor _)) refl (MorRefl (idMorDerivable dΓ)))
+appStrₛS-// : (B : DCtx (suc (suc n))) (f : DMor n (suc n)) (fs : is-sectionS (proj f)) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj B)) (a : DMor n (suc n)) (as : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) → is-sectionS (appStrS (proj B) (proj f) fs f₁ (proj a) as a₁)
+appStrₛS-// (((Γ , A) , B), ((dΓ , dA) , dB)) ff@(dmor (Γf , dΓf) ((Γf' , Af) , (dΓf' , dAf)) (δf , f) (dδf , df~)) fs f₁ aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da~)) as a₁
+  = eq ((CtxRefl dΓ , CtxRefl dΓ) , congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ idMor[]Mor _)) refl (MorRefl (idMorDerivable dΓ)))
 
--- appStrₛS : (B : ObS (suc (suc n))) (f : MorS n (suc n)) (fs : is-sectionS f) (f₁ : ∂₁S f ≡ PiStrS B) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → is-sectionS (appStrS B f fs f₁ a as a₁)
--- appStrₛS = //-elimP (λ B → //-elimP (λ f fs f₁ → //-elimP (appStrₛS-// B f fs f₁)))
+appStrₛS : (B : ObS (suc (suc n))) (f : MorS n (suc n)) (fs : is-sectionS f) (f₁ : ∂₁S f ≡ PiStrS B) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → is-sectionS (appStrS B f fs f₁ a as a₁)
+appStrₛS = //-elimP (λ B → //-elimP (λ f fs f₁ → //-elimP (appStrₛS-// B f fs f₁)))
 
--- appStr₁S-// : (B : DCtx (suc (suc n))) (f : DMor n (suc n)) (fs : is-sectionS (proj f)) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj B)) (a : DMor n (suc n)) (as : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) → ∂₁S (appStrS (proj B) (proj f) fs f₁ (proj a) as a₁) ≡ starS (proj a) (proj B) a₁
--- appStr₁S-// (((Γ , A) , B), ((dΓ , dA) , dB)) ff@(dmor (Γf , dΓf) ((Γf' , Af) , (dΓf' , dAf)) (δf , f) (dδf , df~)) fs f₁ aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da~)) as a₁
---   = let (dΓ= , _ , _ , daTy= , _) = reflect a₁
+appStr₁S-// : (B : DCtx (suc (suc n))) (f : DMor n (suc n)) (fs : is-sectionS (proj f)) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj B)) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) → ∂₁S (appStrS (proj B) (proj f) fs f₁ (proj a) aₛ a₁) ≡ starS (proj a) (proj B) a₁
+appStr₁S-// (((Γ , A) , B), ((dΓ , dA) , dB)) ff@(dmor (Γf , dΓf) ((Γf' , Af) , (dΓf' , dAf)) (δf , f) (dδf , df~)) fs f₁ aa@(dmor (Γa , dΓa) ((Γa' , Aa) , (dΓa' , dAa)) (δa , a) (dδa , da~)) aₛ a₁
+  = let (dΓ= , _ , _ , daTy= , _) = reflect a₁
+        dΓ=' = CtxTran (CtxSymm dΓ=) (sectionS-eq-ctx {dA = dAa} {dδ = dδa} {du = da~} aₛ)
+        
+ in eq (dΓ=' ,, SubstTyMorEq dB (idMor+ dΓ (DMor-dTm aa aₛ a₁)) ((ConvMorEq (MorSymm dΓa dΓa' (sectionS-eq {dA = dAa} {dδ = dδa} {du = da~} aₛ)) (CtxSymm dΓ=') dΓ=) , TmRefl (congTm (! ([idMor]Ty A)) refl (DMor-dTm aa aₛ a₁))))
 
---         dΓ=' = CtxTran (CtxSymm dΓ=) (sectionS-eq-ctx {dA = dAa} {dδ = dδa} {du = da~} as)
-
---         da[] : Derivable (Γ ⊢ a :> A [ idMor _ ]Ty)
---         da[] = ConvTm2 da~ (CtxSymm dΓ=') (SubstTyMorEq2 dΓa dΓa' daTy= (sectionS-eq {dA = dAa} {dδ = dδa} {du = da~} as))
-
---     in eq (dΓ=' ,, SubstTyMorEq dB (idMorDerivable dΓ , da[]) ((ConvMorEq (MorSymm dΓa dΓa' (sectionS-eq {dA = dAa} {dδ = dδa} {du = da~} as)) (CtxSymm dΓ=') dΓ=) , TmRefl da[]))
-
--- appStr₁S : (B : ObS (suc (suc n))) (f : MorS n (suc n)) (fs : is-sectionS f) (f₁ : ∂₁S f ≡ PiStrS B) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → ∂₁S (appStrS B f fs f₁ a as a₁) ≡ starS a B a₁
--- appStr₁S = //-elimP (λ B → //-elimP (λ f fs f₁ → //-elimP (appStr₁S-// B f fs f₁)))
+appStr₁S : (B : ObS (suc (suc n))) (f : MorS n (suc n)) (fs : is-sectionS f) (f₁ : ∂₁S f ≡ PiStrS B) (a : MorS n (suc n)) (as : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) → ∂₁S (appStrS B f fs f₁ a as a₁) ≡ starS a B a₁
+appStr₁S = //-elimP (λ B → //-elimP (λ f fs f₁ → //-elimP (appStr₁S-// B f fs f₁)))
 
 
--- UUStrS-// : (i : ℕ) → DCtx n → ObS (suc n)
--- UUStrS-// i (Γ , dΓ) = proj ((Γ , uu i) , (dΓ , UU))
+sigStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) → MorS n (suc n)
+sigStrS-// i a aₛ a₁ b bₛ b₁ =  proj
+            (dmor (lhs a)
+                  ((ctx (lhs a) , uu i) , (der (lhs a) , UU))
+                  ((idMor _) , (sig i (Tm a) (Tm b)))
+                  (idMor+ (der (lhs a))
+                          (SigUU (DMor-dTm a aₛ a₁) (DMor-dTm b bₛ b₁))))
 
--- UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → ⊢ ctx Γ == ctx Γ' → UUStrS-// i Γ ≡ UUStrS-// i Γ'
--- UUStrS-eq dΓ= = eq (dΓ= , UU , UU , UUCong , UUCong)
+sigStrS-eq : (i : ℕ) (a a' : DMor n (suc n)) (ra : a ≃ a') (aₛ : is-sectionS (proj a)) (a'ₛ : is-sectionS (proj a')) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (a'₁ : ∂₁S (proj a') ≡ UUStrS i (∂₀S (proj a'))) (b b' : DMor (suc n) (suc (suc n))) (rb : b ≃ b') (bₛ : is-sectionS (proj b)) (b'ₛ : is-sectionS (proj b')) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) (b'₁ : ∂₁S (proj b') ≡ UUStrS i (ElStrS i (proj a') a'ₛ a'₁)) → sigStrS-// i a aₛ a₁ b bₛ b₁ ≡ sigStrS-// i a' a'ₛ a'₁ b' b'ₛ b'₁
+sigStrS-eq i a a' ra@((da₀=a'₀ , _) , _) aₛ a'ₛ a₁ a'₁ b b' rb bₛ b'ₛ b₁ b'₁ =
+           eq ((da₀=a'₀ , (da₀=a'₀ ,, UUCong)) , (idMor+= (der (lhs a))
+                                                          (SigUUCong (DMor-dTm a aₛ a₁)
+                                                                     (DMor-dTm= (da₀=a'₀ ,, UUCong) a a' ra aₛ a'ₛ a₁ a'₁)
+                                                                     (DMor-dTm= ((da₀=a'₀ ,, ElCong (DMor-dTm= (da₀=a'₀ ,, UUCong) a a' ra aₛ a'ₛ a₁ a'₁)) ,, UUCong) b b' rb bₛ b'ₛ b₁ b'₁))))
 
--- UUStrS : (i : ℕ) → ObS n → ObS (suc n)
--- UUStrS i = //-rec (UUStrS-// i) (λ {a} {b} r → UUStrS-eq {Γ = a} {Γ' = b} r)
+sigStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) → MorS n (suc n)
+sigStrS i = //-elim-PiP3 (λ a aₛ a₁ → //-elim-PiP2 (λ b bₛ b₁ → sigStrS-// i a aₛ a₁ b bₛ b₁)
+                         (λ {b} {b'} rb bₛ b'ₛ → PathOver-Prop→Cst (λ b₁ b'₁ → sigStrS-eq i a a (ref a) aₛ aₛ a₁ a₁ b b' rb bₛ b'ₛ b₁ b'₁ )))
+                         (λ {a} {a'} ra aₛ a'ₛ → PathOver-PropPi (λ a₁ a'₁ → PathOver-CstPi (//-elimP (λ b → PathOver-Prop→ (λ bₛ b'ₛ → PathOver-Prop→Cst (λ b₁ b'₁ → sigStrS-eq i a a' ra aₛ a'ₛ a₁ a'₁ b b (ref b) bₛ b'ₛ b₁ b'₁)) ))))
 
+sigStrSₛ-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a))
+      (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a)))
+      (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b))
+      (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) →
+      is-sectionS (sigStrS i (proj a) aₛ a₁ (proj b) bₛ b₁)
+sigStrSₛ-// i a aₛ a₁ b bₛ b₁ = eq (((CtxRefl (der (lhs a))) , (CtxRefl (der (lhs a)))) , (congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ [idMor]Mor _)) refl (MorRefl (idMorDerivable (der (lhs a))))))
 
--- UUStr=S : (i : ℕ) (X : ObS n) → ftS (UUStrS i X) ≡ X
--- UUStr=S i = //-elimP (λ _ → refl)
+sigStrSₛ : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) → is-sectionS (sigStrS i a aₛ a₁ b bₛ b₁)
+sigStrSₛ i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → sigStrSₛ-// i a aₛ a₁ b bₛ b₁))
 
+sigStrS₁-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) → ∂₁S (sigStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ UUStrS i (∂₀S (proj a))
+sigStrS₁-// i a aₛ a₁ b bₛ b₁ = refl
 
--- ElStrS-// : (i : ℕ) (u : DMor n (suc n)) (us : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ UUStrS i (∂₀S (proj u))) → ObS (suc n)
--- ElStrS-// i (dmor (Γ , dΓ) ((_ , u) , (_ , du)) (δ , v) (dδ , dv)) us u₁ =
---   let (_ , _ , _ , du= , _) = reflect u₁
---       dv = Conv (SubstTy du dδ) dv (SubstTyEq du= dδ)
---   in proj ((Γ , el i v) , (dΓ , El dv))
-
--- ElStrS-eq : {i : ℕ} (u u' : DMor n (suc n)) (r : u ≃ u') (us : is-sectionS (proj u)) (us' : is-sectionS (proj u')) (u₁ : ∂₁S (proj u) ≡ UUStrS i (∂₀S (proj u))) (u₁' : ∂₁S (proj u') ≡ UUStrS i (∂₀S (proj u'))) → ElStrS-// i u us u₁ ≡ ElStrS-// i u' us' u₁'
--- ElStrS-eq {i = i} (dmor (Γ , dΓ) ((_ , u) , (_ , du)) (δ , v) (dδ , dv~)) (dmor (Γ' , dΓ') ((_ , u') , (_ , du')) (δ' , v') (dδ' , dv~')) ((dΓ= , _ , _ , _ , _ , _), dδ= , dv=~) us us' u₁ u₁' =
---   let (_ , _ , _ , du= , _) = reflect u₁ in
---   let (_ , _ , _ , du=' , _) = reflect u₁' in
---   let dv : Derivable (Γ ⊢ v :> uu i)
---       dv = Conv (SubstTy du dδ) dv~ (SubstTyEq du= dδ)
---   in
---   let dv' : Derivable (Γ' ⊢ v' :> uu i)
---       dv' = Conv (SubstTy du' dδ') dv~' (SubstTyEq du=' dδ')
---   in
---   let dv= : Derivable (Γ ⊢ v == v' :> uu i)
---       dv= = ConvEq (SubstTy du dδ) dv=~ (SubstTyEq du= dδ)
---   in
---   let dv=' : Derivable (Γ' ⊢ v == v' :> uu i)
---       dv=' = ConvTmEq dv= dΓ=
---   in
---   eq (dΓ= , El dv , El dv' , ElCong dv= , ElCong dv=')
-
--- ElStrS : (i : ℕ) (u : MorS n (suc n)) (us : is-sectionS u) (u₁ : ∂₁S u ≡ UUStrS i (∂₀S u)) → ObS (suc n)
--- ElStrS i = //-elim-PiP2 (ElStrS-// i) (λ r us us' → PathOver-Prop→Cst (ElStrS-eq _ _ r us us'))
+sigStrS₁ : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) → ∂₁S (sigStrS i a aₛ a₁ b bₛ b₁) ≡ UUStrS i (∂₀S a)
+sigStrS₁ i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → sigStrS₁-// i a aₛ a₁ b bₛ b₁))
 
 
--- ElStr=S-// : (i : ℕ) (u : DMor n (suc n)) (us : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ UUStrS i (∂₀S (proj u))) → ftS (ElStrS i (proj u) us u₁) ≡ ∂₀S (proj u)
--- ElStr=S-// i (dmor (Γ , dΓ) ((_ , u) , (_ , du)) (δ , v) (dδ , dv~)) us u₁ = refl
+pairStrS-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → MorS n (suc n)
+pairStrS-// (((Γ , A) , B) , ((dΓ , dA) , dB)) a@(dmor _ ((Γa' , Aa) , (_ ,  dAa)) (_ , _) (dδa , da)) aₛ a₁ b bₛ b₁ =
+            let
+              (dΓ= , _ , _ , _ , dA=) = reflect a₁
+              dlhs= = (CtxTran (reflect (is-section₀S {u = (proj a)} aₛ)) dΓ=)
+            in
+         proj (dmor (Γ , dΓ)
+                    ((Γ , sig A B) , (dΓ , Sig dA dB)) ((idMor _) , (pair A B (Tm a) (Tm b)))
+                    (idMor+ dΓ (Pair dA dB (DMor-dTm a aₛ a₁) (ConvTm (Conv (SubstTy (ConvTy dB ((CtxSymm dΓ=) ,, TySymm dA=)) (dδa , da)) (DMor-dTm b bₛ b₁) (SubstTyMorEq (ConvTy dB ((CtxSymm dΓ=) ,, TySymm dA=)) (dδa , da) (sectionS-eq {A = Aa} {dA = dAa} {dδ = dδa} {du = da} aₛ , (TmRefl da)))) dlhs=))))
 
--- ElStr=S : (i : ℕ) (u : MorS n (suc n)) (us : is-sectionS u) (u₁ : ∂₁S u ≡ UUStrS i (∂₀S u)) → ftS (ElStrS i u us u₁) ≡ ∂₀S u
--- ElStr=S i = //-elimP (ElStr=S-// i)
+       
+
+pairStrS-eq : (B B' : DCtx (suc (suc n))) (rB : B ≃ B') (a a' : DMor n (suc n)) (ra : a ≃ a') (aₛ : is-sectionS (proj a)) (a'ₛ : is-sectionS (proj a')) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (a'₁ : ∂₁S (proj a') ≡ ftS (proj B')) (b b' : DMor n (suc n)) (rb : b ≃ b') (bₛ : is-sectionS (proj b)) (b'ₛ : is-sectionS (proj b')) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) (b'₁ : ∂₁S (proj b') ≡ starS (proj a') (proj B') a'₁) → pairStrS-// B a aₛ a₁ b bₛ b₁ ≡ pairStrS-// B' a' a'ₛ a'₁ b' b'ₛ b'₁
+pairStrS-eq (((Γ , A) , B) , ((dΓ , dA) , dB))
+            (((Γ' , A') , B') , ((dΓ' , dA') , dB')) rB@(rA@(dΓ= , _ , _ , dA= , _) , _ , _ , dB= , _)
+            a@(dmor _ ((Γa' , Aa) , (_ ,  dAa)) (_ , _) (dδa , da))
+            a'@(dmor _ ((Γa'' , Aa') , (_ ,  dAa')) (_ , _) (dδa' , da')) ra aₛ a'ₛ a₁ a'₁ b b' rb bₛ b'ₛ b₁ b'₁ = let
+              (dΓa'=Γ , _ , _ , Γa'dAa=A , dAa=A) = reflect a₁
+              (dΓa''=Γ , _ , _ , _ , dAa'=A) = reflect a'₁
+              dlhs= = (CtxTran (reflect (is-section₀S {u = (proj a)} aₛ)) dΓa'=Γ)
+              dlhs=' = (CtxTran (reflect (is-section₀S {u = (proj a')} a'ₛ)) dΓa''=Γ)
+            in
+            eq ((dΓ= , (dΓ= ,, SigCong dA dA= dB=)) ,
+               idMor+= dΓ
+                       (PairCong dA dA= dB= (DMor-dTm= rA a a' ra aₛ a'ₛ a₁ a'₁)
+                                            (ConvTmEq (ConvEq ((SubstTy (ConvTy dB ((CtxSymm dΓa'=Γ) ,, TySymm dAa=A)) (dδa , da)))
+                                                      (DMor-dTm= (CtxTran dlhs= (CtxTran dΓ= (CtxSymm dlhs=')) ,, SubstTyMorEq2 (der (lhs a)) (dΓ , dA) dB= (ConvMorEq {Γ = Γa'} {Γ' = ctx (lhs a)} {Δ = Γa' , Aa} (DMor-dMor= (CtxTran dΓa'=Γ (CtxTran dΓ= (CtxSymm dΓa''=Γ)) ,, TyTran (ConvTy dA (CtxSymm dΓa'=Γ)) Γa'dAa=A (TyTran (ConvTy dA' (CtxSymm (CtxTran dΓa'=Γ dΓ=))) (ConvTyEq dA= (CtxSymm dΓa'=Γ)) (ConvTyEq (TySymm dAa'=A) (CtxSymm (CtxTran dΓa'=Γ dΓ=))))) a a' ra aₛ a'ₛ refl refl) (CtxTran dΓa'=Γ (CtxSymm dlhs=)) (dΓa'=Γ ,, ConvTyEq dAa=A (CtxSymm dΓa'=Γ)))) b b' rb bₛ b'ₛ b₁ b'₁)
+                                                      (SubstTyMorEq (ConvTy dB ((CtxSymm dΓa'=Γ) ,, TySymm dAa=A)) (dδa , da) (sectionS-eq {A = Aa} {dA = dAa} {dδ = dδa} {du = da} aₛ , (TmRefl da))))
+                                                      dlhs=)))
+
+
+pairStrS : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → MorS n (suc n)
+pairStrS = //-elim-PiS (λ B → //-elim-PiP3 (λ a aₛ a₁ → //-elim-PiP2 (λ b bₛ b₁ → pairStrS-// B a aₛ a₁ b bₛ b₁)
+                       (λ {b} {b'} rb bₛ b'ₛ → PathOver-Prop→Cst (λ b₁ b'₁ → pairStrS-eq B B (ref B) a a (ref a) aₛ aₛ a₁ a₁ b b' rb bₛ b'ₛ b₁ b'₁)))
+                       (λ {a} {a'} ra aₛ a'ₛ → PathOver-PropPi (λ a₁ a'₁ → PathOver-CstPi (//-elimP (λ b → PathOver-CstPropPi (λ bₛ → PathOver-Prop→Cst (λ b₁ b₁' → pairStrS-eq B B (ref B) a a' ra aₛ a'ₛ a₁ a'₁ b b (ref b) bₛ bₛ b₁ b₁')))))))
+                       (λ {B} {B'} rB → //-elimP (λ a → PathOver-CstPropPi (λ aₛ → PathOver-PropPi (λ a₁ a₁' → PathOver-CstPi (//-elimP (λ b → PathOver-CstPropPi (λ bₛ → PathOver-Prop→Cst (λ b₁ b₁' → pairStrS-eq B B' rB a a (ref a) aₛ aₛ a₁ a₁' b b (ref b) bₛ bₛ b₁ b₁'))))))))
+
+
+pairStrSₛ-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → is-sectionS (pairStrS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁)
+pairStrSₛ-// (((Γ , A) , B) , ((dΓ , dA) , dB)) a@(dmor _ ((_ , _) , (_ , _)) (_ , _) (_ , _)) aₛ a₁ b bₛ b₁ = eq (((CtxRefl dΓ) , (CtxRefl dΓ)) , (congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ [idMor]Mor (idMor _))) refl (MorRefl (idMorDerivable dΓ))))
+
+pairStrSₛ : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → is-sectionS (pairStrS B a aₛ a₁ b bₛ b₁)
+pairStrSₛ = //-elimP (λ B → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → pairStrSₛ-// B a aₛ a₁ b bₛ b₁)))
+
+pairStrS₁-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → ∂₁S (pairStrS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ SigStrS (proj B)
+pairStrS₁-// (((Γ , A) , B) , ((dΓ , dA) , dB)) a@(dmor _ ((_ , _) , (_ , _)) (_ , _) (_ , _)) aₛ a₁ b bₛ b₁ = refl
+
+pairStrS₁ : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → ∂₁S (pairStrS B a aₛ a₁ b bₛ b₁) ≡ SigStrS B
+pairStrS₁ = //-elimP (λ B → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → pairStrS₁-// B a aₛ a₁ b bₛ b₁)))
 
 -- PiStrNatS-// : (g : DMor n m) (B : DCtx (suc (suc m))) (p : ftS (ftS (proj B)) ≡ ∂₁S (proj g)) → starS (proj g) (PiStrS (proj B)) (! (PiStr=S (proj B) ∙ p)) ≡ PiStrS (starS (qqS (proj g) (ftS (proj B)) (! p)) (proj B) (qq₁S (proj g) (ftS (proj B)) (! p)))
 -- PiStrNatS-// (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) (((_ , A) , B), ((_ , dA) , dB)) p = refl
