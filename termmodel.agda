@@ -998,15 +998,16 @@ NatStrNatS : (g : MorS n m) (X : ObS m) (p : X ≡ ∂₁S g) → starS g (NatSt
 NatStrNatS = //-elimP (λ g → //-elimP (NatStrNatS-// g))
 
 
-IdStrNatS-// : (g : DMor n m) (A : DCtx (suc m)) (u : DMor m (suc m)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ (proj A)) (v : DMor m (suc m)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ (proj A)) (p : ftS (proj A) ≡ ∂₁S (proj g))
+IdStrNatS-// : (g : DMor n m) (A : DCtx (suc m)) (u : DMor m (suc m)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ (proj A))
+                                                 (v : DMor m (suc m)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ (proj A)) (p : ftS (proj A) ≡ ∂₁S (proj g))
   → starS (proj g) (IdStrS (proj A) (proj u) uₛ u₁ (proj v) vₛ v₁) (! (IdStr=S (proj A) (proj u) uₛ u₁ (proj v) vₛ v₁ ∙ p))
     ≡ IdStrS (starS (proj g) (proj A) (! p))
       (starTmS (proj g) (proj u) (is-section₀S {u = (proj u)} uₛ u₁ ∙ p)) (ssₛS (compS (proj u) (proj g) (! (is-section₀S {u = (proj u)} uₛ u₁ ∙ p))))
       (starTm₁S (proj g) (proj u) uₛ (is-section₀S {u = (proj u)} uₛ u₁ ∙ p) u₁)
       (starTmS (proj g) (proj v) (is-section₀S {u = (proj v)} vₛ v₁ ∙ p)) (ssₛS (compS (proj v) (proj g) (! (is-section₀S {u = (proj v)} vₛ v₁ ∙ p))))
       (starTm₁S (proj g) (proj v) vₛ (is-section₀S {u = (proj v)} vₛ v₁ ∙ p) v₁)
-IdStrNatS-// g ((Γ , A) , (dΓ , dA)) u uₛ u₁ v vₛ v₁ p =
-  {!we need to change the definition of ssS-//-u so that Tm (ssS-//-u f) reduces without needing f to reduce, and then we need to use something like  Tm (mor u [ mor g ]Mor) ≡ Tm u [ mor g ]Tm!}
+IdStrNatS-// (dmor (Δ , dΔ) (Γ' , dΓ') g dg) ((Γ , A) , (dΓ , dA)) (dmor (_ , _) ((_ , _) , (_ , _)) (_ , u) (_ , _)) uₛ u₁ (dmor (_ , _) ((_ , _) , (_ , _)) (_ , v) (_ , _)) vₛ v₁ p =
+  refl
 
 IdStrNatS : (g : MorS n m) (A : ObS (suc m)) (u : MorS m (suc m)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ A) (v : MorS m (suc m)) (vₛ : is-sectionS v) (v₁ : ∂₁S v ≡ A) (p : ftS A ≡ ∂₁S g)
   → starS g (IdStrS A u uₛ u₁ v vₛ v₁) (! (IdStr=S A u uₛ u₁ v vₛ v₁ ∙ p))
