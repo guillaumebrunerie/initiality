@@ -352,7 +352,7 @@ ss-comp synCCat {U = U} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U
 
 {- The syntactic structured contextual category -}
 
-open StructuredCCat
+open preStructuredCCat
 
 is-sectionS : (u : MorS n (suc n)) → Prop
 is-sectionS u = compS (ppS (∂₁S u)) u (! (pp₀S (∂₁S u))) ≡ idS _ (∂₀S u)
@@ -935,11 +935,72 @@ reflStr₁S-// ((Γ , A) , (dΓ , dA)) a aₛ a₁ = refl
 reflStr₁S :  (A : ObS (suc n)) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ A) → ∂₁S (reflStrS A a aₛ a₁) ≡ IdStrS A a aₛ a₁ a aₛ a₁
 reflStr₁S = //-elimP (λ A → (//-elimP (λ a aₛ a₁ → reflStr₁S-// A a aₛ a₁)))
 
+preStrSynCCat : preStructuredCCat
+
+ccat preStrSynCCat = synCCat
+
+UUStr preStrSynCCat = UUStrS
+UUStr= preStrSynCCat = UUStr=S _ _
+ElStr preStrSynCCat = ElStrS
+ElStr= preStrSynCCat {v = v} = ElStr=S _ v _ _
+PiStr preStrSynCCat = PiStrS
+PiStr= preStrSynCCat {B = B} = PiStr=S B
+SigStr preStrSynCCat = SigStrS
+SigStr= preStrSynCCat {B = B} = SigStr=S B
+NatStr preStrSynCCat = NatStrS
+NatStr= preStrSynCCat = NatStr=S _
+IdStr preStrSynCCat = IdStrS
+IdStr= preStrSynCCat {A = A} {a = a} {b = b} = IdStr=S A a _ _ b _ _
+
+uuStr preStrSynCCat = uuStrS
+uuStrₛ preStrSynCCat {X = X} = uuStrₛS _ X
+uuStr₁ preStrSynCCat {X = X} = uuStr₁S _ X 
+
+piStr preStrSynCCat = piStrS
+piStrₛ preStrSynCCat {a = a} {b = b} = piStrₛS _ a _ _ b _ _
+piStr₁ preStrSynCCat {a = a} {b = b} = piStr₁S _ a _ _ b _ _
+lamStr preStrSynCCat = lamStrS
+lamStrₛ preStrSynCCat {B = B} {u = u} = lamStrₛS B u _ _
+lamStr₁ preStrSynCCat {B = B} {u = u} = lamStr₁S B u _ _
+appStr preStrSynCCat = appStrS
+appStrₛ preStrSynCCat {B = B} {f = f} {a = a} = appStrₛS B f _ _ a _ _
+appStr₁ preStrSynCCat {B = B} {f = f} {a = a} = appStr₁S B f _ _ a _ _
+
+sigStr preStrSynCCat = sigStrS
+sigStrₛ preStrSynCCat {a = a} {b = b} = sigStrₛS _ a _ _ b _ _
+sigStr₁ preStrSynCCat {a = a} {b = b} = sigStr₁S _ a _ _ b _ _
+pairStr preStrSynCCat = pairStrS
+pairStrₛ preStrSynCCat {B = B} {a = a} {b = b} = pairStrₛS B a _ _ b _ _ 
+pairStr₁ preStrSynCCat {B = B} {a = a} {b = b} = pairStr₁S B a _ _ b _ _
+pr1Str preStrSynCCat = pr1StrS
+pr1Strₛ preStrSynCCat {B = B} {u = u} = pr1StrₛS B u _ _ 
+pr1Str₁ preStrSynCCat {B = B} {u = u} = pr1Str₁S B u _ _ 
+pr2Str preStrSynCCat = pr2StrS
+pr2Strₛ preStrSynCCat {B = B} {u = u} = pr2StrₛS B u _ _
+pr2Str₁ preStrSynCCat {B = B} {u = u} = pr2Str₁S B u _ _
+
+natStr preStrSynCCat = natStrS
+natStrₛ preStrSynCCat {X = X} = natStrₛS _ X
+natStr₁ preStrSynCCat {X = X} = natStr₁S _ X
+zeroStr preStrSynCCat = zeroStrS
+zeroStrₛ preStrSynCCat {X = X} = zeroStrₛS X
+zeroStr₁ preStrSynCCat {X = X} = zeroStr₁S X
+sucStr preStrSynCCat = sucStrS
+sucStrₛ preStrSynCCat {u = u} = sucStrₛS u _ _
+sucStr₁ preStrSynCCat {u = u} = sucStr₁S u _ _
+
+idStr preStrSynCCat = idStrS
+idStrₛ preStrSynCCat {a = a} {u = u} {v = v} = idStrₛS _ a _ _ u _ _ v _ _ 
+idStr₁ preStrSynCCat {a = a} {u = u} {v = v} = idStr₁S _ a _ _ u _ _ v _ _
+reflStr preStrSynCCat = reflStrS
+reflStrₛ preStrSynCCat {A = A} {a = a} = reflStrₛS A a _ _
+reflStr₁ preStrSynCCat {A = A} {a = a} = reflStr₁S A a _ _
 
 
 
---Naturality
+--Naturality of type formers
 
+open StructuredCCat
 
 ssₛS : (f : MorS m (suc n)) → is-sectionS (ssS f)
 ssₛS f = ap2-irr compS (ap ppS (ss₁S f)) refl ∙ (ss-ppS f) ∙ ap (idS _) (! (ss₀S f))
@@ -958,6 +1019,13 @@ starTm₀S g u u₀ = ss₀S (compS u g (! u₀)) ∙ comp₀S u g (! u₀)
 
 star+S : (g : MorS n m) (A : ObS (suc (suc m))) (A= : ftS (ftS A) ≡ ∂₁S g) → ObS (suc (suc n))
 star+S g A A= = starS (qqS g (ftS A) (! A=)) A (qq₁S g (ftS A) (! A=))
+
+
+starTm+S : (g : MorS n m) (u : MorS (suc m) (suc (suc m))) (p : ftS (∂₀S u) ≡ ∂₁S g) → MorS (suc n) (suc (suc n))
+starTm+S g u p = ssS (compS u (qqS g (∂₀S u) (! p)) (qq₁S g (∂₀S u) (! p)))
+
+starTm+₁S : (g : MorS n m) (u : MorS (suc m) (suc (suc m))) (uₛ : is-sectionS u) {X : ObS (suc (suc m))} (u₁ : ∂₁S u ≡ X) (p : ftS (∂₀S u) ≡ ∂₁S g) → ∂₁S (starTm+S g u p) ≡ star+S g X (ap ftS (! (is-section₀S uₛ u₁)) ∙ p)
+starTm+₁S g u uₛ u₁ p = starTm₁S (qqS g (∂₀S u) (! p)) u uₛ (! (qq₁S g (∂₀S u) (! p))) u₁ ∙ ap2-irr starS {a = qqS g (∂₀S u) (! p)} (ap2-irr qqS {a = g} refl (is-section₀S uₛ u₁) {b = ! p} {b' = ! (ap ftS (! (is-section₀S uₛ u₁)) ∙ p)}) refl {b = ! (! (qq₁S g (∂₀S u) (! p) ∙ is-section₀S uₛ u₁))} 
 
 
 UUStrNatS-// : {i : ℕ} (g : DMor n m) (X : DCtx m) (p : proj X ≡ ∂₁S (proj g)) → starS (proj g) (UUStrS i (proj X)) (! p ∙ ! (UUStr=S i (proj X))) ≡ UUStrS i (∂₀S (proj g))
@@ -1018,11 +1086,37 @@ IdStrNatS : (g : MorS n m) (A : ObS (suc m)) (u : MorS m (suc m)) (uₛ : is-sec
       (starTm₁S g v vₛ (is-section₀S {u = v} vₛ v₁ ∙ p) v₁)
 IdStrNatS = //-elimP (λ g → //-elimP (λ A → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → IdStrNatS-// g A u uₛ u₁ v vₛ v₁))))
 
+-- Naturality of term formers
+
+
+
+uuStrNatS-// : (i : ℕ) {n m : ℕ} (g : DMor n m) (X : DCtx m) (p : proj X ≡ ∂₁S (proj g)) → starTmS (proj g) (uuStrS i (proj X)) (uuStr₀ preStrSynCCat {i = i} (proj X) ∙ p) ≡ uuStrS i (∂₀S (proj  g))
+uuStrNatS-// i g X p = refl
+
+uuStrNatS : (i : ℕ) {n m : ℕ} (g : MorS n m) (X : ObS m) (p : X ≡ ∂₁S g)
+             → starTmS g (uuStrS i X) (uuStr₀ preStrSynCCat X ∙ p) ≡ uuStrS i (∂₀S g)
+uuStrNatS i = //-elimP (λ g → //-elimP (λ X p → uuStrNatS-// i g X p))
+
+piStrNatS-// : (i : ℕ) {n m : ℕ} (g : DMor n m) (a : DMor m (suc m)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a)))
+                                                                     (b : DMor (suc m) (suc (suc m))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b)≡ UUStrS i (ElStrS i (proj a) aₛ a₁)) (p : ∂₀S (proj a) ≡ ∂₁S (proj g))
+                                                                     (let b₀ = ap ftS (is-section₀S {u = proj b} bₛ b₁ ∙ (UUStr=S i (ElStrS i (proj a) aₛ a₁))) ∙ ElStr=S i (proj a) aₛ a₁ ∙ p)                                     
+             → starTmS (proj g) (piStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) (piStr₀ preStrSynCCat {a = proj a} {aₛ} {a₁} {proj b} {bₛ} b₁ ∙ p) ≡ piStrS i (starTmS (proj g) (proj a) p) (ssₛS (compS (proj a) (proj g) (! p))) (starTm₁S (proj g) (proj a) aₛ p a₁ ∙ UUStrNatS (proj g) (∂₀S (proj a)) p ∙ ap (UUStrS i) (! (ss₀S (compS (proj a) (proj g) (! p)) ∙ comp₀S (proj a) (proj g) (! p))))
+                                                                           (starTm+S (proj g) (proj b) b₀) (ssₛS (compS (proj b) (qqS (proj g) (∂₀S (proj b)) (! b₀)) (qq₁S (proj g) (∂₀S (proj b)) (! b₀))))
+                                                                           (starTm+₁S (proj g) (proj b) bₛ b₁ b₀ ∙ UUStrNatS (qqS (proj g) (ftS (UUStrS i (ElStrS i (proj a) aₛ a₁))) (! (ap ftS (UUStr=S i (ElStrS i (proj a) aₛ a₁)) ∙ ElStr=S i (proj a) aₛ a₁ ∙ p))) (ElStrS i (proj a) aₛ a₁) (! (qq₁S (proj g) (ftS (UUStrS i (ElStrS i (proj a) aₛ a₁))) (! (ap ftS (UUStr=S i (ElStrS i (proj a) aₛ a₁)) ∙ ElStr=S i (proj a) aₛ a₁ ∙ p)) ∙ UUStr=S i (ElStrS i (proj a) aₛ a₁))) ∙ ap (UUStrS i) (qq₀S (proj g) (ftS (UUStrS i (ElStrS i (proj a) aₛ a₁))) (! (ap ftS (UUStr=S i (ElStrS i (proj a) aₛ a₁)) ∙ ElStr=S i (proj a) aₛ a₁ ∙ p)) ∙ ap2-irr starS {a = proj g} refl (UUStr=S i (ElStrS i (proj a) aₛ a₁)) {b =  ! (ap ftS (UUStr=S i (ElStrS i (proj a) aₛ a₁)) ∙ ElStr=S i (proj a) aₛ a₁ ∙ p)} {b' = ! (ElStr=S i (proj a) aₛ a₁ ∙ p)} ∙ (ElStrNatS (proj g) (proj a) aₛ a₁ p)))
+piStrNatS-// i g@(dmor (_ , _) (_ , _) _ _) a@(dmor _ ((_ , _) , (_ , _)) (_ , _) (_ , _)) aₛ a₁ b@(dmor ((_ , _) , (_ , _)) (((_ , _) , _) , ((_ , _) , _)) ((_ , _) , _)  ((_ , _) , _)) bₛ b₁ p = refl
+
+piStrNatS : (i : ℕ) {n m : ℕ} (g : MorS n m) (a : MorS m (suc m)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a))
+                                                                   (b : MorS (suc m) (suc (suc m))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁)) (p : ∂₀S a ≡ ∂₁S g)
+                                                                   (let b₀ = ap ftS (is-section₀S bₛ b₁ ∙ (UUStr=S i (ElStrS i a aₛ a₁))) ∙ ElStr=S i a aₛ a₁ ∙ p)
+             →  starTmS g (piStrS i a aₛ a₁ b bₛ b₁) (piStr₀ preStrSynCCat {a = a} {aₛ} {a₁} {b} {bₛ} b₁ ∙ p) ≡ piStrS i (starTmS g a p) (ssₛS (compS a g (! p))) (starTm₁S g a aₛ p a₁ ∙ UUStrNatS g (∂₀S a) p ∙ ap (UUStrS i) (! (ss₀S (compS a g (! p)) ∙ comp₀S a g (! p))))
+                                                                           (starTm+S g b b₀) (ssₛS (compS b (qqS g (∂₀S b) (! b₀)) (qq₁S g (∂₀S b) (! b₀))))
+                                                                           (starTm+₁S g b bₛ b₁ b₀ ∙ UUStrNatS (qqS g (ftS (UUStrS i (ElStrS i a aₛ a₁))) (! (ap ftS (UUStr=S i (ElStrS i a aₛ a₁)) ∙ ElStr=S i a aₛ a₁ ∙ p))) (ElStrS i a aₛ a₁) (! (qq₁S g (ftS (UUStrS i (ElStrS i a aₛ a₁))) (! (ap ftS (! (is-section₀S bₛ b₁))  ∙ b₀)) ∙ UUStr=S i (ElStrS i a aₛ a₁))) ∙ ap (UUStrS i) (qq₀S g (ftS (UUStrS i (ElStrS i a aₛ a₁))) (! (ap ftS (! (is-section₀S bₛ b₁))  ∙ b₀)) ∙ ap2-irr starS {a = g} refl (UUStr=S i (ElStrS i a aₛ a₁)) {b = ! (ap ftS (! (is-section₀S bₛ b₁)) ∙ b₀)} {b' = ! (ElStr=S i a aₛ a₁ ∙ p)} ∙ (ElStrNatS g a aₛ a₁ p)))
+piStrNatS i = //-elimP (λ g → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ p → piStrNatS-// i g a aₛ a₁ b bₛ b₁ p)))
+
+
+
 -- lamStr₀S : (u : MorS (suc n) (suc (suc n))) (us : is-sectionS u) → ∂₀S (lamStrS u us) ≡ ftS (∂₀S u)
 -- lamStr₀S u us = is-section₀S (lamStrₛS u us) ∙ ap ftS (lamStr₁S u us) ∙ PiStr=S (∂₁S u) ∙ ap ftS (! (is-section₀S us))
-
-
-
 
 -- CtxSubstRefl : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} {A : TyExpr m} → (⊢ Γ) → (Γ ⊢ δ ∷> Δ) → Derivable (Δ ⊢ A) → ⊢ (Γ , A [ δ ]Ty) == (Γ , A [ δ ]Ty)
 -- CtxSubstRefl dΓ dδ dA = (CtxRefl dΓ ,, TyRefl (SubstTy dA dδ))
@@ -1161,97 +1255,40 @@ IdStrNatS = //-elimP (λ g → //-elimP (λ A → //-elimP (λ u uₛ u₁ → /
 -- -- betaStrS B u us refl = betaStrS' u us
 
 
-strSynCCat : StructuredCCat
+-- strSynCCat : StructuredCCat
 
-ccat strSynCCat = synCCat
+-- presC strSynCCat = preStrSynCCat
 
-UUStr strSynCCat = UUStrS
-UUStr= strSynCCat = UUStr=S _ _
-ElStr strSynCCat = ElStrS
-ElStr= strSynCCat {v = v} = ElStr=S _ v _ _
-PiStr strSynCCat = PiStrS
-PiStr= strSynCCat {B = B} = PiStr=S B
-SigStr strSynCCat = SigStrS
-SigStr= strSynCCat {B = B} = SigStr=S B
-NatStr strSynCCat = NatStrS
-NatStr= strSynCCat = NatStr=S _
-IdStr strSynCCat = IdStrS
-IdStr= strSynCCat {A = A} {a = a} {b = b} = IdStr=S A a _ _ b _ _
+-- UUStrNat strSynCCat g {X = X} p = UUStrNatS g X p
+-- ElStrNat strSynCCat g {v} {vₛ} p = ElStrNatS g v _ _ p
+-- PiStrNat strSynCCat g {B = B} p = PiStrNatS g B p
+-- SigStrNat strSynCCat g {B = B} p = SigStrNatS g B p
+-- NatStrNat strSynCCat g {X = X} p = NatStrNatS g X p
+-- IdStrNat strSynCCat g {A = A} {a = u} {b = v} p = IdStrNatS g A u _ _ v _ _ p
 
-uuStr strSynCCat = uuStrS
-uuStrₛ strSynCCat {X = X} = uuStrₛS _ X
-uuStr₁ strSynCCat {X = X} = uuStr₁S _ X 
+-- uuStrNat strSynCCat g p = {!!}
 
-piStr strSynCCat = piStrS
-piStrₛ strSynCCat {a = a} {b = b} = piStrₛS _ a _ _ b _ _
-piStr₁ strSynCCat {a = a} {b = b} = piStr₁S _ a _ _ b _ _
-lamStr strSynCCat = lamStrS
-lamStrₛ strSynCCat {B = B} {u = u} = lamStrₛS B u _ _
-lamStr₁ strSynCCat {B = B} {u = u} = lamStr₁S B u _ _
-appStr strSynCCat = appStrS
-appStrₛ strSynCCat {B = B} {f = f} {a = a} = appStrₛS B f _ _ a _ _
-appStr₁ strSynCCat {B = B} {f = f} {a = a} = appStr₁S B f _ _ a _ _
+-- piStrNat strSynCCat g p = piStrSNatS _ g _ _ _ _ _ _ p
+-- lamStrNat strSynCCat g {u} {us} p = {!lamStrNatS g u us p!}
+-- appStrNat strSynCCat g {B} {f} {fₛ} {f₁} {a} {aₛ} {a₁} p = {!appStrNatS g B f fₛ f₁ a aₛ a₁ p!}
 
-sigStr strSynCCat = sigStrS
-sigStrₛ strSynCCat {a = a} {b = b} = sigStrₛS _ a _ _ b _ _
-sigStr₁ strSynCCat {a = a} {b = b} = sigStr₁S _ a _ _ b _ _
-pairStr strSynCCat = pairStrS
-pairStrₛ strSynCCat {B = B} {a = a} {b = b} = pairStrₛS B a _ _ b _ _ 
-pairStr₁ strSynCCat {B = B} {a = a} {b = b} = pairStr₁S B a _ _ b _ _
-pr1Str strSynCCat = pr1StrS
-pr1Strₛ strSynCCat {B = B} {u = u} = pr1StrₛS B u _ _ 
-pr1Str₁ strSynCCat {B = B} {u = u} = pr1Str₁S B u _ _ 
-pr2Str strSynCCat = pr2StrS
-pr2Strₛ strSynCCat {B = B} {u = u} = pr2StrₛS B u _ _
-pr2Str₁ strSynCCat {B = B} {u = u} = pr2Str₁S B u _ _
+-- sigStrNat strSynCCat g p = {!!}
+-- pairStrNat strSynCCat g p = {!!}
+-- pr1StrNat strSynCCat g p = {!!}
+-- pr2StrNat strSynCCat g p = {!!}
 
-natStr strSynCCat = natStrS
-natStrₛ strSynCCat {X = X} = natStrₛS _ X
-natStr₁ strSynCCat {X = X} = natStr₁S _ X
-zeroStr strSynCCat = zeroStrS
-zeroStrₛ strSynCCat {X = X} = zeroStrₛS X
-zeroStr₁ strSynCCat {X = X} = zeroStr₁S X
-sucStr strSynCCat = sucStrS
-sucStrₛ strSynCCat {u = u} = sucStrₛS u _ _
-sucStr₁ strSynCCat {u = u} = sucStr₁S u _ _
+-- natStrNat strSynCCat g p = {!!}
+-- zeroStrNat strSynCCat g p = {!!}
+-- sucStrNat strSynCCat g p = {!!}
 
-idStr strSynCCat = idStrS
-idStrₛ strSynCCat {a = a} {u = u} {v = v} = idStrₛS _ a _ _ u _ _ v _ _ 
-idStr₁ strSynCCat {a = a} {u = u} {v = v} = idStr₁S _ a _ _ u _ _ v _ _
-reflStr strSynCCat = reflStrS
-reflStrₛ strSynCCat {A = A} {a = a} = reflStrₛS A a _ _
-reflStr₁ strSynCCat {A = A} {a = a} = reflStr₁S A a _ _
+-- idStrNat strSynCCat g p = {!!}
+-- reflStrNat strSynCCat g p = {!!}
 
-UUStrNat strSynCCat g {X = X} p = UUStrNatS g X p
-ElStrNat strSynCCat g {v} {vₛ} p = ElStrNatS g v _ _ p
-PiStrNat strSynCCat g {B = B} p = PiStrNatS g B p
-SigStrNat strSynCCat g {B = B} p = SigStrNatS g B p
-NatStrNat strSynCCat g {X = X} p = NatStrNatS g X p
-IdStrNat strSynCCat g {A = A} {a = u} {b = v} p = IdStrNatS g A u _ _ v _ _ p
-
-uuStrNat strSynCCat g p = {!!}
-
-piStrNat strSynCCat g p = {!!}
-lamStrNat strSynCCat g {u} {us} p = {!lamStrNatS g u us p!}
-appStrNat strSynCCat g {B} {f} {fₛ} {f₁} {a} {aₛ} {a₁} p = {!appStrNatS g B f fₛ f₁ a aₛ a₁ p!}
-
-sigStrNat strSynCCat g p = {!!}
-pairStrNat strSynCCat g p = {!!}
-pr1StrNat strSynCCat g p = {!!}
-pr2StrNat strSynCCat g p = {!!}
-
-natStrNat strSynCCat g p = {!!}
-zeroStrNat strSynCCat g p = {!!}
-sucStrNat strSynCCat g p = {!!}
-
-idStrNat strSynCCat g p = {!!}
-reflStrNat strSynCCat g p = {!!}
-
-betaPiStr strSynCCat {B = B} {u = u} {uₛ = uₛ} {u₁ = u₁} {a = a} {aₛ = aₛ} {a₁ = a₁} = {!betaPiStrS B u uₛ u₁ a aₛ a₁!}
-betaSig1Str strSynCCat = {!!}
-betaSig2Str strSynCCat = {!!}
-eluuStr strSynCCat = {!!}
-elpiStr strSynCCat = {!!}
-elsigStr strSynCCat = {!!}
-elnatStr strSynCCat = {!!}
-elidStr strSynCCat = {!!}
+-- betaPiStr strSynCCat {B = B} {u = u} {uₛ = uₛ} {u₁ = u₁} {a = a} {aₛ = aₛ} {a₁ = a₁} = {!betaPiStrS B u uₛ u₁ a aₛ a₁!}
+-- betaSig1Str strSynCCat = {!!}
+-- betaSig2Str strSynCCat = {!!}
+-- eluuStr strSynCCat = {!!}
+-- elpiStr strSynCCat = {!!}
+-- elsigStr strSynCCat = {!!}
+-- elnatStr strSynCCat = {!!}
+-- elidStr strSynCCat = {!!}
