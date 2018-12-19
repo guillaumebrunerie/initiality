@@ -122,9 +122,9 @@ idMor zero = ◇
 idMor (suc n) = weakenMor (idMor n) , var last
 
 insertMor : (k : Fin (suc m)) → TmExpr n  → Mor n m → Mor n (suc m)
-insertMor last u δ = δ , u
+insertMor last u δ = (δ , u)
 insertMor (prev ()) u ◇ 
-insertMor (prev k) u (δ , u') = insertMor k u δ  , u'
+insertMor (prev k) u (δ , u') = (insertMor k u δ  , u')
 
 weakenCommutesInsert : (k : Fin (suc m)) (l : Fin (suc n)) (u : TmExpr n) (δ : Mor n m) → insertMor k (weakenTm' l u) (weakenMor' l δ) ≡ weakenMor' l (insertMor k u δ)
 weakenCommutesInsert last l u ◇ = refl

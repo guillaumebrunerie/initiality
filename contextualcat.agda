@@ -343,7 +343,7 @@ record StructuredCCat : Set₁ where
 
     -- nat-elimStrNat
 
-    idStrNat : {n m : ℕ} (g : MorC n m) {i : ℕ} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i a aₛ a₁}
+    idStrNat : {i : ℕ} {n m : ℕ} (g : MorC n m)  {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i a aₛ a₁}
                                                 {v : MorC m (suc m)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i a aₛ a₁} (p : ∂₀ a ≡ ∂₁ g)
                                                 (let u₀ = is-section₀ uₛ u₁ ∙ ElStr= ∙ p) (let v₀ = is-section₀ vₛ v₁ ∙ ElStr= ∙ p)
              → starTm g (idStr i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₀ _ ∙ p) ≡ idStr i (starTm g a p) ssₛ (starTm₁ aₛ p a₁ ∙ UUStrNat g p ∙ ap (UUStr i) (! (ss₀ ∙ comp₀)))
