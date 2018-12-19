@@ -7,6 +7,7 @@ open import contextualcat
 module _ (C : StructuredCCat) where
 
 open StructuredCCat C
+open preStructuredCCat presC
 open CCat ccat renaming (Mor to MorC; id to idC)
 
 {- Partial interpretation of types and terms -}
