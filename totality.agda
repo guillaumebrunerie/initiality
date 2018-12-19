@@ -7,7 +7,8 @@ open import rules
 
 module _ (sC : StructuredCCat) where
 
-open StructuredCCat sC renaming (ccat to C)
+open StructuredCCat sC
+open preStructuredCCat presC renaming (ccat to C)
 open CCat C renaming (Mor to MorC; id to idC)
 open import partialinterpretation sC
 
