@@ -1,10 +1,11 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
-open import quotients
+open import typetheory
 open import syntx hiding (Mor)
 open import rules
 open import contextualcat
+open import quotients
 open import termmodel
 import partialinterpretation
 import totality

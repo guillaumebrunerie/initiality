@@ -1,6 +1,7 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
+open import typetheory
 open import syntx
 open import contextualcat
 

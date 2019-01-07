@@ -1,10 +1,11 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
-open import contextualcat
-open import quotients
+open import typetheory
 open import syntx
 open import rules
+open import contextualcat
+open import quotients
 
 open CCat hiding (Mor) renaming (id to idC)
 
