@@ -67,8 +67,8 @@ weakenVar' (prev k) last = last
 weakenVar' (prev k) (prev x) = prev (weakenVar' k x)
 
 
-weakenTm' : (k : Fin (suc n)) → TmExpr n → TmExpr (suc n)
-weakenTy' : (k : Fin (suc n)) → TyExpr n → TyExpr (suc n)
+weakenTm' : (k : Fin (suc n)) → TmExpr {s} n → TmExpr {s} (suc n)
+weakenTy' : (k : Fin (suc n)) → TyExpr {s} n → TyExpr {s} (suc n)
 
 weakenTy' k (uu i) = uu i
 weakenTy' k (el i v) = el i (weakenTm' k v)
