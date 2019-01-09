@@ -5,10 +5,9 @@ open import typetheory
 open import syntx
 open import contextualcat
 
-module _ (C : StructuredCCat) where
+module _ (sC : StructuredCCat) where
 
-open StructuredCCat C
-open preStructuredCCat presC
+open StructuredCCat sC
 open CCat ccat renaming (Mor to MorC; id to idC)
 
 {- Partial interpretation of types and terms -}

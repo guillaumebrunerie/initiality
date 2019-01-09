@@ -308,12 +308,12 @@ weakenMorCommutes {m = suc m} k (δ , u) rewrite weakenMorCommutes k δ | weaken
 
 {- Weakening commutes with total substitution -}
 
-weakenMorCommutesLemmaTy : (A : TyExpr (suc m)) (δ : Mor n m) (k : Fin (suc n)) → A [ weakenMor' (prev k) (weakenMor' last δ) , var last ]Ty ≡
-                                                                                  A [ weakenMor' last (weakenMor' k δ) , var last ]Ty
+weakenMorCommutesLemmaTy : (A : TyExpr (suc m)) (δ : Mor n m) (k : Fin (suc n)) → A [ weakenMor' (prev k) (weakenMor+ δ) ]Ty ≡
+                                                                                  A [ weakenMor+ (weakenMor' k δ) ]Ty
 weakenMorCommutesLemmaTy A δ k = ap (λ z → A [ z , var last ]Ty) (! (weakenMorCommutes k δ))
 
-weakenMorCommutesLemmaTm : (u : TmExpr (suc m)) (δ : Mor n m) (k : Fin (suc n)) → u [ weakenMor' (prev k) (weakenMor' last δ) , var last ]Tm ≡
-                                                                                  u [ weakenMor' last (weakenMor' k δ) , var last ]Tm
+weakenMorCommutesLemmaTm : (u : TmExpr (suc m)) (δ : Mor n m) (k : Fin (suc n)) → u [ weakenMor' (prev k) (weakenMor+ δ) ]Tm ≡
+                                                                                  u [ weakenMor+ (weakenMor' k δ) ]Tm
 weakenMorCommutesLemmaTm u δ k = ap (λ z → u [ z , var last ]Tm) (! (weakenMorCommutes k δ))
 
 generate-weaken[] : Name → Name → Name → TC ⊤
@@ -359,12 +359,12 @@ weaken[]Mor (θ , u) δ k rewrite weaken[]Mor θ δ k | weaken[]Tm u δ k = refl
 
 weakenTyInsertLemma : (k : Fin (suc n)) (A : TyExpr (suc n)) (δ : Mor m n) (t : TmExpr m)
   → weakenTy' (prev k) A [ weakenMor+ (insertMor k t δ) ]Ty ≡
-    weakenTy' (prev k) A [ insertMor k (weakenTm t) (weakenMor δ) , var last ]Ty
+    weakenTy' (prev k) A [ insertMor (prev k) (weakenTm t) (weakenMor+ δ) ]Ty
 weakenTyInsertLemma k A δ t = ap (λ z → weakenTy' (prev k) A [ z , var last ]Ty) (! (weakenCommutesInsert k last t δ))
 
 weakenTmInsertLemma : (k : Fin (suc n)) (u : TmExpr (suc n)) (δ : Mor m n) (t : TmExpr m)
   → weakenTm' (prev k) u [ weakenMor+ (insertMor k t δ) ]Tm ≡
-    weakenTm' (prev k) u [ insertMor k (weakenTm t) (weakenMor δ) , var last ]Tm
+    weakenTm' (prev k) u [ insertMor (prev k) (weakenTm t) (weakenMor+ δ) ]Tm
 weakenTmInsertLemma k u δ t = ap (λ z → weakenTm' (prev k) u [ z , var last ]Tm) (! (weakenCommutesInsert k last t δ))
 
 
@@ -463,7 +463,7 @@ generate-assoc : Name → Name → Name → TC ⊤
 generate-assoc []Ty-assoc []Tm-assoc []Var-assoc =
   generateClausewise []Ty-assoc []Tm-assoc
     (earg (var "θ") ∷ earg (var "δ") ∷ []) []
-    (λ l → def []Var-assoc (earg (var (l + 1) []) ∷ earg (var l []) ∷ earg (var 0 []) ∷ []))
+    (λ l → def []Var-assoc (earg (var 3 []) ∷ earg (var 2 []) ∷ earg (var 0 []) ∷ []))
     (λ l → apify (thing (earg (var (l + 1) [])) (earg (var l []))) l)
 
    where
