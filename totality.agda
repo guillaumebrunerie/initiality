@@ -9,8 +9,8 @@ open import contextualcat
 module _ (sC : StructuredCCat) where
 
 open StructuredCCat sC
-open preStructuredCCat presC renaming (ccat to C)
-open CCat C renaming (Mor to MorC; id to idC)
+open CCat ccat renaming (Mor to MorC; id to idC)
+
 open import partialinterpretation sC
 
 ap-irr-IdStr : {A A' : Ob (suc n)} (A= : A ≡ A') {u u' : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {uₛ' : is-section u'} {u₁' : ∂₁ u' ≡ A'} (u= : u ≡ u') {v v' : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ A} {vₛ' : is-section v'} {v₁' : ∂₁ v' ≡ A'} (v= : v ≡ v') → IdStr A u uₛ u₁ v vₛ v₁ ≡ IdStr A' u' uₛ' u₁' v' vₛ' v₁'
