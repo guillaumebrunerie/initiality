@@ -231,7 +231,62 @@ unquoteDecl ap-pr1-Tm = generate-ap (quote TmExpr.pr1) ap-pr1-Tm
 unquoteDecl ap-pr2-Tm = generate-ap (quote TmExpr.pr2) ap-pr2-Tm
 -- unquoteDecl ap-nat-elim-Tm = generate-ap (quote TmExpr.nat-elim) ap-nat-elim-Tm
 -- unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm
+unquoteDecl ap-el-Ty = generate-ap (quote TyExpr.el) ap-el-Ty
+unquoteDecl ap-id-Ty = generate-ap (quote TyExpr.id) ap-id-Ty
+unquoteDecl ap-id-Tm = generate-ap (quote TmExpr.id) ap-id-Tm
+unquoteDecl ap-suc-Tm = generate-ap (quote TmExpr.suc) ap-suc-Tm
+unquoteDecl ap-refl-Tm = generate-ap (quote TmExpr.refl) ap-refl-Tm
 
 iterate : ℕ → (List (Arg Term) → Term) → Term → Term
 iterate 0 f t = t
 iterate (suc n) f t = f (earg (iterate n f t) ∷ [])
+
+-- ≡R
+
+generate-typeR : ℕ → Name → Type → Type
+generate-typeR n s (pi (arg ai A) (abs x B)) =
+  pi (iarg (shift n A)) (abs x
+  (pi (iarg (shift (suc n) A)) (abs (x ++ₛ "'")
+  (pi (earg (def (quote _≡R_) (earg (var 1 []) ∷ earg (var 0 []) ∷ []))) (abs (x ++ₛ "⁼")
+  (generate-typeR (2 + n) s B))))))
+generate-typeR n s _ =
+  def (quote _≡R_) (earg (con s (iarg (var (half n * 3 + 1) []) ∷ iarg (var (half n * 3) []) ∷ make-args 2 n))
+                 ∷ earg (con s (iarg (var (half n * 3 + 1) []) ∷ iarg (var (half n * 3) []) ∷ make-args 1 n)) ∷ [])  where
+
+    make-args : ℕ → ℕ → List (Arg Term)
+    make-args k zero = []
+    make-args k (suc zero) = []
+    make-args k (suc (suc n)) = earg (var (half n * 3 + k) []) ∷ make-args k n
+
+
+
+generate-patternR : Type → List (Arg Pattern)
+generate-patternR (pi _ (abs _ B)) = earg (con (quote _≡R_.reflR) []) ∷ generate-patternR B
+generate-patternR _ = []
+
+generate-apR : Name → Name → TC ⊤
+generate-apR s res = do
+  pi A (abs x (pi B (abs y ts))) ← getType s
+    where _ → typeError (strErr "not a Pi" ∷ [])
+  _ ← declareDef (earg res) (pi A (abs x (pi B (abs y (generate-typeR 0 s ts)))))
+  _ ← defineFun res (clause (generate-patternR ts) (con (quote _≡R_.reflR) []) ∷ [])
+  return _
+
+
+unquoteDecl apR-var-Tm = generate-apR (quote TmExpr.var) apR-var-Tm
+unquoteDecl apR-pi-Ty = generate-apR (quote TyExpr.pi) apR-pi-Ty 
+unquoteDecl apR-sig-Ty = generate-apR (quote TyExpr.sig) apR-sig-Ty
+unquoteDecl apR-pi-Tm = generate-apR (quote TmExpr.pi) apR-pi-Tm
+unquoteDecl apR-lam-Tm = generate-apR (quote TmExpr.lam) apR-lam-Tm
+unquoteDecl apR-app-Tm = generate-apR (quote TmExpr.app) apR-app-Tm
+unquoteDecl apR-sig-Tm = generate-apR (quote TmExpr.sig) apR-sig-Tm
+unquoteDecl apR-pair-Tm = generate-apR (quote TmExpr.pair) apR-pair-Tm
+unquoteDecl apR-pr1-Tm = generate-apR (quote TmExpr.pr1) apR-pr1-Tm
+unquoteDecl apR-pr2-Tm = generate-apR (quote TmExpr.pr2) apR-pr2-Tm
+unquoteDecl apR-nat-elim-Tm = generate-apR (quote TmExpr.nat-elim) apR-nat-elim-Tm
+unquoteDecl apR-jj-Tm = generate-apR (quote TmExpr.jj) apR-jj-Tm
+unquoteDecl apR-el-Ty = generate-apR (quote TyExpr.el) apR-el-Ty
+unquoteDecl apR-id-Ty = generate-apR (quote TyExpr.id) apR-id-Ty
+unquoteDecl apR-id-Tm = generate-apR (quote TmExpr.id) apR-id-Tm
+unquoteDecl apR-suc-Tm = generate-apR (quote TmExpr.suc) apR-suc-Tm
+unquoteDecl apR-refl-Tm = generate-apR (quote TmExpr.refl) apR-refl-Tm
