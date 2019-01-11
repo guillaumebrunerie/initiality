@@ -219,7 +219,18 @@ unquoteDef corresponding-ap = iterateExpr corresponding-ap generate-ap
 apify : (Name → ℕ → ℕ → Arg Term) → (ℕ → Name → Term → Term)
 apify body l c tyC = def (lookup corresponding-ap c) (makeArgs body (l - 1) tyC)
 
+unquoteDecl ap-var-Tm = generate-ap (quote TmExpr.var) ap-var-Tm
 unquoteDecl ap-pi-Ty = generate-ap (quote TyExpr.pi) ap-pi-Ty
+unquoteDecl ap-sig-Ty = generate-ap (quote TyExpr.sig) ap-sig-Ty
+unquoteDecl ap-pi-Tm = generate-ap (quote TmExpr.pi) ap-pi-Tm
+unquoteDecl ap-lam-Tm = generate-ap (quote TmExpr.lam) ap-lam-Tm
+unquoteDecl ap-app-Tm = generate-ap (quote TmExpr.app) ap-app-Tm
+unquoteDecl ap-sig-Tm = generate-ap (quote TmExpr.sig) ap-sig-Tm
+unquoteDecl ap-pair-Tm = generate-ap (quote TmExpr.pair) ap-pair-Tm
+unquoteDecl ap-pr1-Tm = generate-ap (quote TmExpr.pr1) ap-pr1-Tm
+unquoteDecl ap-pr2-Tm = generate-ap (quote TmExpr.pr2) ap-pr2-Tm
+-- unquoteDecl ap-nat-elim-Tm = generate-ap (quote TmExpr.nat-elim) ap-nat-elim-Tm
+-- unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm
 
 iterate : ℕ → (List (Arg Term) → Term) → Term → Term
 iterate 0 f t = t
