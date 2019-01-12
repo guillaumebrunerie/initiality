@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import typetheory
@@ -111,7 +111,19 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ NatStr (∂₀ [u]))
   return (sucStr [u] (unbox [u]ₛ) (unbox [u]₁))
---⟦ nat-elim P x x₁ x₂ ⟧Tm X = {!!}
+⟦ natelim P dO dS u ⟧Tm X = do
+  [P] ← ⟦ P ⟧Ty (NatStr X)
+  [P]= ← assume (ft [P] ≡ NatStr X) -- always true, but we still have to assume it
+  [dO]  ← ⟦ dO ⟧Tm X
+  [dO]ₛ ← assume (is-section [dO])
+  [dO]₁ ← assume (∂₁ [dO] ≡ _)
+  [dS]  ← ⟦ dS ⟧Tm [P]
+  [dS]ₛ ← assume (is-section [dS])
+  [dS]₁ ← assume (∂₁ [dS] ≡ _)
+  [u]  ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ _)
+  return (natelimStr X [P] (unbox [P]=) [dO] (unbox [dO]ₛ) (unbox [dO]₁) [dS] (unbox [dS]ₛ) (unbox [dS]₁) [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ id i a u v ⟧Tm X = do
   [a] ← ⟦ a ⟧Tm X
   [a]ₛ ← assume (is-section [a])
@@ -129,6 +141,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ [A])
   return (reflStr [A] [u] (unbox [u]ₛ) (unbox [u]₁))
+⟦ jj A P d a b p ⟧Tm X = {!!}
 
 {- Partial interpretation of contexts and context morphisms -}
 
@@ -164,9 +177,10 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tmₛ (nat i) = natStrₛ
 ⟦⟧Tmₛ zero = zeroStrₛ
 ⟦⟧Tmₛ (suc u) = sucStrₛ
---⟦⟧Tmₛ (nat-elim P d0 dS u) = {!nat-elimStrₛ!}
+⟦⟧Tmₛ (natelim P d0 dS u) = natelimStrₛ
 ⟦⟧Tmₛ (id i a u v) = idStrₛ
 ⟦⟧Tmₛ (refl A u) = reflStrₛ
+⟦⟧Tmₛ (jj A P d a b p) = {!jjStrₛ!}
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 ⟦⟧Tm₀ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ∂₀ (⟦ u ⟧Tm X $ uᵈ) ≡ X
@@ -191,9 +205,10 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tm₀ (nat i) = natStr₀ _
 ⟦⟧Tm₀ zero = zeroStr₀ _
 ⟦⟧Tm₀ (suc u) = sucStr₀ _ ∙ ⟦⟧Tm₀ u
---⟦⟧Tm₀ (nat-elim P d0 dS u) = ?
+⟦⟧Tm₀ (natelim P d0 dS u) = natelimStr₀ _
 ⟦⟧Tm₀ (id i a u v) = idStr₀ _ ∙ ⟦⟧Tm₀ a
 ⟦⟧Tm₀ (refl A u) = reflStr₀ _ ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (jj A P d a b p) = {!jjStr₀ _ ∙ ?!}
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
 ⟦⟧Tm₁-ft u = ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u

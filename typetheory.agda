@@ -36,7 +36,7 @@ data TmExpr where
   nat : (i : ℕ) → TmExpr {↑ s} n
   zero : TmExpr {s} n
   suc : (u : TmExpr {s} n) → TmExpr {↑ s} n
-  nat-elim : (P : TyExpr {s} (suc n)) (d0 : TmExpr {s} n) (dS : TmExpr {s} (suc (suc n))) (u : TmExpr {s} n) → TmExpr {↑ s} n
+  natelim : (P : TyExpr {s} (suc n)) (d0 : TmExpr {s} n) (dS : TmExpr {s} (suc (suc n))) (u : TmExpr {s} n) → TmExpr {↑ s} n
 
   id : (i : ℕ) (a u v : TmExpr {s} n) → TmExpr {↑ s} n
   refl : (A : TyExpr {s} n) (u : TmExpr {s} n) → TmExpr {↑ s} n
