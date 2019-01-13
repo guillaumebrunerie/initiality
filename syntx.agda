@@ -376,7 +376,7 @@ decode (suc m) (suc n) c = apR suc (decode m n c)
 
 decode-encode : (m n : ℕ) → (p : m ≡R n) → decode m n (encode m n p) ≡R p
 decode-encode zero zero reflR = reflR
-decode-encode (suc m) (suc m) reflR {-rewrite decode-encode m m reflR-}= apR (apR suc) (decode-encode m m reflR)
+decode-encode (suc m) (suc m) reflR  apR (apR suc) (decode-encode m m reflR)
 
 encode-decode : (m n : ℕ) → (c : code m n) → encode m n (decode m n c) ≡R c
 encode-decode zero zero c = UnitR-is-Prop c
