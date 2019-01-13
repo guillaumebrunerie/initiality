@@ -322,6 +322,24 @@ respectsCtxExt r A {Aᵈ} rewrite ⟦⟧Ty-ft A {Aᵈ} = r , _ , refl
   (⟦⟧Tmᵈ r du ,
    ⟦⟧Tmₛ u ,
    (⟦⟧Tm₁ r du ∙ ap NatStr (! (⟦⟧Tm₀ u))) , tt)
+⟦⟧Tmᵈ r {u = natelim P dO dS u} (Natelim dP ddO ddS du) =
+  let Pᵈ = ⟦⟧Tyᵈ (respectsCtxExt r nat) dP in
+  let dSᵈ = ⟦⟧Tmᵈ (respectsCtxExt {Γ = _ , nat} (respectsCtxExt r nat) P {Pᵈ}) ddS in
+  let thing = ⟦subst⟧Tyᵈ (NatStr= ∙ ! (⟦⟧Ty-ft P {Aᵈ = Pᵈ})) (weakenTy' (prev last) P) (⟦weakenTy⟧ᵈ' (prev last) P Pᵈ refl (ap NatStr (! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)))) (suc (var last)) (tt , ssₛ , (ss₁' (id₁ ∙ ⟦⟧Ty-ft P) ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)) , tt) (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ ⟦⟧Ty-ft P)) in
+  (Pᵈ ,
+   ⟦⟧Ty-ft P ,
+   ⟦⟧Tmᵈ r ddO ,
+   ⟦⟧Tmₛ dO ,
+   (⟦⟧Tm₁ r ddO ∙ ⟦subst⟧Ty= NatStr= P Pᵈ zero tt zeroStr₁) ,
+   dSᵈ ,
+   ⟦⟧Tmₛ dS ,
+   (⟦⟧Tm₁ (respectsCtxExt {Γ = _ , nat} (respectsCtxExt r nat) P {Pᵈ}) {Aᵈ = ⟦weakenTy⟧ᵈ' last (substTy (weakenTy' (prev last) P) (suc (var last))) thing refl refl} ddS
+    ∙ ! (⟦weakenTy⟧=' last (substTy (weakenTy' (prev last) P) (suc (var last))) thing refl refl)
+    ∙ ap-irr (star _) (⟦subst⟧Ty= (NatStr= ∙ ! (⟦⟧Ty-ft P {Aᵈ = Pᵈ})) (weakenTy' (prev last) P) (⟦weakenTy⟧ᵈ' (prev last) P Pᵈ refl (ap NatStr (! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)))) (suc (var last)) (tt , ssₛ , (ss₁' (id₁ ∙ ⟦⟧Ty-ft P) ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)) , tt) (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ ⟦⟧Ty-ft P))
+      ∙ ap-irr (star _) (! (⟦weakenTy⟧=' (prev last) P Pᵈ refl (ap NatStr (! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁))))))) ,
+   ⟦⟧Tmᵈ r du ,
+   ⟦⟧Tmₛ u ,
+   (⟦⟧Tm₁ r du ∙ ! (⟦⟧Ty-ft P)) , tt)
 
 ⟦⟧Tmᵈ r {u = id i a u v} (IdUU da du dv) =
   (⟦⟧Tmᵈ r da ,

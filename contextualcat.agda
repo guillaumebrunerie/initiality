@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common hiding (_,_)
 
@@ -393,13 +393,20 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
   field
     natelimStr  : (X : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr X) (dO : MorC n (suc n)) (dOₛ : is-section dO) (dO₁ : ∂₁ dO ≡ star (zeroStr X) P (zeroStr₁ ∙ ! P=))
                    (dS : MorC (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section dS)
-                   (dS₁ : ∂₁ dS ≡ star (comp (qq (comp (pp (NatStr X)) (pp P) (pp₁ ∙ P= ∙ ! pp₀)) (NatStr X) (comp₁ ∙ pp₁))
-                                             (sucStr (ss (pp P)) ssₛ (ss₁' (pp₁ ∙ P=) ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
-                                             (sucStr₁ ∙ ! (NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)) ∙ ! qq₀))
-                                       P (comp₁ ∙ qq₁ ∙ ! P=))
+                   (dS₁ : ∂₁ dS ≡ star (pp P)
+                                       (star (sucStr (ss (id (ft P))) ssₛ (ss₁' (id₁ ∙ P=) ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
+                                             (star (qq (pp (NatStr X)) (NatStr X) pp₁) P (qq₁ ∙ ! P=))
+                                             (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ P= ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
+                                       (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀)))
                    (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ ft P) → MorC n (suc n)
     natelimStrₛ : ∀ {X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁} → is-section (natelimStr {n = n} X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
-    natelimStr₁ : {X : Ob n} {P : _} {P= : _} {dO : _} {dOₛ : _} {dO₁ : _} {dS : _} {dSₛ : _} {dS₁ : _} {u : _} {uₛ : _} {u₁ : _} → ∂₁ (natelimStr X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ star u P u₁
+    natelimStr₁ : ∀ {X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁} → ∂₁ (natelimStr {n = n} X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ star u P u₁
+
+  natelimStr₀ : ∀ {X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ} u₁ → ∂₀ (natelimStr {n = n} X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ X
+  natelimStr₀ {P= = P=} {uₛ = uₛ} u₁ = is-section₀ natelimStrₛ natelimStr₁ ∙ ft-star ∙ is-section₀ uₛ u₁ ∙ ap ft P= ∙ NatStr=
+
+  -- field
+  --   natelimStrNat : TODO
 
 record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl ccat ccatuu) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
@@ -448,21 +455,27 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
 --   open CCatwithrefl ccatrefl
 
 --   field
---     jjStr  : (A : Ob (suc n)) (P : Ob (suc (suc (suc (suc n))))) (P= : ft P ≡ IdStr (star (comp (pp A) (pp (star (pp A) A pp₁)) (pp₁ ∙ ft-star)) A (comp₁ ∙ pp₁))
---                                                                                     (ss (pp (star (pp A) A pp₁))) ssₛ (ss₁' (pp₁ ∙ ft-star ∙ pp₀))
---                                                                                     (ss (id (star (pp A) A pp₁))) ssₛ (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl ∙ ! (star-comp pp₁)))
---              (d : MorC (suc n) (suc (suc n))) (dₛ : is-section d) (d₁ : ∂₁ d ≡ star (comp (qq (ss (id A)) (ft P) (ss₁' id₁ ∙ ! (ap ft P= ∙ IdStr= ∙ ft-star ∙ comp₀ ∙ pp₀ ∙ ap2-irr star (! (id-left' pp₀)) refl)))
---                                                                                           (reflStr (star (pp A) A pp₁) (ss (id A)) ssₛ (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl)) (reflStr₁ ∙ ! (ap2-irr star refl P= ∙ IdStrNat _ (ft-star ∙ comp₀ ∙ pp₀ ∙ {!? ∙ ! ss₁!}) ∙ {!!}) ∙ ! qq₀))
---                                                                                     P (comp₁ ∙ qq₁))
+--     jjStr  : (A : Ob (suc n)) (P : Ob (suc (suc (suc (suc n)))))
+--              (P= : ft P ≡ IdStr (star (comp (pp A) (pp (star (pp A) A pp₁)) (pp₁ ∙ ft-star)) A (comp₁ ∙ pp₁))
+--                                 (ss (pp (star (pp A) A pp₁))) ssₛ (ss₁' (pp₁ ∙ ft-star ∙ pp₀))
+--                                 (ss (id (star (pp A) A pp₁))) ssₛ (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl ∙ ! (star-comp pp₁)))
+--              (d : MorC (suc n) (suc (suc n))) (dₛ : is-section d)
+--              (d₁ : ∂₁ d ≡ star (comp (qq (ss (id A)) (ft P) (ss₁' id₁ ∙ ! (ap ft P= ∙ IdStr= ∙ ft-star ∙ comp₀ ∙ pp₀ ∙ ap2-irr star (! (id-left' pp₀)) refl)))
+--                                      (reflStr (star (pp A) A pp₁) (ss (id A)) ssₛ (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl))
+--                                      (reflStr₁ ∙ ! (ap2-irr star refl P= ∙ IdStrNat _ (ft-star ∙ comp₀ ∙ pp₀ ∙ ap2-irr star (! (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁)) (! id₁) ∙ ! ss₁) ∙ {!!}) ∙ ! qq₀))
+--                                P (comp₁ ∙ qq₁))
 --              (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A)
 --              (b : MorC n (suc n)) (bₛ : is-section b) (b₁ : ∂₁ b ≡ A)
 --              (p : MorC n (suc n)) (pₛ : is-section p) (p₁ : ∂₁ p ≡ IdStr A a aₛ a₁ b bₛ b₁)
 --              → MorC n (suc n)
---     jjStrₛ : ∀ {A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁} → is-section (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
---     jjStr₁ : ∀ {A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁} → ∂₁ (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ star (comp (qq (comp (qq a (star (pp A) A pp₁) (a₁ ∙ ! pp₀ ∙ ! ft-star))
---                                                                                         b (b₁ ∙ (! star-id ∙ ap2-irr star (ap id (! (is-section₀ aₛ a₁)) ∙ ! aₛ ∙ ap2-irr comp (ap pp a₁) refl) refl) ∙ star-comp pp₁ ∙ ! qq₀))
---                                                                                   (ft P) (comp₁ ∙ qq₁ ∙ ! pp₀ ∙ ! comp₀ ∙ ! ft-star ∙ ! IdStr= ∙ ! (ap ft P=)))
---                                                                               p (p₁ ∙ {!!} ∙ ! qq₀)) P (comp₁ ∙ qq₁)
+--     jjStrₛ : ∀ {A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁}
+--            → is-section (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
+--     jjStr₁ : ∀ {A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁}
+--            → ∂₁ (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
+--              ≡ star (comp (qq (comp (qq a (star (pp A) A pp₁) (a₁ ∙ ! pp₀ ∙ ! ft-star))
+--                                     b (b₁ ∙ (! star-id ∙ ap2-irr star (ap id (! (is-section₀ aₛ a₁)) ∙ ! aₛ ∙ ap2-irr comp (ap pp a₁) refl) refl) ∙ star-comp pp₁ ∙ ! qq₀))
+--                               (ft P) (comp₁ ∙ qq₁ ∙ ! pp₀ ∙ ! comp₀ ∙ ! ft-star ∙ ! IdStr= ∙ ! (ap ft P=)))
+--                           p (p₁ ∙ {!!} ∙ ! qq₀)) P (comp₁ ∙ qq₁)
 
 
 
@@ -486,9 +499,10 @@ record StructuredCCat : Set₁ where
     ccatnat : CCatwithnat ccat ccatUU
     ccatzero : CCatwithzero ccat ccatNat
     ccatsuc : CCatwithsuc ccat ccatNat
-    -- ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
+    ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
     ccatid : CCatwithid ccat ccatUU ccatEl
     ccatrefl : CCatwithrefl ccat ccatId
+    -- ccatjj : CCatwithjj ccat ccatId ccatrefl
 
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatUU public
@@ -508,7 +522,7 @@ record StructuredCCat : Set₁ where
   open CCatwithnat ccatnat public
   open CCatwithzero ccatzero public
   open CCatwithsuc ccatsuc public
-  -- open CCatwithnatelim ccatnatelim public
+  open CCatwithnatelim ccatnatelim public
   open CCatwithid ccatid public
   open CCatwithrefl ccatrefl public
   -- open CCatwithjj ccatjj public
