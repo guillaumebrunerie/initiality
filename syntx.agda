@@ -107,326 +107,23 @@ substTm u t = u [ idMor _ , t ]Tm
 
 {- Weakening commutes with weakening -}
 
--- This is rather technical because the induction hypothesis doesn’t typecheck without a lot of
--- transports everywhere. Additionally, we are using relevant equality here as we need to transport
--- into sets.
-
-n+0 : (n : ℕ) → (n + 0) ≡R n
-n+0 0 = reflR
-n+0 (suc n) = apR suc (n+0 n)
-
-n+suc : (n m : ℕ) → (n + suc m) ≡R suc (n + m)
-n+suc 0 m = reflR
-n+suc (suc n) m = apR suc (n+suc n m)
-
-trFin : (n ≡R m) → Fin n → Fin m
-trFin reflR x = x
-
-prev^ : (m : ℕ) → Fin (suc n) → Fin (suc (n + m))
-prev^ {n = n} zero k = trFin (apR suc (!R (n+0 n))) k
-prev^ {n = n} (suc m) k = trFin (apR suc (!R (n+suc n m))) (prev (prev^ m k))
-
-trTyExpr : (n ≡R m) → TyExpr {s} n → TyExpr {s} m
-trTyExpr reflR x = x
-
-FTy : (n m u : ℕ) (k : Fin (suc n)) (A : TyExpr {s} (suc (n + m))) (p : u ≡R suc (n + m)) → Prop
-FTy n m u k A p =
-  weakenTy' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m last)))
-            (weakenTy' (trFin (apR suc (!R p)) (prev (prev^ m k))) (trTyExpr (!R p) A)) ≡
-  weakenTy' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m (prev k))))
-            (weakenTy' (trFin (apR suc (!R p)) (prev (prev^ m last))) (trTyExpr ((!R p)) A))
-
-trFTy : (n m u : ℕ) (k : Fin (suc n)) (A : TyExpr {s} (suc (n + m))) (p : u ≡R suc (n + m))
-      → FTy {s} n m u k A p → FTy {s} n m (suc (n + m)) k A reflR
-trFTy n m u k A reflR x = x
-
-trTmExpr : (n ≡R m) → TmExpr {s} n → TmExpr {s} m
-trTmExpr reflR x = x
-
-FTm : (n m u : ℕ) (k : Fin (suc n)) (A : TmExpr {s} (suc (n + m))) (p : u ≡R suc (n + m)) → Prop
-FTm n m u k A p =
-  weakenTm' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m last)))
-            (weakenTm' (trFin (apR suc (!R p)) (prev (prev^ m k))) (trTmExpr (!R p) A)) ≡
-  weakenTm' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m (prev k))))
-            (weakenTm' (trFin (apR suc (!R p)) (prev (prev^ m last))) (trTmExpr ((!R p)) A))
-
-trFTm : (n m u : ℕ) (k : Fin (suc n)) (A : TmExpr {s} (suc (n + m))) (p : u ≡R suc (n + m))
-      → FTm {s} n m u k A p → FTm {s} n m (suc (n + m)) k A reflR
-trFTm n m u k A reflR x = x
-
-FVar : (n m u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡R suc (n + m)) → Prop
-FVar n m u k A p =
-  weakenVar' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m last)))
-             (weakenVar' (trFin (apR suc (!R p)) (prev (prev^ m k))) (trFin (!R p) A)) ≡
-  weakenVar' (trFin (apR suc (!R (apR suc p))) (prev (prev^ m (prev k))))
-             (weakenVar' (trFin (apR suc (!R p)) (prev (prev^ m last))) (trFin ((!R p)) A))
-
-trFVar : (n m u : ℕ) (k : Fin (suc n)) (A : Fin (suc (n + m))) (p : u ≡R suc (n + m))
-       → FVar n m u k A p → FVar n m (suc (n + m)) k A reflR
-trFVar n m u k A reflR x = x
+-- For this we first translate from Fin to a sig type of bounded ℕ's and show the results for this.
+-- This is because this type is better behaved for dealing with relevant equalties.
 
 
-weakenCommutesTy'old : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {s} (n + m))
-                  → weakenTy' (prev^ m last) (weakenTy' (prev^ m k) A)
-                  ≡ weakenTy' (prev^ m (prev k)) (weakenTy' (prev^ m last) A)
-weakenCommutesTy+'old : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {s} (suc (n + m)))
-                   → FTy n m (suc (n + m)) k A reflR
--- weakenCommutesTy+++' : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TyExpr {s} (suc (suc (suc (n + m)))))
---                    → FTy ? ? (suc (suc (suc (n + m)))) k A reflR
-
-weakenCommutesTm+'old : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {s} (suc (n + m)))
-                   → FTm n m (suc (n + m)) k A reflR
-weakenCommutesTm'old : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : TmExpr {s} (n + m))
-                  → weakenTm' (prev^ m last) (weakenTm' (prev^ m k) A)
-                  ≡ weakenTm' (prev^ m (prev k)) (weakenTm' (prev^ m last) A)
-
-weakenCommutesVar'old : {n : ℕ} (m : ℕ) (k : Fin (suc n)) (A : Fin (n + m))
-                   → weakenVar' (prev^ m last) (weakenVar' (prev^ m k) A)
-                   ≡ weakenVar' (prev^ m (prev k)) (weakenVar' (prev^ m last) A)
-
-
--- weakenCommutesTy+++' {n = n} m k A =
---   trFTy n m (n + suc m) k A (n+suc n m) (weakenCommutesTy' (suc (suc (suc m))) k (trTyExpr (!R (n+suc n m)) A))
-
-weakenCommutesTy+'old {n = n} m k A =
-  trFTy n m (n + suc m) k A (n+suc n m) (weakenCommutesTy'old (suc m) k (trTyExpr (!R (n+suc n m)) A))
-
-weakenCommutesTy'old m k (uu i) = refl
-weakenCommutesTy'old m k (el i v) rewrite weakenCommutesTm'old m k v = refl
-weakenCommutesTy'old m k (pi A B) rewrite weakenCommutesTy'old m k A
-                                     | weakenCommutesTy+'old m k B = refl
-weakenCommutesTy'old m k (sig A B) rewrite weakenCommutesTy'old m k A
-                                      | weakenCommutesTy+'old m k B = refl
-weakenCommutesTy'old m k nat = refl
-weakenCommutesTy'old m k (id A u v) rewrite weakenCommutesTy'old m k A
-                                       | weakenCommutesTm'old m k u
-                                       | weakenCommutesTm'old m k v = refl
-
-weakenCommutesTm+'old {n = n} m k A =
-  trFTm n m (n + suc m) k A (n+suc n m) (weakenCommutesTm'old (suc m) k (trTmExpr (!R (n+suc n m)) A))
-
-weakenCommutesTm'old m k (var x) rewrite weakenCommutesVar'old m k x = refl
-weakenCommutesTm'old m k (uu i) = refl
-weakenCommutesTm'old m k (pi i a b)
-  rewrite weakenCommutesTm'old m k a
-        | weakenCommutesTm+'old m k b
-  = refl
-weakenCommutesTm'old m k (lam A B u)
-  rewrite weakenCommutesTy'old m k A
-        | weakenCommutesTy+'old m k B
-        | weakenCommutesTm+'old m k u
-  = refl
-weakenCommutesTm'old m k (app A B f a)
-  rewrite weakenCommutesTy'old m k A
-        | weakenCommutesTy+'old m k B
-        | weakenCommutesTm'old m k f
-        | weakenCommutesTm'old m k a
-  = refl
-weakenCommutesTm'old m k (sig i a b)
-  rewrite weakenCommutesTm'old m k a
-        | weakenCommutesTm+'old m k b
-  = refl
-weakenCommutesTm'old m k (pair A B a b)
-  rewrite weakenCommutesTy'old m k A
-        | weakenCommutesTy+'old m k B
-        | weakenCommutesTm'old m k a
-        | weakenCommutesTm'old m k b
-  = refl
-weakenCommutesTm'old m k (pr1 A B u)
-  rewrite weakenCommutesTy'old m k A
-        | weakenCommutesTy+'old m k B
-        | weakenCommutesTm'old m k u
-  = refl
-weakenCommutesTm'old m k (pr2 A B u)
-  rewrite weakenCommutesTy'old m k A
-        | weakenCommutesTy+'old m k B
-        | weakenCommutesTm'old m k u
-  = refl
-weakenCommutesTm'old m k (nat i) = refl
-weakenCommutesTm'old m k zero = refl
-weakenCommutesTm'old m k (suc u)
-  rewrite weakenCommutesTm'old m k u
-  = refl
-weakenCommutesTm'old m k (natelim P d0 dS u)
-  = {!!}
-weakenCommutesTm'old m k (id i a u v)
-  rewrite weakenCommutesTm'old m k a
-        | weakenCommutesTm'old m k u
-        | weakenCommutesTm'old m k v
-  = refl
-weakenCommutesTm'old m k (refl A u)
-  rewrite weakenCommutesTy'old m k A
-        | weakenCommutesTm'old m k u
-  = refl
-weakenCommutesTm'old m k (jj A P d a b p) = {!!}
-
-weakenCommutesVar'old {n = n} zero k x with n + 0 | n+0 n
-... | _ | reflR = refl
-weakenCommutesVar'old {n = n} (suc m) k x with n + suc m | n+suc n m
-... | _ | reflR with x
-...   | last = refl
-...   | prev x' = ap prev (weakenCommutesVar'old m k x')
-
-
-GTy : (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr {s} n) (p : u ≡R n) → Prop
-GTy n u k A p =
-  weakenTy' (trFin (apR suc (!R (apR suc p))) last) (weakenTy' (trFin (apR suc (!R p)) k) (trTyExpr (!R p) A)) ≡
-  weakenTy' (trFin (apR suc (!R (apR suc p))) (prev k)) (weakenTy' (trFin (apR suc (!R p)) last) (trTyExpr ((!R p)) A))
-
-trGTy : {s : Size} (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TyExpr n) (p : u ≡R n) → GTy {s} n u k A p → GTy {s} n n k A reflR
-trGTy n u k A reflR x = x
-
-weakenTyCommutesold : {n : ℕ} (k : Fin (suc n)) (A : TyExpr n) → weakenTy' last (weakenTy' k A) ≡ weakenTy' (prev k) (weakenTy' last A)
-weakenTyCommutesold {n = n} k A = trGTy n (n + 0) k A (n+0 n) (weakenCommutesTy'old 0 k (trTyExpr (!R (n+0 n)) A))
-
-GTm : (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr {s} n) (p : u ≡R n) → Prop
-GTm n u k A p =
-  weakenTm' (trFin (apR suc (!R (apR suc p))) last) (weakenTm' (trFin (apR suc (!R p)) k) (trTmExpr (!R p) A)) ≡
-  weakenTm' (trFin (apR suc (!R (apR suc p))) (prev k)) (weakenTm' (trFin (apR suc (!R p)) last) (trTmExpr ((!R p)) A))
-
-trGTm : {s : Size} (n : ℕ) (u : ℕ) (k : Fin (suc n)) (A : TmExpr n) (p : u ≡R n) → GTm {s} n u k A p → GTm {s} n n k A reflR
-trGTm n u k A reflR x = x
-
-weakenTmCommutesold : {n : ℕ} (k : Fin (suc n)) (A : TmExpr n) → weakenTm' last (weakenTm' k A) ≡ weakenTm' (prev k) (weakenTm' last A)
-weakenTmCommutesold {n = n} k A = trGTm n (n + 0) k A (n+0 n) (weakenCommutesTm'old 0 k (trTmExpr (!R (n+0 n)) A))
-
-lemma : suc k < suc n → k < n
-lemma {k} {suc k} <-refl = <-refl
-lemma {k} {zero} (<-suc ())
-lemma {k} {suc n} (<-suc le) = <-suc (lemma le)
-
-
-lemma2 : k < n → suc k < suc n
-lemma2 {k} {suc k} <-refl = <-refl
-lemma2 {k} {suc n} (<-suc le) = <-suc (lemma2 le)
-
-<-= : k < m → m ≡R n → k < n
-<-= le reflR = le
-
-insertFin : (k : ΣS ℕ (λ k → k < n)) → Fin n
-insertFin {n = zero} (k , ())
-insertFin {suc n} (zero , le) = last
-insertFin {suc n} (suc k , le) = prev (insertFin (k , lemma le)) 
-
-exportFin : Fin n → ΣS ℕ (λ k → k < n)
-exportFin last = 0 , suc-pos _
-exportFin (prev k) = (suc (fst (exportFin k)) , lemma2 (snd (exportFin k)))
+var-ref-eqR : {k k' : Fin n} → _≡R_ {A = TmExpr n} (var k) (var k') → k ≡R k'
+var-ref-eqR reflR = reflR
 
 weakenTy'sig : (k : ΣS ℕ (λ k → k < suc n)) (A : ΣSS ℕ (TyExpr {s})) (p : fst A ≡R n) → ΣSS ℕ (TyExpr {s})
-weakenTy'sig {n = n} (k , le) (l , A) p  = (suc l , weakenTy' (insertFin (k , <-= le (apR suc (!R p)))) A)
+weakenTy'sig {n = n} (k , le) (l , A) p  = (suc l , weakenTy' (Bounded-Fin (k , <-= le (apR suc (!R p)))) A)
 
 weakenTm'sig : (k : ΣS ℕ (λ k → k < suc n)) (u : ΣSS ℕ (TmExpr {s})) (p : fst u ≡R n) → ΣSS ℕ (TmExpr {s})
-weakenTm'sig {n = n} (k , le) (l , u) p = (suc l , weakenTm' (insertFin (k , <-= le (apR suc (!R p)))) u)
-
-transport : ∀ {l} {B : ℕ → Set l} {n n' : ℕ} (b : B n) → n ≡R n' → B n'
-transport b reflR = b
-
-transport-ap : {B : ℕ → Set} {n n' : ℕ} (b : B (suc n)) → (p : n ≡R n') → transport {B = B} b (apR suc p) ≡R transport b p 
-transport-ap b reflR = reflR
-
-_R∙_ : ∀ {l} {A : Set l} {a b c : A} →  a ≡R b → b ≡R c → a ≡R c
-_R∙_ reflR reflR = reflR
-
-infixr 4 _R∙_
-
-data UnitR : Set where
-  starU : UnitR
-
-UnitR-is-Prop : (a : UnitR) → starU ≡R a
-UnitR-is-Prop starU = reflR
-
-data EmptyR : Set where
-  
-
-code : ℕ → ℕ → Set
-code zero zero = UnitR
-code zero (suc n) = EmptyR
-code (suc m) zero = EmptyR
-code (suc m) (suc n) = code m n
-
-code-is-prop : (m n : ℕ) → (p q : code m n) → p ≡R q
-code-is-prop zero zero starU starU = reflR
-code-is-prop zero (suc n) () ()
-code-is-prop (suc m) zero () ()
-code-is-prop (suc m) (suc n) p q = code-is-prop m n p q
-
-r : (n : ℕ) → code n n
-r zero = starU
-r (suc n) = r n
-
-encode : (m n : ℕ) → m ≡R n → code m n
-encode m n p = transport {B = code m} (r m) p
-
-decode : (m n : ℕ) → code m n → m ≡R n
-decode zero zero c = reflR
-decode zero (suc n) ()
-decode (suc m) zero () 
-decode (suc m) (suc n) c = apR suc (decode m n c)
-
-decode-encode : (m n : ℕ) → (p : m ≡R n) → decode m n (encode m n p) ≡R p
-decode-encode zero zero reflR = reflR
-decode-encode (suc m) (suc m) reflR  apR (apR suc) (decode-encode m m reflR)
-
-encode-decode : (m n : ℕ) → (c : code m n) → encode m n (decode m n c) ≡R c
-encode-decode zero zero c = UnitR-is-Prop c
-encode-decode zero (suc n) () 
-encode-decode (suc m) zero ()
-encode-decode (suc m) (suc n) c = transport-ap (r m) (decode m n c) R∙ encode-decode m n c
-
-nat-is-set : (m n : ℕ) → (p q : m ≡R n) → p ≡R q
-nat-is-set m n p q = !R (decode-encode m n p) R∙ apR (decode m n) (code-is-prop m n (encode m n p) (encode m n q)) R∙ decode-encode m n q
-
-axiomK-nat : (n : ℕ) (p : n ≡R n) → p ≡R reflR
-axiomK-nat n p = nat-is-set n n p reflR
-
-
-characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → ΣSS._,_ {B = B} n b ≡R (n' , b') → ΣSS (n ≡R n') (λ p → transport {B = B} b p ≡R b')
-characΣSS= reflR = (reflR , reflR)
-
-projEqΣSSR : {B : ℕ → Set} {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
-projEqΣSSR {B = B} {n} {b} {b'} p  = apR (transport {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 
-
--- postulate
---   projEqΣSS : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → ΣSS._,_ {B = B} n b ≡ (n , b') → b ≡ b'
-
-
-ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' →  ΣSS._,_ {B = B} n b ≡R (n , b')
-ΣSS= reflR = reflR
-
-suc^ : (m : ℕ) → ℕ → ℕ
-suc^ zero n = n
-suc^ (suc m) n = suc (suc^ m n)
-
-suc^+ : suc^ m (suc n) ≡R suc (n + m)
-suc^+ {zero} {n} = apR suc (!R (n+0 n))
-suc^+ {suc m} {n} = apR suc (suc^+ R∙ !R (n+suc _ _))
-
-suc^lemma : k < n → suc^ m k < suc^ m n
-suc^lemma {k} {n} {zero} le = le
-suc^lemma {k} {n} {suc m} le = lemma2 (suc^lemma le)
-
-lastsig : ΣS ℕ (λ k → k < suc n)
-lastsig = (zero , suc-pos _)
-
-prevsig : (k : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
-prevsig (n , le) = (suc n , lemma2 le)
-
-
+weakenTm'sig {n = n} (k , le) (l , u) p = (suc l , weakenTm' (Bounded-Fin (k , <-= le (apR suc (!R p)))) u)
 weakenVar'sig : (k : ΣS ℕ (λ k → k < suc n)) (x : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
-weakenVar'sig (zero , kle) (x , xle) = (suc x , lemma2 xle)
+weakenVar'sig (zero , kle) (x , xle) = (suc x , suc-pres-< xle)
 weakenVar'sig (suc k , kle) (zero , xle) = (zero , <-suc xle)
 weakenVar'sig {n = zero} (suc k , kle) (suc x , ())
-weakenVar'sig {n = suc n} (suc k , kle) (suc x , xle)  = prevsig (weakenVar'sig (k , lemma kle) (x , lemma xle))
-
-prev^sig : (m : ℕ) → (k : ΣS ℕ (λ k → k < suc n)) → ΣS ℕ (λ k → k < suc (n + m))
-prev^sig {n = n} m (k , le) = (suc^ m k , <-= (suc^lemma le) suc^+)
-
-
-lemma5 : _≡R_ {A = ℕ} (suc m) (suc n) → m ≡R n
-lemma5 reflR = reflR
-
-lemma6 : {k k' : Fin n} → _≡R_ {A = TmExpr n} (var k) (var k') → k ≡R k'
-lemma6 reflR = reflR
+weakenVar'sig {n = suc n} (suc k , kle) (suc x , xle)  = prevsig (weakenVar'sig (k , suc-ref-< kle) (x , suc-ref-< xle))
 
 weakenCommutesTy' : {n : ℕ} (m : ℕ) (k : ΣS ℕ (λ k → k < suc n)) (A : ΣSS ℕ (TyExpr {s})) (p : fst A ≡R (n + m))
                   → weakenTy'sig (prev^sig m lastsig)  (weakenTy'sig (prev^sig m k) A p) (apR suc p) ≡R weakenTy'sig (prev^sig m (prevsig k)) (weakenTy'sig (prev^sig m lastsig) A  p) (apR suc p)
@@ -440,79 +137,74 @@ weakenCommutesVar' : {s : Size} {n : ℕ} (m : ℕ) (u : ℕ) (k : ΣS ℕ (λ k
 
 
 weakenCommutesTy' m k (l , uu i) p = reflR
-weakenCommutesTy' m k (l , el i v) p = ΣSS= (apR-el-Ty reflR (projEqΣSSR (weakenCommutesTm' m k (l , v) p)))
-weakenCommutesTy' m k  (l , pi A B) p = ΣSS= (apR-pi-Ty (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))))
-weakenCommutesTy' m k (l , sig A B) p = ΣSS= (apR-sig-Ty (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))))
+weakenCommutesTy' m k (l , el i v) p = ΣSS= (apR-el-Ty reflR (sndΣSSℕR (weakenCommutesTm' m k (l , v) p)))
+weakenCommutesTy' m k  (l , pi A B) p = ΣSS= (apR-pi-Ty (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))))
+weakenCommutesTy' m k (l , sig A B) p = ΣSS= (apR-sig-Ty (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))))
 weakenCommutesTy' m k (l , nat) p = reflR
-weakenCommutesTy' m (k , le) (l , id A u v) p = ΣSS= (apR-id-Ty (projEqΣSSR (weakenCommutesTy' m (k , le) (l , A) p)) (projEqΣSSR (weakenCommutesTm' m (k , le) (l , u) p)) (projEqΣSSR (weakenCommutesTm' m (k , le) (l , v) p)))
+weakenCommutesTy' m (k , le) (l , id A u v) p = ΣSS= (apR-id-Ty (sndΣSSℕR (weakenCommutesTy' m (k , le) (l , A) p)) (sndΣSSℕR (weakenCommutesTm' m (k , le) (l , u) p)) (sndΣSSℕR (weakenCommutesTm' m (k , le) (l , v) p)))
 
 weakenCommutesTm' m k (l , var x) p = weakenCommutesVar' m l k x p
 weakenCommutesTm' m k (l , uu i) p = reflR
-weakenCommutesTm' m k (l , pi i a b) p = ΣSS= (apR-pi-Tm reflR (projEqΣSSR (weakenCommutesTm' m k (l , a) p)) (projEqΣSSR (weakenCommutesTm' (suc m) k (suc l , b) (apR suc p R∙ !R (n+suc _ m)))))
-weakenCommutesTm' m k (l , lam A B u) p = ΣSS= (apR-lam-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' (suc m) k (suc l , u) (apR suc p R∙ !R (n+suc _ m)))))
-weakenCommutesTm' m k (l , app A B f a) p = ΣSS= (apR-app-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' m k (l , f) p)) (projEqΣSSR (weakenCommutesTm' m k (l , a) p)))
-weakenCommutesTm' m k (l , sig i a b) p = ΣSS= (apR-sig-Tm reflR (projEqΣSSR (weakenCommutesTm' m k (l , a) p)) (projEqΣSSR (weakenCommutesTm' (suc m) k (suc l , b) (apR suc p R∙ !R (n+suc _ m)))))
-weakenCommutesTm' m k (l , pair A B a b) p = ΣSS= (apR-pair-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' m k (l , a) p)) (projEqΣSSR (weakenCommutesTm' m k (l , b) p)))
-weakenCommutesTm' m k (l , pr1 A B u) p = ΣSS= (apR-pr1-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' m k (l , u) p)))
-weakenCommutesTm' m k (l , pr2 A B u) p = ΣSS= (apR-pr2-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' m k (l , u) p)))
+weakenCommutesTm' m k (l , pi i a b) p = ΣSS= (apR-pi-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k (l , a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l , b) (apR suc p R∙ n+suc _ m))))
+weakenCommutesTm' m k (l , lam A B u) p = ΣSS= (apR-lam-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l , u) (apR suc p R∙ n+suc _ m))))
+weakenCommutesTm' m k (l , app A B f a) p = ΣSS= (apR-app-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k (l , f) p)) (sndΣSSℕR (weakenCommutesTm' m k (l , a) p)))
+weakenCommutesTm' m k (l , sig i a b) p = ΣSS= (apR-sig-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k (l , a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l , b) (apR suc p R∙ n+suc _ m))))
+weakenCommutesTm' m k (l , pair A B a b) p = ΣSS= (apR-pair-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k (l , a) p)) (sndΣSSℕR (weakenCommutesTm' m k (l , b) p)))
+weakenCommutesTm' m k (l , pr1 A B u) p = ΣSS= (apR-pr1-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k (l , u) p)))
+weakenCommutesTm' m k (l , pr2 A B u) p = ΣSS= (apR-pr2-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k (l , u) p)))
 weakenCommutesTm' m k (l , nat i) p = reflR
 weakenCommutesTm' m k (l , zero) p = reflR
-weakenCommutesTm' m k (l , suc x) p = ΣSS= (apR-suc-Tm (projEqΣSSR (weakenCommutesTm' m k (l , x) p)))
-weakenCommutesTm' m k (l , natelim P d0 dS u) p = ΣSS= (apR-natelim-Tm (projEqΣSSR (weakenCommutesTy' (suc m) k (suc l , P) (apR suc p R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' m k (l , d0) p)) (projEqΣSSR (weakenCommutesTm' (suc (suc m)) k ((suc (suc l) , dS)) (apR suc (apR suc p) R∙ apR suc (!R (n+suc _ m)) R∙ !R (n+suc _ (suc m))))) (projEqΣSSR (weakenCommutesTm' m k (l , u) p)))
-weakenCommutesTm' m k (l , id i a u v) p = ΣSS= (apR-id-Tm reflR (projEqΣSSR (weakenCommutesTm' m k (l , a) p)) (projEqΣSSR (weakenCommutesTm' m k (l , u) p)) (projEqΣSSR (weakenCommutesTm' m k (l , v) p)))
-weakenCommutesTm' m k (l , refl A a) p = ΣSS= (apR-refl-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) p)) (projEqΣSSR (weakenCommutesTm' m k (l , a) p)))
-weakenCommutesTm' m k (l , jj A P d a b p) q = ΣSS= (apR-jj-Tm (projEqΣSSR (weakenCommutesTy' m k (l , A) q)) (projEqΣSSR (weakenCommutesTy' (suc (suc (suc m))) k (suc (suc (suc l)) , P)  (apR suc (apR suc (apR suc q)) R∙ apR suc (apR suc (!R (n+suc _ m))) R∙ apR suc (!R (n+suc _ (suc m))) R∙ !R (n+suc _ (suc (suc m)))))) (projEqΣSSR (weakenCommutesTm' (suc m) k (suc l , d) (apR suc q R∙ !R (n+suc _ m)))) (projEqΣSSR (weakenCommutesTm' m k (l , a) q)) (projEqΣSSR (weakenCommutesTm' m k (l , b) q)) (projEqΣSSR (weakenCommutesTm' m k (l , p) q)))
+weakenCommutesTm' m k (l , suc x) p = ΣSS= (apR-suc-Tm (sndΣSSℕR (weakenCommutesTm' m k (l , x) p)))
+weakenCommutesTm' m k (l , natelim P d0 dS u) p = ΣSS= (apR-natelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l , P) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k (l , d0) p)) (sndΣSSℕR (weakenCommutesTm' (suc (suc m)) k ((suc (suc l) , dS)) (apR suc (apR suc p) R∙  apR suc (n+suc _ m) R∙ n+suc _ (suc m)))) (sndΣSSℕR (weakenCommutesTm' m k (l , u) p)))
+weakenCommutesTm' m k (l , id i a u v) p = ΣSS= (apR-id-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k (l , a) p)) (sndΣSSℕR (weakenCommutesTm' m k (l , u) p)) (sndΣSSℕR (weakenCommutesTm' m k (l , v) p)))
+weakenCommutesTm' m k (l , refl A a) p = ΣSS= (apR-refl-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) p)) (sndΣSSℕR (weakenCommutesTm' m k (l , a) p)))
+weakenCommutesTm' m k (l , jj A P d a b p) q = ΣSS= (apR-jj-Tm (sndΣSSℕR (weakenCommutesTy' m k (l , A) q)) (sndΣSSℕR (weakenCommutesTy' (suc (suc (suc m))) k (suc (suc (suc l)) , P) (apR suc (apR suc (apR suc q)) R∙ (apR suc (apR suc (n+suc _ m)) R∙ apR suc (n+suc _ (suc m))) R∙ (n+suc _ (suc (suc m)))))) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l , d) (apR suc q R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k (l , a) q)) (sndΣSSℕR (weakenCommutesTm' m k (l , b) q)) (sndΣSSℕR (weakenCommutesTm' m k (l , p) q)))
 
 
 weakenCommutesVar' zero u (k , le) x p = reflR
 weakenCommutesVar' (suc m) (suc u) (k , le) last p = reflR
-weakenCommutesVar' (suc m) (suc u) (k , le) (prev x) p = ΣSS= (apR-var-Tm (apR prev (lemma6 (projEqΣSSR (weakenCommutesVar' m u (k , le) x (lemma5 (p R∙ (n+suc _ m))))))))
+weakenCommutesVar' (suc m) (suc u) (k , le) (prev x) p = ΣSS= (apR-var-Tm (apR prev (var-ref-eqR (sndΣSSℕR (weakenCommutesVar' m u (k , le) x (suc-inj (p R∙ !R (n+suc _ m))))))))
 
 weakenTyCommutessig : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (A : ΣSS ℕ (TyExpr {s})) (p : fst A ≡R n)
   → weakenTy'sig lastsig (weakenTy'sig k A p) (apR suc p) ≡R weakenTy'sig (prevsig k) (weakenTy'sig lastsig A p) (apR suc p)
-weakenTyCommutessig k A p = weakenCommutesTy' zero k A (p R∙ !R (n+0 _))
+weakenTyCommutessig k A p = weakenCommutesTy' zero k A (p R∙ n+0 _)
 
 weakenTmCommutessig : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (u : ΣSS ℕ (TmExpr {s})) (p : fst u ≡R n)
   → weakenTm'sig lastsig (weakenTm'sig k u p) (apR suc p) ≡R weakenTm'sig (prevsig k) (weakenTm'sig lastsig u p) (apR suc p)
-weakenTmCommutessig k u p = weakenCommutesTm' zero k u (p R∙ !R (n+0 _))
+weakenTmCommutessig k u p = weakenCommutesTm' zero k u (p R∙ n+0 _)
 
+BFFB : (k : Fin n) → k ≡R Bounded-Fin (Fin-Bounded k)
+BFFB last = reflR
+BFFB (prev k) = apR prev (BFFB k)
 
+Sig-Fin-leftTy : {n : ℕ} (k : Fin (suc n)) (A : TyExpr {s} n) → weakenTy' last (weakenTy' k A) ≡R snd (weakenTy'sig lastsig (weakenTy'sig (Fin-Bounded k) (n , A) reflR) reflR)
+Sig-Fin-leftTy last A = reflR
+Sig-Fin-leftTy (prev k) A = apR (λ z → weakenTy' last (weakenTy' (prev z) A)) (BFFB k)
 
-
-insertexport : (k : Fin n) → k ≡R insertFin (exportFin k)
-insertexport last = reflR
-insertexport (prev k) = apR prev (insertexport k)
-
-lemma3Ty : {n : ℕ} (k : Fin (suc n)) (A : TyExpr {s} n) → weakenTy' last (weakenTy' k A) ≡R snd (weakenTy'sig lastsig (weakenTy'sig (exportFin k) (n , A) reflR) reflR)
-lemma3Ty last A = reflR
-lemma3Ty (prev k) A = apR (λ z → weakenTy' last (weakenTy' (prev z) A)) (insertexport k)
-
-lemma4Ty : {n : ℕ} (k : Fin (suc n)) (A : TyExpr {s} n) → snd (weakenTy'sig (prevsig (exportFin k)) (weakenTy'sig lastsig (n , A) reflR) reflR) ≡R weakenTy' (prev k) (weakenTy' last A)
-lemma4Ty last A = reflR
-lemma4Ty (prev k) A = apR (λ z → weakenTy' (prev (prev z)) (weakenTy' last A)) (!R (insertexport k))
+Sig-Fin-rightTy : {n : ℕ} (k : Fin (suc n)) (A : TyExpr {s} n) → snd (weakenTy'sig (prevsig (Fin-Bounded k)) (weakenTy'sig lastsig (n , A) reflR) reflR) ≡R weakenTy' (prev k) (weakenTy' last A)
+Sig-Fin-rightTy last A = reflR
+Sig-Fin-rightTy (prev k) A = apR (λ z → weakenTy' (prev (prev z)) (weakenTy' last A)) (!R (BFFB k))
 
 weakenTyCommutes : {n : ℕ} (k : Fin (suc n)) (A : TyExpr n) → weakenTy' last (weakenTy' k A) ≡ weakenTy' (prev k) (weakenTy' last A)
-weakenTyCommutes {n = n} k A = squash≡ (lemma3Ty k A R∙ projEqΣSSR (weakenTyCommutessig (exportFin k) (n , A) reflR) R∙ lemma4Ty k A)
+weakenTyCommutes {n = n} k A = squash≡ (Sig-Fin-leftTy k A R∙ sndΣSSℕR (weakenTyCommutessig (Fin-Bounded k) (n , A) reflR) R∙ Sig-Fin-rightTy k A)
 
-lemma3Tm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr {s} n) → weakenTm' last (weakenTm' k A) ≡R snd (weakenTm'sig lastsig (weakenTm'sig (exportFin k) (n , A) reflR) reflR)
-lemma3Tm last A = reflR
-lemma3Tm (prev k) A = apR (λ z → weakenTm' last (weakenTm' (prev z) A)) (insertexport k)
+Sig-Fin-leftTm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr {s} n) → weakenTm' last (weakenTm' k A) ≡R snd (weakenTm'sig lastsig (weakenTm'sig (Fin-Bounded k) (n , A) reflR) reflR)
+Sig-Fin-leftTm last A = reflR
+Sig-Fin-leftTm (prev k) A = apR (λ z → weakenTm' last (weakenTm' (prev z) A)) (BFFB k)
 
-lemma4Tm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr {s} n) → snd (weakenTm'sig (prevsig (exportFin k)) (weakenTm'sig lastsig (n , A) reflR) reflR) ≡R weakenTm' (prev k) (weakenTm' last A)
-lemma4Tm last A = reflR
-lemma4Tm (prev k) A = apR (λ z → weakenTm' (prev (prev z)) (weakenTm' last A)) (!R (insertexport k))
+Sig-Fin-rightTm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr {s} n) → snd (weakenTm'sig (prevsig (Fin-Bounded k)) (weakenTm'sig lastsig (n , A) reflR) reflR) ≡R weakenTm' (prev k) (weakenTm' last A)
+Sig-Fin-rightTm last A = reflR
+Sig-Fin-rightTm (prev k) A = apR (λ z → weakenTm' (prev (prev z)) (weakenTm' last A)) (!R (BFFB k))
 
 weakenTmCommutes : {n : ℕ} (k : Fin (suc n)) (A : TmExpr n) → weakenTm' last (weakenTm' k A) ≡ weakenTm' (prev k) (weakenTm' last A)
-weakenTmCommutes {n = n} k A = squash≡ (lemma3Tm k A R∙ projEqΣSSR (weakenTmCommutessig (exportFin k) (n , A) reflR) R∙ lemma4Tm k A)
+weakenTmCommutes {n = n} k A = squash≡ (Sig-Fin-leftTm k A R∙ sndΣSSℕR (weakenTmCommutessig (Fin-Bounded k) (n , A) reflR) R∙ Sig-Fin-rightTm k A)
 
 weakenMorCommutes : (k : Fin (suc n)) (δ : Mor n m) → weakenMor' last (weakenMor' k δ) ≡ weakenMor' (prev k) (weakenMor' last δ)
 weakenMorCommutes {m = zero} k ◇ = refl
 weakenMorCommutes {m = suc m} k (δ , u) rewrite weakenMorCommutes k δ | weakenTmCommutes k u = refl
 
-postulate
-  weakenTyCommutesprev : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (suc n)) → weakenTy' (prev last) (weakenTy' (prev k) A) ≡ weakenTy' (prev (prev k)) (weakenTy' (prev last) A)
 
-{- Weakening commutes with total substitution -}
+-- {- Weakening commutes with total substitution -}
 
 weakenMor+^ : (k : ℕ) → Mor n m → Mor (k + n) (k + m)
 weakenMor+^ zero δ = δ

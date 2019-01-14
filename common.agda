@@ -11,11 +11,25 @@ open import Agda.Builtin.Size public
 data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
   reflR : a ≡R a
 
+
+_R∙_ : ∀ {l} {A : Set l} {a b c : A} →  a ≡R b → b ≡R c → a ≡R c
+_R∙_ reflR reflR = reflR
+
+infixr 4 _R∙_
+
 !R : {A : Set} {a a' : A} → a ≡R a' → a' ≡R a
 !R reflR = reflR
 
 apR : {A B : Set} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
 apR f reflR = reflR
+
+
+transportR : ∀ {l} {B : ℕ → Set l} {n n' : ℕ} (b : B n) → n ≡R n' → B n'
+transportR b reflR = b
+
+transportR-apR : {B : ℕ → Set} {n n' : ℕ} (b : B (suc n)) → (p : n ≡R n') → transportR {B = B} b (apR suc p) ≡R transportR b p 
+transportR-apR b reflR = reflR
+
 
 
 {- Rewriting -}
@@ -58,6 +72,7 @@ open ΣSS public
 
 infixr 4 _,_
 
+
 _×_ : (A B : Prop) → Prop
 A × B = Σ A (λ _ → B)
 
@@ -65,6 +80,24 @@ infixr 42 _×_
 
 record Unit : Prop where
   constructor tt
+
+
+data UnitR : Set where
+  starU : UnitR
+
+UnitR-contr : (a : UnitR) → starU ≡R a
+UnitR-contr starU = reflR
+
+data EmptyR : Set where
+  
+
+characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → ΣSS._,_ {B = B} n b ≡R (n' , b') → ΣSS (n ≡R n') (λ p → transportR {B = B} b p ≡R b')
+characΣSS= reflR = (reflR , reflR)
+
+
+ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' →  ΣSS._,_ {B = B} n b ≡R (n , b')
+ΣSS= reflR = reflR
+
 
 
 {- Prop-valued equality -}
@@ -114,6 +147,8 @@ suc n -F' prev k = n -F' k
 
 _-F_ : (n : ℕ) (k : Fin n) → ℕ
 n -F k = suc (n -F' prev k)
+
+
 
 {- Monads -}
 
@@ -180,14 +215,31 @@ postulate
 variable
   {n n' m k l} : ℕ
 
-{- Well-founded induction on ℕ -}
+{- Well-founded induction on ℕ and connection to Fin -}
 
 data _<_ : ℕ → ℕ → Prop where
  <-refl : n < suc n
  <-suc : n < m → n < suc m
 
+
+
 data Acc (n : ℕ) : Prop where
   acc : ({k : ℕ} → (k < n) → Acc k) → Acc n
+
+
+suc-ref-< : suc k < suc n → k < n
+suc-ref-< {k} {suc k} <-refl = <-refl
+suc-ref-< {k} {zero} (<-suc ())
+suc-ref-< {k} {suc n} (<-suc le) = <-suc (suc-ref-< le)
+
+suc-pres-< : k < n → suc k < suc n
+suc-pres-< {k} {suc k} <-refl = <-refl
+suc-pres-< {k} {suc n} (<-suc le) = <-suc (suc-pres-< le)
+
+
+<-= : k < m → m ≡R n → k < n
+<-= le reflR = le
+
 
 <-+ : (m : ℕ) → m + n ≡ k → n < suc k
 <-+ zero refl = <-refl
@@ -200,6 +252,23 @@ data Acc (n : ℕ) : Prop where
 suc-pos : (n : ℕ) → 0 < suc n
 suc-pos zero = <-refl
 suc-pos (suc n) = <-suc (suc-pos n)
+
+Bounded-Fin : (k : ΣS ℕ (λ k → k < n)) → Fin n
+Bounded-Fin {n = zero} (k , ())
+Bounded-Fin {suc n} (zero , le) = last
+Bounded-Fin {suc n} (suc k , le) = prev (Bounded-Fin (k , suc-ref-< le)) 
+
+Fin-Bounded : Fin n → ΣS ℕ (λ k → k < n)
+Fin-Bounded last = 0 , suc-pos _
+Fin-Bounded (prev k) = (suc (fst (Fin-Bounded k)) , suc-pres-< (snd (Fin-Bounded k)))
+
+
+lastsig : ΣS ℕ (λ k → k < suc n)
+lastsig = (zero , suc-pos _)
+
+prevsig : (k : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
+prevsig (n , le) = (suc n , suc-pres-< le)
+
 
 WO-Nat : (n : ℕ) → Acc n
 WO-lemma : (n k : ℕ) → (k < n) → Acc k
@@ -238,3 +307,84 @@ _ ≡⟨ p1 ⟩ p2 = p1 ∙ p2
 
 _∎ : ∀ {i} {A : Set i} (x : A) → x ≡ x
 _∎ _ = refl
+
+{- Some results about natural numbers -}
+
+
+n+0 : (n : ℕ) → n ≡R (n + zero)
+n+0 0 = reflR
+n+0 (suc n) = apR suc (n+0 n)
+
+n+suc : (n m : ℕ) → suc (n + m) ≡R (n + suc m)
+n+suc 0 m = reflR
+n+suc (suc n) m = apR suc (n+suc n m)
+
+
+suc-inj : _≡R_ {A = ℕ} (suc m) (suc n) → m ≡R n
+suc-inj reflR = reflR
+
+
+suc^ : (m : ℕ) → ℕ → ℕ
+suc^ zero n = n
+suc^ (suc m) n = suc (suc^ m n)
+
+suc^+ : suc^ m (suc n) ≡R suc (n + m)
+suc^+ {zero} {n} = apR suc (n+0 n)
+suc^+ {suc m} {n} = apR suc (suc^+ R∙ n+suc _ _)
+
+suc^-pres-< : k < n → suc^ m k < suc^ m n
+suc^-pres-< {k} {n} {zero} le = le
+suc^-pres-< {k} {n} {suc m} le = suc-pres-< (suc^-pres-< le)
+
+prev^sig : (m : ℕ) → (k : ΣS ℕ (λ k → k < suc n)) → ΣS ℕ (λ k → k < suc (n + m))
+prev^sig {n = n} m (k , le) = (suc^ m k , <-= (suc^-pres-< le) suc^+)
+
+
+
+-- standaard code-decode proof that nat is a set
+
+
+code : ℕ → ℕ → Set
+code zero zero = UnitR
+code zero (suc n) = EmptyR
+code (suc m) zero = EmptyR
+code (suc m) (suc n) = code m n
+
+code-is-prop : (m n : ℕ) → (p q : code m n) → p ≡R q
+code-is-prop zero zero starU starU = reflR
+code-is-prop zero (suc n) () ()
+code-is-prop (suc m) zero () ()
+code-is-prop (suc m) (suc n) p q = code-is-prop m n p q
+
+r : (n : ℕ) → code n n
+r zero = starU
+r (suc n) = r n
+
+encode : (m n : ℕ) → m ≡R n → code m n
+encode m n p = transportR {B = code m} (r m) p
+
+decode : (m n : ℕ) → code m n → m ≡R n
+decode zero zero c = reflR
+decode zero (suc n) ()
+decode (suc m) zero () 
+decode (suc m) (suc n) c = apR suc (decode m n c)
+
+decode-encode : (m n : ℕ) → (p : m ≡R n) → decode m n (encode m n p) ≡R p
+decode-encode zero zero reflR = reflR
+decode-encode (suc m) (suc m) reflR = apR (apR suc) (decode-encode m m reflR)
+
+encode-decode : (m n : ℕ) → (c : code m n) → encode m n (decode m n c) ≡R c
+encode-decode zero zero c = UnitR-contr c
+encode-decode zero (suc n) () 
+encode-decode (suc m) zero ()
+encode-decode (suc m) (suc n) c = transportR-apR (r m) (decode m n c) R∙ encode-decode m n c
+
+nat-is-set : (m n : ℕ) → (p q : m ≡R n) → p ≡R q
+nat-is-set m n p q = !R (decode-encode m n p) R∙ apR (decode m n) (code-is-prop m n (encode m n p) (encode m n q)) R∙ decode-encode m n q
+
+axiomK-nat : (n : ℕ) (p : n ≡R n) → p ≡R reflR
+axiomK-nat n p = nat-is-set n n p reflR
+
+--This allows one to proof the following about sigma types where the first component is a ℕ
+sndΣSSℕR : {B : ℕ → Set} {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
+sndΣSSℕR {B = B} {n} {b} {b'} p  = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 
