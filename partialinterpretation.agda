@@ -10,6 +10,38 @@ module _ (sC : StructuredCCat) where
 open StructuredCCat sC
 open CCat ccat renaming (Mor to MorC; id to idC)
 
+
+-- ap-irr-IdStr : {A A' : Ob (suc n)} (A= : A ≡ A') {u u' : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {uₛ' : is-section u'} {u₁' : ∂₁ u' ≡ A'} (u= : u ≡ u') {v v' : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ A} {vₛ' : is-section v'} {v₁' : ∂₁ v' ≡ A'} (v= : v ≡ v') → IdStr A u uₛ u₁ v vₛ v₁ ≡ IdStr A' u' uₛ' u₁' v' vₛ' v₁'
+-- ap-irr-IdStr refl refl refl = refl
+
+ap-irr-lamStr : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → lamStr {n = n} B u uₛ u₁ ≡ lamStr B' u' uₛ' u₁'
+ap-irr-lamStr refl refl = refl
+
+ap-irr-appStr : {n : ℕ} {B B' : _} (B= : B ≡ B') {f f' : _} (f= : f ≡ f') {fₛ : _} {fₛ' : _} {f₁ : _} {f₁' : _} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → appStr {n = n} B f fₛ f₁ a aₛ a₁ ≡ appStr B' f' fₛ' f₁' a' aₛ' a₁'
+ap-irr-appStr refl refl refl = refl
+
+ap-irr-piStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b= : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → piStr {n = n} i a aₛ a₁ b bₛ b₁ ≡ piStr i a' aₛ' a₁' b' bₛ' b₁'
+ap-irr-piStr refl refl = refl
+
+ap-irr-sigStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b= : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → sigStr {n = n} i a aₛ a₁ b bₛ b₁ ≡ sigStr i a' aₛ' a₁' b' bₛ' b₁'
+ap-irr-sigStr refl refl = refl
+
+ap-irr-pairStr : {n : ℕ} {B B' : _} (B= : B ≡ B') {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b= : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → pairStr {n = n} B a aₛ a₁ b bₛ b₁ ≡ pairStr B' a' aₛ' a₁' b' bₛ' b₁'
+ap-irr-pairStr refl refl refl = refl
+
+ap-irr-pr1Str : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr1Str {n = n} B u uₛ u₁ ≡ pr1Str B' u' uₛ' u₁'
+ap-irr-pr1Str refl refl = refl
+
+ap-irr-pr2Str : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} B u uₛ u₁ ≡ pr2Str B' u' uₛ' u₁'
+ap-irr-pr2Str refl refl = refl
+
+ap-irr-idStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v= : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
+ap-irr-idStr refl refl refl = refl
+
+ap-irr-reflStr : {n : ℕ} {a a' : _} (a= : a ≡ a') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → reflStr {n = n} a u uₛ u₁ ≡ reflStr {n = n} a' u' uₛ' u₁'
+ap-irr-reflStr refl refl = refl
+
+
 {- Partial interpretation of types and terms -}
 
 ⟦_⟧Ty : TyExpr n → (X : Ob n) → Partial (Ob (suc n))
@@ -141,9 +173,25 @@ open CCat ccat renaming (Mor to MorC; id to idC)
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ [A])
   return (reflStr [A] [u] (unbox [u]ₛ) (unbox [u]₁))
-⟦ jj A P d a b p ⟧Tm X = {!!}
+⟦ jj A P d a b p ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
+  [P] ← ⟦ P ⟧Ty (IdStr (star (pp (star (pp [A]) [A] pp₁)) (star (pp [A]) [A] pp₁) pp₁) (ss (pp (star (pp [A]) [A] pp₁))) ssₛ (ss₁' (pp₁ ∙ ft-star ∙ pp₀) ∙ star-comp pp₁) (ss (idC (star (pp [A]) [A] pp₁))) ssₛ (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl)) 
+  [P]= ← assume (ft [P] ≡ _)
+  [d] ← ⟦ d ⟧Tm [A]
+  [d]ₛ ← assume (is-section [d])
+  [d]₁ ← assume (∂₁ [d] ≡ _)
+  [a] ← ⟦ a ⟧Tm X
+  [a]ₛ ← assume (is-section [a])
+  [a]₁ ← assume (∂₁ [a] ≡ [A])
+  [b] ← ⟦ b ⟧Tm X
+  [b]ₛ ← assume (is-section [b])
+  [b]₁ ← assume (∂₁ [b] ≡ [A])
+  [p] ← ⟦ p ⟧Tm X
+  [p]ₛ ← assume (is-section [p])
+  [p]₁ ← assume (∂₁ [p] ≡ IdStr [A] [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
+  return (jjStr [A] [P] (unbox [P]=) [d] (unbox [d]ₛ) (unbox [d]₁) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁) [p] (unbox [p]ₛ) (unbox [p]₁))
 
-{- Partial interpretation of contexts and context morphisms -}
+-- {- Partial interpretation of contexts and context morphisms -}
 
 ⟦_⟧Ctx : (Γ : Ctx n) → Partial (Ob n)
 ⟦ ◇ ⟧Ctx = return pt
@@ -180,7 +228,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tmₛ (natelim P d0 dS u) = natelimStrₛ
 ⟦⟧Tmₛ (id i a u v) = idStrₛ
 ⟦⟧Tmₛ (refl A u) = reflStrₛ
-⟦⟧Tmₛ (jj A P d a b p) = {!jjStrₛ!}
+⟦⟧Tmₛ (jj A P d a b p) = jjStrₛ
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 ⟦⟧Tm₀ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ∂₀ (⟦ u ⟧Tm X $ uᵈ) ≡ X
@@ -208,7 +256,7 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 ⟦⟧Tm₀ (natelim P d0 dS u) = natelimStr₀ _
 ⟦⟧Tm₀ (id i a u v) = idStr₀ _ ∙ ⟦⟧Tm₀ a
 ⟦⟧Tm₀ (refl A u) = reflStr₀ _ ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₀ (jj A P d a b p) = {!jjStr₀ _ ∙ ?!}
+⟦⟧Tm₀ (jj A P d a b p) = jjStr₀ _ ∙ ⟦⟧Ty-ft A
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
 ⟦⟧Tm₁-ft u = ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u

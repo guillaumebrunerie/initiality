@@ -3,13 +3,13 @@
 open import Agda.Builtin.Reflection public
 open import Agda.Builtin.Unit public
 open import Agda.Builtin.String public renaming (primStringAppend to _++ₛ_)
-open import Agda.Builtin.Sigma public renaming (Σ to ΣR)
+--open import Agda.Builtin.Sigma public renaming (Σ to ΣR)
 
 open import common
 open import typetheory
 
 _×R_ : (A B : Set) → Set
-A ×R B = ΣR A (λ _ → B)
+A ×R B = ΣSS A (λ _ → B)
 
 instance
   TCMonad : Monad {ℓ = lzero} TC
@@ -118,7 +118,7 @@ applyToFresh f hint s = do
 
 listify : List (Name ×R Name) → Term
 listify [] = con (quote []) []
-listify ((s , t) ∷ l) = con (quote _∷_) (earg (con (quote ΣR._,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
+listify ((s , t) ∷ l) = con (quote _∷_) (earg (con (quote ΣSS._,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
 
 iterateExpr : Name → (Name → Name → TC ⊤) → TC ⊤
 iterateExpr s f = do
@@ -128,7 +128,7 @@ iterateExpr s f = do
 
 Ty?Tm : Name → Name → Name → Name
 Ty?Tm (quote TyExpr) TyFun TmFun = TyFun
-Ty?Tm (quote TmExpr) TyFun TmFun = TmFun
+Ty?Tm (quote TmExpr) TyFun TmFun = TmFun 
 Ty?Tm _ _ _ = quote ERROR
 
 generateClausewise : Name → Name → List (Arg Pattern) → List (Arg Pattern) → (ℕ → Term) → (ℕ → Name → Term → Term) → TC ⊤
@@ -159,11 +159,11 @@ generateClausewise funTy funTm preArgs postArgs varCase TmTyCase = (do
 -- var+extra varCase l = def varCase (earg (var 0 []) ∷ [])
 
 depth : Arg Term → ℕ
-depth (arg _ (con _ (n ∷ _))) = suc (depth n)
+depth (arg _ (con _ (n ∷ _))) =  suc (depth n)
 depth _ = zero
 
 makeArgs : (Name → ℕ → ℕ → Arg Term) → (ℕ → Type → List (Arg Term))
-makeArgs body n (pi (arg i (def T (_ ∷ k ∷ _))) (abs s B)) =
+makeArgs body n (pi (arg i (def T (k ∷ _))) (abs s B)) =
   body T n (depth k) ∷ makeArgs body (n - 1) B
 makeArgs body n (pi (arg (arg-info visible _) _) (abs s B)) =
   earg (con (quote _≡_.refl) []) ∷ makeArgs body (n - 1) B
@@ -171,7 +171,7 @@ makeArgs body n (pi _ (abs s B)) = makeArgs body (n - 1) B
 makeArgs body n _ = []
 
 makeArgs' : ℕ → (Name → ℕ → ℕ → Arg Term) → (ℕ → Type → List (Arg Term))
-makeArgs' shift body n (pi (arg i (def T (_ ∷ k ∷ _))) (abs s B)) =
+makeArgs' shift body n (pi (arg i (def T (k ∷ _))) (abs s B)) =
   body T n (depth k) ∷ makeArgs' shift body (n - 1) B
 makeArgs' shift body n (pi (arg (arg-info visible _) _) (abs s B)) =
   earg (var (n + shift) []) ∷ makeArgs' shift body (n - 1) B
@@ -193,8 +193,8 @@ generate-type n s (pi (arg ai A) (abs x B)) =
   (pi (earg (def (quote _≡_) (earg (var 1 []) ∷ earg (var 0 []) ∷ []))) (abs (x ++ₛ "⁼")
   (generate-type (2 + n) s B))))))
 generate-type n s _ =
-  def (quote _≡_) (earg (con s (iarg (var (half n * 3 + 1) []) ∷ iarg (var (half n * 3) []) ∷ make-args 2 n))
-                 ∷ earg (con s (iarg (var (half n * 3 + 1) []) ∷ iarg (var (half n * 3) []) ∷ make-args 1 n)) ∷ [])  where
+  def (quote _≡_) (earg (con s (iarg (var (half n * 3) []) ∷ make-args 2 n))
+                 ∷ earg (con s (iarg (var (half n * 3) []) ∷ make-args 1 n)) ∷ [])  where
 
     make-args : ℕ → ℕ → List (Arg Term)
     make-args k zero = []
@@ -207,18 +207,20 @@ generate-pattern _ = []
 
 generate-ap : Name → Name → TC ⊤
 generate-ap s res = do
-  pi A (abs x (pi B (abs y ts))) ← getType s
-    where _ → typeError (strErr "not a Pi" ∷ [])
-  _ ← declareDef (earg res) (pi A (abs x (pi B (abs y (generate-type 0 s ts)))))
+  pi A (abs y ts) ← getType s
+      where _ → typeError (strErr "not a Pi" ∷ [])
+  _ ← declareDef (earg res) (pi A (abs y (generate-type 0 s ts)))
   _ ← defineFun res (clause (generate-pattern ts) (con (quote _≡_.refl) []) ∷ [])
   return _
-
+ 
 corresponding-ap : List (Name ×R Name)
 unquoteDef corresponding-ap = iterateExpr corresponding-ap generate-ap
 
 apify : (Name → ℕ → ℕ → Arg Term) → (ℕ → Name → Term → Term)
 apify body l c tyC = def (lookup corresponding-ap c) (makeArgs body (l - 1) tyC)
 
+
+unquoteDecl ap-uu-Tm = generate-ap (quote TmExpr.uu) ap-uu-Tm
 unquoteDecl ap-var-Tm = generate-ap (quote TmExpr.var) ap-var-Tm
 unquoteDecl ap-pi-Ty = generate-ap (quote TyExpr.pi) ap-pi-Ty
 unquoteDecl ap-sig-Ty = generate-ap (quote TyExpr.sig) ap-sig-Ty
@@ -229,9 +231,9 @@ unquoteDecl ap-sig-Tm = generate-ap (quote TmExpr.sig) ap-sig-Tm
 unquoteDecl ap-pair-Tm = generate-ap (quote TmExpr.pair) ap-pair-Tm
 unquoteDecl ap-pr1-Tm = generate-ap (quote TmExpr.pr1) ap-pr1-Tm
 unquoteDecl ap-pr2-Tm = generate-ap (quote TmExpr.pr2) ap-pr2-Tm
--- unquoteDecl ap-nat-elim-Tm = generate-ap (quote TmExpr.nat-elim) ap-nat-elim-Tm
--- unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm
-unquoteDecl ap-el-Ty = generate-ap (quote TyExpr.el) ap-el-Ty
+unquoteDecl ap-nat-elim-Tm = generate-ap (quote TmExpr.natelim) ap-nat-elim-Tm
+unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm 
+unquoteDecl ap-el-Ty = generate-ap (quote TyExpr.el) ap-el-Ty 
 unquoteDecl ap-id-Ty = generate-ap (quote TyExpr.id) ap-id-Ty
 unquoteDecl ap-id-Tm = generate-ap (quote TmExpr.id) ap-id-Tm
 unquoteDecl ap-suc-Tm = generate-ap (quote TmExpr.suc) ap-suc-Tm
@@ -250,8 +252,8 @@ generate-typeR n s (pi (arg ai A) (abs x B)) =
   (pi (earg (def (quote _≡R_) (earg (var 1 []) ∷ earg (var 0 []) ∷ []))) (abs (x ++ₛ "⁼")
   (generate-typeR (2 + n) s B))))))
 generate-typeR n s _ =
-  def (quote _≡R_) (earg (con s (iarg (var (half n * 3 + 1) []) ∷ iarg (var (half n * 3) []) ∷ make-args 2 n))
-                 ∷ earg (con s (iarg (var (half n * 3 + 1) []) ∷ iarg (var (half n * 3) []) ∷ make-args 1 n)) ∷ [])  where
+  def (quote _≡R_) (earg (con s (iarg (var (half n * 3) []) ∷ make-args 2 n))
+                 ∷ earg (con s (iarg (var (half n * 3) []) ∷ make-args 1 n)) ∷ [])  where
 
     make-args : ℕ → ℕ → List (Arg Term)
     make-args k zero = []
@@ -266,9 +268,9 @@ generate-patternR _ = []
 
 generate-apR : Name → Name → TC ⊤
 generate-apR s res = do
-  pi A (abs x (pi B (abs y ts))) ← getType s
+  pi A (abs y ts) ← getType s
     where _ → typeError (strErr "not a Pi" ∷ [])
-  _ ← declareDef (earg res) (pi A (abs x (pi B (abs y (generate-typeR 0 s ts)))))
+  _ ← declareDef (earg res) (pi A (abs y (generate-typeR 0 s ts)))
   _ ← defineFun res (clause (generate-patternR ts) (con (quote _≡R_.reflR) []) ∷ [])
   return _
 

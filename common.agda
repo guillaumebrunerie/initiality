@@ -20,11 +20,11 @@ infixr 4 _R∙_
 !R : {A : Set} {a a' : A} → a ≡R a' → a' ≡R a
 !R reflR = reflR
 
-apR : {A B : Set} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
+apR : {A : Set} {B : Set} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
 apR f reflR = reflR
 
 
-transportR : ∀ {l} {B : ℕ → Set l} {n n' : ℕ} (b : B n) → n ≡R n' → B n'
+transportR : {B : ℕ → Set} {n n' : ℕ} (b : B n) → n ≡R n' → B n'
 transportR b reflR = b
 
 transportR-apR : {B : ℕ → Set} {n n' : ℕ} (b : B (suc n)) → (p : n ≡R n') → transportR {B = B} b (apR suc p) ≡R transportR b p 
@@ -308,8 +308,8 @@ _ ≡⟨ p1 ⟩ p2 = p1 ∙ p2
 _∎ : ∀ {i} {A : Set i} (x : A) → x ≡ x
 _∎ _ = refl
 
-{- Some results about natural numbers -}
 
+{- Some results about natural numbers -}
 
 n+0 : (n : ℕ) → n ≡R (n + zero)
 n+0 0 = reflR
@@ -319,10 +319,8 @@ n+suc : (n m : ℕ) → suc (n + m) ≡R (n + suc m)
 n+suc 0 m = reflR
 n+suc (suc n) m = apR suc (n+suc n m)
 
-
 suc-inj : _≡R_ {A = ℕ} (suc m) (suc n) → m ≡R n
 suc-inj reflR = reflR
-
 
 suc^ : (m : ℕ) → ℕ → ℕ
 suc^ zero n = n
@@ -339,11 +337,7 @@ suc^-pres-< {k} {n} {suc m} le = suc-pres-< (suc^-pres-< le)
 prev^sig : (m : ℕ) → (k : ΣS ℕ (λ k → k < suc n)) → ΣS ℕ (λ k → k < suc (n + m))
 prev^sig {n = n} m (k , le) = (suc^ m k , <-= (suc^-pres-< le) suc^+)
 
-
-
 -- standaard code-decode proof that nat is a set
-
-
 code : ℕ → ℕ → Set
 code zero zero = UnitR
 code zero (suc n) = EmptyR
@@ -385,6 +379,6 @@ nat-is-set m n p q = !R (decode-encode m n p) R∙ apR (decode m n) (code-is-pro
 axiomK-nat : (n : ℕ) (p : n ≡R n) → p ≡R reflR
 axiomK-nat n p = nat-is-set n n p reflR
 
---This allows one to proof the following about sigma types where the first component is a ℕ
-sndΣSSℕR : {B : ℕ → Set} {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
-sndΣSSℕR {B = B} {n} {b} {b'} p  = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 
+--This allows one to proof the following about sigma types where the first component is n:ℕ
+sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
+sndΣSSℕR {B = B} {n} {b} {b'} p = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 

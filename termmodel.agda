@@ -1495,6 +1495,10 @@ CCatwithsuc.sucStrₛ (ccatsuc strSynCCat) {u = u} = sucStrₛS u _ _
 CCatwithsuc.sucStr₁ (ccatsuc strSynCCat) {u = u} = sucStr₁S u _ _
 CCatwithsuc.sucStrNat (ccatsuc strSynCCat) g {u = u} p = sucStrNatS g u _ _ p
 
+CCatwithnatelim.natelimStr (ccatnatelim strSynCCat) = {!!}
+CCatwithnatelim.natelimStrₛ (ccatnatelim strSynCCat) = {!!}
+CCatwithnatelim.natelimStr₁ (ccatnatelim strSynCCat) = {!!}
+
 CCatwithid.idStr (ccatid strSynCCat) = idStrS
 CCatwithid.idStrₛ (ccatid strSynCCat) {a = a} {u = u} {v = v} = idStrₛS _ a _ _ u _ _ v _ _
 CCatwithid.idStr₁ (ccatid strSynCCat) {a = a} {u = u} {v = v} = idStr₁S _ a _ _ u _ _ v _ _
@@ -1514,3 +1518,4 @@ elpiStr strSynCCat {a = a} {b = b} = elpiStrS _ a _ _ b _ _
 elsigStr strSynCCat {a = a} {b = b} = elsigStrS _ a _ _ b _ _
 elnatStr strSynCCat {X = X} = elnatStrS _ X
 elidStr strSynCCat {a = a} {u = u} {v = v} = elidStrS _ a _ _ u _ _ v _ _
+ 
