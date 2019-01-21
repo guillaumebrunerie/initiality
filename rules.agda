@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import typetheory
@@ -336,7 +336,6 @@ SubstTyMorEq : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → D
 SubstTmMorEq : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u :> A) → (Γ ⊢ δ ∷> Δ) 
        → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u [ δ' ]Tm :> A [ δ ]Ty)
        
-
 WeakTy' : (k : Fin (suc n)) {Γ : Ctx n} (T : TyExpr (n -F' k)) {A : TyExpr n}
      → Derivable (Γ ⊢ A) → Derivable (weakenCtx k Γ T ⊢ weakenTy' k A)
 WeakTm' : (k : Fin (suc n)) {Γ : Ctx n} (T : TyExpr (n -F' k)) {u : TmExpr n} {A : TyExpr n}
@@ -394,16 +393,31 @@ SubstTm {u = natelim P dO dS u} {δ = δ} (Natelim dP ddO ddS du) dδ =
   congTmTy (substCommutes[]Ty _ _ _) (Natelim (SubstTy dP (WeakMor+ Nat dδ)) (congTmTy! (substCommutes[]Ty _ _ _) (SubstTm ddO dδ)) (congTmTy! thing (SubstTm ddS (WeakMor+ dP (WeakMor+ Nat dδ)))) (SubstTm du dδ))
 SubstTm {u = id i a u v} (IdUU da du dv) dδ = IdUU (SubstTm da dδ) (SubstTm du dδ) (SubstTm dv dδ)
 SubstTm {u = refl A a} (Refl dA da) dδ = Refl (SubstTy dA dδ) (SubstTm da dδ)
-SubstTm {Γ = Γ} {u = jj A P d a b p} {δ = δ} (JJ dA dP dd da db dp) dδ =
+SubstTm {Γ = Γ} {Δ = Δ} {u = jj A P d a b p} {δ = δ} (JJ dA dP dd da db dp) dδ =
         congTmTy ([]Ty-assoc _ _ _ ∙ ap (_[_]Ty P) (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _ ∙ ! (idMor[]Mor _)) refl) refl) refl ) ∙ ! ([]Ty-assoc _ _ _))
-                 (JJ (SubstTy dA dδ)
-                     (SubstTy dP (congMor (Ctx+= (Ctx+= refl
-                                                        (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
-                                                 (ap-id-Ty (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _))) refl refl))
-                                           refl
-                                           refl
-                                           (WeakMor+ (Id (WeakTy' last (weakenTy A) (WeakTy' last A dA)) (VarPrev (WeakTy' last A dA) (VarLast dA)) (VarLast (WeakTy' last A dA)))
-                                                     (WeakMor+ (WeakTy' last A dA) (WeakMor+ dA dδ)))))
+                 (JJ (SubstTy dA dδ) 
+                     (SubstTy dP (congMor {Δ = ((Δ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)}
+                                          (Ctx+= (Ctx+= refl
+                                                        (weakenTyInsert _ _ (var last) ∙ ! (weaken[]Ty _ _ _)))
+                                                 (ap-id-Ty (weakenTyInsert _ _ (var last) ∙ weakenTyInsert _ _ (var (prev last)) ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _)))
+                                                           refl
+                                                           refl))
+                                                 refl
+                                                 refl
+                                                 ((((WeakMor _ (WeakMor _ (WeakMor _ dδ))) ,
+                                                    congTmTy (ap weakenTy (ap weakenTy (weaken[]Ty _ _ _) ) ∙ ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)
+                                                             (VarPrev (WeakTy' last _ (WeakTy' last _ (SubstTy dA dδ))) (VarPrev (WeakTy' last _ (SubstTy dA dδ)) (VarLast (SubstTy dA dδ))))) ,
+                                                    congTmTy (ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)
+                                                             (VarPrev (WeakTy' last _ (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ)))) (VarLast (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ)))))) ,
+                                                    congTmTy (ap-id-Ty (ap weakenTy (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _) ∙ weaken[]Ty _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ))
+                                                                       refl
+                                                                       refl)
+                                                             (VarLast (Id (congTy (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _))
+                                                                                  (SubstTy dA (WeakMor _ (WeakMor _ dδ))))
+                                                                          (congTmTy (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)))
+                                                                                    (VarPrev (WeakTy' last _ (SubstTy dA dδ)) (VarLast (SubstTy dA dδ))))
+                                                                          (congTmTy (ap weakenTy (weakenTyInsert _ _ _) ∙ weaken[]Ty _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _))
+                                                                                    (VarLast (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ))))))))))
                      (congTmTy ([]Ty-assoc _ _ _ ∙ ap (_[_]Ty P) (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ ! (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _))
                                                                                       refl)
                                                                                 refl)
@@ -460,13 +474,29 @@ SubstTmEq {δ = δ} (JJCong {A = A} {P = P} dA dA= dP= dd= da= db= dp=) dδ =
           congTmEqTy ([]Ty-assoc _ _ _ ∙ ap (_[_]Ty P) (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _ ∙ ! (idMor[]Mor _)) refl) refl) refl ) ∙ ! ([]Ty-assoc _ _ _))
                      (JJCong (SubstTy dA dδ)
                              (SubstTyEq dA= dδ)
-                             (SubstTyEq dP= (congMor (Ctx+= (Ctx+= refl
-                                                            (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
-                                                     (ap-id-Ty (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _))) refl refl))
+                             (SubstTyEq dP= (congMor {Δ = ((_ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)}
+                                                     (Ctx+= (Ctx+= refl
+                                                                   (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
+                                                     (ap-id-Ty (weakenTyInsert _ _ (var last) ∙ weakenTyInsert _ _ (var (prev last)) ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _)))
+                                                               refl
+                                                               refl))
                                                      refl
                                                      refl
-                                                     (WeakMor+ (Id (WeakTy' last (weakenTy A) (WeakTy' last A dA)) (VarPrev (WeakTy' last A dA) (VarLast dA)) (VarLast (WeakTy' last A dA)))
-                                                     (WeakMor+ (WeakTy' last A dA) (WeakMor+ dA dδ)))))
+                                                     ((((WeakMor _ (WeakMor _ (WeakMor _ dδ))) ,
+                                                      congTmTy (ap weakenTy (ap weakenTy (weaken[]Ty _ _ _) ) ∙ ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)
+                                                               (VarPrev (WeakTy' last _ (WeakTy' last _ (SubstTy dA dδ))) (VarPrev (WeakTy' last _ (SubstTy dA dδ)) (VarLast (SubstTy dA dδ))))) ,
+                                                      congTmTy (ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)
+                                                               (VarPrev (WeakTy' last _ (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ))))
+                                                                        (VarLast (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ)))))) ,
+                                                      congTmTy (ap-id-Ty (ap weakenTy (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _) ∙ weaken[]Ty _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ))
+                                                                         refl
+                                                                         refl)
+                                                               (VarLast (Id (congTy (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _))
+                                                                                    (SubstTy dA (WeakMor _ (WeakMor _ dδ))))
+                                                                            (congTmTy (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)))
+                                                                                      (VarPrev (WeakTy' last _ (SubstTy dA dδ)) (VarLast (SubstTy dA dδ))))
+                                                                            (congTmTy (ap weakenTy (weakenTyInsert _ _ _) ∙ weaken[]Ty _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _))
+                                                                                      (VarLast (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ))))))))))
                              (congTmEqTy ([]Ty-assoc _ _ _ ∙ ap (_[_]Ty _) (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ ! (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _))
                                                                                          refl)
                                                                                   refl)
@@ -511,22 +541,41 @@ SubstTmMorEq {Γ = Γ} {u = jj A P d a b p} {δ = δ} (JJ dA dP dd da db dp) dδ
   congTmEqTy ([]Ty-assoc _ _ _ ∙ ap (_[_]Ty P) (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _ ∙ ! (idMor[]Mor _)) refl) refl) refl ) ∙ ! ([]Ty-assoc _ _ _))
                      (JJCong (SubstTy dA dδ)
                              (SubstTyMorEq dA dδ dδ=)
-                             (SubstTyMorEq dP (congMor (Ctx+= (Ctx+= refl
-                                                              (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
-                                                       (ap-id-Ty (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _))) refl refl))
+                             (SubstTyMorEq dP (congMor {Δ = ((_ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)}
+                                                       (Ctx+= (Ctx+= refl
+                                                                     (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
+                                                       (ap-id-Ty (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _)))
+                                                                 refl
+                                                                 refl))
                                                        refl
                                                        refl
                                                        (WeakMor+ (Id (WeakTy' last (weakenTy A) (WeakTy' last A dA)) (VarPrev (WeakTy' last A dA) (VarLast dA)) (VarLast (WeakTy' last A dA)))
-                                                       (WeakMor+ (WeakTy' last A dA) (WeakMor+ dA dδ))))
-                                              (congMorEq (Ctx+= (Ctx+= refl
-                                                                 (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
-                                                         (ap-id-Ty (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _))) refl refl))
+                                                                 (WeakMor+ (WeakTy' last A dA) (WeakMor+ dA dδ))))
+                                              (congMorEq {Δ = ((_ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)}
+                                                         (Ctx+= (Ctx+= refl
+                                                                       (weakenTyInsert _ _ _ ∙ ! (weaken[]Ty _ _ _)))
+                                                         (ap-id-Ty (weakenTyInsert _ _ (var last) ∙ weakenTyInsert _ _ (var (prev last)) ∙ ! (weaken[]Ty _ _ _) ∙ ap weakenTy (! (weaken[]Ty _ _ _)))
+                                                                   refl
+                                                                   refl))
                                                          refl
                                                          refl
                                                          refl
-                                                         (WeakMor+Eq (Id (WeakTy' last (weakenTy A) (WeakTy' last A dA)) (VarPrev (WeakTy' last A dA) (VarLast dA)) (VarLast (WeakTy' last A dA)))
-                                                                     (WeakMor+ (WeakTy' last A dA) (WeakMor+ dA dδ))
-                                                                     (WeakMor+Eq (WeakTy' last A dA) (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=)))))
+                                                         ((((WeakMorEq _ (WeakMorEq _ (WeakMorEq _ dδ=))) ,
+                                                           congTmEqTy (ap weakenTy (ap weakenTy (weaken[]Ty _ _ _) ) ∙ ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)
+                                                                      (VarPrevCong (WeakTy' last _ (WeakTy' last _ (SubstTy dA dδ)))
+                                                                                   (VarPrevCong (WeakTy' last _ (SubstTy dA dδ)) (VarLastCong (SubstTy dA dδ))))) ,
+                                                           congTmEqTy (ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)
+                                                                      (VarPrevCong (WeakTy' last _ (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ))))
+                                                                                   (VarLastCong (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ)))))) ,
+                                                           congTmEqTy (ap-id-Ty (ap weakenTy (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _) ∙ weaken[]Ty _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ))
+                                                                                refl
+                                                                                refl)
+                                                                      (VarLastCong (Id (congTy (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _))
+                                                                                               (SubstTy dA (WeakMor _ (WeakMor _ dδ))))
+                                                                                       (congTmTy (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ ! (ap weakenTy (weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _)))
+                                                                                                 (VarPrev (WeakTy' last _ (SubstTy dA dδ)) (VarLast (SubstTy dA dδ))))
+                                                                                       (congTmTy (ap weakenTy (weakenTyInsert _ _ _) ∙ weaken[]Ty _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _))
+                                                                                                 (VarLast (congTy (! (weakenTyInsert _ _ _)) (SubstTy dA (WeakMor _ dδ))))))))))
                              (congTmEqTy ([]Ty-assoc _ _ _ ∙ ap (_[_]Ty P) (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ ! (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _))
                                                                                          refl)
                                                                                   refl)
