@@ -567,7 +567,7 @@ IdStrS : (A : ObS (suc n)) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : �
 IdStrS = //-elim-PiS
          (λ A → //-elim-PiP2 (λ a aₛ a₁ → //-elim-PiP2 (λ b bₛ b₁ → IdStrS-// A a aₛ a₁ b bₛ b₁)
          (λ rb bₛ b'ₛ → PathOver-Prop→Cst (λ b₁ b'₁ → IdStrS-eq A A (ref A) a a (ref a) aₛ aₛ a₁ a₁ _ _ rb bₛ b'ₛ b₁ b'₁ )))
-         (λ ra aₛ a'ₛ → PathOver-Prop→Cst λ a₁ a'₁ → funext (//-elimP (λ b → funextP (λ bₛ → funextP (λ b₁ → IdStrS-eq A A (ref A) _ _ ra aₛ a'ₛ a₁ a'₁ b b (ref b) bₛ bₛ b₁ b₁))))))
+         (λ ra aₛ a'ₛ → PathOver-Prop→Cst (λ a₁ a'₁ → funext (//-elimP (λ b → funextP (λ bₛ → funextP (λ b₁ → IdStrS-eq A A (ref A) _ _ ra aₛ a'ₛ a₁ a'₁ b b (ref b) bₛ bₛ b₁ b₁)))))))
          (λ rA → //-elimP (λ a → PathOver-CstPropPi (λ aₛ → PathOver-Prop→ (λ a₁ a₁' → PathOver-CstPi (//-elimP λ b → PathOver-CstPropPi (λ bₛ → PathOver-Prop→Cst (λ b₁ b₁' → IdStrS-eq _ _ rA a a (ref a) aₛ aₛ a₁ a₁' b b (ref b) bₛ bₛ b₁ b₁')))))))
 
 IdStr=S-// : (A : DCtx (suc n)) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ proj A) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ proj A) → ftS (IdStrS (proj A) (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ ftS (proj A)
@@ -1262,26 +1262,130 @@ sucStrNatS : {n m : ℕ} (g : MorS n m) (u : MorS m (suc m)) (uₛ : is-sectionS
 sucStrNatS = //-elimP (λ g → //-elimP (λ u uₛ u₁ p → sucStrNatS-// g u uₛ u₁ p))
 
 
-natelimStrS-// : (X : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj P) ≡ NatStrS (proj X)) (dO : DMor n (suc n)) (dOₛ : is-sectionS (proj dO)) (dO₁ : ∂₁S (proj dO) ≡ starS (zeroStrS (proj X)) (proj P) (zeroStr₁S (proj X) ∙ ! P=))
-                   (dS : DMor (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-sectionS (proj dS))
+natelimStrS-// : (X : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj P) ≡ NatStrS (proj X)) (dO : DMor n (suc n)) (dOₛ : is-sectionS (proj dO)) (dO₁ : ∂₁S (proj dO) ≡ starS (zeroStrS (proj X)) (proj P) (zeroStr₁S (proj X) ∙ ! P=)) (dS : DMor (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-sectionS (proj dS))
+                   (dS₁ : ∂₁S (proj dS) ≡ starS (ppS (proj P))
+                                                (starS (sucStrS (ssS (idS _ (ftS (proj P))))
+                                                                (ssₛS (idS _ (ftS (proj P))))
+                                                                (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙
+                                                                                                  NatStrNatS (compS (ppS (NatStrS (proj X)))
+                                                                                                                    (idS _ (ftS (proj P)))
+                                                                                                                    ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X)))))
+                                                                                                             (proj X)
+                                                                                                             (! (comp₁S (ppS (NatStrS (proj X)))
+                                                                                                                        (idS _ (ftS (proj P)))
+                                                                                                                        (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                                                                pp₁S (NatStrS (proj X)) ∙
+                                                                                                                NatStr=S (proj X))) ∙
+                                                                                                             ap NatStrS (comp₀S (ppS (NatStrS (proj X)))
+                                                                                                                                (idS _ (ftS (proj P)))
+                                                                                                                                (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                                                                        ! (ss₀S (idS _ (ftS (proj P)))))))
+                                                       (starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))))
+                                                              (proj P)
+                                                              (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))
+                                                       (sucStr₁S (ssS (idS _ (ftS (proj P))))
+                                                                 (ssₛS (idS _ (ftS (proj P))))
+                                                                 (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙
+                                                                  NatStrNatS (compS (ppS (NatStrS (proj X)))
+                                                                                    (idS _ (ftS (proj P)))
+                                                                                    ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X)))))
+                                                                             (proj X)
+                                                                             (! (comp₁S (ppS (NatStrS (proj X)))
+                                                                                        (idS _ (ftS (proj P)))
+                                                                                        (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                              pp₁S (NatStrS (proj X)) ∙
+                                                                              NatStr=S (proj X))) ∙
+                                                                  ap NatStrS (comp₀S (ppS (NatStrS (proj X)))
+                                                                                     (idS _ (ftS (proj P)))
+                                                                                     (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                              ! (ss₀S (idS _ (ftS (proj P)))))) ∙
+                                                        ap NatStrS (ss₀S (idS _ (ftS (proj P))) ∙ id₀S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                        ! (NatStrNatS (ppS (NatStrS (proj X))) (proj X) (! (pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X)))) ∙
+                                                        ! (qq₀S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) ∙
+                                                        ! (ft-starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))))
+                                                                    (proj P)
+                                                                    (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))))
+                                                (pp₁S (proj P) ∙ ! (ft-starS (sucStrS (ssS (idS _ (ftS (proj P))))
+                                                                                      (ssₛS (idS _ (ftS (proj P))))
+                                                                                      (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙
+                                                                                       NatStrNatS (compS (ppS (NatStrS (proj X)))
+                                                                                                         (idS _ (ftS (proj P)))
+                                                                                                         ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X)))))
+                                                                                                  (proj X)
+                                                                                                  (! (comp₁S (ppS (NatStrS (proj X)))
+                                                                                                             (idS _ (ftS (proj P)))
+                                                                                                             (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                                                   pp₁S (NatStrS (proj X)) ∙
+                                                                                                   NatStr=S (proj X))) ∙
+                                                                                       ap NatStrS (comp₀S (ppS (NatStrS (proj X)))
+                                                                                                          (idS _ (ftS (proj P)))
+                                                                                                          (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                                                   ! (ss₀S (idS _ (ftS (proj P)))))))
+                                                                             (starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))))
+                                                                                    (proj P)
+                                                                                    (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))
+                                                                             (sucStr₁S (ssS (idS _ (ftS (proj P))))
+                                                                                       (ssₛS (idS _ (ftS (proj P))))
+                                                                                       (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙
+                                                                                        NatStrNatS (compS (ppS (NatStrS (proj X)))
+                                                                                                          (idS _ (ftS (proj P)))
+                                                                                                          ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X)))))
+                                                                                                   (proj X)
+                                                                                                   (! (comp₁S (ppS (NatStrS (proj X)))
+                                                                                                              (idS _ (ftS (proj P)))
+                                                                                                              (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                                                    pp₁S (NatStrS (proj X)) ∙
+                                                                                                    NatStr=S (proj X))) ∙
+                                                                                        ap NatStrS (comp₀S (ppS (NatStrS (proj X)))
+                                                                                                           (idS _ (ftS (proj P)))
+                                                                                                           (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                                                    ! (ss₀S (idS _ (ftS (proj P)))))) ∙
+                                                                              ap NatStrS (ss₀S (idS _ (ftS (proj P))) ∙ id₀S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                              ! (NatStrNatS (ppS (NatStrS (proj X))) (proj X) (! (pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X)))) ∙
+                                                                              ! (qq₀S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) ∙
+                                                                              ! (ft-starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))))
+                                                                                          (proj P)
+                                                                                          (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))) ∙
+                                                 sucStr₀S (ssS (idS _ (ftS (proj P))))
+                                                          (ssₛS (idS _ (ftS (proj P))))
+                                                          (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙
+                                                           NatStrNatS (compS (ppS (NatStrS (proj X)))
+                                                                             (idS _ (ftS (proj P)))
+                                                                             ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X)))))
+                                                                      (proj X)
+                                                                      (! (comp₁S (ppS (NatStrS (proj X)))
+                                                                                 (idS _ (ftS (proj P)))
+                                                                                 (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                       pp₁S (NatStrS (proj X)) ∙
+                                                                       NatStr=S (proj X))) ∙
+                                                                      ap NatStrS (comp₀S (ppS (NatStrS (proj X)))
+                                                                                         (idS _ (ftS (proj P)))
+                                                                                         (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙
+                                                                      ! (ss₀S (idS _ (ftS (proj P)))))) ∙ ss₀S (idS _ (ftS (proj P))) ∙ id₀S _ (ftS (proj P)))))
+                        (u : DMor n (suc n)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ ftS (proj P)) → DMor n (suc n)
+natelimStrS-// (Γ , dΓ) (((ΓP , natP) , P) , ((dΓP , dnatP) , dP)) P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ =
+         let (dΓP=Γ , _ , _ , ΓPdnatP=nat , _) = reflect P= in
+         dmor (Γ , dΓ) ((Γ , substTy P (Tm u)) , (dΓ , ConvTy (SubstTy dP (idMor+ dΓP (DMor-dTm u uₛ u₁))) dΓP=Γ)) (idMor _ , natelim P (Tm dO) (Tm dS) (Tm u)) (idMor+ dΓ (Natelim (ConvTy dP (dΓP=Γ ,, ΓPdnatP=nat))  (DMor-dTm dO dOₛ dO₁) (ConvTm (congTmTy ([]Ty-assoc _ _ _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty P)  (Mor+= (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _) refl) ∙ ! (ap weakenTy (weakenTyInsert' (prev last) P (weakenMor (idMor _) , suc (var last)) (var last)) ∙ weaken[]Ty P (weakenMor (idMor _) , suc (var last)) last)) (DMor-dTm dS dSₛ dS₁)) ((dΓP=Γ ,, ΓPdnatP=nat) ,, TyRefl dP))  (ConvTm (Conv dnatP (DMor-dTm u uₛ u₁) ΓPdnatP=nat) dΓP=Γ)))
+
+
+natelimStrS-eq : (X X' : DCtx n) (rX : X ≃ X') (P P' : DCtx (suc (suc n))) (rP : P ≃ P') (P= : ftS (proj P) ≡ NatStrS (proj X)) (P'= : ftS (proj P') ≡ NatStrS (proj X'))(dO dO' : DMor n (suc n)) (rdO : dO ≃ dO') (dOₛ : is-sectionS (proj dO)) (dO'ₛ : is-sectionS (proj dO')) (dO₁ : ∂₁S (proj dO) ≡ starS (zeroStrS (proj X)) (proj P) (zeroStr₁S (proj X) ∙ ! P=)) (dO'₁ : ∂₁S (proj dO') ≡ starS (zeroStrS (proj X')) (proj P') (zeroStr₁S (proj X') ∙ ! P'=))
+                   (dS dS' : DMor (suc (suc n)) (suc (suc (suc n)))) (rdS : dS ≃ dS') (dSₛ : is-sectionS (proj dS))(dS'ₛ : is-sectionS (proj dS'))
                    (dS₁ : ∂₁S (proj dS) ≡ starS (ppS (proj P))
                                        (starS (sucStrS (ssS (idS _ (ftS (proj P)))) (ssₛS (idS _ (ftS (proj P)))) (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X))))) (proj X) (! (comp₁S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (ss₀S (idS _ (ftS (proj P)))))))
                                              (starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) (proj P) (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))
                                              (sucStr₁S (ssS (idS _ (ftS (proj P)))) (ssₛS (idS _ (ftS (proj P)))) (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X))))) (proj X) (! (comp₁S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (ss₀S (idS _ (ftS (proj P)))))) ∙ ap NatStrS (ss₀S (idS _ (ftS (proj P))) ∙ id₀S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (NatStrNatS (ppS (NatStrS (proj X))) (proj X) (! (pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X)))) ∙ ! (qq₀S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) ∙ ! (ft-starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) (proj P) (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))))
                                        (pp₁S (proj P) ∙ ! (ft-starS (sucStrS (ssS (idS _ (ftS (proj P)))) (ssₛS (idS _ (ftS (proj P)))) (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X))))) (proj X) (! (comp₁S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (ss₀S (idS _ (ftS (proj P))))))) (starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) (proj P) (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=)) (sucStr₁S (ssS (idS _ (ftS (proj P)))) (ssₛS (idS _ (ftS (proj P)))) (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X))))) (proj X) (! (comp₁S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (ss₀S (idS _ (ftS (proj P)))))) ∙ ap NatStrS (ss₀S (idS _ (ftS (proj P))) ∙ id₀S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (NatStrNatS (ppS (NatStrS (proj X))) (proj X) (! (pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X)))) ∙ ! (qq₀S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) ∙ ! (ft-starS (qqS (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X)))) (proj P) (qq₁S (ppS (NatStrS (proj X))) (NatStrS (proj X)) (pp₁S (NatStrS (proj X))) ∙ ! P=))) ∙ sucStr₀S (ssS (idS _ (ftS (proj P)))) (ssₛS (idS _ (ftS (proj P)))) (ss₁'S {f = idS _ (ftS (proj P))} (id₁S _ (ftS (proj P)) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) ((id₁S _ (ftS (proj P))∙ P=) ∙ ! (pp₀S (NatStrS (proj X))))) (proj X) (! (comp₁S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ pp₁S (NatStrS (proj X)) ∙ NatStr=S (proj X))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X))) (idS _ (ftS (proj P))) (id₁S _ (ftS (proj P)) ∙ P= ∙ ! (pp₀S (NatStrS (proj X)))) ∙ ! (ss₀S (idS _ (ftS (proj P)))))) ∙ ss₀S (idS _ (ftS (proj P))) ∙ id₀S _ (ftS (proj P)))))
-                   (u : DMor n (suc n)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ ftS (proj P)) → MorS n (suc n)
-natelimStrS-// (Γ , dΓ) (((ΓP , natP) , P) , ((dΓP , dnatP) , dP)) P= dOdO@(dmor (ΓdO , dΓdO) ((ΓdO' , P[dO]) , (dΓdO' , dP[dO])) (iddO , dO)  (diddO , ddO)) dOₛ dO₁ dSdS@(dmor (((ΓdS , natdS) , P[n]) , ((dΓdS , dnatdS) , dP[n])) ((((ΓdS' , natdS') , P[n]') , P[sucn]) , (((dΓdS' , dnatdS') , dP[n]') , dP[sucn])) (iddS , dS) (diddS , ddS)) dSₛ dS₁ uu@(dmor (Γu , dΓu) ((Γu' , natu) , (dΓu' , natu')) (idu , u) (didu , du)) uₛ u₁ =
-     let x = reflect dOₛ
-         y = reflect dO₁
-         x' = reflect dSₛ
-         y' = reflect dS₁
-         (ΓP=Γ , _ , _ , ΓPdnatP=nat , _) = reflect P=
-         in
-         proj (dmor (Γ , dΓ) ((Γ , substTy P u) , (dΓ , ConvTy (SubstTy dP (idMor+ dΓP (DMor-dTm uu uₛ u₁))) ΓP=Γ)) (idMor _ , natelim P dO dS u) (idMor+ dΓ (Natelim (ConvTy dP (ΓP=Γ ,, ΓPdnatP=nat))  (DMor-dTm dOdO dOₛ dO₁) (ConvTm (congTmTy ([]Ty-assoc _ _ _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty P)  (Mor+= (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _) refl) ∙ ! (ap weakenTy (weakenTyInsert' (prev last) P (weakenMor (idMor _) , suc (var last)) (var last)) ∙ weaken[]Ty P (weakenMor (idMor _) , suc (var last)) last)) (DMor-dTm dSdS dSₛ dS₁)) ((ΓP=Γ ,, ΓPdnatP=nat) ,, TyRefl dP))  (ConvTm (Conv dnatP (DMor-dTm uu uₛ u₁) ΓPdnatP=nat) ΓP=Γ))))
+                                       (dS'₁ : ∂₁S (proj dS') ≡ starS (ppS (proj P'))
+                                       (starS (sucStrS (ssS (idS _ (ftS (proj P')))) (ssₛS (idS _ (ftS (proj P')))) (ss₁'S {f = idS _ (ftS (proj P'))} (id₁S _ (ftS (proj P')) ∙ P'=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) ((id₁S _ (ftS (proj P'))∙ P'=) ∙ ! (pp₀S (NatStrS (proj X'))))) (proj X') (! (comp₁S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X'))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (ss₀S (idS _ (ftS (proj P')))))))
+                                             (starS (qqS (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X')))) (proj P') (qq₁S (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X'))) ∙ ! P'=))
+                                             (sucStr₁S (ssS (idS _ (ftS (proj P')))) (ssₛS (idS _ (ftS (proj P')))) (ss₁'S {f = idS _ (ftS (proj P'))} (id₁S _ (ftS (proj P')) ∙ P'=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) ((id₁S _ (ftS (proj P'))∙ P'=) ∙ ! (pp₀S (NatStrS (proj X'))))) (proj X') (! (comp₁S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X'))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (ss₀S (idS _ (ftS (proj P')))))) ∙ ap NatStrS (ss₀S (idS _ (ftS (proj P'))) ∙ id₀S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (NatStrNatS (ppS (NatStrS (proj X'))) (proj X') (! (pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X')))) ∙ ! (qq₀S (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X')))) ∙ ! (ft-starS (qqS (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X')))) (proj P') (qq₁S (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X'))) ∙ ! P'=))))
+                                       (pp₁S (proj P') ∙ ! (ft-starS (sucStrS (ssS (idS _ (ftS (proj P')))) (ssₛS (idS _ (ftS (proj P')))) (ss₁'S {f = idS _ (ftS (proj P'))} (id₁S _ (ftS (proj P')) ∙ P'=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) ((id₁S _ (ftS (proj P'))∙ P'=) ∙ ! (pp₀S (NatStrS (proj X'))))) (proj X') (! (comp₁S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X'))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (ss₀S (idS _ (ftS (proj P'))))))) (starS (qqS (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X')))) (proj P') (qq₁S (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X'))) ∙ ! P'=)) (sucStr₁S (ssS (idS _ (ftS (proj P')))) (ssₛS (idS _ (ftS (proj P')))) (ss₁'S {f = idS _ (ftS (proj P'))} (id₁S _ (ftS (proj P')) ∙ P'=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) ((id₁S _ (ftS (proj P'))∙ P'=) ∙ ! (pp₀S (NatStrS (proj X'))))) (proj X') (! (comp₁S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X'))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (ss₀S (idS _ (ftS (proj P')))))) ∙ ap NatStrS (ss₀S (idS _ (ftS (proj P'))) ∙ id₀S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (NatStrNatS (ppS (NatStrS (proj X'))) (proj X') (! (pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X')))) ∙ ! (qq₀S (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X')))) ∙ ! (ft-starS (qqS (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X')))) (proj P') (qq₁S (ppS (NatStrS (proj X'))) (NatStrS (proj X')) (pp₁S (NatStrS (proj X'))) ∙ ! P'=))) ∙ sucStr₀S (ssS (idS _ (ftS (proj P')))) (ssₛS (idS _ (ftS (proj P')))) (ss₁'S {f = idS _ (ftS (proj P'))} (id₁S _ (ftS (proj P')) ∙ P'=) ∙ NatStrNatS (compS (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) ((id₁S _ (ftS (proj P'))∙ P'=) ∙ ! (pp₀S (NatStrS (proj X'))))) (proj X') (! (comp₁S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ pp₁S (NatStrS (proj X')) ∙ NatStr=S (proj X'))) ∙ ap NatStrS (comp₀S (ppS (NatStrS (proj X'))) (idS _ (ftS (proj P'))) (id₁S _ (ftS (proj P')) ∙ P'= ∙ ! (pp₀S (NatStrS (proj X')))) ∙ ! (ss₀S (idS _ (ftS (proj P')))))) ∙ ss₀S (idS _ (ftS (proj P'))) ∙ id₀S _ (ftS (proj P')))))
+                   (u u' : DMor n (suc n)) (ru : u ≃ u') (uₛ : is-sectionS (proj u)) (u'ₛ : is-sectionS (proj u')) (u₁ : ∂₁S (proj u) ≡ ftS (proj P)) (u'₁ : ∂₁S (proj u') ≡ ftS (proj P')) → proj {R = MorEquiv} (natelimStrS-// X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ proj (natelimStrS-// X' P' P'= dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁)
+natelimStrS-eq (Γ , dΓ) (Γ' , dΓ') dΓ=Γ' (((ΓP , natP) , P) , ((dΓP , dnatP) , dP)) (((ΓP' , natP') , P') , ((dΓP' , dnatP') , dP')) ((dΓP=ΓP' , _ , _ , ΓPdnatP=natP' , _) , _ , _ , ΓPnatPdP=P' , _) P= P'= dO dO' rdO dOₛ dO'ₛ dO₁ dO'₁ dS dS' rdS dSₛ dS'ₛ dS₁ dS'₁ u u' ru uₛ u'ₛ u₁ u'₁ =
+               let (dΓP=Γ , _ , _ , ΓPdnatP=nat , _) = reflect P= in                 
+               eq ((dΓ=Γ' , (dΓ=Γ' ,, SubstTyMorEq2 {Δ = (Γ , nat)} dΓ (dΓ , Nat) (ConvTyEq ΓPnatPdP=P' (dΓP=Γ ,, ΓPdnatP=nat)) (idMor+= dΓ (ConvTmEq (ConvEq dnatP (DMor-dTm= (dΓP=ΓP' ,, ΓPdnatP=natP') u u' ru uₛ u'ₛ u₁ u'₁) ΓPdnatP=nat) dΓP=Γ)))) , idMor+= dΓ (NatelimCong (ConvTy dP (dΓP=Γ ,, ΓPdnatP=nat)) (ConvTyEq ΓPnatPdP=P' (dΓP=Γ ,, ΓPdnatP=nat)) (DMor-dTm= (dΓ=Γ' ,, SubstTyEq (ConvTyEq ΓPnatPdP=P' (dΓP=Γ ,, ΓPdnatP=nat)) (idMor+ dΓ Zero)) dO dO' rdO dOₛ dO'ₛ dO₁ dO'₁) (ConvTmEq (congTmEqTy ([]Ty-assoc _ _ _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty P)  (Mor+= (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _) refl) ∙ ! (ap weakenTy (weakenTyInsert' (prev last) P (weakenMor (idMor _) , suc (var last)) (var last)) ∙ weaken[]Ty P (weakenMor (idMor _) , suc (var last)) last)) (DMor-dTm= (((dΓP=ΓP' ,, ΓPdnatP=natP') ,, ΓPnatPdP=P') ,, SubstTyEq (SubstTyEq (SubstTyEq ΓPnatPdP=P' (WeakMor+ dnatP (WeakMor _ (idMorDerivable dΓP)))) (idMor+ (dΓP , dnatP) (ConvTm (Conv Nat (Suc (VarLast Nat)) (congTyEq refl (ap weakenTy (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _) (WeakTyEq _ (TySymm ΓPdnatP=nat)))) (CtxRefl dΓP ,, TySymm ΓPdnatP=nat)))) ((WeakMor _ (WeakMor _ (idMorDerivable dΓP))) , (congTmTy (ap weakenTy (ap weakenTy (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _) ∙ weaken[]Ty _ _ _) (VarPrev (WeakTy _ dnatP) (VarLast dnatP))))) dS dS' rdS dSₛ dS'ₛ dS₁ dS'₁)) ((dΓP=Γ ,, ΓPdnatP=nat) ,, TyRefl dP)) (ConvTmEq (ConvEq dnatP (DMor-dTm= (dΓP=ΓP' ,, ΓPdnatP=natP') u u' ru uₛ u'ₛ u₁ u'₁) ΓPdnatP=nat) dΓP=Γ)))
 
 
-natelimStrS-eq : _
-natelimStrS-eq = {!!}
 
 natelimStrS : (X : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS X) (dO : MorS n (suc n)) (dOₛ : is-sectionS dO) (dO₁ : ∂₁S dO ≡ starS (zeroStrS X) P (zeroStr₁S X ∙ ! P=))
                    (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-sectionS dS)
@@ -1289,267 +1393,272 @@ natelimStrS : (X : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS X) (dO
                                        (starS (sucStrS (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P))))))
                                              (starS (qqS (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) P (qq₁S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X)) ∙ ! P=))
                                              (sucStr₁S (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P))))) ∙ ap NatStrS (ss₀S (idS _ (ftS P)) ∙ id₀S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (NatStrNatS (ppS (NatStrS X)) X (! (pp₁S (NatStrS X) ∙ NatStr=S X))) ∙ ! (qq₀S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) ∙ ! (ft-starS (qqS (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) P (qq₁S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X)) ∙ ! P=))))
-                                       (pp₁S P ∙ ! (ft-starS (sucStrS (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P)))))) (starS (qqS (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) P (qq₁S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X)) ∙ ! P=)) (sucStr₁S (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P))))) ∙ ap NatStrS (ss₀S (idS _ (ftS P)) ∙ id₀S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (NatStrNatS (ppS (NatStrS X)) X (! (pp₁S (NatStrS X) ∙ NatStr=S X))) ∙ ! (qq₀S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) ∙ ! (ft-starS (qqS (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) P (qq₁S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X)) ∙ ! P=))) ∙ sucStr₀S (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P))))) ∙ ss₀S (idS _ (ftS P)) ∙ id₀S _ (ftS P))))
+                                       (pp₁S P ∙ ! (ft-starS (sucStrS (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P)))))) (starS (qqS (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) P (qq₁S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X)) ∙ ! P=)) (sucStr₁S (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P))))) ∙ ap NatStrS (ss₀S (idS _ (ftS P)) ∙ id₀S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (NatStrNatS (ppS (NatStrS X)) X (! (pp₁S (NatStrS X) ∙ NatStr=S X))) ∙ ! (qq₀S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) ∙ ! (ft-starS (qqS (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X))) P (qq₁S (ppS (NatStrS X)) (NatStrS X) (pp₁S (NatStrS X)) ∙ ! P=))) ∙ sucStr₀S (ssS (idS _ (ftS P))) (ssₛS (idS _ (ftS P))) (ss₁'S (id₁S _ (ftS P) ∙ P=) ∙ NatStrNatS (compS (ppS (NatStrS X)) (idS _ (ftS P)) ((id₁S _ (ftS P)∙ P=) ∙ ! (pp₀S (NatStrS X)))) X (! (comp₁S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ pp₁S (NatStrS X) ∙ NatStr=S X)) ∙ ap NatStrS (comp₀S (ppS (NatStrS X)) (idS _ (ftS P)) (id₁S _ (ftS P) ∙ P= ∙ ! (pp₀S (NatStrS X))) ∙ ! (ss₀S (idS _ (ftS P))))) ∙ ss₀S (idS _ (ftS P)) ∙ id₀S _ (ftS P))))                  
                    (u : MorS n (suc n)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ ftS P) → MorS n (suc n)
-natelimStrS = //-elim-PiS (λ X → //-elim-PiP3 (λ P P= → //-elim-PiP2 (λ dO dOₛ dO₁ → //-elim-PiP2 (λ dS dSₛ dS₁ → //-elim-PiP2 (λ u uₛ u₁ → natelimStrS-// X P P= dO dOₛ dO₁ dS dSₛ {!dS₁!} u uₛ u₁)) {!!} {!!} {!!}) {!!}) {!!}) {!!}
-
-
-idStr₀S : ∀ {n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ → _
-idStr₀S {n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ = is-section₀S {n} (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i a aₛ a₁ u uₛ u₁ v vₛ v₁) ∙ UUStr=S i (∂₀S a)
-
-idStrNatS-// : (i : ℕ) {n m : ℕ} (g : DMor n m) (a : DMor m (suc m)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (u : DMor m (suc m)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ ElStrS i (proj a) aₛ a₁)
-                                                (v : DMor m (suc m)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ ElStrS i (proj a) aₛ a₁) (p : ∂₀S (proj a) ≡ ∂₁S (proj g))
-                                                (let u₀ = is-section₀S (proj u) uₛ u₁ ∙ ElStr=S i (proj a) aₛ a₁ ∙ p) (let v₀ = is-section₀S (proj v) vₛ v₁ ∙ ElStr=S i (proj a) aₛ a₁ ∙ p)
-             → starTmS (proj g) (idStrS i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁) (idStr₀S i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁ ∙ p) ≡ idStrS i (starTmS (proj g) (proj a) p) (ssₛS (compS (proj a) (proj g) (! p))) (starTm₁S (proj g) (proj a) aₛ p a₁ ∙ UUStrNatS (proj g) (∂₀S (proj a)) p ∙ ap (UUStrS i) (! (ss₀S (compS (proj a) (proj g) (! p)) ∙ comp₀S (proj a) (proj g) (! p))))
-                                                                                   (starTmS (proj g) (proj u) u₀) (ssₛS (compS (proj u) (proj g) (! u₀))) (starTm₁S (proj g) (proj u) uₛ u₀ u₁ ∙ ElStrNatS (proj g) (proj a) aₛ a₁ p) (starTmS (proj g) (proj v) v₀) (ssₛS (compS (proj v) (proj g) (! v₀))) (starTm₁S (proj g) (proj v) vₛ v₀ v₁ ∙ ElStrNatS (proj g) (proj a) aₛ a₁ p)
-idStrNatS-// i (dmor (_ , _) (_ , _) _ _) (dmor (_ , _) ((_ , _) , (_ , _)) (_ , _) (_ , _)) aₛ a₁ (dmor (_ , _) ((_ , _) , (_ , _)) (_ , _) (_ , _)) uₛ u₁ (dmor (_ , _) ((_ , _) , (_ , _)) (_ , _) (_ , _)) vₛ v₁ p = refl
-
-idStrNatS : (i : ℕ) {n m : ℕ} (g : MorS n m) (a : MorS m (suc m)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (u : MorS m (suc m)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ ElStrS i a aₛ a₁)
-                                                (v : MorS m (suc m)) (vₛ : is-sectionS v) (v₁ : ∂₁S v ≡ ElStrS i a aₛ a₁) (p : ∂₀S a ≡ ∂₁S g)
-                                                (let u₀ = is-section₀S u uₛ u₁ ∙ ElStr=S i a aₛ a₁ ∙ p) (let v₀ = is-section₀S v vₛ v₁ ∙ ElStr=S i a aₛ a₁ ∙ p)
-             → starTmS g (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₀S i a aₛ a₁ u uₛ u₁ v vₛ v₁ ∙ p) ≡ idStrS i (starTmS g a p) (ssₛS (compS a g (! p))) (starTm₁S g a aₛ p a₁ ∙ UUStrNatS g (∂₀S a) p ∙ ap (UUStrS i) (! (ss₀S (compS a g (! p)) ∙ comp₀S a g (! p))))
-                                                                                   (starTmS g u u₀) (ssₛS (compS u g (! u₀))) (starTm₁S g u uₛ u₀ u₁ ∙ ElStrNatS g a aₛ a₁ p) (starTmS g v v₀) (ssₛS (compS v g (! v₀))) (starTm₁S g v vₛ v₀ v₁ ∙ ElStrNatS g a aₛ a₁ p)
-idStrNatS i = //-elimP (λ g → //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ p → idStrNatS-// i g a aₛ a₁ u uₛ u₁ v vₛ v₁ p))))
-
-
-
-
-reflStr₀S : ∀ {n} A u uₛ u₁ → _
-reflStr₀S {n} A u uₛ u₁ = is-section₀S {n} (reflStrS A u uₛ u₁) (reflStrₛS A u uₛ u₁) (reflStr₁S A u uₛ u₁) ∙ IdStr=S A u uₛ u₁ u uₛ u₁
-
-reflStrNatS-// : {n m : ℕ} (g : DMor n m) (A : DCtx (suc m)) (u : DMor m (suc m)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ (proj A)) (p : ftS (proj A) ≡ ∂₁S (proj g))
-                 (let u₀ = is-section₀S (proj u) uₛ u₁ ∙ p)
-             → starTmS (proj g) (reflStrS (proj A) (proj u) uₛ u₁) (reflStr₀S (proj A) (proj u) uₛ u₁ ∙ p) ≡ reflStrS (starS (proj g) (proj A) (! p)) (starTmS (proj g) (proj u) u₀) (ssₛS (compS (proj u) (proj g) (! u₀))) (starTm₁S (proj g) (proj u) uₛ u₀ u₁)
-reflStrNatS-// (dmor (_ , _) (_ , _) δ _) ((_ , A) , (_ , _)) (dmor (_ , _) ((_ , _) , (_ , _)) (_ , u) (_ , _)) uₛ u₁ p = up-to-rhsTyEq (ap (_[_]Ty (id A u u)) (idMor[]Mor δ))
-
-reflStrNatS : {n m : ℕ} (g : MorS n m) (A : ObS (suc m)) (u : MorS m (suc m)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ A) (p : ftS A ≡ ∂₁S g)
-                 (let u₀ = is-section₀S u uₛ u₁ ∙ p)
-             → starTmS g (reflStrS A u uₛ u₁) (reflStr₀S A u uₛ u₁ ∙ p) ≡ reflStrS (starS g A (! p)) (starTmS g u u₀) (ssₛS (compS u g (! u₀))) (starTm₁S g u uₛ u₀ u₁)
-reflStrNatS = //-elimP (λ g → //-elimP (λ A → //-elimP (λ u uₛ u₁ p → reflStrNatS-// g A u uₛ u₁ p)))
-
-betaPiStrS-// : (B : DCtx (suc (suc n))) (u : DMor (suc n) (suc (suc n))) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ proj B) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B))
-            → appStrS (proj B) (lamStrS (proj B) (proj u) uₛ u₁) (lamStrₛS (proj B) (proj u) uₛ u₁) (lamStr₁S (proj B) (proj u) uₛ u₁) (proj a) aₛ a₁ ≡ starTmS (proj a) (proj u) (is-section₀S (proj u) uₛ refl ∙ ap ftS u₁ ∙ ! a₁)
-betaPiStrS-// (((Γ , A) , B) , ((dΓ , dA) , dB)) uu@(dmor (ΓAu  , _) ((ΓA'u , Bu) , (dΓA'u , dBu)) (idu , u) (didu , du[idu])) uₛ u₁
-            aa@(dmor (Γa , _) ((Γ'a , Aa) , (_ , dAa)) (ida , a) (dida , da[ida])) aₛ a₁ =
-                  let (dΓA'u=ΓA , _ , _ , dBu=B , _) = reflect u₁
-                      ((_ , dΓA'u=ΓAu) , _) = reflect uₛ
-                      (dΓ'a=Γ , _ , _ , dAa=A , _) = reflect a₁
-                      ((_ , dΓ'a=Γa) , _) = reflect aₛ
-                      dΓ=Γa = CtxTran (CtxSymm dΓ'a=Γ) dΓ'a=Γa
-                      dΓA=ΓAu = CtxTran (CtxSymm dΓA'u=ΓA) dΓA'u=ΓAu
-                      da = (DMor-dTm aa aₛ a₁)
-                      du = (DMor-dTm uu uₛ u₁)
-                      did=ida = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dAa} {dδ = dida} {du = da[ida]} aₛ) (CtxSymm dΓ=Γa) dΓ'a=Γ)
-                      did=idu = MorSymm (dΓ , dA) (dΓ , dA) (ConvMorEq (sectionS-eq {dA = dBu} {dδ = didu} {du = du[idu]} uₛ) (CtxSymm dΓA=ΓAu) dΓA'u=ΓA)
-                  in
-                  eq ((dΓ=Γa , (dΓ=Γa ,, SubstTyMorEq2 dΓ (dΓ , dA) (ConvTyEq (TySymm dBu=B) dΓA'u=ΓA) (MorTran {δ' = ida , a} dΓ (dΓ , dA) (did=ida , TmRefl (congTm (! ([idMor]Ty A)) refl da)) (congMorEq refl refl (idMor[]Mor _) refl (SubstMorEq did=idu ((ConvMor dida (CtxSymm dΓ=Γa) dΓ'a=Γ) , (Conv dA da (congTyEq ([idMor]Ty A) refl (SubstTyMorEq dA (idMorDerivable dΓ) did=ida))))))))) , idMor+= dΓ (TmTran (SubstTm du (idMor+ dΓ da)) (BetaPi dA dB du da) (SubstTmMorEq du (idMor+ dΓ da) (did=ida , TmRefl (congTm (! ([idMor]Ty A)) refl da)))))
+natelimStrS = //-elim-PiS (λ X → //-elim-PiP3 (λ P P= → //-elim-PiP2 (λ dO dOₛ dO₁ → //-elim-PiP2 (λ dS dSₛ dS₁ → //-elim-PiP2 (λ u uₛ u₁ → proj (natelimStrS-// X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁))
+                          (λ ru uₛ u'ₛ → PathOver-Prop→Cst (λ u₁ u'₁ → natelimStrS-eq X X (ref X) P P (ref P) P= P= dO dO (ref dO) dOₛ dOₛ dO₁ dO₁ dS dS (ref dS) dSₛ dSₛ dS₁ dS₁ _ _ ru uₛ u'ₛ u₁ u'₁)))
+                          (λ rdS dSₛ dS'ₛ → PathOver-Prop→Cst (λ dS₁ dS'₁ → funext (//-elimP (λ u → funextP (λ uₛ → funextP (λ u₁ → natelimStrS-eq X X (ref X) P P (ref P) P= P= dO dO (ref dO) dOₛ dOₛ dO₁ dO₁ _ _ rdS dSₛ dS'ₛ dS₁ dS'₁ u u (ref u) uₛ uₛ u₁ u₁)))))))
+                          (λ rdO dOₛ dO'ₛ → PathOver-Prop→Cst (λ dO₁ dO'₁ → funext (//-elimP (λ dS → funextP (λ dSₛ → funextP (λ dS₁ → ?)))))))
+                          {!!})
+                          {!!}
+
+
+-- idStr₀S : ∀ {n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ → _
+-- idStr₀S {n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ = is-section₀S {n} (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i a aₛ a₁ u uₛ u₁ v vₛ v₁) ∙ UUStr=S i (∂₀S a)
+
+-- idStrNatS-// : (i : ℕ) {n m : ℕ} (g : DMor n m) (a : DMor m (suc m)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (u : DMor m (suc m)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ ElStrS i (proj a) aₛ a₁)
+--                                                 (v : DMor m (suc m)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ ElStrS i (proj a) aₛ a₁) (p : ∂₀S (proj a) ≡ ∂₁S (proj g))
+--                                                 (let u₀ = is-section₀S (proj u) uₛ u₁ ∙ ElStr=S i (proj a) aₛ a₁ ∙ p) (let v₀ = is-section₀S (proj v) vₛ v₁ ∙ ElStr=S i (proj a) aₛ a₁ ∙ p)
+--              → starTmS (proj g) (idStrS i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁) (idStr₀S i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁ ∙ p) ≡ idStrS i (starTmS (proj g) (proj a) p) (ssₛS (compS (proj a) (proj g) (! p))) (starTm₁S (proj g) (proj a) aₛ p a₁ ∙ UUStrNatS (proj g) (∂₀S (proj a)) p ∙ ap (UUStrS i) (! (ss₀S (compS (proj a) (proj g) (! p)) ∙ comp₀S (proj a) (proj g) (! p))))
+--                                                                                    (starTmS (proj g) (proj u) u₀) (ssₛS (compS (proj u) (proj g) (! u₀))) (starTm₁S (proj g) (proj u) uₛ u₀ u₁ ∙ ElStrNatS (proj g) (proj a) aₛ a₁ p) (starTmS (proj g) (proj v) v₀) (ssₛS (compS (proj v) (proj g) (! v₀))) (starTm₁S (proj g) (proj v) vₛ v₀ v₁ ∙ ElStrNatS (proj g) (proj a) aₛ a₁ p)
+-- idStrNatS-// i (dmor (_ , _) (_ , _) _ _) (dmor (_ , _) ((_ , _) , (_ , _)) (_ , _) (_ , _)) aₛ a₁ (dmor (_ , _) ((_ , _) , (_ , _)) (_ , _) (_ , _)) uₛ u₁ (dmor (_ , _) ((_ , _) , (_ , _)) (_ , _) (_ , _)) vₛ v₁ p = refl
+
+-- idStrNatS : (i : ℕ) {n m : ℕ} (g : MorS n m) (a : MorS m (suc m)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (u : MorS m (suc m)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ ElStrS i a aₛ a₁)
+--                                                 (v : MorS m (suc m)) (vₛ : is-sectionS v) (v₁ : ∂₁S v ≡ ElStrS i a aₛ a₁) (p : ∂₀S a ≡ ∂₁S g)
+--                                                 (let u₀ = is-section₀S u uₛ u₁ ∙ ElStr=S i a aₛ a₁ ∙ p) (let v₀ = is-section₀S v vₛ v₁ ∙ ElStr=S i a aₛ a₁ ∙ p)
+--              → starTmS g (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₀S i a aₛ a₁ u uₛ u₁ v vₛ v₁ ∙ p) ≡ idStrS i (starTmS g a p) (ssₛS (compS a g (! p))) (starTm₁S g a aₛ p a₁ ∙ UUStrNatS g (∂₀S a) p ∙ ap (UUStrS i) (! (ss₀S (compS a g (! p)) ∙ comp₀S a g (! p))))
+--                                                                                    (starTmS g u u₀) (ssₛS (compS u g (! u₀))) (starTm₁S g u uₛ u₀ u₁ ∙ ElStrNatS g a aₛ a₁ p) (starTmS g v v₀) (ssₛS (compS v g (! v₀))) (starTm₁S g v vₛ v₀ v₁ ∙ ElStrNatS g a aₛ a₁ p)
+-- idStrNatS i = //-elimP (λ g → //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ p → idStrNatS-// i g a aₛ a₁ u uₛ u₁ v vₛ v₁ p))))
+
+
+
+
+-- reflStr₀S : ∀ {n} A u uₛ u₁ → _
+-- reflStr₀S {n} A u uₛ u₁ = is-section₀S {n} (reflStrS A u uₛ u₁) (reflStrₛS A u uₛ u₁) (reflStr₁S A u uₛ u₁) ∙ IdStr=S A u uₛ u₁ u uₛ u₁
+
+-- reflStrNatS-// : {n m : ℕ} (g : DMor n m) (A : DCtx (suc m)) (u : DMor m (suc m)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ (proj A)) (p : ftS (proj A) ≡ ∂₁S (proj g))
+--                  (let u₀ = is-section₀S (proj u) uₛ u₁ ∙ p)
+--              → starTmS (proj g) (reflStrS (proj A) (proj u) uₛ u₁) (reflStr₀S (proj A) (proj u) uₛ u₁ ∙ p) ≡ reflStrS (starS (proj g) (proj A) (! p)) (starTmS (proj g) (proj u) u₀) (ssₛS (compS (proj u) (proj g) (! u₀))) (starTm₁S (proj g) (proj u) uₛ u₀ u₁)
+-- reflStrNatS-// (dmor (_ , _) (_ , _) δ _) ((_ , A) , (_ , _)) (dmor (_ , _) ((_ , _) , (_ , _)) (_ , u) (_ , _)) uₛ u₁ p = up-to-rhsTyEq (ap (_[_]Ty (id A u u)) (idMor[]Mor δ))
+
+-- reflStrNatS : {n m : ℕ} (g : MorS n m) (A : ObS (suc m)) (u : MorS m (suc m)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ A) (p : ftS A ≡ ∂₁S g)
+--                  (let u₀ = is-section₀S u uₛ u₁ ∙ p)
+--              → starTmS g (reflStrS A u uₛ u₁) (reflStr₀S A u uₛ u₁ ∙ p) ≡ reflStrS (starS g A (! p)) (starTmS g u u₀) (ssₛS (compS u g (! u₀))) (starTm₁S g u uₛ u₀ u₁)
+-- reflStrNatS = //-elimP (λ g → //-elimP (λ A → //-elimP (λ u uₛ u₁ p → reflStrNatS-// g A u uₛ u₁ p)))
+
+-- betaPiStrS-// : (B : DCtx (suc (suc n))) (u : DMor (suc n) (suc (suc n))) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ proj B) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B))
+--             → appStrS (proj B) (lamStrS (proj B) (proj u) uₛ u₁) (lamStrₛS (proj B) (proj u) uₛ u₁) (lamStr₁S (proj B) (proj u) uₛ u₁) (proj a) aₛ a₁ ≡ starTmS (proj a) (proj u) (is-section₀S (proj u) uₛ refl ∙ ap ftS u₁ ∙ ! a₁)
+-- betaPiStrS-// (((Γ , A) , B) , ((dΓ , dA) , dB)) uu@(dmor (ΓAu  , _) ((ΓA'u , Bu) , (dΓA'u , dBu)) (idu , u) (didu , du[idu])) uₛ u₁
+--             aa@(dmor (Γa , _) ((Γ'a , Aa) , (_ , dAa)) (ida , a) (dida , da[ida])) aₛ a₁ =
+--                   let (dΓA'u=ΓA , _ , _ , dBu=B , _) = reflect u₁
+--                       ((_ , dΓA'u=ΓAu) , _) = reflect uₛ
+--                       (dΓ'a=Γ , _ , _ , dAa=A , _) = reflect a₁
+--                       ((_ , dΓ'a=Γa) , _) = reflect aₛ
+--                       dΓ=Γa = CtxTran (CtxSymm dΓ'a=Γ) dΓ'a=Γa
+--                       dΓA=ΓAu = CtxTran (CtxSymm dΓA'u=ΓA) dΓA'u=ΓAu
+--                       da = (DMor-dTm aa aₛ a₁)
+--                       du = (DMor-dTm uu uₛ u₁)
+--                       did=ida = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dAa} {dδ = dida} {du = da[ida]} aₛ) (CtxSymm dΓ=Γa) dΓ'a=Γ)
+--                       did=idu = MorSymm (dΓ , dA) (dΓ , dA) (ConvMorEq (sectionS-eq {dA = dBu} {dδ = didu} {du = du[idu]} uₛ) (CtxSymm dΓA=ΓAu) dΓA'u=ΓA)
+--                   in
+--                   eq ((dΓ=Γa , (dΓ=Γa ,, SubstTyMorEq2 dΓ (dΓ , dA) (ConvTyEq (TySymm dBu=B) dΓA'u=ΓA) (MorTran {δ' = ida , a} dΓ (dΓ , dA) (did=ida , TmRefl (congTm (! ([idMor]Ty A)) refl da)) (congMorEq refl refl (idMor[]Mor _) refl (SubstMorEq did=idu ((ConvMor dida (CtxSymm dΓ=Γa) dΓ'a=Γ) , (Conv dA da (congTyEq ([idMor]Ty A) refl (SubstTyMorEq dA (idMorDerivable dΓ) did=ida))))))))) , idMor+= dΓ (TmTran (SubstTm du (idMor+ dΓ da)) (BetaPi dA dB du da) (SubstTmMorEq du (idMor+ dΓ da) (did=ida , TmRefl (congTm (! ([idMor]Ty A)) refl da)))))
+
+
+-- betaPiStrS : (B : ObS (suc (suc n))) (u : MorS (suc n) (suc (suc n))) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ B) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B)
+--             → appStrS B (lamStrS B u uₛ u₁) (lamStrₛS B u uₛ u₁) (lamStr₁S B u uₛ u₁) a aₛ a₁ ≡ starTmS a u (is-section₀S u uₛ refl ∙ ap ftS u₁ ∙ ! a₁)
+-- betaPiStrS = //-elimP (λ B → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → betaPiStrS-// B u uₛ u₁ a aₛ a₁)))
 
 
-betaPiStrS : (B : ObS (suc (suc n))) (u : MorS (suc n) (suc (suc n))) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ B) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B)
-            → appStrS B (lamStrS B u uₛ u₁) (lamStrₛS B u uₛ u₁) (lamStr₁S B u uₛ u₁) a aₛ a₁ ≡ starTmS a u (is-section₀S u uₛ refl ∙ ap ftS u₁ ∙ ! a₁)
-betaPiStrS = //-elimP (λ B → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → betaPiStrS-// B u uₛ u₁ a aₛ a₁)))
 
+-- betaSig1StrS-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → pr1StrS (proj B) (pairStrS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStrₛS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStr₁S (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ proj a
+-- betaSig1StrS-// BB@(((Γ , A) , B) , ((dΓ , dA) , dB)) aa@(dmor (Γa  , _) ((Γ'a , Aa) , (dΓ'a , dAa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor (Γb  , _) ((Γ'b , B[a]) , (dΓ'b , dB[a])) (idb , b) (didb , db[idba])) bₛ b₁ = let
+--            (dΓ'a=Γ , _ , _ , Γ'adAa=A , ΓdAa=A) = reflect a₁
+--            ((_ , dΓ'a=Γa) , _) = reflect aₛ
+--            dΓ=Γa = CtxTran (CtxSymm dΓ'a=Γ) dΓ'a=Γa
+--            did=ida = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dAa} {dδ = dida} {du = da[ida]} aₛ) (CtxSymm dΓ=Γa) dΓ'a=Γ)
+--            in
+--            eq ((dΓ=Γa , (CtxSymm dΓ'a=Γ ,, TySymm ΓdAa=A)) , (did=ida , congTmEqTy (! ([idMor]Ty A)) (BetaSig1 dA dB (DMor-dTm aa aₛ a₁) (DMor-dTm+ BB aa aₛ a₁ bb bₛ b₁))))
+
 
+-- betaSig1StrS : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → pr1StrS B (pairStrS B a aₛ a₁ b bₛ b₁) (pairStrₛS B a aₛ a₁ b bₛ b₁) (pairStr₁S B a aₛ a₁ b bₛ b₁) ≡ a
+-- betaSig1StrS = //-elimP (λ B → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → betaSig1StrS-// B u uₛ u₁ a aₛ a₁)))
+
+-- betaSig2StrS-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → pr2StrS (proj B) (pairStrS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStrₛS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStr₁S (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ proj b
+-- betaSig2StrS-// BB@(((Γ , A) , B) , ((dΓ , dA) , dB)) aa@(dmor (Γa  , _) ((Γ'a , Aa) , (dΓ'a , dAa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor (Γb  , _) ((Γ'b , B[a]) , (dΓ'b , dB[a])) (idb , b) (didb , db[idb])) bₛ b₁ = let
+--            (dΓ'a=Γ , _ , _ , Γ'adAa=A , ΓdAa=A) = reflect a₁
+--            ((_ , dΓ'a=Γa) , _) = reflect aₛ
+--            (dΓ'b=Γa , _ , _ , dB[a]=B[ida,a] , _) = reflect b₁
+--            ((_ , dΓ'b=Γb) , _) = reflect bₛ
+--            dΓ=Γa = CtxTran (CtxSymm dΓ'a=Γ) dΓ'a=Γa
+--            dΓa=Γb = CtxTran (CtxSymm dΓ'b=Γa) dΓ'b=Γb
+--            did=ida = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dAa} {dδ = dida} {du = da[ida]} aₛ) (CtxSymm dΓ=Γa) dΓ'a=Γ)
+--            did=idb = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dB[a]} {dδ = didb} {du = db[idb]} bₛ) (CtxSymm (CtxTran dΓ=Γa dΓa=Γb)) (CtxTran dΓ'b=Γa (CtxSymm dΓ=Γa)))
+--            da = DMor-dTm aa aₛ a₁
+--            db = DMor-dTm+ BB aa aₛ a₁ bb bₛ b₁
+--            dB[id,a]=B[a] = TyTran (SubstTy {δ = ida , a} dB ((ConvMor dida (CtxSymm dΓ=Γa) dΓ'a=Γ) , (Conv (SubstTy dAa (ConvMor dida (CtxSymm dΓ=Γa) (CtxRefl dΓ'a))) (ConvTm da[ida] (CtxSymm dΓ=Γa)) (SubstTyEq Γ'adAa=A (ConvMor dida (CtxSymm dΓ=Γa) (CtxRefl dΓ'a)))))) (SubstTyMorEq dB (idMor+ dΓ da) (did=ida , (TmRefl (congTm (! ([idMor]Ty A)) refl da)))) (ConvTyEq (TySymm dB[a]=B[ida,a]) (CtxTran dΓ'b=Γa (CtxSymm dΓ=Γa)))
+--            in
+--            eq ((CtxTran dΓ=Γa dΓa=Γb , (CtxTran dΓ=Γa (CtxSymm dΓ'b=Γa) ,, TyTran (SubstTy dB (idMor+ dΓ da)) (SubstTyMorEq dB (idMor+ dΓ (Pr1 dA dB (Pair dA dB da db))) (idMor+= dΓ (BetaSig1 dA dB da db))) dB[id,a]=B[a])) , (did=idb , ConvEq (SubstTy dB (idMor+ dΓ da)) (BetaSig2 dA dB da db) (congTyEq refl (! ([idMor]Ty _)) (SubstTyMorEq dB (idMor+ dΓ da) (idMor+= dΓ (TmSymm (BetaSig1 dA dB da db))))))) 
 
-betaSig1StrS-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → pr1StrS (proj B) (pairStrS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStrₛS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStr₁S (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ proj a
-betaSig1StrS-// BB@(((Γ , A) , B) , ((dΓ , dA) , dB)) aa@(dmor (Γa  , _) ((Γ'a , Aa) , (dΓ'a , dAa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor (Γb  , _) ((Γ'b , B[a]) , (dΓ'b , dB[a])) (idb , b) (didb , db[idba])) bₛ b₁ = let
-           (dΓ'a=Γ , _ , _ , Γ'adAa=A , ΓdAa=A) = reflect a₁
-           ((_ , dΓ'a=Γa) , _) = reflect aₛ
-           dΓ=Γa = CtxTran (CtxSymm dΓ'a=Γ) dΓ'a=Γa
-           did=ida = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dAa} {dδ = dida} {du = da[ida]} aₛ) (CtxSymm dΓ=Γa) dΓ'a=Γ)
-           in
-           eq ((dΓ=Γa , (CtxSymm dΓ'a=Γ ,, TySymm ΓdAa=A)) , (did=ida , congTmEqTy (! ([idMor]Ty A)) (BetaSig1 dA dB (DMor-dTm aa aₛ a₁) (DMor-dTm+ BB aa aₛ a₁ bb bₛ b₁))))
 
+-- betaSig2StrS : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → pr2StrS B (pairStrS B a aₛ a₁ b bₛ b₁) (pairStrₛS B a aₛ a₁ b bₛ b₁) (pairStr₁S B a aₛ a₁ b bₛ b₁) ≡ b
+-- betaSig2StrS = //-elimP (λ B → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → betaSig2StrS-// B u uₛ u₁ a aₛ a₁)))
 
-betaSig1StrS : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → pr1StrS B (pairStrS B a aₛ a₁ b bₛ b₁) (pairStrₛS B a aₛ a₁ b bₛ b₁) (pairStr₁S B a aₛ a₁ b bₛ b₁) ≡ a
-betaSig1StrS = //-elimP (λ B → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → betaSig1StrS-// B u uₛ u₁ a aₛ a₁)))
 
-betaSig2StrS-// : (B : DCtx (suc (suc n))) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ ftS (proj B)) (b : DMor n (suc n)) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ starS (proj a) (proj B) a₁) → pr2StrS (proj B) (pairStrS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStrₛS (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) (pairStr₁S (proj B) (proj a) aₛ a₁ (proj b) bₛ b₁) ≡ proj b
-betaSig2StrS-// BB@(((Γ , A) , B) , ((dΓ , dA) , dB)) aa@(dmor (Γa  , _) ((Γ'a , Aa) , (dΓ'a , dAa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor (Γb  , _) ((Γ'b , B[a]) , (dΓ'b , dB[a])) (idb , b) (didb , db[idb])) bₛ b₁ = let
-           (dΓ'a=Γ , _ , _ , Γ'adAa=A , ΓdAa=A) = reflect a₁
-           ((_ , dΓ'a=Γa) , _) = reflect aₛ
-           (dΓ'b=Γa , _ , _ , dB[a]=B[ida,a] , _) = reflect b₁
-           ((_ , dΓ'b=Γb) , _) = reflect bₛ
-           dΓ=Γa = CtxTran (CtxSymm dΓ'a=Γ) dΓ'a=Γa
-           dΓa=Γb = CtxTran (CtxSymm dΓ'b=Γa) dΓ'b=Γb
-           did=ida = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dAa} {dδ = dida} {du = da[ida]} aₛ) (CtxSymm dΓ=Γa) dΓ'a=Γ)
-           did=idb = MorSymm dΓ dΓ (ConvMorEq (sectionS-eq {dA = dB[a]} {dδ = didb} {du = db[idb]} bₛ) (CtxSymm (CtxTran dΓ=Γa dΓa=Γb)) (CtxTran dΓ'b=Γa (CtxSymm dΓ=Γa)))
-           da = DMor-dTm aa aₛ a₁
-           db = DMor-dTm+ BB aa aₛ a₁ bb bₛ b₁
-           dB[id,a]=B[a] = TyTran (SubstTy {δ = ida , a} dB ((ConvMor dida (CtxSymm dΓ=Γa) dΓ'a=Γ) , (Conv (SubstTy dAa (ConvMor dida (CtxSymm dΓ=Γa) (CtxRefl dΓ'a))) (ConvTm da[ida] (CtxSymm dΓ=Γa)) (SubstTyEq Γ'adAa=A (ConvMor dida (CtxSymm dΓ=Γa) (CtxRefl dΓ'a)))))) (SubstTyMorEq dB (idMor+ dΓ da) (did=ida , (TmRefl (congTm (! ([idMor]Ty A)) refl da)))) (ConvTyEq (TySymm dB[a]=B[ida,a]) (CtxTran dΓ'b=Γa (CtxSymm dΓ=Γa)))
-           in
-           eq ((CtxTran dΓ=Γa dΓa=Γb , (CtxTran dΓ=Γa (CtxSymm dΓ'b=Γa) ,, TyTran (SubstTy dB (idMor+ dΓ da)) (SubstTyMorEq dB (idMor+ dΓ (Pr1 dA dB (Pair dA dB da db))) (idMor+= dΓ (BetaSig1 dA dB da db))) dB[id,a]=B[a])) , (did=idb , ConvEq (SubstTy dB (idMor+ dΓ da)) (BetaSig2 dA dB da db) (congTyEq refl (! ([idMor]Ty _)) (SubstTyMorEq dB (idMor+ dΓ da) (idMor+= dΓ (TmSymm (BetaSig1 dA dB da db))))))) 
+-- eluuStrS-// : (i : ℕ) (X : DCtx n) → ElStrS (suc i) (uuStrS i (proj X)) (uuStrₛS i (proj X)) (uuStr₁S i (proj X) ∙ ap (UUStrS (suc i)) (! (uuStr₀S i (proj X)))) ≡ UUStrS i (proj X)
+-- eluuStrS-// i (Γ , dΓ) = eq (CtxRefl dΓ ,, ElUU=)
 
+-- eluuStrS : (i : ℕ) (X : ObS n) → ElStrS (suc i) (uuStrS i X) (uuStrₛS i X) (uuStr₁S i X ∙ ap (UUStrS (suc i)) (! (uuStr₀S i X))) ≡ UUStrS i X
+-- eluuStrS i = //-elimP (λ X → eluuStrS-// i X)
 
-betaSig2StrS : (B : ObS (suc (suc n))) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ ftS B) (b : MorS n (suc n)) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ starS a B a₁) → pr2StrS B (pairStrS B a aₛ a₁ b bₛ b₁) (pairStrₛS B a aₛ a₁ b bₛ b₁) (pairStr₁S B a aₛ a₁ b bₛ b₁) ≡ b
-betaSig2StrS = //-elimP (λ B → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → betaSig2StrS-// B u uₛ u₁ a aₛ a₁)))
+-- elpiStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁))
+--             → ElStrS i (piStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) (piStrₛS i (proj a) aₛ a₁ (proj b) bₛ b₁) (piStr₁S i (proj a) aₛ a₁ (proj b) bₛ b₁ ∙ ap (UUStrS i) (! (piStr₀S i (proj a) aₛ a₁ (proj b) bₛ b₁))) ≡ PiStrS (ElStrS i (proj b) bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S (proj b) bₛ b₁ ∙ UUStr=S i (ElStrS i (proj a) aₛ a₁)))))
+-- elpiStrS-// i aa@(dmor (Γa , _) ((Γ'a , Ua) , (dΓ'a , dUa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor ((Γb , Elab) , _) (((Γ'b , Ela'b) , Ub) , ((dΓ'b , dEla'b) , dUb)) (idb , b) (didb , db[idb])) bₛ b₁ =
+--   let
+--     (dΓ'a=Γa , _ , _ , dUa=U , _) = reflect a₁
+--     ((dΓ'b=Γa , _ , _ , _ , dEla'b=Ela) , _ , _ , dBb=U , _) = reflect b₁
+--     ((_ , (dΓ'b=Γb , _ , _ , dEla'b=Elab , _)) , _) = reflect bₛ
+--     da = DMor-dTm aa aₛ a₁
+--     db = DMor-dTm bb bₛ b₁
+--   in
+--   eq (CtxTran (CtxSymm dΓ'b=Γa) dΓ'b=Γb ,, TyTran (Pi (El da) (El db)) (ElPi= da db) (PiCong (El da) (TyTran (ConvTy dEla'b dΓ'b=Γa) (TySymm dEla'b=Ela) (ConvTyEq dEla'b=Elab dΓ'b=Γa)) (TyRefl (El db))))
 
+-- elpiStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁))
+--             → ElStrS i (piStrS i a aₛ a₁ b bₛ b₁) (piStrₛS i a aₛ a₁ b bₛ b₁) (piStr₁S i a aₛ a₁ b bₛ b₁ ∙ ap (UUStrS i) (! (piStr₀S i a aₛ a₁ b bₛ b₁))) ≡ PiStrS (ElStrS i b bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S b bₛ b₁ ∙ UUStr=S i (ElStrS i a aₛ a₁)))))
+-- elpiStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → elpiStrS-// i a aₛ a₁ b bₛ b₁))
 
-eluuStrS-// : (i : ℕ) (X : DCtx n) → ElStrS (suc i) (uuStrS i (proj X)) (uuStrₛS i (proj X)) (uuStr₁S i (proj X) ∙ ap (UUStrS (suc i)) (! (uuStr₀S i (proj X)))) ≡ UUStrS i (proj X)
-eluuStrS-// i (Γ , dΓ) = eq (CtxRefl dΓ ,, ElUU=)
 
-eluuStrS : (i : ℕ) (X : ObS n) → ElStrS (suc i) (uuStrS i X) (uuStrₛS i X) (uuStr₁S i X ∙ ap (UUStrS (suc i)) (! (uuStr₀S i X))) ≡ UUStrS i X
-eluuStrS i = //-elimP (λ X → eluuStrS-// i X)
 
-elpiStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁))
-            → ElStrS i (piStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) (piStrₛS i (proj a) aₛ a₁ (proj b) bₛ b₁) (piStr₁S i (proj a) aₛ a₁ (proj b) bₛ b₁ ∙ ap (UUStrS i) (! (piStr₀S i (proj a) aₛ a₁ (proj b) bₛ b₁))) ≡ PiStrS (ElStrS i (proj b) bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S (proj b) bₛ b₁ ∙ UUStr=S i (ElStrS i (proj a) aₛ a₁)))))
-elpiStrS-// i aa@(dmor (Γa , _) ((Γ'a , Ua) , (dΓ'a , dUa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor ((Γb , Elab) , _) (((Γ'b , Ela'b) , Ub) , ((dΓ'b , dEla'b) , dUb)) (idb , b) (didb , db[idb])) bₛ b₁ =
-  let
-    (dΓ'a=Γa , _ , _ , dUa=U , _) = reflect a₁
-    ((dΓ'b=Γa , _ , _ , _ , dEla'b=Ela) , _ , _ , dBb=U , _) = reflect b₁
-    ((_ , (dΓ'b=Γb , _ , _ , dEla'b=Elab , _)) , _) = reflect bₛ
-    da = DMor-dTm aa aₛ a₁
-    db = DMor-dTm bb bₛ b₁
-  in
-  eq (CtxTran (CtxSymm dΓ'b=Γa) dΓ'b=Γb ,, TyTran (Pi (El da) (El db)) (ElPi= da db) (PiCong (El da) (TyTran (ConvTy dEla'b dΓ'b=Γa) (TySymm dEla'b=Ela) (ConvTyEq dEla'b=Elab dΓ'b=Γa)) (TyRefl (El db))))
+-- elsigStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁))
+--             → ElStrS i (sigStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) (sigStrₛS i (proj a) aₛ a₁ (proj b) bₛ b₁) (sigStr₁S i (proj a) aₛ a₁ (proj b) bₛ b₁ ∙ ap (UUStrS i) (! (sigStr₀S i (proj a) aₛ a₁ (proj b) bₛ b₁))) ≡ SigStrS (ElStrS i (proj b) bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S (proj b) bₛ b₁ ∙ UUStr=S i (ElStrS i (proj a) aₛ a₁)))))
+-- elsigStrS-// i aa@(dmor (Γa , _) ((Γ'a , Ua) , (dΓ'a , dUa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor ((Γb , Elab) , _) (((Γ'b , Ela'b) , Ub) , ((dΓ'b , dEla'b) , dUb)) (idb , b) (didb , db[idb])) bₛ b₁ =
+--   let
+--     (dΓ'a=Γa , _ , _ , dUa=U , _) = reflect a₁
+--     ((dΓ'b=Γa , _ , _ , _ , dEla'b=Ela) , _ , _ , dBb=U , _) = reflect b₁
+--     ((_ , (dΓ'b=Γb , _ , _ , dEla'b=Elab , _)) , _) = reflect bₛ
+--     da = DMor-dTm aa aₛ a₁
+--     db = DMor-dTm bb bₛ b₁
+--   in
+--   eq (CtxTran (CtxSymm dΓ'b=Γa) dΓ'b=Γb ,, TyTran (Sig (El da) (El db)) (ElSig= da db) (SigCong (El da) (TyTran (ConvTy dEla'b dΓ'b=Γa) (TySymm dEla'b=Ela) (ConvTyEq dEla'b=Elab dΓ'b=Γa)) (TyRefl (El db))))
 
-elpiStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁))
-            → ElStrS i (piStrS i a aₛ a₁ b bₛ b₁) (piStrₛS i a aₛ a₁ b bₛ b₁) (piStr₁S i a aₛ a₁ b bₛ b₁ ∙ ap (UUStrS i) (! (piStr₀S i a aₛ a₁ b bₛ b₁))) ≡ PiStrS (ElStrS i b bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S b bₛ b₁ ∙ UUStr=S i (ElStrS i a aₛ a₁)))))
-elpiStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → elpiStrS-// i a aₛ a₁ b bₛ b₁))
+-- elsigStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁))
+--             → ElStrS i (sigStrS i a aₛ a₁ b bₛ b₁) (sigStrₛS i a aₛ a₁ b bₛ b₁) (sigStr₁S i a aₛ a₁ b bₛ b₁ ∙ ap (UUStrS i) (! (sigStr₀S i a aₛ a₁ b bₛ b₁))) ≡ SigStrS (ElStrS i b bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S b bₛ b₁ ∙ UUStr=S i (ElStrS i a aₛ a₁)))))
+-- elsigStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → elsigStrS-// i a aₛ a₁ b bₛ b₁))
 
 
+-- elnatStrS-// : (i : ℕ) (X : DCtx n) → ElStrS i (natStrS i (proj X)) (natStrₛS i (proj X)) (natStr₁S i (proj X) ∙ ap (UUStrS i) (! (natStr₀S i (proj X)))) ≡ NatStrS (proj X)
+-- elnatStrS-// i (Γ , dΓ) = eq (CtxRefl dΓ ,, ElNat=)
 
-elsigStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (b : DMor (suc n) (suc (suc n))) (bₛ : is-sectionS (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj a) aₛ a₁))
-            → ElStrS i (sigStrS i (proj a) aₛ a₁ (proj b) bₛ b₁) (sigStrₛS i (proj a) aₛ a₁ (proj b) bₛ b₁) (sigStr₁S i (proj a) aₛ a₁ (proj b) bₛ b₁ ∙ ap (UUStrS i) (! (sigStr₀S i (proj a) aₛ a₁ (proj b) bₛ b₁))) ≡ SigStrS (ElStrS i (proj b) bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S (proj b) bₛ b₁ ∙ UUStr=S i (ElStrS i (proj a) aₛ a₁)))))
-elsigStrS-// i aa@(dmor (Γa , _) ((Γ'a , Ua) , (dΓ'a , dUa)) (ida , a) (dida , da[ida])) aₛ a₁ bb@(dmor ((Γb , Elab) , _) (((Γ'b , Ela'b) , Ub) , ((dΓ'b , dEla'b) , dUb)) (idb , b) (didb , db[idb])) bₛ b₁ =
-  let
-    (dΓ'a=Γa , _ , _ , dUa=U , _) = reflect a₁
-    ((dΓ'b=Γa , _ , _ , _ , dEla'b=Ela) , _ , _ , dBb=U , _) = reflect b₁
-    ((_ , (dΓ'b=Γb , _ , _ , dEla'b=Elab , _)) , _) = reflect bₛ
-    da = DMor-dTm aa aₛ a₁
-    db = DMor-dTm bb bₛ b₁
-  in
-  eq (CtxTran (CtxSymm dΓ'b=Γa) dΓ'b=Γb ,, TyTran (Sig (El da) (El db)) (ElSig= da db) (SigCong (El da) (TyTran (ConvTy dEla'b dΓ'b=Γa) (TySymm dEla'b=Ela) (ConvTyEq dEla'b=Elab dΓ'b=Γa)) (TyRefl (El db))))
+-- elnatStrS : (i : ℕ) (X : ObS n) → ElStrS i (natStrS i X) (natStrₛS i X) (natStr₁S i X ∙ ap (UUStrS i) (! (natStr₀S i X))) ≡ NatStrS X
+-- elnatStrS i = //-elimP (λ X → elnatStrS-// i X)
 
-elsigStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (b : MorS (suc n) (suc (suc n))) (bₛ : is-sectionS b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i a aₛ a₁))
-            → ElStrS i (sigStrS i a aₛ a₁ b bₛ b₁) (sigStrₛS i a aₛ a₁ b bₛ b₁) (sigStr₁S i a aₛ a₁ b bₛ b₁ ∙ ap (UUStrS i) (! (sigStr₀S i a aₛ a₁ b bₛ b₁))) ≡ SigStrS (ElStrS i b bₛ (b₁ ∙ ap (UUStrS i) (! (is-section₀S b bₛ b₁ ∙ UUStr=S i (ElStrS i a aₛ a₁)))))
-elsigStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → elsigStrS-// i a aₛ a₁ b bₛ b₁))
 
+-- elidStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (u : DMor n (suc n)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ ElStrS i (proj a) aₛ a₁)
+--                       (v : DMor n (suc n)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ ElStrS i (proj a) aₛ a₁) → ElStrS i (idStrS i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁) (idStrₛS i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁) (idStr₁S i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁  ∙ ap (UUStrS i) (! (idStr₀S i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁))) ≡ IdStrS (ElStrS i (proj a) aₛ a₁) (proj u) uₛ u₁ (proj v) vₛ v₁
+-- elidStrS-// i aa@(dmor (Γa , dΓa) ((Γ'a , Ua) , (dΓ'a , dUa)) (ida , a) (dida , da[ida])) aₛ a₁ uu@(dmor (Γu , _) ((Γ'u , Elau) , (dΓ'u , dElau)) (idu , u) (didu , du[idu])) uₛ u₁ vv@(dmor (Γv , _) ((Γ'v , Elav) , (dΓ'v , dElav)) (idv , v) (didv , dv[idv])) vₛ v₁ = eq (CtxRefl dΓa ,, ElId= (DMor-dTm aa aₛ a₁) (DMor-dTm uu uₛ u₁) (DMor-dTm vv vₛ v₁))
 
-elnatStrS-// : (i : ℕ) (X : DCtx n) → ElStrS i (natStrS i (proj X)) (natStrₛS i (proj X)) (natStr₁S i (proj X) ∙ ap (UUStrS i) (! (natStr₀S i (proj X)))) ≡ NatStrS (proj X)
-elnatStrS-// i (Γ , dΓ) = eq (CtxRefl dΓ ,, ElNat=)
-
-elnatStrS : (i : ℕ) (X : ObS n) → ElStrS i (natStrS i X) (natStrₛS i X) (natStr₁S i X ∙ ap (UUStrS i) (! (natStr₀S i X))) ≡ NatStrS X
-elnatStrS i = //-elimP (λ X → elnatStrS-// i X)
 
-
-elidStrS-// : (i : ℕ) (a : DMor n (suc n)) (aₛ : is-sectionS (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (∂₀S (proj a))) (u : DMor n (suc n)) (uₛ : is-sectionS (proj u)) (u₁ : ∂₁S (proj u) ≡ ElStrS i (proj a) aₛ a₁)
-                      (v : DMor n (suc n)) (vₛ : is-sectionS (proj v)) (v₁ : ∂₁S (proj v) ≡ ElStrS i (proj a) aₛ a₁) → ElStrS i (idStrS i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁) (idStrₛS i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁) (idStr₁S i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁  ∙ ap (UUStrS i) (! (idStr₀S i (proj a) aₛ a₁ (proj u) uₛ u₁ (proj v) vₛ v₁))) ≡ IdStrS (ElStrS i (proj a) aₛ a₁) (proj u) uₛ u₁ (proj v) vₛ v₁
-elidStrS-// i aa@(dmor (Γa , dΓa) ((Γ'a , Ua) , (dΓ'a , dUa)) (ida , a) (dida , da[ida])) aₛ a₁ uu@(dmor (Γu , _) ((Γ'u , Elau) , (dΓ'u , dElau)) (idu , u) (didu , du[idu])) uₛ u₁ vv@(dmor (Γv , _) ((Γ'v , Elav) , (dΓ'v , dElav)) (idv , v) (didv , dv[idv])) vₛ v₁ = eq (CtxRefl dΓa ,, ElId= (DMor-dTm aa aₛ a₁) (DMor-dTm uu uₛ u₁) (DMor-dTm vv vₛ v₁))
-
-
-elidStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (u : MorS n (suc n)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ ElStrS i a aₛ a₁)
-                   (v : MorS n (suc n)) (vₛ : is-sectionS v) (v₁ : ∂₁S v ≡ ElStrS i a aₛ a₁) → ElStrS i (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i a aₛ a₁ u uₛ u₁ v vₛ v₁  ∙ ap (UUStrS i) (! (idStr₀S i a aₛ a₁ u uₛ u₁ v vₛ  v₁))) ≡ IdStrS (ElStrS i a aₛ a₁) u uₛ u₁ v vₛ v₁
-elidStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → elidStrS-// i a aₛ a₁ u uₛ u₁ v vₛ v₁)))
-
-open StructuredCCat
+-- elidStrS : (i : ℕ) (a : MorS n (suc n)) (aₛ : is-sectionS a) (a₁ : ∂₁S a ≡ UUStrS i (∂₀S a)) (u : MorS n (suc n)) (uₛ : is-sectionS u) (u₁ : ∂₁S u ≡ ElStrS i a aₛ a₁)
+--                    (v : MorS n (suc n)) (vₛ : is-sectionS v) (v₁ : ∂₁S v ≡ ElStrS i a aₛ a₁) → ElStrS i (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i a aₛ a₁ u uₛ u₁ v vₛ v₁  ∙ ap (UUStrS i) (! (idStr₀S i a aₛ a₁ u uₛ u₁ v vₛ  v₁))) ≡ IdStrS (ElStrS i a aₛ a₁) u uₛ u₁ v vₛ v₁
+-- elidStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → elidStrS-// i a aₛ a₁ u uₛ u₁ v vₛ v₁)))
 
-strSynCCat : StructuredCCat
+-- open StructuredCCat
 
-ccat strSynCCat = synCCat
+-- strSynCCat : StructuredCCat
 
-CCatwithUU.UUStr (ccatUU strSynCCat) = UUStrS
-CCatwithUU.UUStr= (ccatUU strSynCCat) = UUStr=S _ _
-CCatwithUU.UUStrNat (ccatUU strSynCCat) g {X = X} p = UUStrNatS g X p
-
-CCatwithEl.ElStr (ccatEl strSynCCat) = ElStrS
-CCatwithEl.ElStr= (ccatEl strSynCCat) {v = v} = ElStr=S _ v _ _
-CCatwithEl.ElStrNat (ccatEl strSynCCat) g {v = v} p = ElStrNatS g v _ _ p
-
-CCatwithPi.PiStr (ccatPi strSynCCat) = PiStrS
-CCatwithPi.PiStr= (ccatPi strSynCCat) {B = B} = PiStr=S B
-CCatwithPi.PiStrNat (ccatPi strSynCCat) g {B = B} p = PiStrNatS g B p
-
-CCatwithSig.SigStr (ccatSig strSynCCat) = SigStrS
-CCatwithSig.SigStr= (ccatSig strSynCCat) {B = B} = SigStr=S B
-CCatwithSig.SigStrNat (ccatSig strSynCCat) g {B = B} p = SigStrNatS g B p
-
-CCatwithNat.NatStr (ccatNat strSynCCat) = NatStrS
-CCatwithNat.NatStr= (ccatNat strSynCCat) = NatStr=S _
-CCatwithNat.NatStrNat (ccatNat strSynCCat) g {X = X} p = NatStrNatS g X p
-
-CCatwithId.IdStr (ccatId strSynCCat) = IdStrS
-CCatwithId.IdStr= (ccatId strSynCCat) {A = A} {a = a} {b = b} = IdStr=S A a _ _ b _ _
-CCatwithId.IdStrNat (ccatId strSynCCat) g {A = A} {a = u} {b = v} p = IdStrNatS g A u _ _ v _ _ p
-
-
-
-CCatwithuu.uuStr (ccatuu strSynCCat) = uuStrS
-CCatwithuu.uuStrₛ (ccatuu strSynCCat) {X = X} = uuStrₛS _ X
-CCatwithuu.uuStr₁ (ccatuu strSynCCat) {X = X} = uuStr₁S _ X
-CCatwithuu.uuStrNat (ccatuu strSynCCat) g {X = X} p = uuStrNatS _ g X p
-
-CCatwithpi.piStr (ccatpi strSynCCat) = piStrS
-CCatwithpi.piStrₛ (ccatpi strSynCCat) {a = a} {b = b} = piStrₛS _ a _ _ b _ _
-CCatwithpi.piStr₁ (ccatpi strSynCCat) {a = a} {b = b} = piStr₁S _ a _ _ b _ _
-CCatwithpi.piStrNat (ccatpi strSynCCat) g {a = a} {b = b} p = piStrNatS _ g a _ _ b _ _ p
-
-CCatwithlam.lamStr (ccatlam strSynCCat) = lamStrS
-CCatwithlam.lamStrₛ (ccatlam strSynCCat) {B = B} {u = u} = lamStrₛS B u _ _
-CCatwithlam.lamStr₁ (ccatlam strSynCCat) {B = B} {u = u} = lamStr₁S B u _ _
-CCatwithlam.lamStrNat (ccatlam strSynCCat) g {B = B} {u = u} p = lamStrNatS g B u _ _ p
-
-CCatwithapp.appStr (ccatapp strSynCCat) = appStrS
-CCatwithapp.appStrₛ (ccatapp strSynCCat) {B = B} {f = f} {a = a} = appStrₛS B f _ _ a _ _
-CCatwithapp.appStr₁ (ccatapp strSynCCat) {B = B} {f = f} {a = a} = appStr₁S B f _ _ a _ _
-CCatwithapp.appStrNat (ccatapp strSynCCat) g {B = B} {f = f} {a = a} p = appStrNatS g B f _ _ a _ _ p
-
-CCatwithsig.sigStr (ccatsig strSynCCat) = sigStrS
-CCatwithsig.sigStrₛ (ccatsig strSynCCat) {a = a} {b = b} = sigStrₛS _ a _ _ b _ _
-CCatwithsig.sigStr₁ (ccatsig strSynCCat) {a = a} {b = b} = sigStr₁S _ a _ _ b _ _
-CCatwithsig.sigStrNat (ccatsig strSynCCat) g {a = a} {b = b} p = sigStrNatS _ g a _ _ b _ _ p
-
-CCatwithpair.pairStr (ccatpair strSynCCat) = pairStrS
-CCatwithpair.pairStrₛ (ccatpair strSynCCat) {B = B} {a = a} {b = b} = pairStrₛS B a _ _ b _ _
-CCatwithpair.pairStr₁ (ccatpair strSynCCat) {B = B} {a = a} {b = b} = pairStr₁S B a _ _ b _ _
-CCatwithpair.pairStrNat (ccatpair strSynCCat) g {B = B} {a = a} {b = b} p = pairStrNatS g B a _ _ b _ _ p
-
-CCatwithpr1.pr1Str (ccatpr1 strSynCCat) = pr1StrS
-CCatwithpr1.pr1Strₛ (ccatpr1 strSynCCat) {B = B} {u = u} = pr1StrₛS B u _ _
-CCatwithpr1.pr1Str₁ (ccatpr1 strSynCCat) {B = B} {u = u} = pr1Str₁S B u _ _
-CCatwithpr1.pr1StrNat (ccatpr1 strSynCCat) g {B = B} {u = u} p = pr1StrNatS g B u _ _ p
-
-CCatwithpr2.pr2Str (ccatpr2 strSynCCat) = pr2StrS
-CCatwithpr2.pr2Strₛ (ccatpr2 strSynCCat) {B = B} {u = u} = pr2StrₛS B u _ _
-CCatwithpr2.pr2Str₁ (ccatpr2 strSynCCat) {B = B} {u = u} = pr2Str₁S B u _ _
-CCatwithpr2.pr2StrNat (ccatpr2 strSynCCat) g {B = B} {u = u} p  = pr2StrNatS g B u _ _ p
-
-CCatwithnat.natStr (ccatnat strSynCCat) = natStrS
-CCatwithnat.natStrₛ (ccatnat strSynCCat) {X = X} = natStrₛS _ X
-CCatwithnat.natStr₁ (ccatnat strSynCCat) {X = X} = natStr₁S _ X
-CCatwithnat.natStrNat (ccatnat strSynCCat) g {X = X} p = natStrNatS _ g X p
-
-CCatwithzero.zeroStr (ccatzero strSynCCat) = zeroStrS
-CCatwithzero.zeroStrₛ (ccatzero strSynCCat) {X = X} = zeroStrₛS X
-CCatwithzero.zeroStr₁ (ccatzero strSynCCat) {X = X} = zeroStr₁S X
-CCatwithzero.zeroStrNat (ccatzero strSynCCat) g {X = X} p = zeroStrNatS g X p
-
-CCatwithsuc.sucStr (ccatsuc strSynCCat) = sucStrS
-CCatwithsuc.sucStrₛ (ccatsuc strSynCCat) {u = u} = sucStrₛS u _ _
-CCatwithsuc.sucStr₁ (ccatsuc strSynCCat) {u = u} = sucStr₁S u _ _
-CCatwithsuc.sucStrNat (ccatsuc strSynCCat) g {u = u} p = sucStrNatS g u _ _ p
-
-CCatwithnatelim.natelimStr (ccatnatelim strSynCCat) = {!!}
-CCatwithnatelim.natelimStrₛ (ccatnatelim strSynCCat) = {!!}
-CCatwithnatelim.natelimStr₁ (ccatnatelim strSynCCat) = {!!}
-
-CCatwithid.idStr (ccatid strSynCCat) = idStrS
-CCatwithid.idStrₛ (ccatid strSynCCat) {a = a} {u = u} {v = v} = idStrₛS _ a _ _ u _ _ v _ _
-CCatwithid.idStr₁ (ccatid strSynCCat) {a = a} {u = u} {v = v} = idStr₁S _ a _ _ u _ _ v _ _
-CCatwithid.idStrNat (ccatid strSynCCat) g {a = a} {u = u} {v = v} p = idStrNatS _ g a _ _ u _ _ v _ _ p
-
-CCatwithrefl.reflStr (ccatrefl strSynCCat) = reflStrS
-CCatwithrefl.reflStrₛ (ccatrefl strSynCCat) {A = A} {a = a} = reflStrₛS A a _ _
-CCatwithrefl.reflStr₁ (ccatrefl strSynCCat) {A = A} {a = a} = reflStr₁S A a _ _
-CCatwithrefl.reflStrNat (ccatrefl strSynCCat) g {A = A} {u = u} p = reflStrNatS g A u _ _ p
-
-
-betaPiStr strSynCCat {B = B} {u = u} {a = a} = betaPiStrS B u _ _ a _ _
-betaSig1Str strSynCCat {B = B} {a = a} {b = b} = betaSig1StrS B a _ _ b _ _
-betaSig2Str strSynCCat {B = B} {a = a} {b = b} = betaSig2StrS B a _ _ b _ _
-eluuStr strSynCCat {X = X} = eluuStrS _ X
-elpiStr strSynCCat {a = a} {b = b} = elpiStrS _ a _ _ b _ _
-elsigStr strSynCCat {a = a} {b = b} = elsigStrS _ a _ _ b _ _
-elnatStr strSynCCat {X = X} = elnatStrS _ X
-elidStr strSynCCat {a = a} {u = u} {v = v} = elidStrS _ a _ _ u _ _ v _ _
+-- ccat strSynCCat = synCCat
+
+-- CCatwithUU.UUStr (ccatUU strSynCCat) = UUStrS
+-- CCatwithUU.UUStr= (ccatUU strSynCCat) = UUStr=S _ _
+-- CCatwithUU.UUStrNat (ccatUU strSynCCat) g {X = X} p = UUStrNatS g X p
+
+-- CCatwithEl.ElStr (ccatEl strSynCCat) = ElStrS
+-- CCatwithEl.ElStr= (ccatEl strSynCCat) {v = v} = ElStr=S _ v _ _
+-- CCatwithEl.ElStrNat (ccatEl strSynCCat) g {v = v} p = ElStrNatS g v _ _ p
+
+-- CCatwithPi.PiStr (ccatPi strSynCCat) = PiStrS
+-- CCatwithPi.PiStr= (ccatPi strSynCCat) {B = B} = PiStr=S B
+-- CCatwithPi.PiStrNat (ccatPi strSynCCat) g {B = B} p = PiStrNatS g B p
+
+-- CCatwithSig.SigStr (ccatSig strSynCCat) = SigStrS
+-- CCatwithSig.SigStr= (ccatSig strSynCCat) {B = B} = SigStr=S B
+-- CCatwithSig.SigStrNat (ccatSig strSynCCat) g {B = B} p = SigStrNatS g B p
+
+-- CCatwithNat.NatStr (ccatNat strSynCCat) = NatStrS
+-- CCatwithNat.NatStr= (ccatNat strSynCCat) = NatStr=S _
+-- CCatwithNat.NatStrNat (ccatNat strSynCCat) g {X = X} p = NatStrNatS g X p
+
+-- CCatwithId.IdStr (ccatId strSynCCat) = IdStrS
+-- CCatwithId.IdStr= (ccatId strSynCCat) {A = A} {a = a} {b = b} = IdStr=S A a _ _ b _ _
+-- CCatwithId.IdStrNat (ccatId strSynCCat) g {A = A} {a = u} {b = v} p = IdStrNatS g A u _ _ v _ _ p
+
+
+
+-- CCatwithuu.uuStr (ccatuu strSynCCat) = uuStrS
+-- CCatwithuu.uuStrₛ (ccatuu strSynCCat) {X = X} = uuStrₛS _ X
+-- CCatwithuu.uuStr₁ (ccatuu strSynCCat) {X = X} = uuStr₁S _ X
+-- CCatwithuu.uuStrNat (ccatuu strSynCCat) g {X = X} p = uuStrNatS _ g X p
+
+-- CCatwithpi.piStr (ccatpi strSynCCat) = piStrS
+-- CCatwithpi.piStrₛ (ccatpi strSynCCat) {a = a} {b = b} = piStrₛS _ a _ _ b _ _
+-- CCatwithpi.piStr₁ (ccatpi strSynCCat) {a = a} {b = b} = piStr₁S _ a _ _ b _ _
+-- CCatwithpi.piStrNat (ccatpi strSynCCat) g {a = a} {b = b} p = piStrNatS _ g a _ _ b _ _ p
+
+-- CCatwithlam.lamStr (ccatlam strSynCCat) = lamStrS
+-- CCatwithlam.lamStrₛ (ccatlam strSynCCat) {B = B} {u = u} = lamStrₛS B u _ _
+-- CCatwithlam.lamStr₁ (ccatlam strSynCCat) {B = B} {u = u} = lamStr₁S B u _ _
+-- CCatwithlam.lamStrNat (ccatlam strSynCCat) g {B = B} {u = u} p = lamStrNatS g B u _ _ p
+
+-- CCatwithapp.appStr (ccatapp strSynCCat) = appStrS
+-- CCatwithapp.appStrₛ (ccatapp strSynCCat) {B = B} {f = f} {a = a} = appStrₛS B f _ _ a _ _
+-- CCatwithapp.appStr₁ (ccatapp strSynCCat) {B = B} {f = f} {a = a} = appStr₁S B f _ _ a _ _
+-- CCatwithapp.appStrNat (ccatapp strSynCCat) g {B = B} {f = f} {a = a} p = appStrNatS g B f _ _ a _ _ p
+
+-- CCatwithsig.sigStr (ccatsig strSynCCat) = sigStrS
+-- CCatwithsig.sigStrₛ (ccatsig strSynCCat) {a = a} {b = b} = sigStrₛS _ a _ _ b _ _
+-- CCatwithsig.sigStr₁ (ccatsig strSynCCat) {a = a} {b = b} = sigStr₁S _ a _ _ b _ _
+-- CCatwithsig.sigStrNat (ccatsig strSynCCat) g {a = a} {b = b} p = sigStrNatS _ g a _ _ b _ _ p
+
+-- CCatwithpair.pairStr (ccatpair strSynCCat) = pairStrS
+-- CCatwithpair.pairStrₛ (ccatpair strSynCCat) {B = B} {a = a} {b = b} = pairStrₛS B a _ _ b _ _
+-- CCatwithpair.pairStr₁ (ccatpair strSynCCat) {B = B} {a = a} {b = b} = pairStr₁S B a _ _ b _ _
+-- CCatwithpair.pairStrNat (ccatpair strSynCCat) g {B = B} {a = a} {b = b} p = pairStrNatS g B a _ _ b _ _ p
+
+-- CCatwithpr1.pr1Str (ccatpr1 strSynCCat) = pr1StrS
+-- CCatwithpr1.pr1Strₛ (ccatpr1 strSynCCat) {B = B} {u = u} = pr1StrₛS B u _ _
+-- CCatwithpr1.pr1Str₁ (ccatpr1 strSynCCat) {B = B} {u = u} = pr1Str₁S B u _ _
+-- CCatwithpr1.pr1StrNat (ccatpr1 strSynCCat) g {B = B} {u = u} p = pr1StrNatS g B u _ _ p
+
+-- CCatwithpr2.pr2Str (ccatpr2 strSynCCat) = pr2StrS
+-- CCatwithpr2.pr2Strₛ (ccatpr2 strSynCCat) {B = B} {u = u} = pr2StrₛS B u _ _
+-- CCatwithpr2.pr2Str₁ (ccatpr2 strSynCCat) {B = B} {u = u} = pr2Str₁S B u _ _
+-- CCatwithpr2.pr2StrNat (ccatpr2 strSynCCat) g {B = B} {u = u} p  = pr2StrNatS g B u _ _ p
+
+-- CCatwithnat.natStr (ccatnat strSynCCat) = natStrS
+-- CCatwithnat.natStrₛ (ccatnat strSynCCat) {X = X} = natStrₛS _ X
+-- CCatwithnat.natStr₁ (ccatnat strSynCCat) {X = X} = natStr₁S _ X
+-- CCatwithnat.natStrNat (ccatnat strSynCCat) g {X = X} p = natStrNatS _ g X p
+
+-- CCatwithzero.zeroStr (ccatzero strSynCCat) = zeroStrS
+-- CCatwithzero.zeroStrₛ (ccatzero strSynCCat) {X = X} = zeroStrₛS X
+-- CCatwithzero.zeroStr₁ (ccatzero strSynCCat) {X = X} = zeroStr₁S X
+-- CCatwithzero.zeroStrNat (ccatzero strSynCCat) g {X = X} p = zeroStrNatS g X p
+
+-- CCatwithsuc.sucStr (ccatsuc strSynCCat) = sucStrS
+-- CCatwithsuc.sucStrₛ (ccatsuc strSynCCat) {u = u} = sucStrₛS u _ _
+-- CCatwithsuc.sucStr₁ (ccatsuc strSynCCat) {u = u} = sucStr₁S u _ _
+-- CCatwithsuc.sucStrNat (ccatsuc strSynCCat) g {u = u} p = sucStrNatS g u _ _ p
+
+-- CCatwithnatelim.natelimStr (ccatnatelim strSynCCat) = {!!}
+-- CCatwithnatelim.natelimStrₛ (ccatnatelim strSynCCat) = {!!}
+-- CCatwithnatelim.natelimStr₁ (ccatnatelim strSynCCat) = {!!}
+
+-- CCatwithid.idStr (ccatid strSynCCat) = idStrS
+-- CCatwithid.idStrₛ (ccatid strSynCCat) {a = a} {u = u} {v = v} = idStrₛS _ a _ _ u _ _ v _ _
+-- CCatwithid.idStr₁ (ccatid strSynCCat) {a = a} {u = u} {v = v} = idStr₁S _ a _ _ u _ _ v _ _
+-- CCatwithid.idStrNat (ccatid strSynCCat) g {a = a} {u = u} {v = v} p = idStrNatS _ g a _ _ u _ _ v _ _ p
+
+-- CCatwithrefl.reflStr (ccatrefl strSynCCat) = reflStrS
+-- CCatwithrefl.reflStrₛ (ccatrefl strSynCCat) {A = A} {a = a} = reflStrₛS A a _ _
+-- CCatwithrefl.reflStr₁ (ccatrefl strSynCCat) {A = A} {a = a} = reflStr₁S A a _ _
+-- CCatwithrefl.reflStrNat (ccatrefl strSynCCat) g {A = A} {u = u} p = reflStrNatS g A u _ _ p
+
+
+-- betaPiStr strSynCCat {B = B} {u = u} {a = a} = betaPiStrS B u _ _ a _ _
+-- betaSig1Str strSynCCat {B = B} {a = a} {b = b} = betaSig1StrS B a _ _ b _ _
+-- betaSig2Str strSynCCat {B = B} {a = a} {b = b} = betaSig2StrS B a _ _ b _ _
+-- eluuStr strSynCCat {X = X} = eluuStrS _ X
+-- elpiStr strSynCCat {a = a} {b = b} = elpiStrS _ a _ _ b _ _
+-- elsigStr strSynCCat {a = a} {b = b} = elsigStrS _ a _ _ b _ _
+-- elnatStr strSynCCat {X = X} = elnatStrS _ X
+-- elidStr strSynCCat {a = a} {u = u} {v = v} = elidStrS _ a _ _ u _ _ v _ _
  
