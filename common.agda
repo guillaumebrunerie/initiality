@@ -6,6 +6,15 @@ open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
 open import Agda.Builtin.Size public
 
+{- Hack to reduce the size of proofs, you are not supposed to use [‗] directly.
+   Using only [#] might be unsafe too. -}
+
+postulate
+  ‗ : {A : Prop} → A
+
+# : {A : Prop} → A → A
+# a = ‗
+
 {- Relevant equality (used only in a few places, when we need to transport along it) -}
 
 data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
@@ -115,13 +124,22 @@ infix 4 _≡_
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
+ap# : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
+ap# f p = # (ap f p)
+
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
 
-infixr 4 _∙_
+_∙#_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
+p ∙# q = # (p ∙ q)
+
+infixr 4 _∙_ _∙#_
 
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
+
+!# : {A : Set} {a b : A} → a ≡ b → b ≡ a
+!# p = # (! p)
 
 squash≡ : {A : Set} {a b : A} → a ≡R b → a ≡ b
 squash≡ reflR = refl
