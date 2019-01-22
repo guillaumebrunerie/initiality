@@ -631,7 +631,7 @@ record StructuredCCat : Set₁ where
     ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
     ccatid : CCatwithid ccat ccatUU ccatEl
     ccatrefl : CCatwithrefl ccat ccatId
-    -- ccatjj : CCatwithjj ccat ccatId ccatrefl
+    ccatjj : CCatwithjj ccat ccatId ccatrefl
 
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatUU public
@@ -654,7 +654,7 @@ record StructuredCCat : Set₁ where
   open CCatwithnatelim ccatnatelim public
   open CCatwithid ccatid public
   open CCatwithrefl ccatrefl public
-  -- open CCatwithjj ccatjj public
+  open CCatwithjj ccatjj public
 
   field
     {- Additional structure corresponding to equality rules -}
