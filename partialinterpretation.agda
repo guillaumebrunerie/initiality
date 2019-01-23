@@ -151,12 +151,12 @@ ap-irr-reflStr refl refl = refl
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
   [dS]₁ ← assume (∂₁ [dS] ≡ star (pp [P])
-                                 (star (sucStr (ss (idC (ft [P]))) ssₛ (ss₁' (id₁ ∙ unbox [P]=) ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
+                                 (star (sucStr (ss (idC (NatStr X))) ssₛ (ss₁' id₁ ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
                                        (star (qq (pp (NatStr X)) (NatStr X) pp₁)
                                              [P]
                                              (qq₁ ∙ ! (unbox [P]=)))
-                                       (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ unbox [P]= ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
-                                 (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀)))
+                                       (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
+                                 (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀ ∙ ! (unbox [P]=))))
   [u]  ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ ft [P])
