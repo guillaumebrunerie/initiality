@@ -1328,7 +1328,7 @@ natelimStrS = let thing1 : (X : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj
                           (thing2 X P P= dO dOₛ dO₁))
                           (thing3 X P P=))
                           (thing4 X))
-                          thing5
+                          {!thing5!}
 
 
 -- idStr₀S : ∀ {n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ → _
