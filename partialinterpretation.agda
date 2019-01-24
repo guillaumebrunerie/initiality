@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
-open import common hiding (_>>=_)
+open import common hiding (_>>=_; return)
 open import typetheory
 open import syntx
 open import contextualcat
@@ -8,6 +8,7 @@ open import contextualcat
 module _ (sC : StructuredCCat) where
 
 _>>=_ = common._>>=_ {M = Partial}
+return = common.return {M = Partial}
 
 open StructuredCCat sC
 open CCat ccat renaming (Mor to MorC; id to idC)

@@ -214,12 +214,12 @@ record CCat : Set₁ where
   varC₀ : (k : Fin n) (X : Ob n) → ∂₀ (varC k X) ≡ X
   varC₀ k X = ss₀ ∙ pp^₀ k X
 
-  varCL₁ : (X : Ob (suc n)) → ∂₁ (varC last X) ≡ star (pp X) X (pp₁ ∙ refl)
-  varCL₁ X = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl
+  varCL₁ : {X : Ob (suc n)} → ∂₁ (varC last X) ≡ star (pp X) X (pp₁ ∙ refl)
+  varCL₁ = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl
 
-  varC+₁ : (k : Fin n) (X : Ob (suc n)) {Y : Ob n} (Y= : ft X ≡ Y) (p : ft (∂₁ (varC k Y)) ≡ Y) → ∂₁ (varC (prev k) X) ≡ star (pp X) (∂₁ (varC k Y)) (pp₁ ∙ Y= ∙ ! p)
-  varC+₁ last X Y= p = ss₁' pp₁ ∙ star-comp pp₁ ∙ ap2-irr star refl (ap2-irr star (ap pp Y= ∙ ! (id-left' pp₀)) Y= ∙ ! (ss₁' id₁))
-  varC+₁ (prev k) X Y= p = ss₁' (comp₁ ∙ pp^₁ (prev k) (ft X)) ∙ ap2-irr star (! (assoc {q = pp^₁ (prev k) (ft X) ∙ ! pp₀})) refl ∙ star-comp (comp₁ ∙ pp₁) ∙ ap2-irr star refl (ap2-irr star (ap2-irr comp (ap pp (ap (ft^' k) (ap ft Y=) ∙ ! (pp^₁ (prev k) _))) (ap (pp^ (prev k)) Y=)) (ap (ft^' k) (ap ft Y=) ∙ ! (pp^₁ (prev k) _)) ∙ ! ss₁)
+  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (Z= : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (pp₁ ∙ {!TODO!})
+  varC+₁ last refl refl = ss₁' pp₁ ∙ star-comp pp₁ ∙ ap2-irr star refl (! varCL₁)
+  varC+₁ (prev k) {X = X} refl refl = ss₁' (comp₁ ∙ pp^₁ (prev k) (ft X)) ∙ ap2-irr star (! (assoc {q = pp^₁ (prev k) (ft X) ∙ ! pp₀})) refl ∙ star-comp (comp₁ ∙ pp₁) ∙ ap2-irr star refl (ap2-irr star (ap2-irr comp (ap pp (! (pp^₁ (prev k) _))) refl) (! (pp^₁ (prev k) _)) ∙ ! ss₁)
 
   ss-id₁ : {X : Ob (suc n)} → ∂₁ (ss (id X)) ≡ star (pp X) X pp₁
   ss-id₁ = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl
