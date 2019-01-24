@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
-open import common hiding (_>>=_)
+open import common hiding (_>>=_; return)
 open import typetheory
 open import syntx
 open import contextualcat
@@ -8,6 +8,7 @@ open import contextualcat
 module _ (sC : StructuredCCat) where
 
 _>>=_ = common._>>=_ {M = Partial}
+return = common.return {M = Partial}
 
 open StructuredCCat sC
 open CCat ccat renaming (Mor to MorC; id to idC)
@@ -34,9 +35,9 @@ ap-irr-pr1Str refl refl = refl
 ap-irr-pr2Str : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} B u uₛ u₁ ≡ pr2Str B' u' uₛ' u₁'
 ap-irr-pr2Str refl refl = refl
 
--- ap-irr-natelim : {n : ℕ} {X X' : _} (X= : X ≡ X') {P P' : _} (P= : P ≡ P') {dO dO' : _} (dO= : dO ≡ dO') {dS dS' : _} (dS= : dS ≡ dS') {u u' : _} (u= : u ≡ u') → ∀ {P≡ dOₛ dO₁ dSₛ dS₁ uₛ u₁ P'≡ dO'ₛ dO'₁ dS'ₛ dS'₁ u'ₛ u'₁}
---   → natelimStr {n = n} X P P≡ dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'≡ dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
--- ap-irr-natelim refl refl refl refl refl = refl
+ap-irr-natelimStr : {n : ℕ} {X X' : _} (X= : X ≡ X') {P P' : _} (P= : P ≡ P') {dO dO' : _} (dO= : dO ≡ dO') {dS dS' : _} (dS= : dS ≡ dS') {u u' : _} (u= : u ≡ u') → ∀ {P≡ P'≡} → {dS₁ : T-dS₁ X P P≡ dS} {dS'₁ : T-dS₁ X' P' P'≡ dS'} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
+  → natelimStr {n = n} X P P≡ dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'≡ dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
+ap-irr-natelimStr refl refl refl refl refl = refl
 
 ap-irr-idStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v= : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
 ap-irr-idStr refl refl refl = refl
@@ -151,12 +152,12 @@ ap-irr-reflStr refl refl = refl
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
   [dS]₁ ← assume (∂₁ [dS] ≡ star (pp [P])
-                                 (star (sucStr (ss (idC (ft [P]))) ssₛ (ss₁' (id₁ ∙ unbox [P]=) ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
+                                 (star (sucStr (ss (idC (NatStr X))) ssₛ (ss₁' id₁ ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
                                        (star (qq (pp (NatStr X)) (NatStr X) pp₁)
                                              [P]
                                              (qq₁ ∙ ! (unbox [P]=)))
-                                       (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ unbox [P]= ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
-                                 (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀)))
+                                       (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
+                                 (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀ ∙ ! (unbox [P]=))))
   [u]  ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ ft [P])

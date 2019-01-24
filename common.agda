@@ -155,6 +155,20 @@ open Box public
 
 {- Finite sets -}
 
+{- General remarks about the use of Fin
+There are two different use cases for finite numbers:
+- to specify a certain variable of a context
+- to specify a spot where we want to weaken in a context
+Assuming the context is of length [n], in the first case we will use [Fin n]
+(as there are n possible variables), but in the second case we will use
+[Fin (suc n)] (as there are n+1 possible places where we could weaken)
+In the second case we use [n -F' k] to compute the length of the prefix
+before the spot where we want to weaken, and in the first case we use [n -F k]
+to compute the length of the prefix including the variable.
+Given a variable at [k], then [prev k] is the spot weakening before that variable.
+-}
+
+
 data Fin : ℕ → Set where
   last : {n : ℕ} → Fin (suc n)
   prev : {n : ℕ} → Fin n → Fin (suc n)

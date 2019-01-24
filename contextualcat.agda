@@ -87,37 +87,39 @@ record CCat : Set₁ where
 
   {- Iterated father and qq operations -}
 
+  -- Take the prefix of the context up to spot [k]
   ft^ : (k : Fin (suc n)) (X : Ob n) → Ob (n -F' k)
   ft^ {n} last X = X
   ft^ {zero} (prev ()) X
   ft^ {suc n} (prev k) X = ft^ {n = n} k (ft X)
 
+  -- Weaken [X] by adding [X+] at spot [k]
   star^ : (k : Fin (suc n)) (X+ : Ob (suc (n -F' k))) (X : Ob n) (X= : ft X+ ≡ ft^ k X) → Ob (suc n)
   qq^   : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (X= : ft X+ ≡ ft^ k X) → Mor (suc n) n
-  qq^₁  : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (X= : ft X+ ≡ ft^ k X) → ∂₁ (qq^ k X=) ≡ X
-  qq^₀  : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (X= : ft X+ ≡ ft^ k X) → ∂₀ (qq^ k X=) ≡ star^ k X+ X X=
+  qq^₁  : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob n} {X= : ft X+ ≡ ft^ k X} → ∂₁ (qq^ k X=) ≡ X
+  qq^₀  : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob n} {X= : ft X+ ≡ ft^ k X} → ∂₀ (qq^ k X=) ≡ star^ k X+ X X=
 
   star^ last X+ X X= = X+
   star^ {n = zero} (prev ()) X+ X X=
-  star^ {n = suc n} (prev k) X+ X X= = star' (qq^ k X=) X (qq^₁ k X=)
+  star^ {n = suc n} (prev k) X+ X X= = star' (qq^ k X=) X qq^₁
 
   abstract
     qq^ last {X+ = X+} X= = pp X+
     qq^ {n = zero} (prev ()) X=
-    qq^ {n = suc n} (prev k) {X = X} X= = qq (qq^ k X=) X (qq^₁ k X=)
+    qq^ {n = suc n} (prev k) {X = X} X= = qq (qq^ k X=) X (qq^₁ {k = k} {X= = X=})
 
-    qq^₁ {n} last X= = pp₁ ∙ X=
-    qq^₁ {zero} (prev ()) _
-    qq^₁ {suc n} (prev k) _ = qq₁
+    qq^₁ {n} {last} {X= = X=} = pp₁ ∙ X=
+    qq^₁ {zero} {prev ()}
+    qq^₁ {suc n} {prev k} = qq₁
 
-    qq^₀ last _ = pp₀
-    qq^₀ {zero} (prev ()) _
-    qq^₀ {suc n} (prev k) _ = qq₀
+    qq^₀ {_} {last} = pp₀
+    qq^₀ {zero} {prev ()}
+    qq^₀ {suc n} {prev k} = qq₀
 
     qq^last : {X+ : Ob (suc n)} {X : Ob n} {X= : ft X+ ≡ X} → qq^ last X= ≡ pp X+
     qq^last = refl
 
-    qq^prev : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob (suc n)} {X= : ft X+ ≡ ft^ (prev k) X} → qq^ (prev k) X= ≡ qq (qq^ k X=) X (qq^₁ k X=)
+    qq^prev : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob (suc n)} {X= : ft X+ ≡ ft^ (prev k) X} → qq^ (prev k) X= ≡ qq (qq^ k X=) X (qq^₁ {k = k} {X= = X=})
     qq^prev = refl
 
   qq^=p : {k : Fin (suc n)} {X : Ob n} {X+ : Ob (suc (n -F' k))} {X= : ft X+ ≡ ft^ k X} {X' : Ob n} {X'= : ft X+ ≡ ft^ k X'} (p : X' ≡ X) → qq^ k X'= ≡ qq^ k X=
@@ -196,15 +198,28 @@ record CCat : Set₁ where
   pp^₀ (prev last) X = pp₀
   pp^₀ (prev k@(prev _)) X = comp₀ ∙ pp₀
 
+  -- Take the prefix of the context up to (and including) variable [k]
+  ft^' : (k : Fin n) (X : Ob n) → Ob (n -F k)
+  ft^' {n} last X = X
+  ft^' {suc n} (prev k) X = ft^' {n = n} k (ft X)
+
+  pp^₁ : (k : Fin n) (X : Ob n) → ∂₁ (pp^ k X) ≡ ft^' k X
+  pp^₁ last X = id₁
+  pp^₁ (prev last) X = pp₁
+  pp^₁ (prev (prev k)) X = comp₁ ∙ pp^₁ (prev k) (ft X)
+
   varC : (k : Fin n) → Ob n → Mor n (suc n)
   varC k X = ss (pp^ k X)
 
   varC₀ : (k : Fin n) (X : Ob n) → ∂₀ (varC k X) ≡ X
   varC₀ k X = ss₀ ∙ pp^₀ k X
 
-  -- TODO
-  -- varC₁ : (k : Fin n) (X : Ob n) → ∂₁ (varC k X) ≡ {!!}
-  -- varC₁ k X = ss₁' {!pp^₁!} ∙ {!!}
+  varCL₁ : {X : Ob (suc n)} → ∂₁ (varC last X) ≡ star (pp X) X (pp₁ ∙ refl)
+  varCL₁ = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl
+
+  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (Z= : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (pp₁ ∙ {!TODO!})
+  varC+₁ last refl refl = ss₁' pp₁ ∙ star-comp pp₁ ∙ ap2-irr star refl (! varCL₁)
+  varC+₁ (prev k) {X = X} refl refl = ss₁' (comp₁ ∙ pp^₁ (prev k) (ft X)) ∙ ap2-irr star (! (assoc {q = pp^₁ (prev k) (ft X) ∙ ! pp₀})) refl ∙ star-comp (comp₁ ∙ pp₁) ∙ ap2-irr star refl (ap2-irr star (ap2-irr comp (ap pp (! (pp^₁ (prev k) _))) refl) (! (pp^₁ (prev k) _)) ∙ ! ss₁)
 
   ss-id₁ : {X : Ob (suc n)} → ∂₁ (ss (id X)) ≡ star (pp X) X pp₁
   ss-id₁ = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl
