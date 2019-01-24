@@ -34,9 +34,9 @@ ap-irr-pr1Str refl refl = refl
 ap-irr-pr2Str : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} B u uₛ u₁ ≡ pr2Str B' u' uₛ' u₁'
 ap-irr-pr2Str refl refl = refl
 
--- ap-irr-natelim : {n : ℕ} {X X' : _} (X= : X ≡ X') {P P' : _} (P= : P ≡ P') {dO dO' : _} (dO= : dO ≡ dO') {dS dS' : _} (dS= : dS ≡ dS') {u u' : _} (u= : u ≡ u') → ∀ {P≡ dOₛ dO₁ dSₛ dS₁ uₛ u₁ P'≡ dO'ₛ dO'₁ dS'ₛ dS'₁ u'ₛ u'₁}
---   → natelimStr {n = n} X P P≡ dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'≡ dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
--- ap-irr-natelim refl refl refl refl refl = refl
+ap-irr-natelimStr : {n : ℕ} {X X' : _} (X= : X ≡ X') {P P' : _} (P= : P ≡ P') {dO dO' : _} (dO= : dO ≡ dO') {dS dS' : _} (dS= : dS ≡ dS') {u u' : _} (u= : u ≡ u') → ∀ {P≡ P'≡} → {dS₁ : T-dS₁ X P P≡ dS} {dS'₁ : T-dS₁ X' P' P'≡ dS'} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
+  → natelimStr {n = n} X P P≡ dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'≡ dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
+ap-irr-natelimStr refl refl refl refl refl = refl
 
 ap-irr-idStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v= : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
 ap-irr-idStr refl refl refl = refl

@@ -32,9 +32,6 @@ open import partialinterpretation sC
 
 ⟦⟧Tm₁ : {Γ : Ctx n} (Γᵈ : isDefined (⟦ Γ ⟧Ctx)) (let X = ⟦ Γ ⟧Ctx $ Γᵈ) {u : TmExpr n} {uᵈ : isDefined (⟦ u ⟧Tm X)} {A : TyExpr n} {Aᵈ : isDefined (⟦ A ⟧Ty X)} (du : Derivable (Γ ⊢ u :> A)) → ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ ⟦ A ⟧Ty X $ Aᵈ
 
-⟦idMor⟧ᵈ : {X Y : Ob n} → Y ≡ X → isDefined (⟦ idMor n ⟧Mor X Y)
-⟦idMor⟧= : {X Y : Ob n} (p : Y ≡ X) → ⟦ idMor n ⟧Mor X Y $ ⟦idMor⟧ᵈ p ≡ idC X
-
 ⟦weakenTy⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} (A : TyExpr n)
             → isDefined (⟦ A ⟧Ty X)
             → (X= : ft X+ ≡ ft^ k X) {Y : Ob (suc n)} (Y= : Y ≡ star^ k X+ X X=)
@@ -178,6 +175,15 @@ open import partialinterpretation sC
 
 {- Auxiliary definitions -}
 
+⟦idMor⟧ᵈ : {X Y : Ob n} → Y ≡ X → isDefined (⟦ idMor n ⟧Mor X Y)
+⟦idMor⟧= : {X Y : Ob n} (p : Y ≡ X) → ⟦ idMor n ⟧Mor X Y $ ⟦idMor⟧ᵈ p ≡ idC X
+
+⟦idMor⟧ᵈ {zero} refl = tt
+⟦idMor⟧ᵈ {suc n} {Y = Y} refl = ⟦weakenMor+⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)
+
+⟦idMor⟧= {zero} refl = ! (ptmor-unique _ (idC _) id₀ (id₁ ∙ pt-unique _))
+⟦idMor⟧= {suc n} {Y = Y} refl = ⟦weakenMor+⟧= {X = ft Y} refl {Y+ = Y} refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id) ∙ ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id
+
 cong⟦⟧Ty : {X Y : Ob n} {A : TyExpr n} → X ≡ Y → isDefined (⟦ A ⟧Ty X) → isDefined (⟦ A ⟧Ty Y)
 cong⟦⟧Ty refl Aᵈ = Aᵈ
 
@@ -200,13 +206,13 @@ cong⟦⟧Tm refl uᵈ = uᵈ
               → (Aᵈ : isDefined (⟦ A ⟧Ty X'))
               → (X= : ft X+ ≡ ft^ k X) {Y : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (qq^ k X=) X' (qq^₁ ∙ ! p) ≡ Y)
               → star+ (qq^ k X=) (⟦ A ⟧Ty X' $ Aᵈ) (ap ft (⟦⟧Ty-ft A) ∙ p ∙ ! qq^₁) ≡ ⟦ weakenTy' (prev k) A ⟧Ty Y $ ⟦weakenTy+⟧ᵈ' k A Aᵈ X= p Y=
-⟦weakenTy+⟧=' k A Aᵈ X= p Y= = {!TODO!}
+⟦weakenTy+⟧=' k A Aᵈ X= p Y= = ap2-irr star (ap2-irr qq (qq^=p (! p)) (⟦⟧Ty-ft A) ∙ ! qq^prev) refl ∙ ⟦weakenTy⟧=' (prev k) A Aᵈ (X= ∙ ap (ft^ k) (! p)) (! Y= ∙ ap2-irr star (qq^=p (! p)) refl)
 
 ⟦weakenTm+⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X' : Ob (suc n)} {X : Ob n} (u : TmExpr (suc n))
               → (uᵈ : isDefined (⟦ u ⟧Tm X'))
               → (X= : ft X+ ≡ ft^ k X) {Y : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (qq^ k X=) X' (qq^₁ ∙ ! p) ≡ Y)
               → starTm+ (qq^ k X=) (⟦ u ⟧Tm X' $ uᵈ) (ap ft (⟦⟧Tm₀ u) ∙ p ∙ ! qq^₁) ≡ ⟦ weakenTm' (prev k) u ⟧Tm Y $ ⟦weakenTm+⟧ᵈ' k u uᵈ X= p Y=
-⟦weakenTm+⟧=' k u uᵈ X= p Y= = {!TODO!}
+⟦weakenTm+⟧=' k u uᵈ X= p Y= = ap ss (ap2-irr comp refl (ap2-irr qq (qq^=p (! p)) (⟦⟧Tm₀ u) ∙ ! qq^prev)) ∙ ⟦weakenTm⟧=' (prev k) u uᵈ (X= ∙ ap (ft^ k) (! p)) (! Y= ∙ ap2-irr star (qq^=p (! p)) refl)
 
 ⟦weakenTm+⟧₁' : (k : Fin (suc n)) {X+ : Ob (suc (suc n -F' (prev k)))} {X : Ob (suc n)} {X' : Ob n} (u : TmExpr (suc n))
               → (uᵈ : isDefined (⟦ u ⟧Tm X))
@@ -227,13 +233,13 @@ cong⟦⟧Tm refl uᵈ = uᵈ
             → (Aᵈ : isDefined (⟦ A ⟧Ty X))
             → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
             → star (pp X+) (⟦ A ⟧Ty X $ Aᵈ) (pp₁ ∙ X= ∙ ! (⟦⟧Ty-ft A)) ≡ ⟦ weakenTy A ⟧Ty Y $ ⟦weakenTy⟧ᵈ' last A Aᵈ X= Y=
-⟦weakenTy⟧= A Aᵈ X= Y= = {!TODO!}
+⟦weakenTy⟧= A Aᵈ X= Y= = ap2-irr star (! qq^last) refl ∙ ⟦weakenTy⟧=' last A Aᵈ X= Y=
 
 ⟦weakenTm⟧= : {X+ : Ob (suc n)} {X : Ob n} (u : TmExpr n)
             → (uᵈ : isDefined (⟦ u ⟧Tm X))
             → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
             → starTm (pp X+) (⟦ u ⟧Tm X $ uᵈ) (⟦⟧Tm₀ u ∙ ! (pp₁ ∙ X=)) ≡ ⟦ weakenTm u ⟧Tm Y $ ⟦weakenTm⟧ᵈ' last u uᵈ X= Y=
-⟦weakenTm⟧= u uᵈ X= Y= = {!TODO!}
+⟦weakenTm⟧= u uᵈ X= Y= = ap ss (ap2-irr comp refl (! qq^last)) ∙ ⟦weakenTm⟧=' last u uᵈ X= Y=
 
 {- Definitions -}
 
@@ -373,24 +379,27 @@ cong⟦⟧Tm refl uᵈ = uᵈ
    ⟦⟧Tmᵈ Γᵈ da ,
    ⟦⟧Tmₛ a ,
    ⟦⟧Tm₁ Γᵈ da , tt)
-⟦⟧Tmᵈ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!TODO!}
---   let Aᵈ = ⟦⟧Tyᵈ Γᵈ dA
---       Pᵈ = {!⟦⟧Tyᵈ ? dP!}
---       P= = {!!}
---       dᵈ = ⟦⟧Tmᵈ (Γᵈ , Aᵈ , tt) dd
---       dₛ = ⟦⟧Tmₛ d
---       d₁ = {!⟦⟧Tm₁ (respectsCtxExt r A) {Aᵈ = ⟦tsubst⟧Tyᵈ P Pᵈ (((weakenMor' last (idMor _) , var last) , var last) , refl (weakenTy' last A) (var last)) {!!}} dd
---      ∙ {!! (⟦tsubst⟧Ty= P Pᵈ ((idMor _ , var last) , refl (weakenTy A) (var last)) {!!}) ∙ {!ap2-irr star (ap2-irr comp (ap2-irr qq (⟦idMor+⟧= (ap ft (IdStr= ∙ ft-star ∙ pp₀ ∙ AA=) ∙ ⟦⟧Ty-ft (weakenTy A)) (var last) tt  {!ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl ∙ ! (IdStr= ∙ ft-star ∙ pp₀)!}) refl) (ap-irr-reflStr (! AA=) refl)) refl!}!}!}
---       aᵈ = ⟦⟧Tmᵈ Γᵈ da
---       aₛ = ⟦⟧Tmₛ a
---       a₁ = ⟦⟧Tm₁ Γᵈ da
---       bᵈ = ⟦⟧Tmᵈ Γᵈ db
---       bₛ = ⟦⟧Tmₛ b
---       b₁ = ⟦⟧Tm₁ Γᵈ db
---       pᵈ = ⟦⟧Tmᵈ Γᵈ dp
---       pₛ = ⟦⟧Tmₛ p
---       p₁ = ⟦⟧Tm₁ Γᵈ dp
---   in (Aᵈ , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt)
+⟦⟧Tmᵈ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) =
+  let Aᵈ = ⟦⟧Tyᵈ Γᵈ dA
+      wAᵈ = ⟦weakenTy⟧ᵈ' last A Aᵈ (⟦⟧Ty-ft A) refl
+      idᵈ = ({!!} , tt , ssₛ , (varC+₁ last {!_!} (⟦⟧Ty-ft (weakenTy A)) (ap ft (varCL₁ _) ∙ ft-star ∙ pp₀) ∙ ap2-irr star refl (varCL₁ _ ∙ ⟦weakenTy⟧= A Aᵈ (⟦⟧Ty-ft A) refl) ∙ ⟦weakenTy⟧= (weakenTy A) wAᵈ (⟦⟧Ty-ft (weakenTy A)) refl) , tt , ssₛ , {!!} , tt)
+      Pᵈ' = ⟦⟧Tyᵈ (((Γᵈ , Aᵈ , tt) , wAᵈ , tt) , idᵈ , tt) dP
+      Pᵈ = cong⟦⟧Ty {A = P} (ap-irr-IdStr {!!} {!!} {!!}) Pᵈ'
+      P= = ⟦⟧Ty-ft P
+      dᵈ = ⟦⟧Tmᵈ (Γᵈ , Aᵈ , tt) dd
+      dₛ = ⟦⟧Tmₛ d
+      d₁ = {!⟦⟧Tm₁ (respectsCtxExt r A) {Aᵈ = ⟦tsubst⟧Tyᵈ P Pᵈ (((weakenMor' last (idMor _) , var last) , var last) , refl (weakenTy' last A) (var last)) {!!}} dd
+     ∙ {!! (⟦tsubst⟧Ty= P Pᵈ ((idMor _ , var last) , refl (weakenTy A) (var last)) {!!}) ∙ {!ap2-irr star (ap2-irr comp (ap2-irr qq (⟦idMor+⟧= (ap ft (IdStr= ∙ ft-star ∙ pp₀ ∙ AA=) ∙ ⟦⟧Ty-ft (weakenTy A)) (var last) tt  {!ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl ∙ ! (IdStr= ∙ ft-star ∙ pp₀)!}) refl) (ap-irr-reflStr (! AA=) refl)) refl!}!}!}
+      aᵈ = ⟦⟧Tmᵈ Γᵈ da
+      aₛ = ⟦⟧Tmₛ a
+      a₁ = ⟦⟧Tm₁ Γᵈ da
+      bᵈ = ⟦⟧Tmᵈ Γᵈ db
+      bₛ = ⟦⟧Tmₛ b
+      b₁ = ⟦⟧Tm₁ Γᵈ db
+      pᵈ = ⟦⟧Tmᵈ Γᵈ dp
+      pₛ = ⟦⟧Tmₛ p
+      p₁ = ⟦⟧Tm₁ Γᵈ dp
+  in (Aᵈ , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt)
 
 --      abstract
 --       Aᵈ : isDefined (⟦ A ⟧Ty X)
@@ -456,12 +465,6 @@ cong⟦⟧Tm refl uᵈ = uᵈ
 ⟦⟧Tm₁ Γᵈ {u = id i a u v} (IdUU da du dv) = idStr₁ ∙ ap (UUStr i) (⟦⟧Tm₀ a)
 ⟦⟧Tm₁ Γᵈ {u = refl A a} (Refl dA da) = reflStr₁
 ⟦⟧Tm₁ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!!}
-
-⟦idMor⟧ᵈ {zero} refl = tt
-⟦idMor⟧ᵈ {suc n} {Y = Y} refl = ⟦weakenMor+⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)
-
-⟦idMor⟧= {zero} refl = ! (ptmor-unique _ (idC _) id₀ (id₁ ∙ pt-unique _))
-⟦idMor⟧= {suc n} {Y = Y} refl = ⟦weakenMor+⟧= {X = ft Y} refl {Y+ = Y} refl (idMor n) (⟦idMor⟧ᵈ{n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id) ∙ ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id
 
 
 ⟦weakenTy⟧ᵈ' k (uu i) Aᵈ _ _ = tt
@@ -548,7 +551,7 @@ cong⟦⟧Tm refl uᵈ = uᵈ
    ⟦⟧Tmₛ (weakenTm' k u) ,
    (⟦weakenTm⟧₁' k u uᵈ X= Y= u₁ ∙ NatStrNat _ (⟦⟧Tm₀ u ∙ ! qq^₁) ∙ ap NatStr (qq^₀ ∙ ! Y= ∙ ! (⟦⟧Tm₀ (weakenTm' k u)))) , tt)
 
-⟦weakenTm⟧ᵈ' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) X= Y= = {!TODO!}
+⟦weakenTm⟧ᵈ' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) X= Y= = {!!}
 --   (a1 ,
 --    a2 ,
 --    a3 ,
@@ -708,8 +711,13 @@ cong⟦⟧Tm refl uᵈ = uᵈ
 ⟦weakenTm⟧=' k (suc u) (uᵈ , uₛ , u₁ , tt) X= Y= =
   sucStrNat _ (⟦⟧Tm₀ u ∙ ! qq^₁)
   ∙ ap-irr2 sucStr (⟦weakenTm⟧=' k u uᵈ X= Y=)
-⟦weakenTm⟧=' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , duᵈ , duₛ , du₁ , tt) X= Y= =
-  {!!}
+⟦weakenTm⟧=' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) X= Y= =
+  natelimStrNat _ (! qq^₁)
+  ∙ ap-irr-natelimStr (qq^₀ ∙ ! Y=)
+                      (⟦weakenTy+⟧=' k P Pᵈ X= NatStr= (NatStrNat _ (! qq^₁) ∙ ap NatStr (qq^₀ ∙ ! Y=)))
+                      (⟦weakenTm⟧=' k dO dOᵈ X= Y=)
+                      {!⟦weakenTm++⟧=' k dS dSᵈ TODO!}
+                      (⟦weakenTm⟧=' k u uᵈ X= Y=)
 
 ⟦weakenTm⟧=' k (id i a u v) (aᵈ , aₛ , a₁ , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) X= Y= =
   idStrNat _ (⟦⟧Tm₀ a ∙ ! qq^₁)
@@ -786,7 +794,13 @@ cong⟦⟧Tm refl uᵈ = uᵈ
 ⟦⟧TmEq Γᵈ NatUUCong = refl
 ⟦⟧TmEq Γᵈ ZeroCong = refl
 ⟦⟧TmEq Γᵈ (SucCong du) = ap-irr2 sucStr (⟦⟧TmEq Γᵈ du)
-⟦⟧TmEq Γᵈ {u = natelim P dO dS u} (NatelimCong dP dP= ddO= ddS= du=) = {!!}
+⟦⟧TmEq Γᵈ {u = natelim P dO dS u} (NatelimCong dP dP= ddO= ddS= du=) =
+  ap-irr-natelimStr
+    refl
+    (⟦⟧TyEq (Γᵈ , tt , tt) dP=)
+    (⟦⟧TmEq Γᵈ ddO=)
+    (⟦⟧TmEq+ ((Γᵈ , (tt , tt)) , ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP , tt) ddS= (⟦⟧TyEq (Γᵈ , tt , tt) dP=))
+    (⟦⟧TmEq Γᵈ du=)
 
 ⟦⟧TmEq Γᵈ (IdUUCong da= du= dv=) = ap-irr-idStr (⟦⟧TmEq Γᵈ da=) (⟦⟧TmEq Γᵈ du=) (⟦⟧TmEq Γᵈ dv=)
 ⟦⟧TmEq Γᵈ (ReflCong dA= du=) = ap-irr-reflStr (⟦⟧TyEq Γᵈ dA=) (⟦⟧TmEq Γᵈ du=)
@@ -930,7 +944,8 @@ cong⟦⟧Tm refl uᵈ = uᵈ
 -- ⟦tsubst⟧Tm= (var last) tt (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ! (! (ss-of-section (⟦ u ⟧Tm _ $ uᵈ) (⟦⟧Tmₛ u)) ∙ ss-comp {f₁ = u₁} ∙ ap ss ((! id-right ∙ ap2-irr comp (ap idC (comp₁ ∙ qq₁) ∙ ss-qq) refl) ∙ assoc {q = ss₁ ∙ ! qq₀}) ∙ ! (ss-comp {f₁ = comp₁ ∙ ss₁}))
 -- ⟦tsubst⟧Tm= (var (prev x)) (xᵈ , _) (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! (assoc {q = ss₁ ∙ ! qq₀}) ∙ ap2-irr comp (! ss-qq) refl ∙ assoc ∙ ap2-irr comp refl (! assoc ∙ ap2-irr comp pp-qq refl ∙ assoc {p = u₁ ∙ ! pp₀} {q = pp₁ ∙ ft-star} ∙ ap2-irr comp refl (ap2-irr comp (ap pp (! u₁)) refl ∙ ⟦⟧Tmₛ u ∙ ap idC (⟦⟧Tm₀ u ∙ ! (⟦⟧Mor₀ δ))) ∙ id-left)) ∙ ⟦tsubst⟧Tm= (var x) xᵈ δ δᵈ
 
-⟦tsubst⟧Tm= (var k) tt δ δᵈ = ?
+⟦tsubst⟧Tm= (var k) tt δ δᵈ =
+  {!!}
 
 ⟦tsubst⟧Tm= (uu i) tt δ δᵈ =
   uuStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) (! (⟦⟧Mor₁ δ))
@@ -977,8 +992,13 @@ cong⟦⟧Tm refl uᵈ = uᵈ
 ⟦tsubst⟧Tm= (suc u) (uᵈ , uₛ , u₁ , tt) δ δᵈ =
   sucStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) (⟦⟧Tm₀ u ∙ ! (⟦⟧Mor₁ δ))
   ∙ ap-irr2 sucStr (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-⟦tsubst⟧Tm= (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , duᵈ , duₛ , du₁ , tt) X= Y= =
-  {!!}
+⟦tsubst⟧Tm= (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  natelimStrNat _ (! (⟦⟧Mor₁ δ))
+  ∙ ap-irr-natelimStr (⟦⟧Mor₀ δ)
+                      (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= (NatStrNat _ (! (⟦⟧Mor₁ δ)) ∙ ap NatStr (⟦⟧Mor₀ δ)))
+                      (⟦tsubst⟧Tm= dO dOᵈ δ δᵈ)
+                      {!!}
+                      (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
 
 ⟦tsubst⟧Tm= (id i a u v) (aᵈ , aₛ , a₁ , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) δ δᵈ =
   idStrNat (⟦ δ ⟧Mor _ _ $ δᵈ) (⟦⟧Tm₀ a ∙ ! (⟦⟧Mor₁ δ))

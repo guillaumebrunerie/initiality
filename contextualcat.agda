@@ -487,15 +487,14 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
   open CCatwithzero ccatzero
   open CCatwithsuc ccatsuc
 
-  private
-    T-dS₁ : (X : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr X) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Prop
-    T-dS₁ X P P= dS = ∂₁ dS ≡ star' (pp P)
-                                    (star' (sucStr (ss (id (NatStr X))) ssₛ (ss₁' id₁ ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
-                                           (star' (qq' (pp (NatStr X)) (NatStr X) pp₁)
-                                                  P
-                                                  (qq₁ ∙ ! P=))
-                                           (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
-                                    (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀ ∙ ! P=))
+  T-dS₁ : (X : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr X) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Prop
+  T-dS₁ X P P= dS = ∂₁ dS ≡ star' (pp P)
+                                  (star' (sucStr (ss (id (NatStr X))) ssₛ (ss₁' id₁ ∙ NatStrNat _ (! (comp₁ ∙ pp₁ ∙ NatStr=)) ∙ ap NatStr (comp₀ ∙ ! ss₀)))
+                                         (star' (qq' (pp (NatStr X)) (NatStr X) pp₁)
+                                                P
+                                                (qq₁ ∙ ! P=))
+                                         (sucStr₁ ∙ ap NatStr (ss₀ ∙ id₀ ∙ ! pp₀) ∙ ! (NatStrNat _ (! NatStr= ∙ ! pp₁)) ∙ ! qq₀ ∙ ! ft-star))
+                                  (pp₁ ∙ ! (ft-star ∙ sucStr₀ _ ∙ ss₀ ∙ id₀ ∙ ! P=))
 
   field
     natelimStr  : (X : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr X)
