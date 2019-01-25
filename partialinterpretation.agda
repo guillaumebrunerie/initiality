@@ -14,35 +14,35 @@ open StructuredCCat sC
 open CCat ccat renaming (Mor to MorC; id to idC)
 
 
-ap-irr-lamStr : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → lamStr {n = n} B u uₛ u₁ ≡ lamStr B' u' uₛ' u₁'
-ap-irr-lamStr refl refl = refl
+ap-irr-lamStr : {n : ℕ} {A A' : _} (A-eq : A ≡ A') {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → lamStr {n = n} A B B= u uₛ u₁ ≡ lamStr A' B' B=' u' uₛ' u₁'
+ap-irr-lamStr refl refl refl = refl
 
-ap-irr-appStr : {n : ℕ} {B B' : _} (B= : B ≡ B') {f f' : _} (f= : f ≡ f') {fₛ : _} {fₛ' : _} {f₁ : _} {f₁' : _} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → appStr {n = n} B f fₛ f₁ a aₛ a₁ ≡ appStr B' f' fₛ' f₁' a' aₛ' a₁'
-ap-irr-appStr refl refl refl = refl
+ap-irr-appStr : {n : ℕ} {A A' : _} (A-eq : A ≡ A') {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {f f' : _} (f-eq : f ≡ f') {fₛ : _} {fₛ' : _} {f₁ : _} {f₁' : _} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → appStr {n = n} A B B= f fₛ f₁ a aₛ a₁ ≡ appStr A' B' B=' f' fₛ' f₁' a' aₛ' a₁'
+ap-irr-appStr refl refl refl refl = refl
 
-ap-irr-piStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b= : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → piStr {n = n} i a aₛ a₁ b bₛ b₁ ≡ piStr i a' aₛ' a₁' b' bₛ' b₁'
+ap-irr-piStr : {n : ℕ} {i : ℕ} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → piStr {n = n} i a aₛ a₁ b bₛ b₁ ≡ piStr i a' aₛ' a₁' b' bₛ' b₁'
 ap-irr-piStr refl refl = refl
 
-ap-irr-sigStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b= : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → sigStr {n = n} i a aₛ a₁ b bₛ b₁ ≡ sigStr i a' aₛ' a₁' b' bₛ' b₁'
+ap-irr-sigStr : {n : ℕ} {i : ℕ} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → sigStr {n = n} i a aₛ a₁ b bₛ b₁ ≡ sigStr i a' aₛ' a₁' b' bₛ' b₁'
 ap-irr-sigStr refl refl = refl
 
-ap-irr-pairStr : {n : ℕ} {B B' : _} (B= : B ≡ B') {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b= : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → pairStr {n = n} B a aₛ a₁ b bₛ b₁ ≡ pairStr B' a' aₛ' a₁' b' bₛ' b₁'
-ap-irr-pairStr refl refl refl = refl
+ap-irr-pairStr : {n : ℕ} {A A' : _} (A-eq : A ≡ A') {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → pairStr {n = n} A B B= a aₛ a₁ b bₛ b₁ ≡ pairStr A' B' B=' a' aₛ' a₁' b' bₛ' b₁'
+ap-irr-pairStr refl refl refl refl = refl
 
-ap-irr-pr1Str : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr1Str {n = n} B u uₛ u₁ ≡ pr1Str B' u' uₛ' u₁'
-ap-irr-pr1Str refl refl = refl
+ap-irr-pr1Str : {n : ℕ} {A A' : _} (A-eq : A ≡ A') {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr1Str {n = n} A B B= u uₛ u₁ ≡ pr1Str A' B' B=' u' uₛ' u₁'
+ap-irr-pr1Str refl refl refl = refl
 
-ap-irr-pr2Str : {n : ℕ} {B B' : _} (B= : B ≡ B') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} B u uₛ u₁ ≡ pr2Str B' u' uₛ' u₁'
-ap-irr-pr2Str refl refl = refl
+ap-irr-pr2Str : {n : ℕ} {A A' : _} (A-eq : A ≡ A') {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} A B B= u uₛ u₁ ≡ pr2Str A' B' B=' u' uₛ' u₁'
+ap-irr-pr2Str refl refl refl = refl
 
-ap-irr-natelimStr : {n : ℕ} {X X' : _} (X= : X ≡ X') {P P' : _} (P= : P ≡ P') {dO dO' : _} (dO= : dO ≡ dO') {dS dS' : _} (dS= : dS ≡ dS') {u u' : _} (u= : u ≡ u') → ∀ {P≡ P'≡} → {dS₁ : T-dS₁ X P P≡ dS} {dS'₁ : T-dS₁ X' P' P'≡ dS'} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
-  → natelimStr {n = n} X P P≡ dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'≡ dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
+ap-irr-natelimStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {P P' : _} (P-eq : P ≡ P') {dO dO' : _} (dO-eq : dO ≡ dO') {dS dS' : _} (dS-eq : dS ≡ dS') {u u' : _} (u-eq : u ≡ u') → ∀ {P= P'=} → {dS₁ : T-dS₁ X P P= dS} {dS'₁ : T-dS₁ X' P' P'= dS'} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
+  → natelimStr {n = n} X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'= dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
 ap-irr-natelimStr refl refl refl refl refl = refl
 
-ap-irr-idStr : {n : ℕ} {i : ℕ} {a a' : _} (a= : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v= : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
+ap-irr-idStr : {n : ℕ} {i : ℕ} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
 ap-irr-idStr refl refl refl = refl
 
-ap-irr-reflStr : {n : ℕ} {a a' : _} (a= : a ≡ a') {u u' : _} (u= : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → reflStr {n = n} a u uₛ u₁ ≡ reflStr {n = n} a' u' uₛ' u₁'
+ap-irr-reflStr : {n : ℕ} {a a' : _} (a-eq : a ≡ a') {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → reflStr {n = n} a u uₛ u₁ ≡ reflStr {n = n} a' u' uₛ' u₁'
 ap-irr-reflStr refl refl = refl
 
 
@@ -60,11 +60,13 @@ ap-irr-reflStr refl refl = refl
 ⟦ pi A B ⟧Ty X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
-  return (PiStr [B])
+  [B]= ← assume (ft [B] ≡ [A])
+  return (PiStr [A] [B] (unbox [B]=))
 ⟦ sig A B ⟧Ty X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
-  return (SigStr [B])
+  [B]= ← assume (ft [B] ≡ [A])
+  return (SigStr [A] [B] (unbox [B]=))
 ⟦ nat ⟧Ty X = return (NatStr X)
 ⟦ id A u v ⟧Ty X = do
   [A] ← ⟦ A ⟧Ty X
@@ -90,20 +92,22 @@ ap-irr-reflStr refl refl = refl
 ⟦ lam A B u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
+  [B]= ← assume (ft [B] ≡ [A])
   [u] ← ⟦ u ⟧Tm [A]
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ [B])
-  return (lamStr [B] [u] (unbox [u]ₛ) (unbox [u]₁))
+  return (lamStr [A] [B] (unbox [B]=) [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ app A B f a ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
+  [B]= ← assume (ft [B] ≡ [A])
   [f] ← ⟦ f ⟧Tm X
   [f]ₛ ← assume (is-section [f])
-  [f]₁ ← assume (∂₁ [f] ≡ PiStr [B])
+  [f]₁ ← assume (∂₁ [f] ≡ PiStr [A] [B] (unbox [B]=))
   [a] ← ⟦ a ⟧Tm X
   [a]ₛ ← assume (is-section [a])
-  [a]₁ ← assume (∂₁ [a] ≡ ft [B])
-  return (appStr [B] [f] (unbox [f]ₛ) (unbox [f]₁) [a] (unbox [a]ₛ) (unbox [a]₁))
+  [a]₁ ← assume (∂₁ [a] ≡ [A])
+  return (appStr [A] [B] (unbox [B]=) [f] (unbox [f]ₛ) (unbox [f]₁) [a] (unbox [a]ₛ) (unbox [a]₁))
 ⟦ sig i a b ⟧Tm X = do
   [a] ← ⟦ a ⟧Tm X
   [a]ₛ ← assume (is-section [a])
@@ -115,27 +119,30 @@ ap-irr-reflStr refl refl = refl
 ⟦ pair A B u v ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
+  [B]= ← assume (ft [B] ≡ [A])
   [u] ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
-  [u]₁ ← assume (∂₁ [u] ≡ ft [B])
+  [u]₁ ← assume (∂₁ [u] ≡ [A])
   [v] ← ⟦ v ⟧Tm X
   [v]ₛ ← assume (is-section [v])
-  [v]₁ ← assume (∂₁ [v] ≡ star [u] [B] (unbox [u]₁))
-  return (pairStr [B] [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
+  [v]₁ ← assume (∂₁ [v] ≡ star [u] [B] _)
+  return (pairStr [A] [B] (unbox [B]=) [u] (unbox [u]ₛ) (unbox [u]₁) [v] (unbox [v]ₛ) (unbox [v]₁))
 ⟦ pr1 A B u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
+  [B]= ← assume (ft [B] ≡ [A])
   [u] ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
-  [u]₁ ← assume (∂₁ [u] ≡ SigStr [B])
-  return (pr1Str [B] [u] (unbox [u]ₛ) (unbox [u]₁))
+  [u]₁ ← assume (∂₁ [u] ≡ SigStr [A] [B] (unbox [B]=))
+  return (pr1Str [A] [B] (unbox [B]=) [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ pr2 A B u ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [B] ← ⟦ B ⟧Ty [A]
+  [B]= ← assume (ft [B] ≡ [A])
   [u] ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
-  [u]₁ ← assume (∂₁ [u] ≡ SigStr [B])
-  return (pr2Str [B] [u] (unbox [u]ₛ) (unbox [u]₁))
+  [u]₁ ← assume (∂₁ [u] ≡ SigStr [A] [B] (unbox [B]=))
+  return (pr2Str [A] [B] (unbox [B]=) [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ nat i ⟧Tm X = return (natStr i X)
 ⟦ zero ⟧Tm X = return (zeroStr X)
 ⟦ suc u ⟧Tm X = do
@@ -241,20 +248,20 @@ ap-irr-reflStr refl refl = refl
 
 ⟦⟧Ty-ft (uu i) = UUStr=
 ⟦⟧Ty-ft (el i v) = ElStr= ∙ ⟦⟧Tm₀ v
-⟦⟧Ty-ft (pi A B)  = PiStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Ty-ft (sig A B) = SigStr= ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Ty-ft (pi A B)  = PiStr= ∙ ⟦⟧Ty-ft A
+⟦⟧Ty-ft (sig A B) = SigStr= ∙ ⟦⟧Ty-ft A
 ⟦⟧Ty-ft nat = NatStr=
 ⟦⟧Ty-ft (id A u v) = IdStr= ∙ ⟦⟧Ty-ft A
 
 ⟦⟧Tm₀ (var k) = varC₀ k _
 ⟦⟧Tm₀ (uu i) = uuStr₀ _
 ⟦⟧Tm₀ (pi i a b) = piStr₀ _ ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₀ (lam A B u) = lamStr₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₀ (app A B f a) = appStr₀ _ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (lam A B u) = lamStr₀ _ ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (app A B f a) = appStr₀ _ _ ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₀ (sig i a b) = sigStr₀ _ ∙ ⟦⟧Tm₀ a
-⟦⟧Tm₀ (pair A B u v) = pairStr₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₀ (pr1 A B u) = pr1Str₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
-⟦⟧Tm₀ (pr2 A B u) = pr2Str₀ _ ∙ ap ft (⟦⟧Ty-ft B) ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (pair A B u v) = pairStr₀ _ ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (pr1 A B u) = pr1Str₀ _ ∙ ⟦⟧Ty-ft A
+⟦⟧Tm₀ (pr2 A B u) = pr2Str₀ _ ∙ ⟦⟧Ty-ft A
 ⟦⟧Tm₀ (nat i) = natStr₀ _
 ⟦⟧Tm₀ zero = zeroStr₀ _
 ⟦⟧Tm₀ (suc u) = sucStr₀ _ ∙ ⟦⟧Tm₀ u
