@@ -222,6 +222,7 @@ ap-irr-reflStr refl refl = refl
   [u]₁ ← assume (∂₁ [u] ≡ star [δ] Y (unbox [δ]₁))
   return (comp (qq [δ] Y (unbox [δ]₁)) [u] (unbox [u]₁ ∙ ! qq₀))
 
+
 {- Basic properties of the partial interpretation functions -}
 
 ⟦⟧Tmₛ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → is-section (⟦ u ⟧Tm X $ uᵈ)

@@ -139,6 +139,9 @@ record CCat : Set₁ where
   id-right' : {f : Mor n m} {X : Ob m} (p : ∂₁ f ≡ X) → comp (id X) f (p ∙ (! id₀)) ≡ f
   id-right' refl = id-right
 
+  ss-pp' : {m n : ℕ} {f : Mor m (suc n)} {X : Ob m} (f₀ : ∂₀ f ≡ X) {Y : Ob (suc n)} (f₁ : ∂₁ f ≡ Y) → comp (pp (star (comp (pp Y) f (f₁ ∙ ! pp₀)) Y (comp₁ ∙ pp₁))) (ss f) (ss₁' f₁ ∙ ! pp₀) ≡ id X
+  ss-pp' refl refl = ss-pp
+
   star+ : (g : Mor n m) (A : Ob (suc (suc m))) {A' : Ob (suc m)} (A= : ft A ≡ A') (p : ft A' ≡ ∂₁ g) → Ob (suc (suc n))
   star+ g A {A'} A= p = star' (qq' g A' (! p)) A (qq₁ ∙ ! A=)
 
@@ -174,6 +177,10 @@ record CCat : Set₁ where
     ∙ ap2-irr star (ap2-irr comp (ap pp (! r)) refl ∙ pp-qq) refl
     ∙ star-comp (w1 ∙ q)
 
+  star-pp' : {n : ℕ} {g : Mor (suc n) (suc (suc n))} (gₛ : is-section g) {X : Ob (suc (suc n))} {Y : Ob (suc (suc n))} {w1 : _} {w2 : _}
+           → star g (star (pp X) Y w1) w2 ≡ Y
+  star-pp' gₛ {w1 = w1} {w2 = w2} = ! (star-comp {p = w2 ∙ ft-star} _) ∙ ap2-irr star (ap2-irr comp (ap pp (! (w2 ∙ ft-star ∙ pp₀))) refl ∙ gₛ ∙ ap id (is-section₀ gₛ (w2 ∙ ft-star ∙ pp₀) ∙ ! pp₁ ∙ w1)) refl ∙ star-id ∙ refl
+
   star-qqpp : {n m : ℕ} {g : Mor n m} {X : Ob (suc m)} {Z : Ob (suc (suc m))}
             → ∀ {w1 w2 w3 w4 w5} → (q : ft Z ≡ X)
             → star (qq (qq g X w1) (star (pp X) X w2) w3) (star (qq (pp X) X w2) Z w4) w5
@@ -189,6 +196,12 @@ record CCat : Set₁ where
 
   star-varCL : {g : Mor n m} {X : Ob (suc m)} {p : ∂₁ g ≡ ft X} → starTm (qq g X p) (ss (id X)) (ss₀ ∙ id₀ ∙ ! qq₁) ≡ ss (id (star g X p))
   star-varCL = ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! (assoc {q = ss₁ ∙ ! qq₀}) ∙ ap2-irr comp (! ss-qq) refl ∙ id-right' qq₁) ∙ ap ss (! (id-left' qq₀)) ∙ ! (ss-comp {f₁ = id₁})
+
+  star-varCL' : {g : Mor (suc n) (suc m)} {X : Ob (suc m)} {p : ∂₁ g ≡ X} → starTm g (ss (id X)) (ss₀ ∙ id₀ ∙ ! p) ≡ ss g
+  star-varCL' {p = p} = ss-comp {f₁ = comp₁ ∙ ss₁' id₁} ∙ ap ss (! (assoc {q = ss₁' id₁ ∙ ! qq₀}) ∙ ap2-irr comp (ap2-irr comp (ap2-irr qq (ap2-irr comp (ap pp (! id₁)) refl) (! id₁)) refl ∙ ! ss-qq) refl ∙ id-right' p)
+
+  star-varCL'' : {g : Mor n m} {f : Mor m (suc k)} {p : ∂₁ g ≡ ∂₀ f} → starTm g (ss f) (ss₀ ∙ ! p) ≡ ss (comp f g p)
+  star-varCL'' = ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! (assoc {q = ss₁ ∙ ! qq₀}) ∙ ap2-irr comp (! ss-qq) refl)
 
   pp^  : (k : Fin n) → Ob n → Mor n (n -F k)
   pp^₀ : (k : Fin n) (X : Ob n) → ∂₀ (pp^ k X) ≡ X
