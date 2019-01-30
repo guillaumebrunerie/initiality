@@ -202,13 +202,29 @@ open import partialinterpretation sC
 
 {- Interpretation of double substitutions -}
 
+⟦idMor⟧ᵈ : {X Y : Ob n} → Y ≡ X → isDefined (⟦ idMor n ⟧Mor X Y)
+⟦idMor⟧= : {X Y : Ob n} (p : Y ≡ X) → ⟦ idMor n ⟧Mor X Y $ ⟦idMor⟧ᵈ p ≡ idC X
+
+⟦idMor⟧ᵈ {zero} refl = tt
+⟦idMor⟧ᵈ {suc n} {Y = Y} refl = ⟦weakenMor+⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)
+
+⟦idMor⟧= {zero} refl = ! (ptmor-unique _ (idC _) id₀ (id₁ ∙ pt-unique _))
+⟦idMor⟧= {suc n} {Y = Y} refl = ⟦weakenMor+⟧= {X = ft Y} refl {Y+ = Y} refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id) ∙ ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id
+
 ⟦idMor+⟧ᵈ : {X : Ob n} {Y : Ob (suc n)} (p : ft Y ≡ X) (u : TmExpr n)
             (uᵈ : isDefined (⟦ u ⟧Tm X)) (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Y)
             → isDefined (⟦ idMor n , u ⟧Mor X Y)
+⟦idMor+⟧ᵈ p u uᵈ u₁ =
+  (⟦idMor⟧ᵈ p ,
+   uᵈ ,
+   ⟦⟧Mor₁ (idMor _) ,
+   (u₁ ∙ ! (ap2-irr star (⟦idMor⟧= p ∙ ap idC (! p)) refl ∙ star-id)) , tt)
 
 ⟦idMor+⟧= : {X : Ob n} {Y : Ob (suc n)} (p : ft Y ≡ X) (u : TmExpr n)
             (uᵈ : isDefined (⟦ u ⟧Tm X)) (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Y)
             → ⟦ idMor n , u ⟧Mor X Y $ ⟦idMor+⟧ᵈ p u uᵈ u₁ ≡ ⟦ u ⟧Tm X $ uᵈ
+⟦idMor+⟧= refl u uᵈ u₁ =
+  ap2-irr comp (ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id ∙ ap idC (! u₁)) refl ∙ id-right
 
 ⟦idMor++⟧ᵈ : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'')
             → (u : TmExpr n)
@@ -218,16 +234,66 @@ open import partialinterpretation sC
             → (vᵈ : isDefined (⟦ v ⟧Tm X''))
             → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
             → isDefined (⟦ (idMor n , u) , v ⟧Mor X'' X)
+⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁ =
+  (⟦idMor+⟧ᵈ (ap ft X= ∙ X'=) u uᵈ (u₁ ∙ ! X=) ,
+   vᵈ ,
+   (comp₁ ∙ qq₁) ,
+   (v₁ ∙ ap2-irr star (! (⟦idMor+⟧= (ap ft X= ∙ X'=) u uᵈ (u₁ ∙ ! X=))) refl) , tt)
 
 ⟦idMor++⟧= : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'')
+           → (u : TmExpr n)
+           → (uᵈ : isDefined (⟦ u ⟧Tm X''))
+           → (u₁ : ∂₁ (⟦ u ⟧Tm X'' $ uᵈ) ≡ X')
+           → (v : TmExpr n)
+           → (vᵈ : isDefined (⟦ v ⟧Tm X''))
+           → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
+           → ⟦ (idMor n , u) , v ⟧Mor X'' X $ ⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁ ≡ comp (qq (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=)) (⟦ v ⟧Tm X'' $ vᵈ) (v₁ ∙ ! qq₀)
+⟦idMor++⟧= X= X'= u uᵈ u₁ v vᵈ v₁ = ap2-irr comp (ap2-irr qq (⟦idMor+⟧= (ap ft X= ∙ X'=) u uᵈ (u₁ ∙ ! X=)) refl) refl
+
+⟦idMor+++⟧ᵈ : {X : Ob (suc (suc (suc n)))} {X' : Ob (suc (suc n))} (X= : ft X ≡ X') {X'' : Ob (suc n)} (X'= : ft X' ≡ X'') {X''' : Ob n} (X''= : ft X'' ≡ X''')
             → (u : TmExpr n)
-            → (uᵈ : isDefined (⟦ u ⟧Tm X''))
-            → (u₁ : ∂₁ (⟦ u ⟧Tm X'' $ uᵈ) ≡ X')
+            → (uᵈ : isDefined (⟦ u ⟧Tm X'''))
+            → (u₁ : ∂₁ (⟦ u ⟧Tm X''' $ uᵈ) ≡ X'')
             → (v : TmExpr n)
-            → (vᵈ : isDefined (⟦ v ⟧Tm X''))
-            → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
-            → ⟦ (idMor n , u) , v ⟧Mor X'' X $ ⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁ ≡ comp (qq (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=)) (⟦ v ⟧Tm X'' $ vᵈ) (v₁ ∙ ! qq₀)
-⟦idMor++⟧= X= X'= u uᵈ u₁ v vᵈ v₁ = {!!}
+            → (vᵈ : isDefined (⟦ v ⟧Tm X'''))
+            → (v₁ : ∂₁ (⟦ v ⟧Tm X''' $ vᵈ) ≡ star (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+            → (w : TmExpr n)
+            → (wᵈ : isDefined (⟦ w ⟧Tm X'''))
+            → (w₁ : ∂₁ (⟦ w ⟧Tm X''' $ wᵈ) ≡ star (⟦ v ⟧Tm X''' $ vᵈ) (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=)) X (qq₁ ∙ ! X=)) (v₁ ∙ ! qq₀ ∙ ! ft-star))
+            → isDefined (⟦ ((idMor n , u) , v) , w ⟧Mor X''' X)
+⟦idMor+++⟧ᵈ refl X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ =
+  (⟦idMor++⟧ᵈ X'= X''= u uᵈ u₁ v vᵈ v₁ ,
+   wᵈ ,
+   (comp₁ ∙ qq₁) ,
+   (w₁ ∙ ! (star-comp _) ∙ ap2-irr star (! (⟦idMor++⟧= X'= X''= u uᵈ u₁ v vᵈ v₁)) refl) , tt)
+
+⟦idMor+++⟧= : {X : Ob (suc (suc (suc n)))} {X' : Ob (suc (suc n))} (X= : ft X ≡ X') {X'' : Ob (suc n)} (X'= : ft X' ≡ X'') {X''' : Ob n} (X''= : ft X'' ≡ X''')
+            → (u : TmExpr n)
+            → (uᵈ : isDefined (⟦ u ⟧Tm X'''))
+            → (u₁ : ∂₁ (⟦ u ⟧Tm X''' $ uᵈ) ≡ X'')
+            → (v : TmExpr n)
+            → (vᵈ : isDefined (⟦ v ⟧Tm X'''))
+            → (v₁ : ∂₁ (⟦ v ⟧Tm X''' $ vᵈ) ≡ star (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+            → (w : TmExpr n)
+            → (wᵈ : isDefined (⟦ w ⟧Tm X'''))
+            → (w₁ : ∂₁ (⟦ w ⟧Tm X''' $ wᵈ) ≡ star (⟦ v ⟧Tm X''' $ vᵈ) (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=)) X (qq₁ ∙ ! X=)) (v₁ ∙ ! qq₀ ∙ ! ft-star))
+            → ⟦ ((idMor n , u) , v) , w ⟧Mor X''' X $ ⟦idMor+++⟧ᵈ X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ ≡
+              comp (qq (qq (⟦ u ⟧Tm X''' $ uᵈ)
+                           (ft X)
+                           (u₁ ∙ ! (ap ft X= ∙ X'=)))
+                       X
+                       qq₁)
+                   (comp (qq (⟦ v ⟧Tm X''' $ vᵈ)
+                             (star (qq (⟦ u ⟧Tm X''' $ uᵈ)
+                                       X'
+                                       (u₁ ∙ ! X'=))
+                                   X
+                                   (qq₁ ∙ ! X=))
+                             (v₁ ∙ ! qq₀ ∙ ! ft-star))
+                         (⟦ w ⟧Tm X''' $ wᵈ)
+                         (w₁ ∙ ! qq₀))
+                   (comp₁ ∙ qq₁ ∙ ap2-irr star (ap2-irr qq refl (! X=)) refl ∙ ! qq₀)
+⟦idMor+++⟧= refl X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ = {!!}
 
 ⟦2subst⟧Tyᵈ : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'') (B : TyExpr (suc (suc n)))
             → isDefined (⟦ B ⟧Ty X)
@@ -238,7 +304,7 @@ open import partialinterpretation sC
             → (vᵈ : isDefined (⟦ v ⟧Tm X''))
             → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
             → isDefined (⟦ B [ (idMor _ , u) , v ]Ty ⟧Ty X'')
-⟦2subst⟧Tyᵈ refl refl B Bᵈ u uᵈ u₁ v vᵈ v₁ = ⟦tsubst⟧Tyᵈ B Bᵈ _ (⟦idMor+⟧ᵈ refl u uᵈ u₁ , vᵈ , (ap ∂₁ (⟦idMor+⟧= refl u uᵈ u₁) ∙ u₁) , (v₁ ∙ ap2-irr star (! (⟦idMor+⟧= refl u uᵈ u₁)) refl) , tt)
+⟦2subst⟧Tyᵈ X= X'= B Bᵈ u uᵈ u₁ v vᵈ v₁ = ⟦tsubst⟧Tyᵈ B Bᵈ _ (⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁)
 
 ⟦2subst⟧Ty= : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'') (B : TyExpr (suc (suc n)))
             → (Bᵈ : isDefined (⟦ B ⟧Ty X))
@@ -249,24 +315,129 @@ open import partialinterpretation sC
             → (vᵈ : isDefined (⟦ v ⟧Tm X''))
             → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
             → ⟦ B [ (idMor _ , u) , v ]Ty ⟧Ty X'' $ ⟦2subst⟧Tyᵈ X= X'= B Bᵈ u uᵈ u₁ v vᵈ v₁ ≡ star (⟦ v ⟧Tm X'' $ vᵈ) (star (qq (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=)) (⟦ B ⟧Ty X $ Bᵈ) (qq₁ ∙ ! (⟦⟧Ty-ft B))) (v₁ ∙ ! qq₀ ∙ ! ft-star)
-⟦2subst⟧Ty= X= X'= B Bᵈ u uᵈ u₁ v vᵈ v₁ = ! (⟦tsubst⟧Ty= B Bᵈ ((idMor _ , u) , v) (⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁)) ∙ ap2-irr star (⟦idMor++⟧= X= X'= u uᵈ u₁ v vᵈ v₁) refl ∙ star-comp (qq₁ ∙ ! (⟦⟧Ty-ft B))
+⟦2subst⟧Ty= X= X'= B Bᵈ u uᵈ u₁ v vᵈ v₁ = ! (⟦tsubst⟧Ty= B Bᵈ _ (⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁)) ∙ ap2-irr star (⟦idMor++⟧= X= X'= u uᵈ u₁ v vᵈ v₁) refl ∙ star-comp (qq₁ ∙ ! (⟦⟧Ty-ft B))
+
+⟦3subst⟧Tyᵈ : {X : Ob (suc (suc (suc n)))} {X' : Ob (suc (suc n))} (X= : ft X ≡ X') {X'' : Ob (suc n)} (X'= : ft X' ≡ X'') {X''' : Ob n} (X''= : ft X'' ≡ X''') (A : TyExpr (suc (suc (suc n))))
+            → isDefined (⟦ A ⟧Ty X)
+            → (u : TmExpr n)
+            → (uᵈ : isDefined (⟦ u ⟧Tm X'''))
+            → (u₁ : ∂₁ (⟦ u ⟧Tm X''' $ uᵈ) ≡ X'')
+            → (v : TmExpr n)
+            → (vᵈ : isDefined (⟦ v ⟧Tm X'''))
+            → (v₁ : ∂₁ (⟦ v ⟧Tm X''' $ vᵈ) ≡ star (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+            → (w : TmExpr n)
+            → (wᵈ : isDefined (⟦ w ⟧Tm X'''))
+            → (w₁ : ∂₁ (⟦ w ⟧Tm X''' $ wᵈ) ≡ star (⟦ v ⟧Tm X''' $ vᵈ)
+                                               (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+                                                  X
+                                                  (qq₁ ∙ ! X=))
+                                               (v₁ ∙ ! qq₀ ∙ ! ft-star))
+            → isDefined (⟦ A [ ((idMor _ , u) , v) , w ]Ty ⟧Ty X''')
+⟦3subst⟧Tyᵈ X= X'= X''= A Aᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ = ⟦tsubst⟧Tyᵈ A Aᵈ _ (⟦idMor+++⟧ᵈ X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁)
+
+⟦3subst⟧Ty= : {X : Ob (suc (suc (suc n)))} {X' : Ob (suc (suc n))} (X= : ft X ≡ X') {X'' : Ob (suc n)} (X'= : ft X' ≡ X'') {X''' : Ob n} (X''= : ft X'' ≡ X''') (A : TyExpr (suc (suc (suc n))))
+            → (Aᵈ : isDefined (⟦ A ⟧Ty X))
+            → (u : TmExpr n)
+            → (uᵈ : isDefined (⟦ u ⟧Tm X'''))
+            → (u₁ : ∂₁ (⟦ u ⟧Tm X''' $ uᵈ) ≡ X'')
+            → (v : TmExpr n)
+            → (vᵈ : isDefined (⟦ v ⟧Tm X'''))
+            → (v₁ : ∂₁ (⟦ v ⟧Tm X''' $ vᵈ) ≡ star (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+            → (w : TmExpr n)
+            → (wᵈ : isDefined (⟦ w ⟧Tm X'''))
+            → (w₁ : ∂₁ (⟦ w ⟧Tm X''' $ wᵈ) ≡ star (⟦ v ⟧Tm X''' $ vᵈ)
+                                               (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+                                                  X
+                                                  (qq₁ ∙ ! X=))
+                                               (v₁ ∙ ! qq₀ ∙ ! ft-star))
+            → ⟦ A [ ((idMor _ , u) , v) , w ]Ty ⟧Ty X''' $ ⟦3subst⟧Tyᵈ X= X'= X''= A Aᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁
+              ≡ star
+                  (⟦ w ⟧Tm X''' $ wᵈ)
+                  (star
+                     (qq (⟦ v ⟧Tm X''' $ vᵈ) (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=)) X (qq₁ ∙ ! X=)) (v₁ ∙ ! qq₀ ∙ ! ft-star))
+                     (star
+                       (qq (qq (⟦ u ⟧Tm X''' $ uᵈ) X' ?) X qq₁)
+                       (⟦ A ⟧Ty X $ Aᵈ)
+                       (qq₁ ∙ ! (⟦⟧Ty-ft A)))
+                     (qq₁ ∙ ap2-irr star (ap2-irr qq refl (! X=)) refl ∙ ! qq₀ ∙ ! ft-star))
+                   (w₁ ∙ ! qq₀ ∙ ! ft-star)
+⟦3subst⟧Ty= X= X'= X''= A Aᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ = ! (⟦tsubst⟧Ty= A Aᵈ (((idMor _ , u) , v) , w) (⟦idMor+++⟧ᵈ X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁)) ∙ ap2-irr star (⟦idMor+++⟧= X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁) refl ∙ star-comp {p = comp₁ ∙ qq₁ ∙ {!!} ∙ ! qq₀} {!!} ∙ star-comp {p = {!!}} {!!}
+
+-- ⟦2subst⟧Tmᵈ : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'') (t : TmExpr (suc (suc n)))
+--             → isDefined (⟦ t ⟧Tm X)
+--             → (u : TmExpr n)
+--             → (uᵈ : isDefined (⟦ u ⟧Tm X''))
+--             → (u₁ : ∂₁ (⟦ u ⟧Tm X'' $ uᵈ) ≡ X')
+--             → (v : TmExpr n)
+--             → (vᵈ : isDefined (⟦ v ⟧Tm X''))
+--             → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
+--             → isDefined (⟦ t [ (idMor _ , u) , v ]Tm ⟧Tm X'')
+-- ⟦2subst⟧Tmᵈ X= X'= t tᵈ u uᵈ u₁ v vᵈ v₁ = ⟦tsubst⟧Tmᵈ t tᵈ _ (⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁)
+
+-- postulate
+--   starTm-comp : {m n k : ℕ} {g : MorC m k} {f : MorC n m} {p : ∂₁ f ≡ ∂₀ g} {X : MorC k (suc k)} (q : ∂₀ X ≡ ∂₁ g) → starTm (comp g f p) X (q ∙ ! comp₁) ≡ starTm f (starTm g X q) (ss₀ ∙ comp₀ ∙ ! p)
+
+-- ⟦2subst⟧Tm= : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'') (t : TmExpr (suc (suc n)))
+--             → (tᵈ : isDefined (⟦ t ⟧Tm X))
+--             → (u : TmExpr n)
+--             → (uᵈ : isDefined (⟦ u ⟧Tm X''))
+--             → (u₁ : ∂₁ (⟦ u ⟧Tm X'' $ uᵈ) ≡ X')
+--             → (v : TmExpr n)
+--             → (vᵈ : isDefined (⟦ v ⟧Tm X''))
+--             → (v₁ : ∂₁ (⟦ v ⟧Tm X'' $ vᵈ) ≡ star (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=))
+--             → ⟦ t [ (idMor _ , u) , v ]Tm ⟧Tm X'' $ ⟦2subst⟧Tmᵈ X= X'= t tᵈ u uᵈ u₁ v vᵈ v₁ ≡ starTm (⟦ v ⟧Tm X'' $ vᵈ) (starTm (qq (⟦ u ⟧Tm X'' $ uᵈ) X (u₁ ∙ ! X=)) (⟦ t ⟧Tm X $ tᵈ) (⟦⟧Tm₀ t ∙ ! qq₁)) (ss₀ ∙ comp₀ ∙ qq₀ ∙ ! v₁)
+-- ⟦2subst⟧Tm= X= X'= t tᵈ u uᵈ u₁ v vᵈ v₁ = ! (⟦tsubst⟧Tm= t tᵈ _ (⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁)) ∙ {!ap2-irr starTm (⟦idMor++⟧= X= X'= u uᵈ u₁ v vᵈ v₁) refl!} ∙ starTm-comp {p = v₁ ∙ ! qq₀} (⟦⟧Tm₀ t ∙ ! qq₁)
+
+-- ⟦3subst⟧Tmᵈ : {X : Ob (suc (suc (suc n)))} {X' : Ob (suc (suc n))} (X= : ft X ≡ X') {X'' : Ob (suc n)} (X'= : ft X' ≡ X'') {X''' : Ob n} (X''= : ft X'' ≡ X''') (t : TmExpr (suc (suc (suc n))))
+--             → isDefined (⟦ t ⟧Tm X)
+--             → (u : TmExpr n)
+--             → (uᵈ : isDefined (⟦ u ⟧Tm X'''))
+--             → (u₁ : ∂₁ (⟦ u ⟧Tm X''' $ uᵈ) ≡ X'')
+--             → (v : TmExpr n)
+--             → (vᵈ : isDefined (⟦ v ⟧Tm X'''))
+--             → (v₁ : ∂₁ (⟦ v ⟧Tm X''' $ vᵈ) ≡ star (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+--             → (w : TmExpr n)
+--             → (wᵈ : isDefined (⟦ w ⟧Tm X'''))
+--             → (w₁ : ∂₁ (⟦ w ⟧Tm X''' $ wᵈ) ≡ star (⟦ v ⟧Tm X''' $ vᵈ)
+--                                                (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+--                                                   X
+--                                                   (qq₁ ∙ ! X=))
+--                                                (v₁ ∙ ! qq₀ ∙ ! ft-star))
+--             → isDefined (⟦ t [ ((idMor _ , u) , v) , w ]Tm ⟧Tm X''')
+-- ⟦3subst⟧Tmᵈ X= X'= X''= t tᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ = ⟦tsubst⟧Tmᵈ t tᵈ _ (⟦idMor+++⟧ᵈ X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁)
+
+-- ⟦3subst⟧Tm= : {X : Ob (suc (suc (suc n)))} {X' : Ob (suc (suc n))} (X= : ft X ≡ X') {X'' : Ob (suc n)} (X'= : ft X' ≡ X'') {X''' : Ob n} (X''= : ft X'' ≡ X''') (t : TmExpr (suc (suc (suc n))))
+--             → (tᵈ : isDefined (⟦ t ⟧Tm X))
+--             → (u : TmExpr n)
+--             → (uᵈ : isDefined (⟦ u ⟧Tm X'''))
+--             → (u₁ : ∂₁ (⟦ u ⟧Tm X''' $ uᵈ) ≡ X'')
+--             → (v : TmExpr n)
+--             → (vᵈ : isDefined (⟦ v ⟧Tm X'''))
+--             → (v₁ : ∂₁ (⟦ v ⟧Tm X''' $ vᵈ) ≡ star (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+--             → (w : TmExpr n)
+--             → (wᵈ : isDefined (⟦ w ⟧Tm X'''))
+--             → (w₁ : ∂₁ (⟦ w ⟧Tm X''' $ wᵈ) ≡ star (⟦ v ⟧Tm X''' $ vᵈ)
+--                                                (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=))
+--                                                   X
+--                                                   (qq₁ ∙ ! X=))
+--                                                (v₁ ∙ ! qq₀ ∙ ! ft-star))
+--             → ⟦ t [ ((idMor _ , u) , v) , w ]Tm ⟧Tm X''' $ ⟦3subst⟧Tmᵈ X= X'= X''= t tᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁
+--               ≡ starTm
+--                   (⟦ w ⟧Tm X''' $ wᵈ)
+--                   (starTm
+--                      (qq (⟦ v ⟧Tm X''' $ vᵈ) (star (qq (⟦ u ⟧Tm X''' $ uᵈ) X' (u₁ ∙ ! X'=)) X (qq₁ ∙ ! X=)) (v₁ ∙ ! qq₀ ∙ ! ft-star))
+--                      (starTm
+--                        (qq (qq (⟦ u ⟧Tm X''' $ uᵈ) (ft X) (u₁ ∙ ! (ap ft X= ∙ X'=))) X qq₁)
+--                        (⟦ t ⟧Tm X $ tᵈ)
+--                        (⟦⟧Tm₀ t ∙ ! qq₁))
+--                      (ss₀ ∙ comp₀ ∙ qq₀ ∙ ap2-irr star (ap2-irr qq refl X=) refl ∙ ! qq₁))
+--                    (ss₀ ∙ comp₀ ∙ qq₀ ∙ ! w₁)
+-- ⟦3subst⟧Tm= X= X'= X''= t tᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ = ! (⟦tsubst⟧Tm= t tᵈ (((idMor _ , u) , v) , w) (⟦idMor+++⟧ᵈ X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁)) ∙ ap2-irr starTm (⟦idMor+++⟧= X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁) refl ∙ starTm-comp {p = comp₁ ∙ qq₁ ∙ {!!} ∙ ! qq₀} {!!} ∙ starTm-comp {p = {!!}} {!!}
 
 {- Auxiliary definitions -}
 
-⟦idMor⟧ᵈ : {X Y : Ob n} → Y ≡ X → isDefined (⟦ idMor n ⟧Mor X Y)
-⟦idMor⟧= : {X Y : Ob n} (p : Y ≡ X) → ⟦ idMor n ⟧Mor X Y $ ⟦idMor⟧ᵈ p ≡ idC X
-
-⟦idMor⟧ᵈ {zero} refl = tt
-⟦idMor⟧ᵈ {suc n} {Y = Y} refl = ⟦weakenMor+⟧ᵈ refl refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)
-
-⟦idMor⟧= {zero} refl = ! (ptmor-unique _ (idC _) id₀ (id₁ ∙ pt-unique _))
-⟦idMor⟧= {suc n} {Y = Y} refl = ⟦weakenMor+⟧= {X = ft Y} refl {Y+ = Y} refl (idMor n) (⟦idMor⟧ᵈ {n = n} refl) (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id) ∙ ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id
-
 cong⟦⟧Ty : {X Y : Ob n} {A : TyExpr n} → X ≡ Y → isDefined (⟦ A ⟧Ty X) → isDefined (⟦ A ⟧Ty Y)
 cong⟦⟧Ty refl Aᵈ = Aᵈ
-
-cong⟦⟧Tm : {X Y : Ob n} {u : TmExpr n} → X ≡ Y → isDefined (⟦ u ⟧Tm X) → isDefined (⟦ u ⟧Tm Y)
-cong⟦⟧Tm refl uᵈ = uᵈ
 
 cong⟦⟧Mor : {X : Ob n} {Y Y' : Ob m} {δ : Mor n m} → Y ≡ Y' → isDefined (⟦ δ ⟧Mor X Y) → isDefined (⟦ δ ⟧Mor X Y')
 cong⟦⟧Mor refl δᵈ = δᵈ
@@ -326,23 +497,59 @@ cong⟦⟧Mor refl δᵈ = δᵈ
               → ∂₁ (⟦ weakenTm' (prev (prev k)) u ⟧Tm Y $ ⟦weakenTm++⟧ᵈ' k u uᵈ X= X'= p Y=) ≡ star++ (qq^ k X=) Z Z= Z'= (qq^₁ ∙ ! p ∙ ap ft (! X'= ∙ ap ft (! (⟦⟧Tm₁-ft u) ∙ ap ft u₁ ∙ Z=) ∙ Z'=))
 ⟦weakenTm++⟧₁' k u uᵈ X= refl refl Y= refl refl refl = ⟦weakenTm+⟧₁' (prev k) u uᵈ X= refl (ap2-irr star qq^prev refl ∙ Y=) refl refl ∙ ap2-irr star (ap2-irr qq (qq^prev ∙ ap2-irr qq (qq^=p refl) (ap ft (! (⟦⟧Tm₁-ft u)))) refl) refl
 
-⟦weakenTy+⟧= : {X+ : Ob (suc n)} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc n))
-             → (Aᵈ : isDefined (⟦ A ⟧Ty X'))
-             → (X= : ft X+ ≡ X) {Y : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (pp X+) X' (pp₁ ∙ X= ∙ ! p) ≡ Y)
-             → star (qq (pp X+) X' (pp₁ ∙ X= ∙ ! p)) (⟦ A ⟧Ty X' $ Aᵈ) (qq₁ ∙ ! (⟦⟧Ty-ft A)) ≡ ⟦ weakenTy' (prev last) A ⟧Ty Y $ ⟦weakenTy+⟧ᵈ' last A Aᵈ X= p (ap2-irr star qq^last refl ∙ Y=)
-⟦weakenTy+⟧= A Aᵈ X= p Y= = ap2-irr star (ap2-irr qq (! qq^last) refl) refl ∙ ⟦weakenTy+⟧=' last A Aᵈ X= p (ap2-irr star qq^last refl ∙ Y=)
 
-⟦weakenTy⟧= : {X+ : Ob (suc n)} {X : Ob n} (A : TyExpr n)
-            → (Aᵈ : isDefined (⟦ A ⟧Ty X))
+⟦weakenTm⟧ᵈ : {X+ : Ob (suc n)} {X : Ob n} (u : TmExpr n)
+            → (uᵈ : isDefined (⟦ u ⟧Tm X))
             → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
-            → star (pp X+) (⟦ A ⟧Ty X $ Aᵈ) (pp₁ ∙ X= ∙ ! (⟦⟧Ty-ft A)) ≡ ⟦ weakenTy A ⟧Ty Y $ ⟦weakenTy⟧ᵈ' last A Aᵈ X= Y=
-⟦weakenTy⟧= A Aᵈ X= Y= = ap2-irr star (! qq^last) refl ∙ ⟦weakenTy⟧=' last A Aᵈ X= Y=
+            → isDefined (⟦ weakenTm u ⟧Tm Y)
+⟦weakenTm⟧ᵈ u uᵈ X= Y= = ⟦weakenTm⟧ᵈ' last u uᵈ X= Y=
 
 ⟦weakenTm⟧= : {X+ : Ob (suc n)} {X : Ob n} (u : TmExpr n)
             → (uᵈ : isDefined (⟦ u ⟧Tm X))
             → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
-            → starTm (pp X+) (⟦ u ⟧Tm X $ uᵈ) (⟦⟧Tm₀ u ∙ ! (pp₁ ∙ X=)) ≡ ⟦ weakenTm u ⟧Tm Y $ ⟦weakenTm⟧ᵈ' last u uᵈ X= Y=
-⟦weakenTm⟧= u uᵈ X= Y= = ap ss (ap2-irr comp refl (! qq^last)) ∙ ⟦weakenTm⟧=' last u uᵈ X= Y=
+            → starTm (pp X+) (⟦ u ⟧Tm X $ uᵈ) (⟦⟧Tm₀ u ∙ ! X= ∙ ! pp₁) ≡ ⟦ weakenTm u ⟧Tm Y $ ⟦weakenTm⟧ᵈ u uᵈ X= Y=
+⟦weakenTm⟧= u uᵈ X= Y= = ap2-irr starTm (! qq^last) refl ∙ ⟦weakenTm⟧=' last u uᵈ X= Y=
+
+⟦weakenTy⟧ᵈ : {X+ : Ob (suc n)} {X : Ob n} (A : TyExpr n)
+            → (Aᵈ : isDefined (⟦ A ⟧Ty X))
+            → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
+            → isDefined (⟦ weakenTy A ⟧Ty Y)
+⟦weakenTy⟧ᵈ A Aᵈ X= Y= = ⟦weakenTy⟧ᵈ' last A Aᵈ X= Y=
+
+⟦weakenTy⟧= : {X+ : Ob (suc n)} {X : Ob n} (A : TyExpr n)
+            → (Aᵈ : isDefined (⟦ A ⟧Ty X))
+            → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
+            → star (pp X+) (⟦ A ⟧Ty X $ Aᵈ) (pp₁ ∙ X= ∙ ! (⟦⟧Ty-ft A)) ≡ ⟦ weakenTy A ⟧Ty Y $ ⟦weakenTy⟧ᵈ A Aᵈ X= Y=
+⟦weakenTy⟧= A Aᵈ X= Y= = ap2-irr star (! qq^last) refl ∙ ⟦weakenTy⟧=' last A Aᵈ X= Y=
+
+⟦weakenTy+⟧ᵈ : {X+ : Ob (suc n)} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc n))
+             → (Aᵈ : isDefined (⟦ A ⟧Ty X'))
+             → (X= : ft X+ ≡ X) {Y : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (pp X+) X' (pp₁ ∙ X= ∙ ! p) ≡ Y)
+             → isDefined (⟦ weakenTy' (prev last) A ⟧Ty Y)
+⟦weakenTy+⟧ᵈ A Aᵈ X= p Y= = ⟦weakenTy+⟧ᵈ' last A Aᵈ X= p (ap2-irr star qq^last refl ∙ Y=)
+
+⟦weakenTy+⟧= : {X+ : Ob (suc n)} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc n))
+             → (Aᵈ : isDefined (⟦ A ⟧Ty X'))
+             → (X= : ft X+ ≡ X) {Y : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (pp X+) X' (pp₁ ∙ X= ∙ ! p) ≡ Y)
+             → star (qq (pp X+) X' (pp₁ ∙ X= ∙ ! p)) (⟦ A ⟧Ty X' $ Aᵈ) (qq₁ ∙ ! (⟦⟧Ty-ft A)) ≡ ⟦ weakenTy' (prev last) A ⟧Ty Y $ ⟦weakenTy+⟧ᵈ A Aᵈ X= p Y=
+⟦weakenTy+⟧= A Aᵈ X= p Y= = ap2-irr star (ap2-irr qq (! qq^last) refl) refl ∙ ⟦weakenTy+⟧=' last A Aᵈ X= p (ap2-irr star qq^last refl ∙ Y=)
+
+
+⟦weakenTm⟧₁ : {X+ : Ob (suc n)} {X : Ob n} (u : TmExpr n)
+            → (uᵈ : isDefined (⟦ u ⟧Tm X))
+            → (X= : ft X+ ≡ X) {Y : Ob (suc n)} (Y= : Y ≡ X+)
+            → {Z : Ob (suc n)} (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Z)
+            → ∂₁ (⟦ weakenTm u ⟧Tm Y $ ⟦weakenTm⟧ᵈ u uᵈ X= Y=) ≡ star (pp X+) Z (pp₁ ∙ X= ∙ ! (⟦⟧Tm₁-ft u) ∙ ap ft u₁)
+⟦weakenTm⟧₁ u uᵈ X= refl refl = ⟦weakenTm⟧₁' last u uᵈ X= refl refl ∙ ap2-irr star qq^last refl
+
+{-
+Unfortunately it seems that we cannot defined ⟦weaken⟧ᵈ in terms of ⟦tsubst⟧ᵈ
+because ⟦tsubst⟧Ty+ᵈ calls ⟦weakenMor+⟧ᵈ on δ, whereas the induction defining
+⟦tsubst⟧Tyᵈ is on A.
+There is no similar issue defining ⟦weaken⟧ first (as there is no δ that would
+mess up the termination) and then ⟦tsubst⟧ (which uses ⟦weaken⟧ which is
+already defined).
+-}
 
 ⟦tsubst⟧Ty+ᵈ : {X' : Ob n} {Y : Ob (suc m)} {Y' : Ob m} (A : TyExpr (suc m))
              → isDefined (⟦ A ⟧Ty Y)
@@ -517,7 +724,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dSᵈ = ⟦⟧Tmᵈ ((Γᵈ , (tt , tt)) , Pᵈ , tt) ddS
       dSₛ = ⟦⟧Tmₛ dS
       natthing = NatStrNat _ (! (pp₁ ∙ NatStr=)) ∙ ap NatStr (pp₀ ∙ ! (varC₀ last _))
-      auxauxᵈ = ⟦weakenTy⟧ᵈ' (prev last) P Pᵈ refl (! natthing ∙ ap2-irr star (! qq^last) refl)
+      auxauxᵈ = ⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= natthing
       auxᵈ = ⟦subst⟧Tyᵈ (NatStr= ∙ varC₀ last _) (weakenTy' (prev last) P) auxauxᵈ (suc (var last)) (tt , (ssₛ , (varCL₁ ∙ natthing) , tt)) sucStr₁
       dS₁ = ⟦⟧Tm₁ ((Γᵈ , (tt , tt)) , Pᵈ , tt) ddS
             ∙ ! (⟦weakenTy⟧= (substTy (weakenTy' (prev last) P) (suc (var last))) auxᵈ (⟦⟧Ty-ft P) refl)
@@ -617,7 +824,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 
 ⟦⟧Tm₁ Γᵈ {u = id i a u v} (IdUU da du dv) = idStr₁ ∙ ap (UUStr i) (⟦⟧Tm₀ a)
 ⟦⟧Tm₁ Γᵈ {u = refl A a} (Refl dA da) = reflStr₁
-⟦⟧Tm₁ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!!}
+⟦⟧Tm₁ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = jjStr₁ ∙ {!! (⟦3subst⟧Ty= (IdStr= ∙ ⟦⟧Ty-ft (weakenTy (weakenTy A))) (⟦⟧Ty-ft (weakenTy A)) (⟦⟧Ty-ft A) P (⟦⟧Tyᵈ {!Γᵈ !} dP) a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da) b (⟦⟧Tmᵈ Γᵈ db) (⟦⟧Tm₁ Γᵈ db ∙ {!!}) p (⟦⟧Tmᵈ Γᵈ dp) (⟦⟧Tm₁ Γᵈ dp ∙ {!!}))!}
 
 
 ⟦weakenTy⟧ᵈ' k (uu i) Aᵈ _ _ = tt
@@ -897,7 +1104,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 
 
 ⟦weakenMor⟧ᵈ refl ◇ tt = tt
-⟦weakenMor⟧ᵈ {X+ = X+} refl (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = (⟦weakenMor⟧ᵈ refl δ δᵈ , ⟦weakenTm⟧ᵈ' last u uᵈ refl refl , ⟦⟧Mor₁ (weakenMor δ) , (⟦weakenTm⟧₁' last u uᵈ refl refl refl ∙ ap2-irr star refl u₁ ∙ ! (star-comp {p = qq^₁ ∙ ! (⟦⟧Mor₀ δ)} δ₁) ∙ ! (ap2-irr star (⟦weakenMor⟧= refl δ δᵈ ∙ ap2-irr comp refl (! qq^last)) refl)) , tt) 
+⟦weakenMor⟧ᵈ {X+ = X+} refl (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = (⟦weakenMor⟧ᵈ refl δ δᵈ , ⟦weakenTm⟧ᵈ u uᵈ refl refl , ⟦⟧Mor₁ (weakenMor δ) , (⟦weakenTm⟧₁ u uᵈ refl refl u₁ ∙ ! (star-comp {p = pp₁ ∙ ! (⟦⟧Mor₀ δ)} δ₁) ∙ ! (ap2-irr star (⟦weakenMor⟧= refl δ δᵈ) refl)) , tt)
 
 ⟦weakenMor⟧= refl ◇ tt = ! (ptmor-unique _ _ (comp₀ ∙ pp₀) (comp₁ ∙ pt-unique _))
 
@@ -909,8 +1116,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
      ∙ qq-comp (⟦⟧Mor₁ δ)
      ∙ ap-irr (comp _)
        (ap2-irr qq (! (! (assoc {p = pp₁ ∙ ! (⟦⟧Tm₀ u)} {q = ! pp₀ ∙ ap ∂₀ (ap pp (! comp₁))}) ∙ ap2-irr comp (ap2-irr comp (ap pp comp₁) refl ∙ ⟦⟧Tmₛ u ∙ ap idC (⟦⟧Tm₀ u ∙ ! pp₁)) refl ∙ id-right)) (! (comp₁ ∙ u₁))))
-    (! (⟦weakenTm⟧=' last u uᵈ refl refl)
-     ∙ ap ss (ap-irr (comp _) qq^last))
+    (! (⟦weakenTm⟧= u uᵈ refl refl))
   ∙ assoc {q = qq₁ ∙ comp₁ ∙ u₁ ∙ ! qq₀}
   ∙ ! (ap-irr (comp _) ss-qq)
   ∙ ! assoc
@@ -1267,15 +1473,6 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 
 ⟦subst⟧Tm= refl v vᵈ u uᵈ q = ! (⟦tsubst⟧Tm= v vᵈ _ (⟦idMor+⟧ᵈ refl u uᵈ q)) ∙ ap2-irr starTm (⟦idMor+⟧= refl u uᵈ q) refl {b = ⟦⟧Tm₀ v ∙ ! (comp₁ ∙ qq₁)} {b' = ⟦⟧Tm₀ v ∙ ! q}
 
-
-⟦idMor+⟧ᵈ {X = X} refl u uᵈ u₁ =
-  (⟦idMor⟧ᵈ {X = X} refl ,
-   uᵈ ,
-   ⟦⟧Mor₁ (idMor _) ,
-   (u₁ ∙ ! (ap2-irr star (⟦idMor⟧= refl) refl ∙ star-id)) , tt)
-
-⟦idMor+⟧= refl u uᵈ u₁ =
-  ap2-irr comp (ap2-irr qq (⟦idMor⟧= refl) refl ∙ qq-id ∙ ap idC (! u₁)) refl ∙ id-right
 
 {- Totality of the interpretation function on derivable contexts -}
 

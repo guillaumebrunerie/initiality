@@ -73,8 +73,9 @@ record CCat : Set₁ where
   is-section : (u : Mor n (suc n)) → Prop
   is-section u = comp' (pp (∂₁ u)) u (common.! pp₀) ≡ id (∂₀ u)
 
-  is-section₀ : {u : Mor n (suc n)} {X : Ob (suc n)} (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) → ∂₀ u ≡ ft X
-  is-section₀ uₛ u₁ = ! id₁ ∙ ap ∂₁ (! uₛ) ∙ comp₁ ∙ pp₁ ∙ ap ft u₁
+  abstract
+    is-section₀ : {u : Mor n (suc n)} {X : Ob (suc n)} (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) → ∂₀ u ≡ ft X
+    is-section₀ uₛ u₁ = ! id₁ ∙ ap ∂₁ (! uₛ) ∙ comp₁ ∙ pp₁ ∙ ap ft u₁
 
   ssₛ : {f : Mor m (suc n)} → is-section (ss f)
   ssₛ = ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀)
@@ -149,7 +150,7 @@ record CCat : Set₁ where
   star++ g A {A'} p {A''} q A= = star' (qq' (qq' g A'' A=) A' (qq₁ ∙ ! q)) A (qq₁ ∙ ! p)
 
   starTm : (g : Mor n m) (u : Mor m (suc m)) (u₀ : ∂₀ u ≡ ∂₁ g) → Mor n (suc n)
-  starTm g u u₀ = ss (comp' u g (! u₀))
+  starTm g u u₀ = ss (comp u g (common.! u₀))
 
   starTm₁ : {g : Mor n m} {u : Mor m (suc m)} (uₛ : is-section u) (u₀ : ∂₀ u ≡ ∂₁ g) {X : Ob (suc m)} (p : ∂₁ u ≡ X) → ∂₁ (starTm g u u₀) ≡ star' g X (! u₀ ∙ is-section₀ uₛ p)
   starTm₁ uₛ u₀ p = ss₁' comp₁ ∙ ap2-irr star (! (assoc {q = ! pp₀}) ∙ ap2-irr comp (uₛ ∙ ap id u₀) refl ∙ id-right) p
@@ -233,7 +234,7 @@ record CCat : Set₁ where
   varCL₁ : {X : Ob (suc n)} → ∂₁ (varC last X) ≡ star (pp X) X (pp₁ ∙ refl)
   varCL₁ = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl
 
-  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (Z= : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (pp₁ ∙ {!TODO!})
+  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (Z= : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (pp₁ ∙ {!TODO (prove that ft (∂₁ (varC k Y)) = … mutually)!})
   varC+₁ last refl refl = ss₁' pp₁ ∙ star-comp pp₁ ∙ ap2-irr star refl (! varCL₁)
   varC+₁ (prev k) {X = X} refl refl = ss₁' (comp₁ ∙ pp^₁ (prev k) (ft X)) ∙ ap2-irr star (! (assoc {q = pp^₁ (prev k) (ft X) ∙ ! pp₀})) refl ∙ star-comp (comp₁ ∙ pp₁) ∙ ap2-irr star refl (ap2-irr star (ap2-irr comp (ap pp (! (pp^₁ (prev k) _))) refl) (! (pp^₁ (prev k) _)) ∙ ! ss₁)
 
@@ -598,7 +599,7 @@ record CCatwithjj (ccat : CCat) (ccatid : CCatwithId ccat) (ccatrefl : CCatwithr
   T-d₁ A P P= d =
     star (reflStr (star (pp A) A pp₁)
                   (ss (id A))
-                  (ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀))
+                  ssₛ
                   (ss₁ ∙ ap2-irr star (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁) id₁))
          (star (qq (ss (id A))
                    (IdStr
@@ -607,19 +608,19 @@ record CCatwithjj (ccat : CCat) (ccatid : CCatwithId ccat) (ccatrefl : CCatwithr
                        (star (pp A) A pp₁)
                        pp₁)
                      (ss (pp (star (pp A) A pp₁)))
-                     (ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀))
+                      ssₛ
                      (ss₁' (pp₁ ∙ ft-star ∙ pp₀) ∙ star-comp pp₁)
                      (ss (id (star (pp A) A pp₁)))
-                     (ap2-irr comp (ap pp ss₁) refl ∙ ss-pp ∙ ap id (! ss₀))
+                      ssₛ
                      (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl))
                    (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl ∙ ! (IdStr= ∙ ft-star ∙ pp₀)))
                P
                (qq₁ ∙ ! P=))
          (reflStr₁
           ∙ ! (ft-star ∙ qq₀ ∙ (IdStrNat _ (ft-star ∙ pp₀ ∙ ! (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl)))
-              ∙ ap-irr-IdStr {!(! (star-comp {p = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl ∙ ! pp₀} pp₁) ∙ ap2-irr star (ap2-irr comp (ap pp (ap2-irr star (! (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁)) (! id₁))) refl ∙ ss-pp ∙ ap id (id₀ ∙ ! (ft-star ∙ pp₀))) refl ∙ star-id)!}
-                             {!(ss-comp {g₁ = comp₁ {p = pp₁ ∙ ft-star ∙ pp₀ ∙ ! id₀ ∙ ! comp₀ ∙ ! ft-star ∙ ! pp₀} ∙ pp₁ ∙ ap ft (ft-star ∙ comp₀)} {f₁ = comp₁ ∙ ss₁' (pp₁ ∙ ft-star) ∙ ap2-irr star (ap2-irr comp (ap pp (pp₀ ∙ ! id₀ ∙ ! comp₀ ∙ ! ft-star)) refl) (pp₀ ∙ ! id₀)} ∙ ap ss (! (assoc {q = ss₁' (pp₁ ∙ ft-star) ∙ ap2-irr star (ap2-irr comp (ap pp (pp₀ ∙ ! id₀ ∙ ! comp₀ ∙ ! ft-star)) refl) (pp₀ ∙ ! id₀) ∙ ! qq₀}) ∙ ap2-irr comp (ap2-irr comp (ap2-irr qq (! (ap2-irr comp (ap pp pp₁) (ap pp (ap2-irr star (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁) id₁)))) (! (pp₁ ∙ ft-star ∙ comp₀))) (! (ap ss (ap pp (ap2-irr star (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁) id₁)))) ∙ ! ss-qq) refl ∙ ss-pp ∙ ap id id₀) ∙ refl)!}
-                             {!(ss-comp {g₁ = pp₁ ∙ ft-star ∙ pp₀ ∙ ! pp₀ ∙ ! ft-star ∙ ap ft (! id₁ ∙ ! id₁)} {f₁ = comp₁ ∙ ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) (! id₁ ∙ ! id₁)} ∙ ap ss (! (assoc {q = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) (! id₁ ∙ ! id₁) ∙ ! qq₀}) ∙ ap2-irr comp (ap2-irr comp (ap2-irr qq (! (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁)) id₁) refl ∙ ! ss-qq) refl ∙ id-right' (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl)) ∙ ss-comp {g₁ = pp₁} {f₁ = ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl} ∙ ap ss (ap2-irr comp (! (ap2-irr qq (id-left' (pp₀ ∙ id₁) ∙ ap pp id₁) id₁)) refl ∙ ! ss-qq))!}))
+              ∙ ap-irr-IdStr (star-pp' ssₛ)
+                             (star-varCL'' {p = varCL₁ ∙ ! pp₀} ∙ ap ss (ap2-irr comp (ap pp (! varCL₁)) refl ∙ ssₛ ∙ ap id (ss₀ ∙ id₀)))
+                             (star-varCL'' {p = varCL₁ ∙ ! id₀} ∙ ap ss (id-right' varCL₁) ∙ ss-of-section (ss (id A)) ssₛ)))
 
   field
     jjStr  : (A : Ob (suc n)) (P : Ob (suc (suc (suc (suc n)))))
@@ -633,12 +634,29 @@ record CCatwithjj (ccat : CCat) (ccatid : CCatwithId ccat) (ccatrefl : CCatwithr
     jjStrₛ : ∀ {A P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ A P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr A a aₛ a₁ b bₛ b₁}
            → is-section (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
     jjStr₁ : ∀ {A P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ A P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr A a aₛ a₁ b bₛ b₁}
+             (let wA = star (pp A) A pp₁) (let idthing = IdStr (star (pp (star (pp A) A pp₁)) (star (pp A) A pp₁) pp₁) (ss (pp (star (pp A) A pp₁))) ssₛ (ss₁' (pp₁ ∙ ft-star ∙ pp₀) ∙ star-comp pp₁) (ss (id (star (pp A) A pp₁))) ssₛ (ss₁' id₁ ∙ ap2-irr star (id-left' pp₀) refl))
            → ∂₁ (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
-             ≡ {!!}
+             ≡ {!star' p
+                    (star' (qq b
+                              (star' (qq a
+                                        wA
+                                        (a₁ ∙ ! pp₀ ∙ ! ft-star))
+                                    idthing
+                                    (qq₁ ∙ ! pp₀ ∙ ! ft-star ∙ ! IdStr=))
+                              (b₁ ∙ {!TODO!} ∙ ! qq₀ ∙ ! ft-star))
+                          (star' (qq (qq a
+                                        wA
+                                        (a₁ ∙ ! pp₀ ∙ ! ft-star))
+                                    idthing
+                                    (qq₁ ∙ ! pp₀ ∙ ! ft-star ∙ ! IdStr=))
+                                P
+                                (qq₁ ∙ ! P=))
+                          (qq₁ ∙ ! qq₀ ∙ ! ft-star))
+                    (p₁ ∙ {!TODO!} ∙ ! qq₀ ∙ ! ft-star)!}
 
-  jjStr₀ : ∀ {A P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ A P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {pₛ : is-section p} (p₁ : ∂₁ p ≡ IdStr A a aₛ a₁ b bₛ b₁)
+  jjStr₀ : ∀ {A P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ A P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} (pₛ : is-section p) (p₁ : ∂₁ p ≡ IdStr A a aₛ a₁ b bₛ b₁)
          → ∂₀ (jjStr {n = n} A P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ ft A
-  jjStr₀ p₁ = is-section₀ jjStrₛ jjStr₁ ∙ {!!}
+  jjStr₀ pₛ p₁ = is-section₀ jjStrₛ jjStr₁ ∙ {!ft-star ∙ is-section₀ pₛ p₁ ∙ IdStr=!}
 
 
 
