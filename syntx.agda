@@ -512,7 +512,7 @@ weakenCommutesSubstTm k u a = ap (λ z → substTm (weakenTm' (prev k) z) _) (! 
                               ap (λ z → u [ z [ (weakenMor' last (idMor _) , var last) , weakenTm' _ _ ]Mor , weakenTm' k a ]Tm) (! (weakenMorCommutes _ (idMor _))) ∙ 
                               ap (λ z → u [ z , weakenTm' _ _ ]Tm) (weakenMorInsert _ _ _ ∙ [idMor]Mor (weakenMor' _ (idMor _))) ∙
                               ! (weaken[]Tm u (idMor _ , _) _)
- 
+
 weakenSubstTy : (A : TyExpr n) (t : TmExpr n) -> substTy (weakenTy A) t ≡ A
 weakenSubstTm : (u : TmExpr n) (t : TmExpr n) -> substTm (weakenTm u) t ≡ u
 
@@ -530,11 +530,24 @@ substCommutes[]Ty B a δ = []Ty-assoc _ _ _ ∙ ap (λ z → B [ z , a [ δ ]Tm 
 substCommutes[]Tm : (u : TmExpr (suc m)) (a : TmExpr m) (δ : Mor n m) → substTm (u [ weakenMor+ δ ]Tm) (a [ δ ]Tm) ≡ (substTm u a) [ δ ]Tm
 substCommutes[]Tm u a δ = []Tm-assoc _ _ u ∙ ap (λ z → u [ z , a [ δ ]Tm ]Tm) (weakenMorInsert _ _ _ ∙ [idMor]Mor δ ∙ ! (idMor[]Mor δ)) ∙ ! ([]Tm-assoc _ _ u)
 
-
--- substweaken[]Ty : (B : TyExpr (suc m)) (a : TmExpr m) (δ : Mor n m) → substTy (B [ weakenMor+ δ ]Ty) (a [ δ ]Tm) ≡ (substTy B a) [ δ ]Ty
-
-
 insertIdMor : (k  : Fin (suc n)) → insertMor k (var k) (weakenMor' k (idMor n)) ≡ idMor (suc n)
 insertIdMor last = refl
 insertIdMor {n = zero} (prev ()) 
 insertIdMor {n = suc n} (prev k) = Mor+= ((ap (λ z → insertMor k (var (prev k)) z) (! (weakenMorCommutes k (idMor n))) ∙ weakenCommutesInsert k last (var k) (weakenMor' k (idMor n))) ∙ ap weakenMor (insertIdMor k))  refl
+
+{- Double substitutions -}
+
+subst2Ty : TyExpr (suc (suc n)) → TmExpr n → TmExpr n → TyExpr n
+subst2Ty A u v = A [ (idMor _ , u) , v ]Ty
+
+subst2Tm : TmExpr (suc (suc n)) → TmExpr n → TmExpr n → TmExpr n
+subst2Tm t u v = t [ (idMor _ , u) , v ]Tm
+
+subst2Commutes[]Ty : (A : TyExpr (suc (suc m))) {u v : TmExpr m} {δ : Mor n m} → subst2Ty (A [ weakenMor+ (weakenMor+ δ) ]Ty) (u [ δ ]Tm) (v [ δ ]Tm) ≡ (subst2Ty A u v) [ δ ]Ty
+subst2Commutes[]Ty A {u} {v} {δ} = []Ty-assoc _ _ _ ∙ ap (λ z → A [ (z , u [ δ ]Tm) , v [ δ ]Tm ]Ty) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor δ ∙ ! (idMor[]Mor δ)) ∙ ! ([]Ty-assoc _ _ _)
+
+subst2Commutes[]Tm : (t : TmExpr (suc (suc m))) {u v : TmExpr m} {δ : Mor n m} → subst2Tm (t [ weakenMor+ (weakenMor+ δ) ]Tm) (u [ δ ]Tm) (v [ δ ]Tm) ≡ (subst2Tm t u v) [ δ ]Tm
+subst2Commutes[]Tm t {u} {v} {δ} = []Tm-assoc _ _ t ∙ ap (λ z → t [ (z , u [ δ ]Tm) , v [ δ ]Tm ]Tm) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor δ ∙ ! (idMor[]Mor δ)) ∙ ! ([]Tm-assoc _ _ t)
+
+postulate  -- TODO
+  subst2-weakenTm : {k : Fin (suc m)} (t : TmExpr (suc (suc m))) {u v : TmExpr m} → subst2Tm (weakenTm' (prev (prev k)) t) (weakenTm' k u) (weakenTm' k v) ≡ weakenTm' k (subst2Tm t u v)
