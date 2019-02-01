@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K -v tc.unquote:10 --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K -v tc.unquote:10 #-}
  
 open import common
 open import typetheory
@@ -212,7 +212,8 @@ weakenMorCommutes {m = suc m} k (δ , u) rewrite weakenMorCommutes k δ | weaken
 
 
 postulate
-  weakenTyCommutesprev : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (suc n)) → weakenTy' (prev last) (weakenTy' (prev k) A) ≡ weakenTy' (prev (prev k)) (weakenTy' (prev last) A)
+  weakenTyCommutesprev : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (1 + n)) → weakenTy' (prev last) (weakenTy' (prev k) A) ≡ weakenTy' (prev (prev k)) (weakenTy' (prev last) A)
+  weakenTyCommutes3 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (3 + n)) → weakenTy' (prev (prev (prev last))) (weakenTy' (prev (prev (prev k))) A) ≡ weakenTy' (prev (prev (prev (prev k)))) (weakenTy' (prev (prev (prev last))) A)
 
 
 
@@ -551,3 +552,30 @@ subst2Commutes[]Tm t {u} {v} {δ} = []Tm-assoc _ _ t ∙ ap (λ z → t [ (z , u
 
 postulate  -- TODO
   subst2-weakenTm : {k : Fin (suc m)} (t : TmExpr (suc (suc m))) {u v : TmExpr m} → subst2Tm (weakenTm' (prev (prev k)) t) (weakenTm' k u) (weakenTm' k v) ≡ weakenTm' k (subst2Tm t u v)
+
+{- Triple substitutions -}
+
+subst3Ty : TyExpr (suc (suc (suc n))) → TmExpr n → TmExpr n → TmExpr n → TyExpr n
+subst3Ty A u v w = A [ ((idMor _ , u) , v) , w ]Ty
+
+ap-subst3Ty : {A A' : TyExpr (suc (suc (suc n)))} {u u' v v' w w' : TmExpr n} → A ≡ A' → u ≡ u' → v ≡ v' → w ≡ w' → subst3Ty A u v w ≡ subst3Ty A' u' v' w'
+ap-subst3Ty refl refl refl refl = refl
+
+[]-subst3Ty : (A : TyExpr (suc (suc (suc m)))) {u v w : TmExpr m} {δ : Mor n m} → (subst3Ty A u v w) [ δ ]Ty ≡ subst3Ty (A [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty) (u [ δ ]Tm) (v [ δ ]Tm) (w [ δ ]Tm)
+[]-subst3Ty A {u} {v} {w} {δ} = []Ty-assoc _ _ _ ∙ ap (λ z → A [ ((z , u [ δ ]Tm) , v [ δ ]Tm) , w [ δ ]Tm ]Ty) (! (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor δ ∙ ! (idMor[]Mor δ))) ∙ ! ([]Ty-assoc _ _ _)
+
+[]-substTm : (t : TmExpr (suc m)) {u : TmExpr m} {δ : Mor n m} → (substTm t u) [ δ ]Tm ≡ substTm (t [ weakenMor+ δ ]Tm) (u [ δ ]Tm)
+[]-substTm t {u} {δ} = []Tm-assoc _ _ t ∙ ap (λ z → t [ z , u [ δ ]Tm ]Tm) (! (weakenMorInsert _ _ _ ∙ [idMor]Mor δ ∙ ! (idMor[]Mor δ))) ∙ ! ([]Tm-assoc _ _ t)
+
+postulate  -- TODO
+  weaken-subst3Ty : {k : Fin (suc m)} (A : TyExpr (suc (suc (suc m)))) {u v w : TmExpr m} → weakenTy' k (subst3Ty A u v w) ≡ subst3Ty (weakenTy' (prev (prev (prev k))) A) (weakenTm' k u) (weakenTm' k v) (weakenTm' k w)
+
+[]-weakenTy : {δ : Mor n m} (A : TyExpr m) → (weakenTy A [ weakenMor+ δ ]Ty) ≡ weakenTy (A [ δ ]Ty)
+[]-weakenTy A = [weakenMor]Ty _ A
+
+postulate -- TODO
+  []-weakenTy3 : {δ : Mor n m} (A : TyExpr (suc (suc (suc m)))) → (weakenTy' (prev (prev (prev last))) A [ weakenMor+ (weakenMor+ (weakenMor+ (weakenMor+  δ))) ]Ty) ≡ weakenTy' (prev (prev (prev last))) (A [ weakenMor+ (weakenMor+ (weakenMor+  δ)) ]Ty)
+--  []-weakenTy3 A = {!!}
+
+[]-weakenTm : {δ : Mor n m} (u : TmExpr m) → (weakenTm u [ weakenMor+ δ ]Tm) ≡ weakenTm (u [ δ ]Tm)
+[]-weakenTm u = [weakenMor]Tm _ u
