@@ -226,6 +226,10 @@ ap-irr2 f refl = refl
 ap2-irr : {A C D : Set} {B : A → C → Prop} (f : (a : A) (c : C) (b : B a c) → D) {a a' : A} (p : a ≡ a') {c c' : C} (q : c ≡ c') {b : B a c} {b' : B a' c'} → f a c b ≡ f a' c' b'
 ap2-irr f refl refl = refl
 
+ap3-irr2 : {A B C D : Set} {E : A → B → C → Prop} {F : A → B → C → Prop} (h : (a : A) (b : B) {c : C} (p : E a b c) (q : F a b c) → D) {a a' : A} (p : a ≡ a') {b b' : B} (q : b ≡ b') {c c' : C} (r : c ≡ c') {e : E a b c} {e' : E a' b' c'} {f : F a b c} {f' : F a' b' c'} → h a b {c = c} e f ≡ h a' b' {c = c'} e' f'
+ap3-irr2 h refl refl refl = refl
+  
+
 {- Axioms -}
 
 postulate
