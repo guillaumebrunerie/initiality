@@ -61,7 +61,7 @@ data Derivable : Judgment → Prop where
   UUCong :  {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i == uu i)
 
-  -- Rules for UU
+  -- Rules for uu
   UUUU : {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i :> uu (suc i))
   UUUUCong : {i : ℕ} {Γ : Ctx n}
