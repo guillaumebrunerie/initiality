@@ -275,8 +275,8 @@ ap-irr-reflStr refl refl refl = refl
 ⟦⟧Tm₀ (refl A u) = reflStr₀
 ⟦⟧Tm₀ (jj A P d a b p) = jjStr₀
 
-⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ft (∂₁ (⟦ u ⟧Tm X $ uᵈ)) ≡ X
-⟦⟧Tm₁-ft u = ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u
+⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} {Z : Ob (suc n)} (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Z) → ft Z ≡ X
+⟦⟧Tm₁-ft u u₁ = ap ft (! u₁) ∙ ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u
 
 ⟦⟧Mor₀ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₀ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ X
 ⟦⟧Mor₀ ◇ = ptmor₀
