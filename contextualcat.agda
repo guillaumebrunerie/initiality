@@ -48,8 +48,8 @@ record CCat : Set₁ where
     id-left  : {f : Mor n m} {X : Ob n} (f₀ : ∂₀ f ≡ X) → comp f (id X) f₀ id₁ ≡ f
     assoc : {h : Mor k l} {g : Mor m k} {f : Mor n m} {X : Ob m} {f₁ : ∂₁ f ≡ X} {g₀ : ∂₀ g ≡ X} {Y : Ob k} {g₁ : ∂₁ g ≡ Y} {h₀ : ∂₀ h ≡ Y} → comp (comp h g h₀ g₁) f (comp₀ ∙ g₀) f₁ ≡ comp h (comp g f g₀ f₁) h₀ (comp₁ ∙ g₁)
     -- properties of star and q
-    ft-star : {f : Mor m n} {X : Ob (suc n)} {Y : Ob n} {p : ft X ≡ Y} {f₁ : ∂₁ f ≡ Y}  → ft (star f X p f₁) ≡ ∂₀ f
-    pp-qq   : {f : Mor m n} {X : Ob (suc n)} {Y : Ob n} {p : ft X ≡ Y} {f₁ : ∂₁ f ≡ Y}  → comp (pp X) (qq f X p f₁) pp₀ qq₁ ≡ comp f (pp (star f X p f₁)) refl (pp₁ ∙ ft-star)
+    ft-star : {f : Mor m n} {X : Ob (suc n)} {Y : Ob n} {p : ft X ≡ Y} {f₁ : ∂₁ f ≡ Y} → ft (star f X p f₁) ≡ ∂₀ f
+    pp-qq   : {f : Mor m n} {X : Ob (suc n)} {Y : Ob n} {p : ft X ≡ Y} {f₁ : ∂₁ f ≡ Y} → comp (pp X) (qq f X p f₁) pp₀ qq₁ ≡ comp f (pp (star f X p f₁)) refl (pp₁ ∙ ft-star)
     star-id : {X : Ob (suc n)} {Y : Ob n} {p : ft X ≡ Y} → star (id Y) X p id₁ ≡ X
     qq-id : {X : Ob (suc n)}  {Y : Ob n} {p : ft X ≡ Y} → qq (id Y) X p id₁ ≡ id X
     star-comp : {m n k : ℕ} {g : Mor m k} {f : Mor n m} {Y : Ob m} {f₁ : ∂₁ f ≡ Y} {g₀ : ∂₀ g ≡ Y} {X : Ob (suc k)} {Z : Ob k} (p : ft X ≡ Z) (g₁ : ∂₁ g ≡ Z) → star (comp g f g₀ f₁) X p (comp₁ ∙ g₁) ≡ star f (star g X p g₁) (ft-star ∙ g₀) f₁
@@ -89,10 +89,10 @@ record CCat : Set₁ where
     is-section₀ : {u : Mor n (suc n)} {X : Ob (suc n)} (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) → ∂₀ u ≡ ft X
     is-section₀ uₛ u₁ = ! id₁ ∙ ap ∂₁ (! uₛ) ∙ comp₁ ∙ pp₁ ∙ ap ft u₁
 
-    ssₛ : {f : Mor m (suc n)}  → is-section (ss f)
+    ssₛ : {f : Mor m (suc n)} → is-section (ss f)
     ssₛ = ap3-irr2 comp (ap pp ss₁) refl ss₁ ∙ ss-pp refl refl ∙ ap id (! ss₀)
  
-    is-section= : {X : Ob (suc n)} {Y : Ob n} (X= : ft X ≡ Y) (u : Mor n (suc n)) (uₛ : is-section u)  (u₁ : ∂₁ u ≡ X) → comp' (pp X) u pp₀ u₁ ≡ id Y
+    is-section= : {X : Ob (suc n)} {Y : Ob n} (X= : ft X ≡ Y) (u : Mor n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) → comp (pp X) u pp₀ u₁ ≡ id Y
     is-section= refl u uₛ refl = uₛ ∙ ap id (is-section₀ uₛ refl)
   
   -- ss-comp-section₁ : (g : Mor m (suc m)) (f : Mor n m) {X : Ob m} (g₀ : ∂₀ g ≡ X) (f₁ : ∂₁ f ≡ X) (gₛ : is-section g) {Y : Ob (suc m)} (p : ft Y ≡ X) (g₁ : ∂₁ g ≡ Y) → ∂₁ (ss (comp g f g₀ f₁) (comp₁ ∙ g₁)) ≡ star f Y f₁ p
@@ -210,6 +210,12 @@ record CCat : Set₁ where
 --     ! (star-comp _)
 --     ∙ ap2-irr star (! (qq-comp _) ∙ ap2-irr qq pp-qq refl ∙ qq-comp _) refl
 --     ∙ star-comp _
+
+  star-qqpp' : {n m : ℕ} {g : Mor n m} {B : Ob (suc (suc m))} {A : Ob (suc m)} (B= : ft B ≡ A) {X : Ob m} (A= : ft A ≡ X)
+             → (g₁ : ∂₁ g ≡ X) {C : Ob _} (C= : star (pp A) A A= (pp₁ ∙ A=) ≡ C)
+             → star (qq (qq g A A= g₁) C (ap ft (! C=) ∙ ft-star ∙ pp₀) qq₁) (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀ ∙ C=) qq₁
+               ≡ star (qq (pp (star g A A= g₁)) (star g A A= g₁) ft-star (pp₁ ∙ ft-star)) (star (qq g A A= g₁) B B= qq₁) (ft-star ∙ qq₀) qq₁
+  star-qqpp' B= A= g₁ refl = ! (star-comp B= qq₁) ∙ ap-irr-star (! (qq-comp A= (pp₁ ∙ A=)) ∙ ap-irr-qq pp-qq refl ∙ qq-comp A= g₁) refl ∙ star-comp B= qq₁
 
   starstar : (g : Mor n m) (B : Ob (suc (suc m))) {A : Ob (suc m)} (B= : ft B ≡ A) {X : Ob m} (A= : ft A ≡ X) (g₁ : ∂₁ g ≡ X) (a : Mor m (suc m)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A)
          → star g (star a B B= a₁) (ft-star ∙ is-section₀ aₛ a₁ ∙ A=) g₁ ≡ star (starTm g a (is-section₀ aₛ a₁ ∙ A=) g₁) (star (qq g A A= g₁) B B= qq₁) (ft-star ∙ qq₀) (starTm₁ g A= a aₛ a₁ g₁)
@@ -547,32 +553,32 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
   open CCatwithzero ccatzero
   open CCatwithsuc ccatsuc
 
-  T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Prop
-  T-dS₁ Γ P P= dS = ∂₁ dS ≡ star' (pp P)
-                                  (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last _) (varCL₁ ∙ NatStrNat _ pp₀ _))
-                                         (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
-                                                P
-                                                P= qq₁)
-                                         (ft-star ∙ qq₀ ∙ NatStrNat _ pp₀ _) sucStr₁) 
-                                  (ft-star ∙ sucStr₀) (pp₁ ∙ P=) 
+  T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Ob (suc (suc (suc n)))
+  T-dS₁ Γ P P= dS = star' (pp P)
+                          (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last _) (varCL₁ ∙ NatStrNat _ pp₀ _))
+                                 (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
+                                        P
+                                        P= qq₁)
+                                 (ft-star ∙ qq₀ ∙ NatStrNat _ pp₀ _) sucStr₁)
+                          (ft-star ∙ sucStr₀) (pp₁ ∙ P=)
 
   field
     natelimStr  : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ)
                   (dO : MorC n (suc n)) (dOₛ : is-section dO) (dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁)
-                  (dS : MorC (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section dS) (dS₁ : T-dS₁ Γ P P= dS)
+                  (dS : MorC (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section dS) (dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS)
                   (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ NatStr Γ)
                   → MorC n (suc n)
-    natelimStrₛ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
+    natelimStrₛ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
                 → is-section (natelimStr {n = n} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
-    natelimStr₁ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
+    natelimStr₁ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
                 → ∂₁ (natelimStr {n = n} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ star u P P= u₁
 
-  natelimStr₀ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
+  natelimStr₀ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
                 → ∂₀ (natelimStr {n = n} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ Γ
   natelimStr₀ {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {uₛ} {u₁} = is-section₀ natelimStrₛ natelimStr₁ ∙ ft-star ∙ is-section₀ uₛ u₁ ∙ NatStr=
 
   field
-    natelimStrNat : {n m : ℕ} (g : MorC n m) {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) → ∀ {Γ P P= dO dS u} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁} {dSₛ : is-section dS} {dS₁ : T-dS₁ Γ P P= dS} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} (g₁ : ∂₁ g ≡ Γ)
+    natelimStrNat : {n m : ℕ} (g : MorC n m) {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) → ∀ {Γ P P= dO dS u} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} (g₁ : ∂₁ g ≡ Γ)
                     (let dO₀ = is-section₀ dOₛ dO₁ ∙ ft-star ∙ zeroStr₀)
                     (let dS₀ = is-section₀ dSₛ dS₁ ∙ ft-star ∙ pp₀)
                     (let u₀ = is-section₀ uₛ u₁ ∙ NatStr=)
