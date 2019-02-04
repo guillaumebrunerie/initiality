@@ -1,10 +1,6 @@
-{-# OPTIONS --rewriting --prop --without-K --sized-types #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
-
--- Somehow it doesn’t work to put that in common…
-variable
-  {s} : UnitR
 
 {- Syntax of term- and type-expressions, using de Bruijn indices -}
 

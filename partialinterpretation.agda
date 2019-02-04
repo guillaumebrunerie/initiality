@@ -230,8 +230,7 @@ ap-irr-reflStr refl refl refl = refl
 {- Basic properties of the partial interpretation functions -}
 
 ⟦⟧Tmₛ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → is-section (⟦ u ⟧Tm X $ uᵈ)
-⟦⟧Tmₛ (var last) = ssₛ
-⟦⟧Tmₛ (var (prev x)) = ssₛ
+⟦⟧Tmₛ (var k) = varCₛ
 ⟦⟧Tmₛ (uu i) = uuStrₛ
 ⟦⟧Tmₛ (pi i a b) = piStrₛ
 ⟦⟧Tmₛ (lam A B u) = lamStrₛ

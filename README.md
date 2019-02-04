@@ -10,7 +10,7 @@ numbers, identity types, and an infinite hierarchy of universes.
 It requires a quite recent version of the master branch of Agda (to have the `variable` keyword,
 `Prop` and various issues fixed). For instance commit
 [764038c](https://github.com/agda/agda/tree/764038cf20dae68b463801fd049113011b4ade03) from January
-2019 works.
+2019 should work.
 
 Some design decisions
 ---------------------
@@ -27,7 +27,7 @@ Metatheory
 ----------
 
 We are using standard Agda with the sort `Prop` of strict propositions
-(see https://hal.inria.fr/hal-01859964v2/document) and sized types (used in only one place in `syntx.agda`).
+(see https://hal.inria.fr/hal-01859964v2/document).
 The other axioms that we are using are:
 - dependent function extensionality (three axioms, for the cases when the domain is a type, a
   proposition, or implicit)
@@ -39,7 +39,6 @@ Explanation of the flags
 
 * the flag `--prop` is required to enable `Prop`
 * the flag `--rewriting` is required to have quotients that compute
-* the flag `--sized-types` is required to defined sized types (used only in `typetheory.agda`)
 * the flag `--without-K` is not required, but it’s nice to see that everything compiles with it
 * the flag `-v tc.unquote:10` adds some debug output when running Agda from the command line, it can be used to see the full code of the functions defined by reflection
 * the flag `--allow-unsolved-metas` is used only if some file is incomplete but we want to compile another file depending on it anyway. It should not be used in a finished proof!
