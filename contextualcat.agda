@@ -613,29 +613,30 @@ record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl 
                    {v : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i Γ a aₛ a₁} → ∂₀ (idStr i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ Γ
   idStr₀ {_} = is-section₀ idStrₛ idStr₁ ∙ UUStr=
 
-  -- field
-  --   idStrNat : {i : ℕ} {n m : ℕ} (g : MorC n m) {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i (∂₀ a)} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i a aₛ a₁}
-  --                                               {v : MorC m (suc m)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i a aₛ a₁} (p : ∂₀ a ≡ ∂₁ g)
-  --                                               (let u₀ = is-section₀ uₛ u₁ ∙ ElStr= ∙ p) (let v₀ = is-section₀ vₛ v₁ ∙ ElStr= ∙ p)
-  --            → starTm g (idStr i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₀ _ ∙ p) ≡ idStr i (starTm g a p) ssₛ (starTm₁ aₛ p a₁ ∙ UUStrNat g p ∙ ap (UUStr i) (! (ss₀ ∙ comp₀)))
-  --                                                                                  (starTm g u u₀) ssₛ (starTm₁ uₛ u₀ u₁ ∙ ElStrNat g p) (starTm g v v₀) ssₛ (starTm₁ vₛ v₀ v₁ ∙ ElStrNat g p)
+  field
+    idStrNat : {i : ℕ} {n m : ℕ} (g : MorC n m) {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i Γ a aₛ a₁}
+                                                {v : MorC m (suc m)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i Γ a aₛ a₁} (g₁ : ∂₁ g ≡ Γ)
+                                                (let a₀ = is-section₀ aₛ a₁ ∙ UUStr=) (let u₀ = is-section₀ uₛ u₁ ∙ ElStr=) (let v₀ = is-section₀ vₛ v₁ ∙ ElStr= )
+             → starTm g (idStr i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) idStr₀ g₁ ≡ idStr i Δ (starTm g a a₀ g₁) ssₛ (starTm₁ g UUStr= a aₛ a₁ g₁ ∙ UUStrNat g g₀ g₁)
+                                                                                  (starTm g u u₀ g₁) ssₛ (starTm₁ g ElStr= u uₛ u₁ g₁ ∙ ElStrNat g g₀ g₁)
+                                                                                  (starTm g v v₀ g₁) ssₛ (starTm₁ g ElStr= v vₛ v₁ g₁ ∙ ElStrNat g g₀ g₁)
 
--- record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
---   open CCat ccat renaming (Mor to MorC)
---   open CCatwithId ccatid
+record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithId ccatid
 
---   field
---     reflStr  : (A : Ob (suc n)) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) → MorC n (suc n)
---     reflStrₛ : {A : Ob (suc n)} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (reflStr A a aₛ a₁)
---     reflStr₁ : {A : Ob (suc n)} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (reflStr A a aₛ a₁) ≡ IdStr A a aₛ a₁ a aₛ a₁
+  field
+    reflStr  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) → MorC n (suc n)
+    reflStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (reflStr Γ A A= a aₛ a₁)
+    reflStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (reflStr Γ A A= a aₛ a₁) ≡ IdStr Γ A A= a aₛ a₁ a aₛ a₁
 
---   reflStr₀ : {A : Ob (suc n)} {u : MorC n (suc n)} {uₛ : is-section u} (u₁ : ∂₁ u ≡ A) → ∂₀ (reflStr A u uₛ u₁) ≡ ft A
---   reflStr₀ _ = is-section₀ reflStrₛ reflStr₁ ∙ IdStr=
+  reflStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} → ∂₀ (reflStr Γ A A= u uₛ u₁) ≡ Γ
+  reflStr₀ {_} = is-section₀ reflStrₛ reflStr₁ ∙ IdStr=
 
---   field
---     reflStrNat : {n m : ℕ} (g : MorC n m) {A : Ob (suc m)} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} (p : ft A ≡ ∂₁ g)
---                  (let u₀ = is-section₀ uₛ u₁ ∙ p)
---              → starTm g (reflStr A u uₛ u₁) (reflStr₀ _ ∙ p) ≡ reflStr (star g A (! p)) (starTm g u u₀) ssₛ (starTm₁ uₛ u₀ u₁)
+  field
+    reflStrNat : {n m : ℕ} (g : MorC n m) {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} (g₁ : ∂₁ g ≡ Γ)
+                 (let u₀ = is-section₀ uₛ u₁ ∙ A=)
+             → starTm g (reflStr Γ A A= u uₛ u₁) reflStr₀ g₁ ≡ reflStr Δ (star g A A= g₁) (ft-star ∙ g₀) (starTm g u u₀ g₁) ssₛ (starTm₁ g A= u uₛ u₁ g₁)
 
 
 
