@@ -258,16 +258,16 @@ record CCat : Set₁ where
   varC : (k : Fin n) → Ob n → Mor n (suc n)
   varC k X = ss (pp^ k X)
 
-  varCₛ : (k : Fin n)(X : Ob n) → is-section (varC k X)
+  varCₛ : (k : Fin n) (X : Ob n) → is-section (varC k X)
   varCₛ k X = ssₛ
 
-  varC₀ : (k : Fin n) (X : Ob n) → ∂₀ (varC k X) ≡ X
-  varC₀ k X = ss₀ ∙ pp^₀ k X
+  varC₀ : {k : Fin n} {X : Ob n} → ∂₀ (varC k X) ≡ X
+  varC₀ {k = k} {X} = ss₀ ∙ pp^₀ k X
 
   varCL₁ : {X : Ob (suc n)} {Y : Ob n} {X= : ft X ≡ Y} → ∂₁ (varC last X) ≡ star (pp X) X X= (pp₁ ∙ X=)
   varCL₁ = ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl --ap2-irr star (id-left' pp₀) refl
 
-  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (var₁ : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (! (is-section₀ (varCₛ k Y) var₁) ∙ varC₀ k Y) (pp₁ ∙ Y=)
+  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (var₁ : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (! (is-section₀ (varCₛ k Y) var₁) ∙ varC₀) (pp₁ ∙ Y=)
   varC+₁ last refl refl = ss₁ pp₁ ∙ star-comp ∙ ap-irr-star refl (! varCL₁) --ap-irr-star refl (! varCL₁) refl --ss₁ ∙ star-comp pp₁ ∙ ? --ap2-irr star refl (! varCL₁)
   varC+₁ (prev k) {X = X} {Y = Y}  refl refl = ss₁ (comp₁ ∙ pp^₁ (prev k) Y) ∙ ap-irr-star (! assoc) refl ∙ star-comp ∙ (ap-irr-star refl (! (ss₁ (pp^₁ (prev k) Y)))) --ap-irr-star refl (! ss₁) refl -- ap2-irr star (! (assoc {q = pp^₁ (prev k) (ft X) ∙ ! pp₀})) refl ∙ star-comp (comp₁ ∙ pp₁) ∙ ap2-irr star refl (ap2-irr star (ap2-irr comp (ap pp (! (pp^₁ (prev k) _))) refl) (! (pp^₁ (prev k) _)) ∙ ! ss₁)
   
@@ -558,7 +558,7 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
 
   T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Ob (suc (suc (suc n)))
   T-dS₁ Γ P P= dS = star' (pp P)
-                          (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last _) (varCL₁ ∙ NatStrNat pp₀))
+                          (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last (NatStr Γ)) (varCL₁ ∙ NatStrNat pp₀))
                                  (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
                                         P P= qq₁)
                                  (ft-star ∙ qq₀ ∙ NatStrNat pp₀) sucStr₁) 
@@ -742,9 +742,9 @@ record CCatwithjj (ccat : CCat) (ccatid : CCatwithId ccat) (ccatrefl : CCatwithr
                                                                                                                 (is-section= (ft-star ∙ is-section₀ aₛ a₁ ∙ A=)
                                                                                                                              bₛ (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) ∙ star-comp)) ∙ id-left (is-section₀ aₛ a₁ ∙ A=)) refl ∙ ! star-comp ∙ ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = pp₁ ∙ ft-star ∙ pp₀})) refl ∙ ! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ is-section₀ aₛ a₁ ∙ A=)                                                                                                                             bₛ (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) ∙ star-comp)) ∙ id-left (is-section₀ aₛ a₁ ∙ A=)) ∙ ss-of-section a aₛ) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = id₁})) refl ∙ id-right (comp₁ ∙ qq₁)) ∙ ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! qq-comp ∙ ap-irr-qq (is-section= A= aₛ a₁) refl {q' = A=} ∙ qq-id) refl ∙ id-right b₁) ∙ ss-of-section b bₛ)) p₁
 
-  jjStr₀ : ∀ {Γ A A= P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ Γ A A= P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} (pₛ : is-section p) (p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁)
+  jjStr₀ : ∀ {Γ A A= P P= d dₛ} {d₁ : ∂₁ d ≡ T-d₁ Γ A A= P P= d} → ∀ {a aₛ a₁ b bₛ b₁ p pₛ p₁}
          → ∂₀ (jjStr {n = n} Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ Γ
-  jjStr₀ pₛ p₁ = is-section₀ jjStrₛ jjStr₁ ∙ ft-star ∙ is-section₀ pₛ p₁ ∙ IdStr=
+  jjStr₀ {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {pₛ} {p₁} = is-section₀ jjStrₛ jjStr₁ ∙ ft-star ∙ is-section₀ pₛ p₁ ∙ IdStr=
 
 
 
