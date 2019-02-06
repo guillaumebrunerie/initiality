@@ -29,7 +29,7 @@ infixr 4 _R∙_
 !R : {A : Set} {a a' : A} → a ≡R a' → a' ≡R a
 !R reflR = reflR
 
-apR : {A : Set} {B : Set} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
+apR : ∀ {l l'} {A : Set l} {B : Set l'} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
 apR f reflR = reflR
 
 

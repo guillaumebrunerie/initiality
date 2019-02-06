@@ -103,6 +103,18 @@ PathOver-PropPi : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} {C : (a : A) �
                   → PathOver (λ x → ((y : B x) → C x y)) p u u'
 PathOver-PropPi {p = reflR} f = PathOver-refl-to (funextP (λ x → PathOver-refl-from (f x x)))
 
+PathOver-out : ∀ {l l'} {A : Set l} {B : A → Set l'} {a a' : A} {p : a ≡R a'} {u : B a} {u' : B a'}
+             → PathOver B p u u' → PathOver (λ X → X) (apR B p) u u'
+PathOver-out reflo = reflo
+
+PathOver-in : ∀ {l l'} {A : Set l} {B : A → Set l'} {a a' : A} {p : a ≡R a'} {u : B a} {u' : B a'}
+            → PathOver (λ X → X) (apR B p) u u' → PathOver B p u u'
+PathOver-in {p = reflR} reflo = reflo
+
+PathOver-= : ∀ {l l'} {A : Set l} {B : A → Set l'} {a a' : A} {p p' : a ≡R a'} {u : B a} {u' : B a'}
+           → p ≡R p' → PathOver B p u u' → PathOver B p' u u'
+PathOver-= reflR x = x
+
 {- Elimination rules that we actually use (most of the time) -}
 
 module _ {A : Set} {R : EquivRel A} where
