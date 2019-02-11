@@ -99,9 +99,26 @@ prev k [ δ , u ]Var = k [ δ ]Var
 
 unquoteDef _[_]Ty _[_]Tm = generate-subst _[_]Ty _[_]Tm (quote _[_]Var)
 
+-- One could also define substitution of morphisms as follows:
+--
+-- _[_]Mor : {n m k : ℕ} → Mor n k → (δ : Mor m n) → Mor m k
+-- ◇ [ δ ]Mor = ◇
+-- (γ , u) [ δ ]Mor = (γ [ δ ]Mor , u [ δ ]Tm)
+--
+-- But the definition used here has the advantage that it reduces even if we do
+-- not pattern match on the first morphism, we only need to know that its length
+-- is of the form [suc n]. This is used to make the proofs of naturalities in
+-- the term model much nicer.
+
+getLHS : {n m : ℕ} → Mor n (suc m) → Mor n m
+getLHS (δ , u) = δ
+
+getRHS : {n m : ℕ} → Mor n (suc m) → TmExpr n
+getRHS (δ , u) = u
+
 _[_]Mor : {n m k : ℕ} → Mor n k → (δ : Mor m n) → Mor m k
-◇ [ δ ]Mor = ◇
-(γ , u) [ δ ]Mor = (γ [ δ ]Mor , u [ δ ]Tm)
+_[_]Mor {k = 0} _ δ = ◇
+_[_]Mor {k = suc k} γ δ = ((getLHS γ) [ δ ]Mor , (getRHS γ) [ δ ]Tm)
 
 {- Partial substitutions as a special case of total substitutions -}
 
