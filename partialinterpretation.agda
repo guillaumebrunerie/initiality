@@ -201,7 +201,7 @@ ap-irr-reflStr refl refl refl = refl
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ [A])
   return (reflStr X [A] (unbox [A]=) [u] (unbox [u]ₛ) (unbox [u]₁))
-⟦ jj A P d a b p ⟧Tm X = do
+⟦ jj A P d a b p ⟧Tm X = {!!} {- do
   [A] ← ⟦ A ⟧Ty X
   [A]= ← assume (ft [A] ≡ X)
   [P] ← ⟦ P ⟧Ty (T-ftP X [A] (unbox [A]=)) 
@@ -218,7 +218,7 @@ ap-irr-reflStr refl refl refl = refl
   [p] ← ⟦ p ⟧Tm X
   [p]ₛ ← assume (is-section [p])
   [p]₁ ← assume (∂₁ [p] ≡ IdStr X [A] (unbox [A]=) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
-  return (jjStr X [A] (unbox [A]=) [P] (unbox [P]=) [d] (unbox [d]ₛ) (unbox [d]₁) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁) [p] (unbox [p]ₛ) (unbox [p]₁))
+  return (jjStr X [A] (unbox [A]=) [P] (unbox [P]=) [d] (unbox [d]ₛ) (unbox [d]₁) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁) [p] (unbox [p]ₛ) (unbox [p]₁))-}
 
 {- Partial interpretation of contexts and context morphisms -}
 
@@ -257,11 +257,9 @@ ap-irr-reflStr refl refl refl = refl
 ⟦⟧Tmₛ (natelim P d0 dS u) = natelimStrₛ
 ⟦⟧Tmₛ (id i a u v) = idStrₛ
 ⟦⟧Tmₛ (refl A u) = reflStrₛ
-⟦⟧Tmₛ (jj A P d a b p) = jjStrₛ
+⟦⟧Tmₛ (jj A P d a b p) = {!!} {-jjStrₛ-}
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
-⟦⟧Tm₀ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ∂₀ (⟦ u ⟧Tm X $ uᵈ) ≡ X
-
 ⟦⟧Ty-ft (uu i) = UUStr=
 ⟦⟧Ty-ft (el i v) = ElStr=
 ⟦⟧Ty-ft (pi A B)  = PiStr=
@@ -269,6 +267,7 @@ ap-irr-reflStr refl refl refl = refl
 ⟦⟧Ty-ft nat = NatStr=
 ⟦⟧Ty-ft (id A u v) = IdStr=
 
+⟦⟧Tm₀ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ∂₀ (⟦ u ⟧Tm X $ uᵈ) ≡ X
 ⟦⟧Tm₀ (var k) = varC₀
 ⟦⟧Tm₀ (uu i) = uuStr₀
 ⟦⟧Tm₀ (pi i a b) = piStr₀
@@ -284,7 +283,7 @@ ap-irr-reflStr refl refl refl = refl
 ⟦⟧Tm₀ (natelim P d0 dS u) = natelimStr₀
 ⟦⟧Tm₀ (id i a u v) = idStr₀
 ⟦⟧Tm₀ (refl A u) = reflStr₀
-⟦⟧Tm₀ (jj A P d a b p) = jjStr₀
+⟦⟧Tm₀ (jj A P d a b p) = {!!} {-jjStr₀-}
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} {Z : Ob (suc n)} (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Z) → ft Z ≡ X
 ⟦⟧Tm₁-ft u u₁ = ap ft (! u₁) ∙ ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u

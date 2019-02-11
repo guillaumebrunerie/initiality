@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import typetheory
@@ -171,9 +171,9 @@ data Derivable : Judgment → Prop where
 
   -- Rules for natelim
   Natelim : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))} {u : TmExpr n}
-    → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> weakenTy (substTy (weakenTy' (prev last) P) (suc (var last)))) → Derivable (Γ ⊢ u :> nat) → Derivable (Γ ⊢ natelim P dO dS u :> substTy P u)
+    → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> weakenTy (substTy (weakenTy' (prev last) P) (suc (var last))) {-substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))-}) → Derivable (Γ ⊢ u :> nat) → Derivable (Γ ⊢ natelim P dO dS u :> substTy P u)
   NatelimCong : {Γ : Ctx n} {P P' : TyExpr (suc n)} {dO dO' : TmExpr n} {dS dS' : TmExpr (suc (suc n))} {u u' : TmExpr n}
-    → Derivable ((Γ , nat) ⊢ P) → Derivable ((Γ , nat) ⊢ P == P') → Derivable (Γ ⊢ dO == dO' :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS == dS' :> weakenTy (substTy (weakenTy' (prev last) P) (suc (var last)))) → Derivable (Γ ⊢ u == u' :> nat) → Derivable (Γ ⊢ natelim P dO dS u == natelim P' dO' dS' u' :> substTy P u)
+    → Derivable ((Γ , nat) ⊢ P) → Derivable ((Γ , nat) ⊢ P == P') → Derivable (Γ ⊢ dO == dO' :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS == dS' :> weakenTy (substTy (weakenTy' (prev last) P) (suc (var last))) {-substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))-}) → Derivable (Γ ⊢ u == u' :> nat) → Derivable (Γ ⊢ natelim P dO dS u == natelim P' dO' dS' u' :> substTy P u)
 
 
   -- Rules for Id
@@ -399,11 +399,10 @@ SubstTm {u = nat i} NatUU dδ = NatUU
 SubstTm {u = zero} Zero dδ = Zero
 SubstTm {u = suc u} (Suc du) dδ = Suc (SubstTm du dδ)
 SubstTm {u = natelim P dO dS u} {δ = δ} (Natelim dP ddO ddS du) dδ =
-  let thing = ap weakenTy (ap (λ z → substTy z _) (weaken[]Ty _ _ _
+           let thing = ap weakenTy (ap (λ z → substTy z _) (weaken[]Ty _ _ _
                                                   ∙ ! (weakenTyInsert' (prev last) _ _ (var (prev last)))
                                                   ∙ ap (λ z → _ [ (z , _) , _ ]Ty) (! (weakenMorCommutes _ _)))
-                           ∙ substCommutes[]Ty _ _ _)
-              ∙ ! ([weakenMor]Ty _ _) in
+                           ∙ substCommutes[]Ty _ _ _) ∙ ! ([weakenMor]Ty _ _) {- weakenTyInsert' _ _ _ _ ∙ weakenTyInsert' _ _ _ _ ∙ []Ty-assoc _ _ _  ∙ ap (λ z → P [ z , _ ]Ty) (weakenMorInsert _ _ _) ∙  ! (ap (λ z → z [ _ ]Ty) (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert' _ _ _ _) ∙ []Ty-assoc _ _ _ ∙ ap (λ z → P [ z , _ ]Ty) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _)) ∙ substCommutes[]Ty _ _ _-}              in
   congTmTy (substCommutes[]Ty _ _ _) (Natelim (SubstTy dP (WeakMor+ Nat dδ)) (congTmTy! (substCommutes[]Ty _ _ _) (SubstTm ddO dδ)) (congTmTy! thing (SubstTm ddS (WeakMor+ dP (WeakMor+ Nat dδ)))) (SubstTm du dδ))
 SubstTm {u = id i a u v} (IdUU da du dv) dδ = IdUU (SubstTm da dδ) (SubstTm du dδ) (SubstTm dv dδ)
 SubstTm {u = refl A a} (Refl dA da) dδ = Refl (SubstTy dA dδ) (SubstTm da dδ)
@@ -475,8 +474,7 @@ SubstTmEq (NatelimCong dP dP= ddO= ddS= du=) dδ =
   let thing = ap weakenTy (ap (λ z → substTy z _) (weaken[]Ty _ _ _
                                                   ∙ ! (weakenTyInsert' (prev last) _ _ (var (prev last)))
                                                   ∙ ap (λ z → _ [ (z , _) , _ ]Ty) (! (weakenMorCommutes _ _)))
-                           ∙ substCommutes[]Ty _ _ _)
-              ∙ ! ([weakenMor]Ty _ _) in
+                           ∙ substCommutes[]Ty _ _ _) ∙ ! ([weakenMor]Ty _ _) {- weakenTyInsert' _ _ _ _ ∙ weakenTyInsert' _ _ _ _ ∙ []Ty-assoc _ _ _  ∙ ap (λ z → P [ z , _ ]Ty) (weakenMorInsert _ _ _) ∙  ! (ap (λ z → z [ _ ]Ty) (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert' _ _ _ _) ∙ []Ty-assoc _ _ _ ∙ ap (λ z → P [ z , _ ]Ty) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _)) ∙ substCommutes[]Ty _ _ _-}              in
   congTmEqTy (substCommutes[]Ty _ _ _) (NatelimCong (SubstTy dP (WeakMor+ Nat dδ)) (SubstTyEq dP= (WeakMor+ Nat dδ)) (congTmEqTy! (substCommutes[]Ty _ _ _) (SubstTmEq ddO= dδ)) (congTmEqTy! thing (SubstTmEq ddS= (WeakMor+ dP (WeakMor+ Nat dδ)))) (SubstTmEq du= dδ))
 SubstTmEq (IdUUCong da= du= dv=) dδ = IdUUCong (SubstTmEq da= dδ) (SubstTmEq du= dδ) (SubstTmEq dv= dδ)
 SubstTmEq (ReflCong dA= da=) dδ = ReflCong (SubstTyEq dA= dδ) (SubstTmEq da= dδ)
@@ -571,8 +569,7 @@ SubstTmMorEq {u = natelim P dO dS u} (Natelim dP ddO ddS du) dδ dδ= =
   let thing = ap weakenTy (ap (λ z → substTy z _) (weaken[]Ty _ _ _
                                                   ∙ ! (weakenTyInsert' (prev last) _ _ (var (prev last)))
                                                   ∙ ap (λ z → _ [ (z , _) , _ ]Ty) (! (weakenMorCommutes _ _)))
-                           ∙ substCommutes[]Ty _ _ _)
-              ∙ ! ([weakenMor]Ty _ _) in
+                           ∙ substCommutes[]Ty _ _ _) ∙ ! ([weakenMor]Ty _ _) {- weakenTyInsert' _ _ _ _ ∙ weakenTyInsert' _ _ _ _ ∙ []Ty-assoc _ _ _  ∙ ap (λ z → P [ z , _ ]Ty) (weakenMorInsert _ _ _) ∙  ! (ap (λ z → z [ _ ]Ty) (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert' _ _ _ _) ∙ []Ty-assoc _ _ _ ∙ ap (λ z → P [ z , _ ]Ty) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _)) ∙ substCommutes[]Ty _ _ _-}              in
   congTmEqTy (substCommutes[]Ty _ _ _) (NatelimCong (SubstTy dP (WeakMor+ Nat dδ)) (SubstTyMorEq dP (WeakMor+ Nat dδ) (WeakMor+Eq Nat dδ dδ=)) (congTmEqTy! (substCommutes[]Ty _ _ _) (SubstTmMorEq ddO dδ dδ=)) (congTmEqTy! thing (SubstTmMorEq ddS (WeakMor+ dP (WeakMor+ Nat dδ)) (WeakMor+Eq dP (WeakMor+ Nat dδ) (WeakMor+Eq Nat dδ dδ=)))) (SubstTmMorEq du dδ dδ=))
 SubstTmMorEq {u = id i a u v} {δ = δ} (IdUU da du dv) dδ dδ= = IdUUCong (SubstTmMorEq da dδ dδ=) (SubstTmMorEq du dδ dδ=) (SubstTmMorEq dv dδ dδ=)
 SubstTmMorEq {u = refl A a} {δ = δ} (Refl dA da) dδ dδ= = ReflCong (SubstTyMorEq dA dδ dδ=) (SubstTmMorEq da dδ dδ=)
@@ -1117,3 +1114,4 @@ dΓ= ,, dA= =
   let dΓ = CtxEqCtx1 dΓ=
   in
   (dΓ= , TyEqTy1 dΓ dA= , ConvTy (TyEqTy2 dΓ dA=) dΓ= , dA= , ConvTyEq dA= dΓ=)
+
