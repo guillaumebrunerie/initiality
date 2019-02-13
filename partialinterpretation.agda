@@ -47,7 +47,7 @@ ap-irr-pr2Str refl refl refl refl = refl
 -- ap-irr-sucStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → sucStr {n = n} Γ v vₛ v₁ ≡ sucStr Γ' v' vₛ' v₁'
 -- ap-irr-sucStr refl refl = refl
 
-ap-irr-natelimStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {P P' : _} (P-eq : P ≡ P') {dO dO' : _} (dO-eq : dO ≡ dO') {dS dS' : _} (dS-eq : dS ≡ dS') {u u' : _} (u-eq : u ≡ u') → ∀ {P= P'=} → {dS₁ : ∂₁ dS ≡ T-dS₁ X P P= dS} {dS'₁ : ∂₁ dS' ≡ T-dS₁ X' P' P'= dS'} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
+ap-irr-natelimStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {P P' : _} (P-eq : P ≡ P') {dO dO' : _} (dO-eq : dO ≡ dO') {dS dS' : _} (dS-eq : dS ≡ dS') {u u' : _} (u-eq : u ≡ u') → ∀ {P= P'=} → {dS₁ : _} {dS'₁ : _} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
   → natelimStr {n = n} X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'= dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
 ap-irr-natelimStr refl refl refl refl refl = refl
 
@@ -178,7 +178,7 @@ ap-irr-reflStr refl refl refl = refl
   [dO]₁ ← assume (∂₁ [dO] ≡ star (zeroStr X) [P] _ _)
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
-  [dS]₁ ← assume (∂₁ [dS] ≡ T-dS₁ X [P] (unbox [P]=) [dS])
+  [dS]₁ ← assume (∂₁ [dS] ≡ typing-dS₁.T-dS₁ ccat ccatNat ccatzero ccatsuc X [P] (unbox [P]=) [dS])
   [u]  ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ NatStr X)

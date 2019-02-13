@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import typetheory
@@ -851,7 +851,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    ⟦⟧Tmᵈ Γᵈ da ,
    ⟦⟧Tmₛ a ,
    ⟦⟧Tm₁ Γᵈ da , tt)
-⟦⟧Tmᵈ {Γ = Γ} Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = ? {-
+⟦⟧Tmᵈ {Γ = Γ} Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!!} {-
   let X = ⟦ Γ ⟧Ctx $ Γᵈ
       Aᵈ : isDefined (⟦ A ⟧Ty X)
       Aᵈ = ⟦⟧Tyᵈ Γᵈ dA
@@ -1078,7 +1078,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    ⟦⟧Tmₛ (weakenTm' k u) ,
    (⟦weakenTm⟧₁' k u uᵈ X+= X= Y= u₁ ∙ NatStrNat (qq^₀ ∙ {!!}) ∙ ap NatStr Y=) , tt)
 
-⟦weakenTm⟧ᵈ' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) X+= X= {Y = Y} Y= =
+⟦weakenTm⟧ᵈ' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) X+= X= {Z = Y} Y= =
   (Pᵈw ,
    P=w ,
    dOᵈw ,
@@ -1316,6 +1316,9 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦⟧TmEq Γᵈ {u = app A B (lam A B u) a} (BetaPi dA dB du da) = betaPiStr ∙ ! (⟦subst⟧Tm= (⟦⟧Ty-ft A) u _ a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da))
 ⟦⟧TmEq Γᵈ (BetaSig1 dA dB da db) = betaSig1Str
 ⟦⟧TmEq Γᵈ (BetaSig2 dA dB da db) = betaSig2Str
+⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = ?
+⟦⟧TmEq Γᵈ (BetaNatSuc dP ddO ddS du) = ?
+⟦⟧TmEq Γᵈ (BetaIdRefl dA dP dd da) = ?
 
 ⟦tsubst⟧Tyᵈ (uu i) tt δ δᵈ = tt
 ⟦tsubst⟧Tyᵈ (el i v) (vᵈ , vₛ , v₁ , tt) δ δᵈ =

@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import typetheory
@@ -7,7 +7,7 @@ open import rules
 open import contextualcat
 open import quotients
 
-{- Unfinished attempt to use reflection to automatically get the type of the StrSNat things -}
+{- Unfinished attempt to use reflection to automatically get the type of the StrSNat things
 
 open import reflection hiding (proj)
 
@@ -61,7 +61,7 @@ getClauses [] = return []
 getClauses (clause (arg _ (reflection.proj f) ∷ _) t ∷ cs) = do
   ls ← getClauses cs
   return ((f , t) ∷ ls)
-getClauses (absurd-clause _ ∷ cs) = getClauses cs
+getClauses (_ ∷ cs) = getClauses cs
 
 print : List (ΣSS Name (λ _ → Term)) → List ErrorPart
 print [] = strErr "END" ∷ []
@@ -84,7 +84,7 @@ macro
     u'' ← convert 0 u' T
     unify hole u''
 
-{- End of reflection thing -}
+ End of reflection thing -}
 
 open CCat hiding (Mor) renaming (id to idC)
 
@@ -1224,7 +1224,7 @@ natelimStrS-eq {Γ = Γ} {Γ'} rΓ {P} {P'} rP P= P'= {dO} {dO'} rdO dOₛ dO'�
                                  (dTm refl u uₛ u₁)) (Natelim (dTy P' P'=)
                                  (dTm refl dO' dO'ₛ dO'₁)
                                  (congTmTy (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (Ty P')) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _ ∙ refl))) (dTm {Γ = (((_ , _) , _) , ((der Γ' , Nat) , dTy P' P'=))} (eq (box (CtxSymm (CtxTy=Ctx P' P'=)))) dS' dS'ₛ dS'₁))
-                                 (dTm refl u' u'ₛ u'₁)) (NatelimCong (dTy P P=) (dTy= rP P=) (dTm= (box (unOb≃ rΓ ,, SubstTyMorEq2 (der Γ) (der Γ , Nat) (dTy= rP P=) (idMor+= (der Γ) ZeroCong))) refl rdO dOₛ dO'ₛ dO₁ dO'₁) (congTmEqTy (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (Ty P)) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _ ∙ refl))) (dTm= (box (unOb≃ rP ,, SubstTyEq (dTy= rP P=) {!!})) (eq (box (CtxSymm (CtxTy=Ctx P P=)))) rdS dSₛ dS'ₛ dS₁ dS'₁)) (dTm= (box (unOb≃ rΓ ,, NatCong)) refl ru uₛ u'ₛ u₁ u'₁))
+                                 (dTm refl u' u'ₛ u'₁)) (NatelimCong (dTy P P=) (dTy= rP P=) (dTm= (box (unOb≃ rΓ ,, SubstTyMorEq2 (der Γ) (der Γ , Nat) (dTy= rP P=) (idMor+= (der Γ) ZeroCong))) refl rdO dOₛ dO'ₛ dO₁ dO'₁) (congTmEqTy (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (Ty P)) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _ ∙ refl))) {!dTm= (box (unOb≃ rP ,, SubstTyEq (dTy= rP P=) {!!})) (eq (box (CtxSymm (CtxTy=Ctx P P=)))) rdS dSₛ dS'ₛ dS₁ dS'₁!}) (dTm= (box (unOb≃ rΓ ,, NatCong)) refl ru uₛ u'ₛ u₁ u'₁))
                
 natelimStrS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
               (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : ∂₁S dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))
@@ -1789,64 +1789,40 @@ CCatwithrefl.reflStrNat reflStrSynCCat = {!!} -- g {A = A} {u = u} p = reflStrNa
 --                    (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ ElStrS i a aₛ a₁) → ElStrS i (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i a aₛ a₁ u uₛ u₁ v vₛ v₁  ∙ ap (UUStrS i) (! (idStr₀S i a aₛ a₁ u uₛ u₁ v vₛ  v₁))) ≡ IdStrS (ElStrS i a aₛ a₁) u uₛ u₁ v vₛ v₁
 -- elidStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → elidStrS-// i a aₛ a₁ u uₛ u₁ v vₛ v₁)))
 
--- open StructuredCCat
+open StructuredCCat
 
--- strSynCCat : StructuredCCat
+strSynCCat : StructuredCCat
 
--- ccat strSynCCat = synCCat
+ccat strSynCCat = synCCat
 
--- CCatwithSig.SigStr (ccatSig strSynCCat) = SigStrS
--- CCatwithSig.SigStr= (ccatSig strSynCCat) {B = B} = SigStr=S B
--- CCatwithSig.SigStrNat (ccatSig strSynCCat) g {B = B} p = SigStrNatS g B p
-
--- CCatwithNat.NatStr (ccatNat strSynCCat) = NatStrS
--- CCatwithNat.NatStr= (ccatNat strSynCCat) = NatStr=S _
--- CCatwithNat.NatStrNat (ccatNat strSynCCat) g {X = X} p = NatStrNatS g X p
-
-
-
-
--- CCatwithapp.appStr (ccatapp strSynCCat) = appStrS
--- CCatwithapp.appStrₛ (ccatapp strSynCCat) {B = B} {f = f} {a = a} = appStrₛS B f _ _ a _ _
--- CCatwithapp.appStr₁ (ccatapp strSynCCat) {B = B} {f = f} {a = a} = appStr₁S B f _ _ a _ _
--- CCatwithapp.appStrNat (ccatapp strSynCCat) g {B = B} {f = f} {a = a} p = appStrNatS g B f _ _ a _ _ p
-
--- CCatwithsig.sigStr (ccatsig strSynCCat) = sigStrS
--- CCatwithsig.sigStrₛ (ccatsig strSynCCat) {a = a} {b = b} = sigStrₛS _ a _ _ b _ _
--- CCatwithsig.sigStr₁ (ccatsig strSynCCat) {a = a} {b = b} = sigStr₁S _ a _ _ b _ _
--- CCatwithsig.sigStrNat (ccatsig strSynCCat) g {a = a} {b = b} p = sigStrNatS _ g a _ _ b _ _ p
-
--- CCatwithpr1.pr1Str (ccatpr1 strSynCCat) = pr1StrS
--- CCatwithpr1.pr1Strₛ (ccatpr1 strSynCCat) {B = B} {u = u} = pr1StrₛS B u _ _
--- CCatwithpr1.pr1Str₁ (ccatpr1 strSynCCat) {B = B} {u = u} = pr1Str₁S B u _ _
--- CCatwithpr1.pr1StrNat (ccatpr1 strSynCCat) g {B = B} {u = u} p = pr1StrNatS g B u _ _ p
-
--- CCatwithpr2.pr2Str (ccatpr2 strSynCCat) = pr2StrS
--- CCatwithpr2.pr2Strₛ (ccatpr2 strSynCCat) {B = B} {u = u} = pr2StrₛS B u _ _
--- CCatwithpr2.pr2Str₁ (ccatpr2 strSynCCat) {B = B} {u = u} = pr2Str₁S B u _ _
--- CCatwithpr2.pr2StrNat (ccatpr2 strSynCCat) g {B = B} {u = u} p  = pr2StrNatS g B u _ _ p
-
--- CCatwithzero.zeroStr (ccatzero strSynCCat) = zeroStrS
--- CCatwithzero.zeroStrₛ (ccatzero strSynCCat) {X = X} = zeroStrₛS X
--- CCatwithzero.zeroStr₁ (ccatzero strSynCCat) {X = X} = zeroStr₁S X
--- CCatwithzero.zeroStrNat (ccatzero strSynCCat) g {X = X} p = zeroStrNatS g X p
-
--- CCatwithsuc.sucStr (ccatsuc strSynCCat) = sucStrS
--- CCatwithsuc.sucStrₛ (ccatsuc strSynCCat) {u = u} = sucStrₛS u _ _
--- CCatwithsuc.sucStr₁ (ccatsuc strSynCCat) {u = u} = sucStr₁S u _ _
--- CCatwithsuc.sucStrNat (ccatsuc strSynCCat) g {u = u} p = sucStrNatS g u _ _ p
-
--- CCatwithnatelim.natelimStr (ccatnatelim strSynCCat) = {!!}
--- CCatwithnatelim.natelimStrₛ (ccatnatelim strSynCCat) = {!!}
--- CCatwithnatelim.natelimStr₁ (ccatnatelim strSynCCat) = {!!}
+ccatUU strSynCCat = UUStrSynCCat
+ccatEl strSynCCat = ElStrSynCCat
+ccatPi strSynCCat = PiStrSynCCat
+ccatSig strSynCCat = SigStrSynCCat
+ccatNat strSynCCat = NatStrSynCCat
+ccatId strSynCCat = IdStrSynCCat
+ccatuu strSynCCat = uuStrSynCCat
+ccatpi strSynCCat = piStrSynCCat
+ccatlam strSynCCat = lamStrSynCCat
+ccatapp strSynCCat = appStrSynCCat
+ccatsig strSynCCat = sigStrSynCCat
+ccatpair strSynCCat = pairStrSynCCat
+ccatpr1 strSynCCat = pr1StrSynCCat
+ccatpr2 strSynCCat = pr2StrSynCCat
+ccatnat strSynCCat = natStrSynCCat
+ccatzero strSynCCat = zeroStrSynCCat
+ccatsuc strSynCCat = sucStrSynCCat
+ccatnatelim strSynCCat = {!natelimStrSynCCat!}
+ccatid strSynCCat = idStrSynCCat
+ccatrefl strSynCCat = reflStrSynCCat
 
 
--- betaPiStr strSynCCat {B = B} {u = u} {a = a} = betaPiStrS B u _ _ a _ _
--- betaSig1Str strSynCCat {B = B} {a = a} {b = b} = betaSig1StrS B a _ _ b _ _
--- betaSig2Str strSynCCat {B = B} {a = a} {b = b} = betaSig2StrS B a _ _ b _ _
--- eluuStr strSynCCat {X = X} = eluuStrS _ X
--- elpiStr strSynCCat {a = a} {b = b} = elpiStrS _ a _ _ b _ _
--- elsigStr strSynCCat {a = a} {b = b} = elsigStrS _ a _ _ b _ _
--- elnatStr strSynCCat {X = X} = elnatStrS _ X
--- elidStr strSynCCat {a = a} {u = u} {v = v} = elidStrS _ a _ _ u _ _ v _ _
+betaPiStr strSynCCat {B = B} {u = u} {a = a} = {!betaPiStrS B u _ _ a _ _!}
+betaSig1Str strSynCCat {B = B} {a = a} {b = b} = {!betaSig1StrS B a _ _ b _ _!}
+betaSig2Str strSynCCat {B = B} {a = a} {b = b} = {!betaSig2StrS B a _ _ b _ _!}
+eluuStr strSynCCat {Γ = Γ} = {!eluuStrS _ Γ!}
+elpiStr strSynCCat {a = a} {b = b} = {!elpiStrS _ a _ _ b _ _!}
+elsigStr strSynCCat {a = a} {b = b} = {!elsigStrS _ a _ _ b _ _!}
+elnatStr strSynCCat {Γ = Γ} = {!elnatStrS _ Γ!}
+elidStr strSynCCat {a = a} {u = u} {v = v} = {!elidStrS _ a _ _ u _ _ v _ _!}
  
