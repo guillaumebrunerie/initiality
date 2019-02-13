@@ -559,19 +559,30 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
                 → sucStr Γ u uₛ u₁ ≡ sucStr Γ' u' uₛ' u₁'
   ap-irr-sucStr refl refl = refl
 
+
+
+module typing-dS₁ (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CCatwithzero ccat ccatnat) (ccatsuc : CCatwithsuc ccat ccatnat) where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithNat ccatnat
+  open CCatwithzero ccatzero
+  open CCatwithsuc ccatsuc
+  
+  T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Ob (suc (suc (suc n)))
+  T-dS₁ Γ P P= dS = star' (pp P)
+                        (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last (NatStr Γ)) (varCL₁ ∙ NatStrNat pp₀))
+                               (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
+                                      P P= qq₁)
+                                (ft-star ∙ qq₀ ∙ NatStrNat pp₀) sucStr₁) 
+                        (ft-star ∙ sucStr₀) (pp₁ ∙ P=) 
+
+
 record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CCatwithzero ccat ccatnat) (ccatsuc : CCatwithsuc ccat ccatnat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithNat ccatnat
   open CCatwithzero ccatzero
   open CCatwithsuc ccatsuc
-
-  T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Ob (suc (suc (suc n)))
-  T-dS₁ Γ P P= dS = star' (pp P)
-                          (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last (NatStr Γ)) (varCL₁ ∙ NatStrNat pp₀))
-                                 (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
-                                        P P= qq₁)
-                                 (ft-star ∙ qq₀ ∙ NatStrNat pp₀) sucStr₁) 
-                          (ft-star ∙ sucStr₀) (pp₁ ∙ P=) 
+  open typing-dS₁ ccat ccatnat ccatzero ccatsuc
+  
 
   field
     natelimStr  : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ)
