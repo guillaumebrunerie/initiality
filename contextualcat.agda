@@ -567,8 +567,8 @@ module typing-dS₁ (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CCatw
   open CCatwithzero ccatzero
   open CCatwithsuc ccatsuc
   
-  T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dS : MorC (suc (suc n)) (suc (suc (suc n)))) → Ob (suc (suc (suc n)))
-  T-dS₁ Γ P P= dS = star' (pp P)
+  T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) → Ob (suc (suc (suc n)))
+  T-dS₁ Γ P P= = star' (pp P)
                         (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last (NatStr Γ)) (varCL₁ ∙ NatStrNat pp₀))
                                (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
                                       P P= qq₁)
@@ -587,20 +587,20 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
   field
     natelimStr  : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ)
                   (dO : MorC n (suc n)) (dOₛ : is-section dO) (dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁)
-                  (dS : MorC (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section dS) (dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS)
+                  (dS : MorC (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section dS) (dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=)
                   (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ NatStr Γ)
                   → MorC n (suc n)
-    natelimStrₛ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
+    natelimStrₛ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=} → ∀ {u uₛ u₁}
                 → is-section (natelimStr {n = n} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
-    natelimStr₁ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
+    natelimStr₁ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=} → ∀ {u uₛ u₁}
                 → ∂₁ (natelimStr {n = n} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ star u P P= u₁
 
-  natelimStr₀ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} → ∀ {u uₛ u₁}
+  natelimStr₀ : ∀ {Γ P P= dO dOₛ dO₁ dS dSₛ} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=} → ∀ {u uₛ u₁}
                 → ∂₀ (natelimStr {n = n} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ Γ
   natelimStr₀ {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {uₛ} {u₁} = is-section₀ natelimStrₛ natelimStr₁ ∙ ft-star ∙ is-section₀ uₛ u₁ ∙ NatStr=
 
   field
-    natelimStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) → ∀ {Γ P P= dO dS u} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P= dS} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} {g₁ : ∂₁ g ≡ Γ}
+    natelimStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) → ∀ {Γ P P= dO dS u} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} {g₁ : ∂₁ g ≡ Γ}
                     (let dO₀ = is-section₀ dOₛ dO₁ ∙ ft-star ∙ zeroStr₀)
                     (let dS₀ = is-section₀ dSₛ dS₁ ∙ ft-star ∙ pp₀)
                     (let u₀ = is-section₀ uₛ u₁ ∙ NatStr=)
