@@ -128,6 +128,7 @@ module _ {A : Set} {R : EquivRel A} where
   //-rec proj* eq* = //-elim proj* λ r → PathOver-Cst _ (eqR r) (eq* r)
 
   -- Dependent elimination into a Prop
+
   //-elimP : ∀ {l} {B : A // R → Prop l} (proj* : (a : A) → B (proj a)) → (x : A // R) → B x
   //-elimP {B = B} proj* x = unbox (//-elim {B = λ x → Box (B x)} (λ a → box (proj* a)) (λ r → PathOver-Box (λ z → B z) (eqR r) (box (proj* _)) (box (proj* _))) x)
 
