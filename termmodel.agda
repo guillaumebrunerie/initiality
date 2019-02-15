@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import typetheory
@@ -1815,40 +1815,40 @@ betaSig1StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → /
 --                    (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ ElStrS i a aₛ a₁) → ElStrS i (idStrS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i a aₛ a₁ u uₛ u₁ v vₛ v₁  ∙ ap (UUStrS i) (! (idStr₀S i a aₛ a₁ u uₛ u₁ v vₛ  v₁))) ≡ IdStrS (ElStrS i a aₛ a₁) u uₛ u₁ v vₛ v₁
 -- elidStrS i = //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → elidStrS-// i a aₛ a₁ u uₛ u₁ v vₛ v₁)))
 
--- open StructuredCCat
+open StructuredCCat
 
--- strSynCCat : StructuredCCat
+strSynCCat : StructuredCCat
 
--- ccat strSynCCat = synCCat
+ccat strSynCCat = synCCat
 
--- ccatUU strSynCCat = UUStrSynCCat
--- ccatEl strSynCCat = ElStrSynCCat
--- ccatPi strSynCCat = PiStrSynCCat
--- ccatSig strSynCCat = SigStrSynCCat
--- ccatNat strSynCCat = NatStrSynCCat
--- ccatId strSynCCat = IdStrSynCCat
--- ccatuu strSynCCat = uuStrSynCCat
--- ccatpi strSynCCat = piStrSynCCat
--- ccatlam strSynCCat = lamStrSynCCat
--- ccatapp strSynCCat = appStrSynCCat
--- ccatsig strSynCCat = sigStrSynCCat
--- ccatpair strSynCCat = pairStrSynCCat
--- ccatpr1 strSynCCat = pr1StrSynCCat
--- ccatpr2 strSynCCat = pr2StrSynCCat
--- ccatnat strSynCCat = natStrSynCCat
--- ccatzero strSynCCat = zeroStrSynCCat
--- ccatsuc strSynCCat = sucStrSynCCat
--- ccatnatelim strSynCCat = {!natelimStrSynCCat!}
--- ccatid strSynCCat = idStrSynCCat
--- ccatrefl strSynCCat = reflStrSynCCat
+ccatUU strSynCCat = UUStrSynCCat
+ccatEl strSynCCat = ElStrSynCCat
+ccatPi strSynCCat = PiStrSynCCat
+ccatSig strSynCCat = SigStrSynCCat
+ccatNat strSynCCat = NatStrSynCCat
+ccatId strSynCCat = IdStrSynCCat
+ccatuu strSynCCat = uuStrSynCCat
+ccatpi strSynCCat = piStrSynCCat
+ccatlam strSynCCat = lamStrSynCCat
+ccatapp strSynCCat = appStrSynCCat
+ccatsig strSynCCat = sigStrSynCCat
+ccatpair strSynCCat = pairStrSynCCat
+ccatpr1 strSynCCat = pr1StrSynCCat
+ccatpr2 strSynCCat = pr2StrSynCCat
+ccatnat strSynCCat = natStrSynCCat
+ccatzero strSynCCat = zeroStrSynCCat
+ccatsuc strSynCCat = sucStrSynCCat
+ccatnatelim strSynCCat = {!natelimStrSynCCat!}
+ccatid strSynCCat = idStrSynCCat
+ccatrefl strSynCCat = reflStrSynCCat
 
 
--- betaPiStr strSynCCat {Γ = Γ} {A = A} {B = B} {u = u} {a = a} = {!betaPiStrS Γ A _ B _ u _ _ a _ _!}
--- betaSig1Str strSynCCat {Γ = Γ} {A = A} {B = B} {a = a} {b = b} = {!betaSig1StrS Γ A _ B _ a _ _ b _ _!}
--- betaSig2Str strSynCCat {Γ = Γ} {A = A} {B = B}  {B = B} {a = a} {b = b} = {!betaSig2StrS Γ A _ B _ a _ _ b _ _!}
--- eluuStr strSynCCat {Γ = Γ} = {!eluuStrS _ Γ!}
--- elpiStr strSynCCat {Γ = Γ} {a = a} {b = b} = {!elpiStrS Γ _ a _ _ b _ _!}
--- elsigStr strSynCCat {Γ = Γ} {a = a} {b = b} = {!elsigStrS Γ _ a _ _ b _ _!}
--- elnatStr strSynCCat {Γ = Γ} = {!elnatStrS _ Γ!}
--- elidStr strSynCCat {Γ = Γ} {a = a} {u = u} {v = v} = {!elidStrS Γ _ a _ _ u _ _ v _ _!}
+betaPiStr strSynCCat = ? -- {Γ = Γ} {A = A} {B = B} {u = u} {a = a} = {!betaPiStrS Γ A _ B _ u _ _ a _ _!}
+betaSig1Str strSynCCat = ? -- {Γ = Γ} {A = A} {B = B} {a = a} {b = b} = {!betaSig1StrS Γ A _ B _ a _ _ b _ _!}
+betaSig2Str strSynCCat = ? -- {Γ = Γ} {A = A} {B = B}  {B = B} {a = a} {b = b} = {!betaSig2StrS Γ A _ B _ a _ _ b _ _!}
+eluuStr strSynCCat = ? -- {Γ = Γ} = {!eluuStrS _ Γ!}
+elpiStr strSynCCat = ? -- {Γ = Γ} {a = a} {b = b} = {!elpiStrS Γ _ a _ _ b _ _!}
+elsigStr strSynCCat = ? -- {Γ = Γ} {a = a} {b = b} = {!elsigStrS Γ _ a _ _ b _ _!}
+elnatStr strSynCCat = ? -- {Γ = Γ} = {!elnatStrS _ Γ!}
+elidStr strSynCCat = ? -- {Γ = Γ} {a = a} {u = u} {v = v} = {!elidStrS Γ _ a _ _ u _ _ v _ _!}
  

@@ -178,7 +178,7 @@ ap-irr-reflStr refl refl refl = refl
   [dO]₁ ← assume (∂₁ [dO] ≡ star (zeroStr X) [P] _ _)
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
-  [dS]₁ ← assume (∂₁ [dS] ≡ typing-dS₁.T-dS₁ ccat ccatNat ccatzero ccatsuc X [P] (unbox [P]=) [dS])
+  [dS]₁ ← assume (∂₁ [dS] ≡ typing-dS₁.T-dS₁ ccat ccatNat ccatzero ccatsuc X [P] (unbox [P]=))
   [u]  ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ NatStr X)
