@@ -172,7 +172,7 @@ record CCat : Set₁ where
   star+++ g X {X'} X= {X''} X'= {X'''} X''= {X''''} X'''= g₁ = star++ (qq' g X''' X'''= g₁) X X= X'= X''= qq₁
 
   starTm : (g : Mor n m) {X : Ob m} (u : Mor m (suc m)) (u₀ : ∂₀ u ≡ X) (g₁ : ∂₁ g ≡ X) → Mor n (suc n)
-  starTm g {X} u u₀ g₁ = ss (comp' u g u₀ g₁)
+  starTm g {X} u u₀ g₁ = ss (comp u g u₀ g₁)
 
 
   ap-irr-starTm : {f f' : Mor m n} (f= : f ≡ f') {u u' : Mor n (suc n)} (u= : u ≡ u') {Y Y' : Ob n} {u₀ : ∂₀ u ≡ Y} {u₀' : ∂₀ u' ≡ Y'} {f₁ : ∂₁ f ≡ Y} {f₁' : ∂₁ f' ≡ Y'} → starTm f u u₀ f₁ ≡ starTm f' u' u₀' f₁'
@@ -250,6 +250,10 @@ record CCat : Set₁ where
   pp^₀ last X = id₀
   pp^₀ (prev last) X = pp₀
   pp^₀ (prev k@(prev _)) X = comp₀ ∙ pp₀
+
+  pp^prev  : {k : Fin n} {X : Ob (suc n)} {Y : Ob n} (p : ft X ≡ Y) → pp^ (prev k) X ≡ comp (pp^ k Y) (pp X) (pp^₀ k Y) (pp₁ ∙ p)
+  pp^prev {k = last} refl = ! (id-right pp₁)
+  pp^prev {k = prev k} refl = refl
 
   -- Take the prefix of the context up to (and including) variable [k]
   ft^' : (k : Fin n) (X : Ob n) → Ob (n -F k)

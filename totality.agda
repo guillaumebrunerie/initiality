@@ -13,11 +13,6 @@ open CCat ccat renaming (Mor to MorC; id to idC)
 
 open import partialinterpretation sC
 
-
-lhs : {A : Set} {p q : A} (eq : p ≡ q) → A
-lhs {p = p} eq = p
-
-
 {-- We start by stating the types of the main properties that we are going to prove by mutual induction
 
 Unfortunately we cannot define ⟦weaken⟧ᵈ in terms of ⟦tsubst⟧ᵈ because ⟦tsubst⟧Ty+ᵈ calls
@@ -851,7 +846,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    ⟦⟧Tmᵈ Γᵈ da ,
    ⟦⟧Tmₛ a ,
    ⟦⟧Tm₁ Γᵈ da , tt)
-⟦⟧Tmᵈ {Γ = Γ} Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!!} {-
+⟦⟧Tmᵈ {Γ = Γ} Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!#J#!} {-
   let X = ⟦ Γ ⟧Ctx $ Γᵈ
       Aᵈ : isDefined (⟦ A ⟧Ty X)
       Aᵈ = ⟦⟧Tyᵈ Γᵈ dA
@@ -976,7 +971,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 
 ⟦⟧Tm₁ Γᵈ {u = id i a u v} (IdUU da du dv) = idStr₁
 ⟦⟧Tm₁ Γᵈ {u = refl A a} (Refl dA da) = reflStr₁
-⟦⟧Tm₁ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!jjStr₁ ∙ {!! (⟦subst3⟧Ty= (IdStr= ∙ ⟦⟧Ty-ft (weakenTy (weakenTy A))) (⟦⟧Ty-ft (weakenTy A)) (⟦⟧Ty-ft A) P (⟦⟧Tyᵈ {!Γᵈ !} dP) a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da) b (⟦⟧Tmᵈ Γᵈ db) (⟦⟧Tm₁ Γᵈ db ∙ {!!}) p (⟦⟧Tmᵈ Γᵈ dp) (⟦⟧Tm₁ Γᵈ dp ∙ {!!}))!}!}
+⟦⟧Tm₁ Γᵈ {u = jj A P d a b p} (JJ dA dP dd da db dp) = {!#J# -- jjStr₁ ∙ {!! (⟦subst3⟧Ty= (IdStr= ∙ ⟦⟧Ty-ft (weakenTy (weakenTy A))) (⟦⟧Ty-ft (weakenTy A)) (⟦⟧Ty-ft A) P (⟦⟧Tyᵈ {!Γᵈ !} dP) a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da) b (⟦⟧Tmᵈ Γᵈ db) (⟦⟧Tm₁ Γᵈ db ∙ {!!}) p (⟦⟧Tmᵈ Γᵈ dp) (⟦⟧Tm₁ Γᵈ dp ∙ {!!}))!}!}
 
 
 ⟦weakenTy⟧ᵈ' k (uu i) Aᵈ _ _ _ = tt
@@ -1076,7 +1071,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦weakenTm⟧ᵈ' k (suc u) (uᵈ , uₛ , u₁ , tt) X+= X= Y= =
   (⟦weakenTm⟧ᵈ' k u uᵈ X+= X= Y= ,
    ⟦⟧Tmₛ (weakenTm' k u) ,
-   (⟦weakenTm⟧₁' k u uᵈ X+= X= Y= u₁ ∙ NatStrNat (qq^₀ ∙ {!!}) ∙ ap NatStr Y=) , tt)
+   (⟦weakenTm⟧₁' k u uᵈ X+= X= Y= u₁ ∙ NatStrNat qq^₀ ∙ ap NatStr Y=) , tt)
 
 ⟦weakenTm⟧ᵈ' k (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) X+= X= {Z = Y} Y= =
   (Pᵈw ,
@@ -1157,7 +1152,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    ⟦⟧Tmₛ (weakenTm' k u) ,
    (⟦weakenTm⟧₁' k u uᵈ X+= X= Y= u₁ ∙ ⟦weakenTy⟧=' k A Aᵈ X+= X= Y=) , tt)
 ⟦weakenTm⟧ᵈ' k (jj A P d a b p) uᵈ X+= X= Y= =
-  {!!}
+  {!#J#!}
 
 ⟦weakenTy⟧=' k (uu i) _ X+= X= Y= =
   UUStrNat (qq^₀ ∙ Y=)
@@ -1181,12 +1176,10 @@ cong⟦⟧Mor refl δᵈ = δᵈ
   ∙ ap-irr-IdStr refl (⟦weakenTy⟧=' k A Aᵈ X+= X= Y=) (⟦weakenTm⟧=' k u uᵈ X+= X= Y=) (⟦weakenTm⟧=' k v vᵈ X+= X= Y=)
 
 
--- ⟦weakenTm⟧=' last (var last) tt X= refl = ! (ap ss (ap2-irr comp (ap ss (ap idC X=)) refl))
--- ⟦weakenTm⟧=' (prev k) (var last) tt X= refl = ! (ss-comp {f₁ = id₁} ∙ ap ss (ap2-irr comp refl (ap idC (! qq₀)) ∙ id-left) ∙ ! (ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! assoc) ∙ ap ss (ap2-irr comp (! ss-qq ∙ ap idC (! qq₁)) refl) ∙ ap ss (id-right)))
--- ⟦weakenTm⟧=' last (var (prev x)) (xᵈ , x₀ , tt) X= refl = ! (ap ss (ap2-irr comp (ap ss (ap2-irr comp (ap-irr (λ z p → ⟦ var x ⟧Tm z $ p) (ap ft X=)) (ap pp X=))) refl))
--- ⟦weakenTm⟧=' (prev k) (var (prev x)) (xᵈ , x₀ , tt) X= refl = ! (ap ss (ap2-irr comp (ap-irr (λ z p → ⟦ var (weakenVar' k x) ⟧Tm z $ p) (ft-star ∙ qq^₀ k X=) ∙ ! (⟦weakenTm⟧=' k (var x) xᵈ X= refl)) refl {b' = pp₁ ∙ ft-star ∙ ! (ss₀ ∙ comp₀)}) ∙ ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! assoc) ∙ ap ss (ap2-irr comp (! ss-qq) refl) ∙ ap ss assoc ∙ ! (ss-comp {f₁ = comp₁ ∙ ss₁}∙ ap ss (! assoc) ∙ ap ss (ap2-irr comp (! ss-qq) refl) ∙ ap ss assoc ∙ ap ss (ap2-irr comp refl pp-qq)))
-⟦weakenTm⟧=' last (var x) tt X+= X= Y= = {!TODO(var)!}
-⟦weakenTm⟧=' (prev k) (var x) tt X+= X= Y= = {!TODO(var)!}
+⟦weakenTm⟧=' {n = 0} k (var ())
+⟦weakenTm⟧=' {n = suc n} last (var x) tt X+= refl refl = star-varCL'' {g₀ = pp^₀ x _} ∙ ap ss (ap-irr-comp refl qq^last ∙ ! ((pp^prev {k = x} X+=)))
+⟦weakenTm⟧=' {n = suc n} (prev k) (var last) tt X+= refl Z= = star-varCL' ∙ ap ss qq^prev ∙ ap ss (! (id-left qq₀) ∙ ap-irr-comp refl (ap idC Z=) {f₁' = id₁ ∙ ! Z=}) ∙ ! ss-comp
+⟦weakenTm⟧=' {n = suc n} (prev k) (var (prev x)) tt X+= refl Z= = star-varCL'' {g₀ = pp^₀ (prev x) _} ∙ ap ss (ap-irr-comp (pp^prev refl) qq^prev ∙ assoc ∙ ap-irr-comp refl (pp-qq ∙ ap-irr-comp refl (ap pp Z=)) ∙ ! (assoc {f₁ = pp₁ ∙ ap ft (! Z=) ∙ ft-star ∙ qq^₀} {g₀ = qq^₀} {h₀ = pp^₀ x _})) ∙ ! (star-varCL'' {g₀ = comp₀ ∙ qq^₀}) ∙ ap ss (ap-irr-comp (! star-varCL'' ∙ ⟦weakenTm⟧=' k (var x) tt X+= refl refl) refl) ∙ star-varCL'' ∙ ap ss (! (pp^prev {k = weakenVar' k x} (ap ft (! Z=) ∙ ft-star ∙ qq^₀)))
 
 ⟦weakenTm⟧=' k (uu i) tt X+= X= Y= =
   uuStrNat (qq^₀ ∙ Y=)
@@ -1262,7 +1255,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
                    (⟦weakenTy⟧=' k A Aᵈ X+= X= Y=)
                    (⟦weakenTm⟧=' k u uᵈ X+= X= Y=)
 ⟦weakenTm⟧=' k (jj A P d a b p) uᵈ X+= X= Y= =
-  {!!}
+  {!#J#!}
 
 
 ⟦⟧TyEq Γᵈ (TySymm dA=) = ! (⟦⟧TyEq Γᵈ dA=)
@@ -1282,7 +1275,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦⟧TyEq Γᵈ (ElId= da du dv) = elidStr
 
 ⟦⟧TmEq Γᵈ (VarLastCong dA) = refl
-⟦⟧TmEq (Γᵈ , Bᵈ , tt) (VarPrevCong {k = k} {k' = k'} dA dx) = {!TODO(var) use ss-comp?!}
+⟦⟧TmEq (Γᵈ , Bᵈ , tt) (VarPrevCong {B = B} {k = k} {k' = k'} dA dx) = ap ss (pp^prev (⟦⟧Ty-ft B)) ∙ (! star-varCL'' ∙ ap-irr-starTm refl (⟦⟧TmEq Γᵈ dx) ∙ star-varCL'') ∙ ! (ap ss (pp^prev (⟦⟧Ty-ft B)))
 ⟦⟧TmEq Γᵈ (TmSymm du=) = ! (⟦⟧TmEq Γᵈ du=)
 ⟦⟧TmEq Γᵈ (TmTran dv du= du'=) = ⟦⟧TmEq Γᵈ du= {u'ᵈ = ⟦⟧Tmᵈ Γᵈ dv} ∙ ⟦⟧TmEq Γᵈ du'=
 ⟦⟧TmEq Γᵈ (ConvEq dA' du= dA=) = ⟦⟧TmEq Γᵈ du=
@@ -1311,14 +1304,14 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 
 ⟦⟧TmEq Γᵈ (IdUUCong da= du= dv=) = ap-irr-idStr refl (⟦⟧TmEq Γᵈ da=) (⟦⟧TmEq Γᵈ du=) (⟦⟧TmEq Γᵈ dv=)
 ⟦⟧TmEq Γᵈ (ReflCong dA= du=) = ap-irr-reflStr refl (⟦⟧TyEq Γᵈ dA=) (⟦⟧TmEq Γᵈ du=)
-⟦⟧TmEq Γᵈ {u = jj A P d a b p} (JJCong dA dA= dP= dd= da= db= dp=) = {!!}
+⟦⟧TmEq Γᵈ {u = jj A P d a b p} (JJCong dA dA= dP= dd= da= db= dp=) = {!#J#!}
 
 ⟦⟧TmEq Γᵈ {u = app A B (lam A B u) a} (BetaPi dA dB du da) = betaPiStr ∙ ! (⟦subst⟧Tm= (⟦⟧Ty-ft A) u _ a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da))
 ⟦⟧TmEq Γᵈ (BetaSig1 dA dB da db) = betaSig1Str
 ⟦⟧TmEq Γᵈ (BetaSig2 dA dB da db) = betaSig2Str
-⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = ?
-⟦⟧TmEq Γᵈ (BetaNatSuc dP ddO ddS du) = ?
-⟦⟧TmEq Γᵈ (BetaIdRefl dA dP dd da) = ?
+⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = betaNatelimZero
+⟦⟧TmEq Γᵈ (BetaNatSuc dP ddO ddS du) = betaNatelimSuc ∙ {!⟦subst2⟧Tm=!}
+⟦⟧TmEq Γᵈ (BetaIdRefl dA dP dd da) = {!#J#!}
 
 ⟦tsubst⟧Tyᵈ (uu i) tt δ δᵈ = tt
 ⟦tsubst⟧Tyᵈ (el i v) (vᵈ , vₛ , v₁ , tt) δ δᵈ =
@@ -1502,7 +1495,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    ⟦⟧Tmₛ (u [ δ ]Tm) ,
    (⟦tsubst⟧Tm₁ u uᵈ δ δᵈ u₁ ∙ ⟦tsubst⟧Ty= A Aᵈ δ δᵈ) , tt)
 ⟦tsubst⟧Tmᵈ (jj A P d a b p) uᵈ X= Y= =
-  {!!}
+  {!#J#!}
 
 ⟦tsubst⟧Ty= (uu i) Aᵈ δ δᵈ =
   UUStrNat (⟦⟧Mor₀ δ)
@@ -1529,12 +1522,11 @@ cong⟦⟧Mor refl δᵈ = δᵈ
                  (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
                  (⟦tsubst⟧Tm= v vᵈ δ δᵈ)
 
--- ⟦tsubst⟧Tm= (var ()) _ ◇ δᵈ
--- ⟦tsubst⟧Tm= (var last) tt (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ! (! (ss-of-section (⟦ u ⟧Tm _ $ uᵈ) (⟦⟧Tmₛ u)) ∙ ss-comp {f₁ = u₁} ∙ ap ss ((! id-right ∙ ap2-irr comp (ap idC (comp₁ ∙ qq₁) ∙ ss-qq) refl) ∙ assoc {q = ss₁ ∙ ! qq₀}) ∙ ! (ss-comp {f₁ = comp₁ ∙ ss₁}))
--- ⟦tsubst⟧Tm= (var (prev x)) (xᵈ , _) (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) = ss-comp {f₁ = comp₁ ∙ ss₁} ∙ ap ss (! (assoc {q = ss₁ ∙ ! qq₀}) ∙ ap2-irr comp (! ss-qq) refl ∙ assoc ∙ ap2-irr comp refl (! assoc ∙ ap2-irr comp pp-qq refl ∙ assoc {p = u₁ ∙ ! pp₀} {q = pp₁ ∙ ft-star} ∙ ap2-irr comp refl (ap2-irr comp (ap pp (! u₁)) refl ∙ ⟦⟧Tmₛ u ∙ ap idC (⟦⟧Tm₀ u ∙ ! (⟦⟧Mor₀ δ))) ∙ id-left)) ∙ ⟦tsubst⟧Tm= (var x) xᵈ δ δᵈ
-
-⟦tsubst⟧Tm= (var k) tt δ δᵈ =
-  {!TODO(var)!}
+⟦tsubst⟧Tm= (var ()) _ ◇
+⟦tsubst⟧Tm= (var last) _ (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) =
+  star-varCL'' {g₀ = id₀} ∙ ap ss (id-right (comp₁ ∙ qq₁)) ∙ ! ss-comp ∙ ss-of-section (⟦ u ⟧Tm _ $ _) (⟦⟧Tmₛ u)
+⟦tsubst⟧Tm= (var (prev k)) _ (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) =
+  (star-varCL'' {g₀ = pp^₀ (prev k) _} ∙ ap ss (ap-irr-comp (pp^prev refl) refl ∙ ! assoc ∙ ap-irr-comp (assoc ∙ ap-irr-comp refl pp-qq ∙ ! assoc) refl ∙ assoc ∙ ap-irr-comp refl (refl ∙ is-section= (ft-star ∙ ⟦⟧Mor₀ δ) (⟦⟧Tmₛ u) u₁) ∙ id-left (comp₀ ∙ ⟦⟧Mor₀ δ)) ∙ ! (star-varCL'' {g₀ = pp^₀ k _})) ∙ ⟦tsubst⟧Tm= (var k) tt δ δᵈ
 
 ⟦tsubst⟧Tm= (uu i) tt δ δᵈ =
   uuStrNat (⟦⟧Mor₀ δ)
@@ -1611,7 +1603,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
                    (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
                    (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
 ⟦tsubst⟧Tm= (jj A P d a b p) uᵈ X= Y= =
-  {!!}
+  {!#J#!}
 
 
 
