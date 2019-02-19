@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common
 open import typetheory

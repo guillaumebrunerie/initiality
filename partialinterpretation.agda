@@ -23,7 +23,7 @@ ap-irr-PiStr refl refl refl = refl
 ap-irr-piStr : {n : ℕ} {i : ℕ} {X X' : _} (X-eq : X ≡ X') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → piStr {n = n} i X a aₛ a₁ b bₛ b₁ ≡ piStr i X' a' aₛ' a₁' b' bₛ' b₁'
 ap-irr-piStr refl refl refl = refl
 
-ap-irr-lamStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → lamStr {n = n} X A A= B B= u uₛ u₁ ≡ lamStr X A' A=' B' B=' u' uₛ' u₁'
+ap-irr-lamStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → lamStr {n = n} X A A= B B= u uₛ u₁ ≡ lamStr X' A' A=' B' B=' u' uₛ' u₁'
 ap-irr-lamStr refl refl refl refl = refl
 
 ap-irr-appStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {f f' : _} (f-eq : f ≡ f') {fₛ : _} {fₛ' : _} {f₁ : _} {f₁' : _} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → appStr {n = n} X A A= B B= f fₛ f₁ a aₛ a₁ ≡ appStr X' A' A=' B' B=' f' fₛ' f₁' a' aₛ' a₁'
@@ -178,7 +178,7 @@ ap-irr-reflStr refl refl refl = refl
   [dO]₁ ← assume (∂₁ [dO] ≡ star (zeroStr X) [P] _ _)
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
-  [dS]₁ ← assume (∂₁ [dS] ≡ typing-dS₁.T-dS₁ ccat ccatNat ccatzero ccatsuc X [P] (unbox [P]=))
+  [dS]₁ ← assume (∂₁ [dS] ≡ T-dS₁ ccatsuc X [P] (unbox [P]=))
   [u]  ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ NatStr X)

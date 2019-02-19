@@ -4,7 +4,6 @@ open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
-open import Agda.Builtin.Size public
 
 {- Hack to reduce the size of proofs, you are not supposed to use [‗] directly.
    Using only [#] might be unsafe too. -}

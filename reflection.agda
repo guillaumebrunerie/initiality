@@ -3,7 +3,6 @@
 open import Agda.Builtin.Reflection public
 open import Agda.Builtin.Unit public
 open import Agda.Builtin.String public renaming (primStringAppend to _++ₛ_)
---open import Agda.Builtin.Sigma public renaming (Σ to ΣR)
 
 open import common
 open import typetheory
