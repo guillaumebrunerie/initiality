@@ -9,7 +9,7 @@ open import contextualcat
 module _ (sC : StructuredCCat) where
 
 open StructuredCCat sC
-open CCat ccat renaming (Mor to MorC; id to idC)
+open CCat+ ccat renaming (Mor to MorC; id to idC)
 
 open import partialinterpretation sC
 
@@ -1307,7 +1307,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦⟧TmEq Γᵈ {u = app A B (lam A B u) a} (BetaPi dA dB du da) = betaPiStr ∙ ! (⟦subst⟧Tm= (⟦⟧Ty-ft A) u _ a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da))
 ⟦⟧TmEq Γᵈ (BetaSig1 dA dB da db) = betaSig1Str
 ⟦⟧TmEq Γᵈ (BetaSig2 dA dB da db) = betaSig2Str
-⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = betaNatelimZero
+⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = betaNatZero
 ⟦⟧TmEq {Γ = Γ} Γᵈ {u = natelim P dO dS (suc u)} (BetaNatSuc dP ddO ddS du) =
   let
     Pᵈ : isDefined (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)))
@@ -1335,7 +1335,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
     uᵈ : isDefined (⟦ u ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ))
     uᵈ = ⟦⟧Tmᵈ Γᵈ du
   in
-  betaNatelimSuc ∙ {!!}
+  betaNatSuc ∙ {!!}
   ∙ ! (⟦subst2⟧Tm= (⟦⟧Ty-ft P) NatStr= dS dSᵈ u (⟦⟧Tmᵈ Γᵈ du) (⟦⟧Tm₁ Γᵈ du) (natelim P dO dS u) (Pᵈ , ⟦⟧Ty-ft P , dOᵈ , ⟦⟧Tmₛ dO , dO₁ , dSᵈ , ⟦⟧Tmₛ dS , dS₁ , uᵈ , ⟦⟧Tmₛ u , ⟦⟧Tm₁ Γᵈ du , tt) natelimStr₁)
 ⟦⟧TmEq Γᵈ (BetaIdRefl dA dP dd da) = {!#J#!}
 

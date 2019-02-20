@@ -21,7 +21,7 @@ open StructuredCCatMor
 private
   C = ccat sC
 
-open CCat C renaming (id to idC)
+open CCat+ C renaming (id to idC)
 
 {- Existence of a morphism between the contextual categories (not yet structured) -}
 
