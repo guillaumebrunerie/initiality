@@ -295,18 +295,42 @@ record CCatwithUU (ccat : CCat) : Set₁ where
   field
     UUStr  : (i : ℕ) (Γ : Ob n) → Ob (suc n)
     UUStr= : {i : ℕ} {Γ : Ob n} → ft (UUStr i Γ) ≡ Γ
+
+
+record CCatwithUUNat (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithUU ccatuu
+  
+  field
     UUStrNat : {i : ℕ} {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
              → star g (UUStr i Γ) UUStr= g₁ ≡ UUStr i Δ
 
-record CCatwithEl (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
+record CCatwithEl (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat
 
   field
     ElStr  : (i : ℕ) (Γ : Ob n) (v : MorC n (suc n)) (vₛ : is-section v) (v₁ : ∂₁ v ≡ UUStr i Γ) → Ob (suc n)
     ElStr= : {i : ℕ} {Γ : Ob n} {v : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ UUStr i Γ} → ft (ElStr i Γ v vₛ v₁) ≡ Γ
-    ElStrNat : {i : ℕ} {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {v : MorC m (suc m)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ UUStr i Γ} {g₁ : ∂₁ g ≡ Γ}
-             → star g (ElStr i Γ v vₛ v₁) ElStr= g₁ ≡ ElStr i Δ (starTm g v (is-section₀ vₛ v₁ ∙ UUStr=) g₁) ssₛ (starTm₁ g UUStr= v vₛ v₁ g₁ ∙ UUStrNat g₀)
+
+ElNatRHS : {ccat : CCat} {ccatuu : CCatwithUU ccat} {ccatuunat : CCatwithUUNat ccat ccatuu} (ccatel : CCatwithEl ccat ccatuu ccatuunat) (let module S = CCat ccat) (let module SUU = CCatwithUU ccatuu) {i : ℕ} (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} (v : S.Mor m (suc m)) (vₛ : S.is-section v) (v₁ : S.∂₁ v ≡ SUU.UUStr i Γ) (g₁ : S.∂₁ g ≡ Γ) → S.Ob (suc n)
+ElNatRHS {ccat = ccat} {ccatuu = ccatuu} {ccatuunat = ccatuunat} ccatel {i = i} g {Δ = Δ} g₀ v vₛ v₁ g₁ =
+  let module S = CCat ccat
+      module SUU = CCatwithUU ccatuu
+      module SUUNat = CCatwithUUNat ccatuunat
+      module SEl = CCatwithEl ccatel
+  in
+  SEl.ElStr i Δ (S.starTm g v (S.is-section₀ vₛ v₁ ∙ SUU.UUStr=) g₁) S.ssₛ (S.starTm₁ g SUU.UUStr= v vₛ v₁ g₁ ∙ SUUNat.UUStrNat g₀)
+
+record CCatwithElNat (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu)  (ccatel : CCatwithEl ccat ccatuu ccatuunat): Set₁ where
+    open CCat ccat renaming (Mor to MorC)
+    open CCatwithUU ccatuu
+    open CCatwithEl ccatel
+
+    field
+      ElStrNat : {i : ℕ} {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {v : MorC m (suc m)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ UUStr i Γ} {g₁ : ∂₁ g ≡ Γ}
+             → star g (ElStr i Γ v vₛ v₁) ElStr= g₁ ≡ ElNatRHS ccatel g g₀ v vₛ v₁ g₁
 
 record CCatwithPi (ccat : CCat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
@@ -314,8 +338,21 @@ record CCatwithPi (ccat : CCat) : Set₁ where
   field
     PiStr  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) → Ob (suc n)
     PiStr= : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} → ft (PiStr Γ A A= B B=) ≡ Γ
-    PiStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {g₁ : ∂₁ g ≡ Γ}
-             → star g (PiStr Γ A A= B B=) PiStr= g₁ ≡ PiStr Δ (star g A A= g₁) (ft-star ∙ g₀) (star+ g B B= A= g₁) (ft-star ∙ qq₀)
+
+PiNatRHS : {ccat : CCat} (ccatpi : CCatwithPi ccat) (let module S = CCat ccat) (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} {A : S.Ob (suc m)} (A= : S.ft A ≡ Γ) (B : S.Ob (suc (suc m))) (B= : S.ft B ≡ A) (g₁ : S.∂₁ g ≡ Γ) → S.Ob (suc n)
+PiNatRHS {ccat = ccat} ccatpi g {Δ = Δ} g₀ {A = A} A= B B= g₁ =
+  let module S = CCat ccat
+      module SPi = CCatwithPi ccatpi
+  in
+  SPi.PiStr Δ (S.star g A A= g₁) (S.ft-star ∙ g₀) (S.star+ g B B= A= g₁) (S.ft-star ∙ S.qq₀)
+
+record CCatwithPiNat (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithPi ccatpi
+
+  field
+    PiStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {g₁ : ∂₁ g ≡ Γ}
+             → star g (PiStr Γ A A= B B=) PiStr= g₁ ≡ PiNatRHS ccatpi g g₀ A= B B= g₁
 
 record CCatwithSig (ccat : CCat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
@@ -323,8 +360,21 @@ record CCatwithSig (ccat : CCat) : Set₁ where
   field
     SigStr  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) → Ob (suc n)
     SigStr= : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} → ft (SigStr Γ A A= B B=) ≡ Γ
-    SigStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {g₁ : ∂₁ g ≡ Γ}
-             → star g (SigStr Γ A A= B B=) SigStr= g₁ ≡ SigStr Δ (star g A A= g₁) (ft-star ∙ g₀) (star+ g B B= A= g₁) (ft-star ∙ qq₀)
+
+SigNatRHS : {ccat : CCat} (ccatpi : CCatwithSig ccat) (let module S = CCat ccat) (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} {A : S.Ob (suc m)} (A= : S.ft A ≡ Γ) (B : S.Ob (suc (suc m))) (B= : S.ft B ≡ A) (g₁ : S.∂₁ g ≡ Γ) → S.Ob (suc n)
+SigNatRHS {ccat = ccat} ccatpi g {Δ = Δ} g₀ {A = A} A= B B= g₁ =
+  let module S = CCat ccat
+      module SSig = CCatwithSig ccatpi
+  in
+  SSig.SigStr Δ (S.star g A A= g₁) (S.ft-star ∙ g₀) (S.star+ g B B= A= g₁) (S.ft-star ∙ S.qq₀)
+
+record CCatwithSigNat (ccat : CCat) (ccatpi : CCatwithSig ccat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithSig ccatpi
+
+  field
+    SigStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {g₁ : ∂₁ g ≡ Γ}
+             → star g (SigStr Γ A A= B B=) SigStr= g₁ ≡ SigNatRHS ccatpi g g₀ A= B B= g₁
 
 record CCatwithNat (ccat : CCat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
@@ -332,6 +382,13 @@ record CCatwithNat (ccat : CCat) : Set₁ where
   field
     NatStr  : (Γ : Ob n) → Ob (suc n)
     NatStr= : {Γ : Ob n} → ft (NatStr Γ) ≡ Γ
+
+
+record CCatwithNatNat (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithNat ccatnat
+
+  field
     NatStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
              → star g (NatStr Γ) NatStr= g₁ ≡ NatStr Δ
 
@@ -342,9 +399,26 @@ record CCatwithId (ccat : CCat) : Set₁ where
   field
     IdStr   : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) (b : MorC n (suc n)) (bₛ : is-section b) (b₁ : ∂₁ b ≡ A) → Ob (suc n)
     IdStr=  : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} → ft (IdStr Γ A A= a aₛ a₁ b bₛ b₁) ≡ Γ
-    IdStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {g₁ : ∂₁ g ≡ Γ}
-             (let a₀ = is-section₀ aₛ a₁ ∙ A=) (let b₀ = is-section₀ bₛ b₁ ∙ A=)
-             → star g (IdStr Γ A A= a aₛ a₁ b bₛ b₁) IdStr= g₁ ≡ IdStr Δ (star g A A= g₁) (ft-star ∙ g₀) (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁) (starTm g b b₀ g₁) ssₛ (starTm₁ g A= b bₛ b₁ g₁)
+
+
+IdNatRHS : {ccat : CCat} (ccatid : CCatwithId ccat) (let module S = CCat ccat) (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} (A : S.Ob (suc m)) (A= : S.ft A ≡ Γ) (a : S.Mor m (suc m)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : S.Mor m (suc m)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A) (g₁ : S.∂₁ g ≡ Γ) → S.Ob (suc n)
+IdNatRHS {ccat = ccat} ccatid g {Δ = Δ} g₀ A A= a aₛ a₁ b bₛ b₁ g₁ =
+  let module S = CCat ccat
+      module SId = CCatwithId ccatid
+      a₀ = S.is-section₀ aₛ a₁ ∙ A=
+      b₀ = S.is-section₀ bₛ b₁ ∙ A=
+  in
+    SId.IdStr Δ (S.star g A A= g₁) (S.ft-star ∙ g₀) (S.starTm g a a₀ g₁) S.ssₛ (S.starTm₁ g A= a aₛ a₁ g₁) (S.starTm g b b₀ g₁) S.ssₛ (S.starTm₁ g A= b bₛ b₁ g₁)
+
+
+record CCatwithIdNat (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithId ccatid
+
+  field
+    IdStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {g₁ : ∂₁ g ≡ Γ}
+            
+             → star g (IdStr Γ A A= a aₛ a₁ b bₛ b₁) IdStr= g₁ ≡ IdNatRHS ccatid g g₀ A A= a aₛ a₁ b bₛ b₁ g₁
  
   ap-irr-IdStr : {Γ Γ' : Ob n} (rΓ : Γ ≡ Γ') {A A' : Ob (suc n)} (rA : A ≡ A') {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'} {u u' : MorC n (suc n)}(ru : u ≡ u') {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {uₛ' : is-section u'} {u₁' : ∂₁ u' ≡ A'}  {v v' : MorC n (suc n)} (rv : v ≡ v'){vₛ : is-section v} {v₁ : ∂₁ v ≡ A} {vₛ' : is-section v'} {v₁' : ∂₁ v' ≡ A'}  → IdStr Γ A A= u uₛ u₁ v vₛ v₁ ≡ IdStr Γ' A' A'= u' uₛ' u₁' v' vₛ' v₁'
   ap-irr-IdStr refl refl refl refl = refl
@@ -358,32 +432,73 @@ record CCatwithuu (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
     uuStrₛ : {i : ℕ} {Γ : Ob n} → is-section (uuStr i Γ)
     uuStr₁ : {i : ℕ} {Γ : Ob n} → ∂₁ (uuStr i Γ) ≡ UUStr (suc i) Γ
 
-  uuStr₀ : {i : ℕ} {Γ : Ob n} → ∂₀ (uuStr i Γ) ≡ Γ
-  uuStr₀ {_} = is-section₀ uuStrₛ uuStr₁ ∙ UUStr=
+uuStr₀ : {ccat : CCat} {ccatUU : CCatwithUU ccat} (ccatuu : CCatwithuu ccat ccatUU) (let module S = CCat ccat) (let module Suu = CCatwithuu ccatuu) {i : ℕ} {Γ : S.Ob n} → S.∂₀ (Suu.uuStr i Γ) ≡ Γ
+uuStr₀ {ccat = ccat} {ccatUU = ccatUU} ccatuu =
+  let module S = CCat ccat
+      module SUU = CCatwithUU ccatUU
+      module Suu = CCatwithuu ccatuu
+  in
+    S.is-section₀ Suu.uuStrₛ Suu.uuStr₁ ∙ SUU.UUStr=
 
+
+record CCatwithuuNat (ccat : CCat) (ccatUU : CCatwithUU ccat) (ccatuu : CCatwithuu ccat ccatUU) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithUU ccatUU
+  open CCatwithuu ccatuu
+  
   field
     uuStrNat : {i : ℕ} {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
-             → starTm g (uuStr i Γ) uuStr₀ g₁ ≡ uuStr i Δ
+             → starTm g (uuStr i Γ) (uuStr₀ ccatuu) g₁ ≡ uuStr i Δ
 
-record CCatwithpi (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl ccat ccatuu) : Set₁ where
+record CCatwithpi (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) (ccatel : CCatwithEl ccat ccatuu ccatuunat) (ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat 
   open CCatwithEl ccatel
+  open CCatwithElNat ccatelnat
 
   field
     piStr  : (i : ℕ) (Γ : Ob n) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i Γ) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)) → MorC n (suc n)
     piStrₛ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → is-section (piStr i Γ a aₛ a₁ b bₛ b₁)
     piStr₁ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₁ (piStr i Γ a aₛ a₁ b bₛ b₁) ≡ UUStr i Γ
 
-  piStr₀ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₀ (piStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
-  piStr₀ {_} = is-section₀ piStrₛ piStr₁ ∙ UUStr=
+piStr₀ : {ccat : CCat} {ccatuu : CCatwithUU ccat} {ccatuunat : CCatwithUUNat ccat ccatuu} {ccatel : CCatwithEl ccat ccatuu ccatuunat} {ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel} (ccatpi : CCatwithpi ccat ccatuu ccatuunat ccatel ccatelnat) (let module S = CCat ccat) (let module SUU = CCatwithUU ccatuu) (let module SEl = CCatwithEl ccatel) (let module Spi = CCatwithpi ccatpi) {i : ℕ} {Γ : S.Ob n} {a : S.Mor n (suc n)} {aₛ : S.is-section a} {a₁ : S.∂₁ a ≡ SUU.UUStr i Γ} {b : S.Mor (suc n) (suc (suc n))} {bₛ : S.is-section b} {b₁ : S.∂₁ b ≡ SUU.UUStr i (SEl.ElStr i Γ a aₛ a₁)} → S.∂₀ (Spi.piStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
+piStr₀ {ccat = ccat} {ccatuu = ccatuu} ccatpi =
+  let module S = CCat ccat
+      module SUU = CCatwithUU ccatuu
+      module Spi = CCatwithpi ccatpi
+  in
+  S.is-section₀ Spi.piStrₛ Spi.piStr₁ ∙ SUU.UUStr=
+
+piNatRHS : {ccat : CCat} {ccatuu : CCatwithUU ccat} {ccatuunat : CCatwithUUNat ccat ccatuu} {ccatel : CCatwithEl ccat ccatuu ccatuunat} {ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel} (ccatpi : CCatwithpi ccat ccatuu ccatuunat ccatel ccatelnat) (let module S = CCat ccat) (let module SUU = CCatwithUU ccatuu) (let module SEl = CCatwithEl ccatel) {i : ℕ} (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} (a : S.Mor m (suc m)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ SUU.UUStr i Γ)
+            (b : S.Mor (suc m) (suc (suc m))) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ SUU.UUStr i (SEl.ElStr i Γ a aₛ a₁)) (g₁ : S.∂₁ g ≡ Γ) → S.Mor n (suc n)
+piNatRHS {ccat = ccat} {ccatuu} {ccatuunat} {ccatel} {ccatelnat} ccatpi {i = i} g {Δ = Δ} g₀ a aₛ a₁ b bₛ b₁ g₁ =
+  let module S = CCat ccat
+      module SUU = CCatwithUU ccatuu
+      module SUUNat = CCatwithUUNat ccatuunat
+      module SEl = CCatwithEl ccatel
+      module SElNat = CCatwithElNat ccatelnat
+      module Spi = CCatwithpi ccatpi
+      a₀ = S.is-section₀ aₛ a₁ ∙ SUU.UUStr= 
+      b₀ = S.is-section₀ bₛ b₁ ∙ SUU.UUStr= 
+  in
+    Spi.piStr i Δ (S.starTm g a a₀ g₁) S.ssₛ (S.starTm₁ g SUU.UUStr= a aₛ a₁ g₁ ∙ SUUNat.UUStrNat g₀)
+                                                                           (S.starTm+ g SEl.ElStr= b b₀ g₁) S.ssₛ (S.starTm+₁ g SUU.UUStr= SEl.ElStr= b bₛ b₁ g₁ ∙ SUUNat.UUStrNat (S.qq₀ ∙ SElNat.ElStrNat g₀))
+
+record CCatwithpiNat (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) (ccatel : CCatwithEl ccat ccatuu ccatuunat) (ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel) (ccatpi : CCatwithpi ccat ccatuu ccatuunat ccatel ccatelnat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat 
+  open CCatwithEl ccatel
+  open CCatwithElNat ccatelnat
+  open CCatwithpi ccatpi
 
   field
     piStrNat : {i : ℕ} {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ}
-                                                {b : MorC (suc m) (suc (suc m))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} {g₁ : ∂₁ g ≡ Γ}
-                                                (let a₀ = is-section₀ aₛ a₁ ∙ UUStr=) (let b₀ = is-section₀ bₛ b₁ ∙ UUStr=)                                                
-             → starTm g (piStr i Γ a aₛ a₁ b bₛ b₁) piStr₀ g₁ ≡ piStr i Δ (starTm g a a₀ g₁)  ssₛ (starTm₁ g UUStr= a aₛ a₁ g₁ ∙ UUStrNat g₀)
-                                                                           (starTm+ g ElStr= b b₀ g₁) ssₛ (starTm+₁ g UUStr= ElStr= b bₛ b₁ g₁ ∙ UUStrNat (qq₀ ∙ ElStrNat g₀))
+                                                {b : MorC (suc m) (suc (suc m))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} {g₁ : ∂₁ g ≡ Γ}                                                
+             → starTm g (piStr i Γ a aₛ a₁ b bₛ b₁) (piStr₀ ccatpi) g₁ ≡ piNatRHS ccatpi g g₀ a aₛ a₁ b bₛ b₁ g₁
+
+
 
 record CCatwithlam (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
@@ -394,57 +509,130 @@ record CCatwithlam (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
     lamStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → is-section (lamStr Γ A A= B B= u uₛ u₁)
     lamStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → ∂₁ (lamStr Γ A A= B B= u uₛ u₁) ≡ PiStr Γ A A= B B=
 
-  lamStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → ∂₀ (lamStr Γ A A= B B= u uₛ u₁) ≡ Γ
-  lamStr₀ {_} = is-section₀ lamStrₛ lamStr₁ ∙ PiStr=
 
-  field
-    lamStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {u : MorC (suc m) (suc (suc m))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} {g₁ : ∂₁ g ≡ Γ} (let u₀ = is-section₀ uₛ u₁ ∙ B=)
-             → starTm g (lamStr Γ A A= B B= u uₛ u₁) lamStr₀ g₁  ≡ lamStr Δ (star g A A= g₁) (ft-star ∙ g₀) (star+ g B B= A= g₁) (ft-star ∙ qq₀) (starTm+ g A= u u₀ g₁) ssₛ (starTm+₁ g B= A= u uₛ u₁ g₁)
+lamStr₀ : {ccat : CCat} {ccatpi : CCatwithPi ccat} (ccatlam : CCatwithlam ccat ccatpi) (let module S = CCat ccat) (let module Slam = CCatwithlam ccatlam) {Γ : S.Ob n} {A : S.Ob (suc n)} {A= : S.ft A ≡ Γ} {B : S.Ob (suc (suc n))} {B= : S.ft B ≡ A} {u : S.Mor (suc n) (suc (suc n))} {uₛ : S.is-section u} {u₁ : S.∂₁ u ≡ B} → S.∂₀ (Slam.lamStr Γ A A= B B= u uₛ u₁) ≡ Γ
+lamStr₀  {ccat = ccat} {ccatpi} ccatlam =
+  let module S = CCat ccat
+      module SPi = CCatwithPi ccatpi
+      module Slam = CCatwithlam ccatlam
+  in
+    S.is-section₀ Slam.lamStrₛ Slam.lamStr₁ ∙ SPi.PiStr=
 
-record CCatwithapp (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
+lamNatRHS : {ccat : CCat} {ccatpi : CCatwithPi ccat} (ccatlam : CCatwithlam ccat ccatpi) (let module S = CCat ccat) (let module Slam = CCatwithlam ccatlam) (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} {A : S.Ob (suc m)} (A= : S.ft A ≡ Γ) (B : S.Ob (suc (suc m))) (B= : S.ft B ≡ A) (u : S.Mor (suc m) (suc (suc m))) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ B) (g₁ : S.∂₁ g ≡ Γ) → S.Mor n (suc n)
+lamNatRHS {ccat = ccat} {ccatpi} ccatlam g {Δ = Δ} g₀ {A = A} A= B B= u uₛ u₁ g₁ =
+  let module S = CCat ccat
+      module Slam = CCatwithlam ccatlam
+      u₀ = S.is-section₀ uₛ u₁ ∙ B=
+  in
+    Slam.lamStr Δ (S.star g A A= g₁) (S.ft-star ∙ g₀) (S.star+ g B B= A= g₁) (S.ft-star ∙ S.qq₀) (S.starTm+ g A= u u₀ g₁) S.ssₛ (S.starTm+₁ g B= A= u uₛ u₁ g₁)
+
+record CCatwithlamNat (ccat : CCat) (ccatpi : CCatwithPi ccat) (ccatlam : CCatwithlam ccat ccatpi) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithPi ccatpi
+  open CCatwithlam ccatlam
+  
+  field
+    lamStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {u : MorC (suc m) (suc (suc m))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} {g₁ : ∂₁ g ≡ Γ} (let u₀ = is-section₀ uₛ u₁ ∙ B=)
+             → starTm g (lamStr Γ A A= B B= u uₛ u₁) (lamStr₀ ccatlam) g₁ ≡ lamNatRHS ccatlam g g₀ A= B B= u uₛ u₁ g₁
+
+record CCatwithapp (ccat : CCat) (ccatpi : CCatwithPi ccat) (ccatpinat : CCatwithPiNat ccat ccatpi) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithPi ccatpi
+  open CCatwithPiNat ccatpinat
 
   field
     appStr  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) (f : MorC n (suc n)) (fₛ : is-section f) (f₁ : ∂₁ f ≡ PiStr Γ A A= B B=) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) → MorC n (suc n)
     appStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁)
     appStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ star a B B= a₁
 
-  appStr₀ :  {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ}  {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₀ (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ Γ
-  appStr₀ {_} {_} {_} {A=} {_} {_} {_} {_} {_} {_} {aₛ} {a₁} = is-section₀ appStrₛ appStr₁ ∙ ft-star ∙ is-section₀ aₛ a₁ ∙ A=
 
+
+appStr₀ : {ccat : CCat} {ccatpi : CCatwithPi ccat} {ccatpinat : CCatwithPiNat ccat ccatpi} (ccatapp : CCatwithapp ccat ccatpi ccatpinat) (let module S = CCat ccat) (let module SPi = CCatwithPi ccatpi) (let module Sapp = CCatwithapp ccatapp) {Γ : S.Ob n} {A : S.Ob (suc n)} {A= : S.ft A ≡ Γ}  {B : S.Ob (suc (suc n))} {B= : S.ft B ≡ A} {f : S.Mor n (suc n)} {fₛ : S.is-section f} {f₁ : S.∂₁ f ≡ SPi.PiStr Γ A A= B B=} {a : S.Mor n (suc n)} {aₛ : S.is-section a} {a₁ : S.∂₁ a ≡ A} → S.∂₀ (Sapp.appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ Γ
+appStr₀ {ccat = ccat} ccatapp {A= = A=} {aₛ = aₛ} {a₁ = a₁} =
+  let module S = CCat ccat
+      module Sapp = CCatwithapp ccatapp
+  in
+    S.is-section₀ Sapp.appStrₛ Sapp.appStr₁ ∙ S.ft-star ∙ S.is-section₀ aₛ a₁ ∙ A=
+
+appNatRHS : {ccat : CCat} {ccatpi : CCatwithPi ccat} {ccatpinat : CCatwithPiNat ccat ccatpi} (ccatapp : CCatwithapp ccat ccatpi ccatpinat) (let module S = CCat ccat) (let module SPi = CCatwithPi ccatpi) (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} {A : S.Ob (suc m)} (A= : S.ft A ≡ Γ) (B : S.Ob (suc (suc m))) (B= : S.ft B ≡ A)
+                  (f : S.Mor m (suc m)) (fₛ : S.is-section f) (f₁ : S.∂₁ f ≡ SPi.PiStr Γ A A= B B=)
+                  (a : S.Mor m (suc m)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (g₁ : S.∂₁ g ≡ Γ) → S.Mor n (suc n)
+appNatRHS {ccat = ccat} {ccatpi} {ccatpinat} ccatapp g {Δ = Δ} g₀ {A = A} A= B B= f fₛ f₁ a aₛ a₁ g₁ =
+  let module S = CCat ccat
+      module SPi = CCatwithPi ccatpi
+      module SPiNat = CCatwithPiNat ccatpinat
+      module Sapp = CCatwithapp ccatapp
+      a₀ = S.is-section₀ aₛ a₁ ∙ A=
+      f₀ = S.is-section₀ fₛ f₁ ∙ SPi.PiStr=
+  in
+    Sapp.appStr Δ (S.star g A A= g₁)
+                  (S.ft-star ∙ g₀)
+                  (S.star+ g B B= A= g₁)
+                  (S.ft-star ∙ S.qq₀)
+                  (S.starTm g f f₀ g₁) S.ssₛ (S.starTm₁ g SPi.PiStr= f fₛ f₁ g₁ ∙ SPiNat.PiStrNat g₀)
+                  (S.starTm g a a₀ g₁) S.ssₛ (S.starTm₁ g A= a aₛ a₁ g₁)
+                           
+ 
+record CCatwithappNat (ccat : CCat) (ccatpi : CCatwithPi ccat) (ccatpinat : CCatwithPiNat ccat ccatpi) (ccatapp : CCatwithapp ccat ccatpi ccatpinat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithPi ccatpi
+  open CCatwithPiNat ccatpinat
+  open CCatwithapp ccatapp
+  
   field
-    appStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {f : MorC m (suc m)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=}
-                {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {g₁ : ∂₁ g ≡ Γ}
-                (let a₀ = is-section₀ aₛ a₁ ∙ A=) (let f₀ = is-section₀ fₛ f₁ ∙ PiStr=)
-             → starTm g (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) appStr₀ g₁
-                ≡ appStr Δ (star g A A= g₁)
-                           (ft-star ∙ g₀)
-                           (star+ g B B= A= g₁)
-                           (ft-star ∙ qq₀)
-                           (starTm g f f₀ g₁) ssₛ (starTm₁ g PiStr= f fₛ f₁ g₁ ∙ PiStrNat g₀)
-                           (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁)
+    appStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {B : Ob (suc (suc m))} {B= : ft B ≡ A} {f : MorC m (suc m)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=}
+                {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {g₁ : ∂₁ g ≡ Γ}              
+             → starTm g (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) (appStr₀ ccatapp) g₁
+                ≡ appNatRHS ccatapp g g₀ A= B B= f fₛ f₁ a aₛ a₁ g₁
 
-record CCatwithsig (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl ccat ccatuu) : Set₁ where
+record CCatwithsig (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) (ccatel : CCatwithEl ccat ccatuu ccatuunat) (ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat
   open CCatwithEl ccatel
+  open CCatwithElNat ccatelnat
 
   field
     sigStr  : (i : ℕ) (Γ : Ob n) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i Γ) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)) → MorC n (suc n)
     sigStrₛ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → is-section (sigStr i Γ a aₛ a₁ b bₛ b₁)
     sigStr₁ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₁ (sigStr i Γ a aₛ a₁ b bₛ b₁) ≡ UUStr i Γ
 
-  sigStr₀ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₀ (sigStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
-  sigStr₀ {_} = is-section₀ sigStrₛ sigStr₁ ∙ UUStr=
+sigStr₀ : {ccat : CCat} {ccatuu : CCatwithUU ccat} {ccatuunat : CCatwithUUNat ccat ccatuu} {ccatel : CCatwithEl ccat ccatuu ccatuunat} {ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel} (ccatsig : CCatwithsig ccat ccatuu ccatuunat ccatel ccatelnat) (let module S = CCat ccat) (let module SUU = CCatwithUU ccatuu) (let module SEl = CCatwithEl ccatel) (let module Ssig = CCatwithsig ccatsig) {i : ℕ} {Γ : S.Ob n} {a : S.Mor n (suc n)} {aₛ : S.is-section a} {a₁ : S.∂₁ a ≡ SUU.UUStr i Γ} {b : S.Mor (suc n) (suc (suc n))} {bₛ : S.is-section b} {b₁ : S.∂₁ b ≡ SUU.UUStr i (SEl.ElStr i Γ a aₛ a₁)} → S.∂₀ (Ssig.sigStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
+sigStr₀ {ccat = ccat} {ccatuu = ccatuu} ccatsig =
+  let module S = CCat ccat
+      module SUU = CCatwithUU ccatuu
+      module Ssig = CCatwithsig ccatsig
+  in
+  S.is-section₀ Ssig.sigStrₛ Ssig.sigStr₁ ∙ SUU.UUStr=
+
+sigNatRHS : {ccat : CCat} {ccatuu : CCatwithUU ccat} {ccatuunat : CCatwithUUNat ccat ccatuu} {ccatel : CCatwithEl ccat ccatuu ccatuunat} {ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel} (ccatsig : CCatwithsig ccat ccatuu ccatuunat ccatel ccatelnat) (let module S = CCat ccat) (let module SUU = CCatwithUU ccatuu) (let module SEl = CCatwithEl ccatel) {i : ℕ} (g : S.Mor n m) {Δ : S.Ob n} (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} (a : S.Mor m (suc m)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ SUU.UUStr i Γ)
+            (b : S.Mor (suc m) (suc (suc m))) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ SUU.UUStr i (SEl.ElStr i Γ a aₛ a₁)) (g₁ : S.∂₁ g ≡ Γ) → S.Mor n (suc n)
+sigNatRHS {ccat = ccat} {ccatuu} {ccatuunat} {ccatel} {ccatelnat} ccatsig {i = i} g {Δ = Δ} g₀ a aₛ a₁ b bₛ b₁ g₁ =
+  let module S = CCat ccat
+      module SUU = CCatwithUU ccatuu
+      module SUUNat = CCatwithUUNat ccatuunat
+      module SEl = CCatwithEl ccatel
+      module SElNat = CCatwithElNat ccatelnat
+      module Ssig = CCatwithsig ccatsig
+      a₀ = S.is-section₀ aₛ a₁ ∙ SUU.UUStr= 
+      b₀ = S.is-section₀ bₛ b₁ ∙ SUU.UUStr= 
+  in
+    Ssig.sigStr i Δ (S.starTm g a a₀ g₁) S.ssₛ (S.starTm₁ g SUU.UUStr= a aₛ a₁ g₁ ∙ SUUNat.UUStrNat g₀)
+                                                                           (S.starTm+ g SEl.ElStr= b b₀ g₁) S.ssₛ (S.starTm+₁ g SUU.UUStr= SEl.ElStr= b bₛ b₁ g₁ ∙ SUUNat.UUStrNat (S.qq₀ ∙ SElNat.ElStrNat g₀))
+
+record CCatwithsigNat (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) (ccatel : CCatwithEl ccat ccatuu ccatuunat) (ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel) (ccatsig : CCatwithsig ccat ccatuu ccatuunat ccatel ccatelnat) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat 
+  open CCatwithEl ccatel
+  open CCatwithElNat ccatelnat
+  open CCatwithsig ccatsig
 
   field
     sigStrNat : {i : ℕ} {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ}
-                                                 {b : MorC (suc m) (suc (suc m))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} {g₁ : ∂₁ g ≡ Γ}
-                                                 (let a₀ = is-section₀ aₛ a₁ ∙ UUStr=) (let b₀ = is-section₀ bₛ b₁ ∙ UUStr=)                                                
-             → starTm g (sigStr i Γ a aₛ a₁ b bₛ b₁) sigStr₀ g₁ ≡ sigStr i Δ (starTm g a a₀ g₁) ssₛ (starTm₁ g UUStr= a aₛ a₁ g₁ ∙ UUStrNat g₀)
-                                                                              (starTm+ g ElStr= b b₀ g₁) ssₛ (starTm+₁ g UUStr= ElStr= b bₛ b₁ g₁ ∙ UUStrNat (qq₀ ∙ ElStrNat g₀))
-                                                                           
+                                                {b : MorC (suc m) (suc (suc m))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} {g₁ : ∂₁ g ≡ Γ}                                                
+             → starTm g (sigStr i Γ a aₛ a₁ b bₛ b₁) (sigStr₀ ccatsig) g₁ ≡ sigNatRHS ccatsig g g₀ a aₛ a₁ b bₛ b₁ g₁
+                                                                  
 record CCatwithpair (ccat : CCat) (ccatsig : CCatwithSig ccat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithSig ccatsig
@@ -466,10 +654,11 @@ record CCatwithpair (ccat : CCat) (ccatsig : CCatwithSig ccat) : Set₁ where
                                                                                       (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁)
                                                                                       (starTm g b b₀ g₁) ssₛ (starTm₁ g (ft-star ∙ a₀) b bₛ b₁ g₁ ∙ starstar A= aₛ)
                                                                                       
-record CCatwithpr1 (ccat : CCat) (ccatsig : CCatwithSig ccat) : Set₁ where
+record CCatwithpr1 (ccat : CCat) (ccatsig : CCatwithSig ccat) (ccatsignat : CCatwithSigNat ccat ccatsig) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithSig ccatsig
-
+  open CCatwithSigNat ccatsignat
+  
   field
     pr1Str  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ SigStr Γ A A= B B=) → MorC n (suc n)
     pr1Strₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ SigStr Γ A A= B B=} → is-section (pr1Str Γ A A= B B= u uₛ u₁)
@@ -487,9 +676,10 @@ record CCatwithpr1 (ccat : CCat) (ccatsig : CCatwithSig ccat) : Set₁ where
                                                                            (ft-star ∙ qq₀)
                                                                            (starTm g u u₀ g₁) ssₛ (starTm₁ g SigStr= u uₛ u₁ g₁ ∙ SigStrNat g₀)
 
-record CCatwithpr2 (ccat : CCat) (ccatsig : CCatwithSig ccat) (ccatpr1 : CCatwithpr1 ccat ccatsig) : Set₁ where
+record CCatwithpr2 (ccat : CCat) (ccatsig : CCatwithSig ccat) (ccatsignat : CCatwithSigNat ccat ccatsig) (ccatpr1 : CCatwithpr1 ccat ccatsig ccatsignat): Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithSig ccatsig
+  open CCatwithSigNat ccatsignat
   open CCatwithpr1 ccatpr1
 
   field
@@ -509,9 +699,10 @@ record CCatwithpr2 (ccat : CCat) (ccatsig : CCatwithSig ccat) (ccatpr1 : CCatwit
                                                                            (ft-star ∙ qq₀)
                                                                            (starTm g u u₀ g₁) ssₛ (starTm₁ g SigStr= u uₛ u₁ g₁ ∙ SigStrNat g₀)
 
-record CCatwithnat (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
+record CCatwithnat (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat
 
   field
     natStr  : (i : ℕ) (Γ : Ob n) → MorC n (suc n)
@@ -541,9 +732,10 @@ record CCatwithzero (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
     zeroStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
              → starTm g (zeroStr Γ) zeroStr₀ g₁ ≡ zeroStr Δ
 
-record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
+record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatnatnat : CCatwithNatNat ccat ccatnat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithNat ccatnat
+  open CCatwithNatNat ccatnatnat
 
   field
     sucStr  : (Γ : Ob n) (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ NatStr Γ) → MorC n (suc n)
@@ -564,22 +756,25 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
   ap-irr-sucStr refl refl = refl
 
 
-T-dS₁ : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (Γ : CCat.Ob ccat n) (let module S = CCat ccat) (let module SNat = CCatwithNat ccatnat)  (P : S.Ob (suc (suc n))) (P= : S.ft P ≡ SNat.NatStr Γ) → S.Ob (suc (suc (suc n)))
-T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc  Γ P P= = let module S = CCat ccat
-                                                              module SNat = CCatwithNat ccatnat
-                                                              module Ssuc = CCatwithsuc ccatsuc
-                                                          in
-                                                          S.star' (S.pp P)
-                                                                  (S.star' (Ssuc.sucStr (SNat.NatStr Γ) (S.varC last (SNat.NatStr Γ)) (S.varCₛ last (SNat.NatStr Γ)) (S.varCL₁ ∙ SNat.NatStrNat S.pp₀))
-                                                                           (S.star' (S.qq' (S.pp (SNat.NatStr Γ)) (SNat.NatStr Γ) SNat.NatStr= (S.pp₁ ∙ SNat.NatStr=))
+T-dS₁ : {ccat : CCat} {ccatnat : CCatwithNat ccat} {ccatnatnat : CCatwithNatNat ccat ccatnat} (ccatsuc : CCatwithsuc ccat ccatnat ccatnatnat) (let module S = CCat ccat) (let module SNat = CCatwithNat ccatnat) (Γ : S.Ob n) (P : S.Ob (suc (suc n))) (P= : S.ft P ≡ SNat.NatStr Γ) → S.Ob (suc (suc (suc n)))
+T-dS₁ {ccat = ccat} {ccatnat = ccatnat} {ccatnatnat} ccatsuc  Γ P P= =
+  let module S = CCat ccat
+      module SNat = CCatwithNat ccatnat
+      module SNatNat = CCatwithNatNat ccatnatnat
+      module Ssuc = CCatwithsuc ccatsuc
+  in
+    S.star' (S.pp P)
+            (S.star' (Ssuc.sucStr (SNat.NatStr Γ) (S.varC last (SNat.NatStr Γ)) (S.varCₛ last (SNat.NatStr Γ)) (S.varCL₁ ∙ SNatNat.NatStrNat S.pp₀))
+                     (S.star' (S.qq' (S.pp (SNat.NatStr Γ)) (SNat.NatStr Γ) SNat.NatStr= (S.pp₁ ∙ SNat.NatStr=))
                                                                                     P P= S.qq₁)
-                                                                           (S.ft-star ∙ S.qq₀ ∙ SNat.NatStrNat S.pp₀) Ssuc.sucStr₁) 
-                                                                  (S.ft-star ∙ Ssuc.sucStr₀) (S.pp₁ ∙ P=) 
+                     (S.ft-star ∙ S.qq₀ ∙ SNatNat.NatStrNat S.pp₀) Ssuc.sucStr₁) 
+            (S.ft-star ∙ Ssuc.sucStr₀) (S.pp₁ ∙ P=) 
 
 
-record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CCatwithzero ccat ccatnat) (ccatsuc : CCatwithsuc ccat ccatnat) : Set₁ where
+record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatnatnat : CCatwithNatNat ccat ccatnat) (ccatzero : CCatwithzero ccat ccatnat) (ccatsuc : CCatwithsuc ccat ccatnat ccatnatnat) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithNat ccatnat
+  open CCatwithNatNat ccatnatnat
   open CCatwithzero ccatzero
   open CCatwithsuc ccatsuc
  
@@ -618,10 +813,19 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
                                                                                                                   star-qqpp  ∙ ap-irr-star (ap-irr-qq (ap pp nat) nat) refl)))
                                  (starTm g u u₀ g₁) ssₛ (starTm₁ g NatStr= u uₛ u₁ g₁ ∙ nat)
 
-record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl ccat ccatuu) : Set₁ where
+Tm-substdS : {ccat : CCat} {ccatnat : CCatwithNat ccat} {ccatnatnat : CCatwithNatNat ccat ccatnat} {ccatzero : CCatwithzero ccat ccatnat} {ccatsuc : CCatwithsuc ccat ccatnat ccatnatnat} (ccatnatelim : CCatwithnatelim ccat ccatnat ccatnatnat ccatzero ccatsuc) (let module S = CCat ccat) (let module SNat = CCatwithNat ccatnat) (let module Szero = CCatwithzero ccatzero) (Γ : S.Ob n) (P : S.Ob (suc (suc n))) (P= : S.ft P ≡ SNat.NatStr Γ) (dO : S.Mor n (suc n)) (dOₛ : S.is-section dO) (dO₁ : S.∂₁ dO ≡ S.star (Szero.zeroStr Γ) P P= Szero.zeroStr₁) (dS : S.Mor (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : S.∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=) (u : S.Mor n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ SNat.NatStr Γ) → S.Mor n (suc n)
+Tm-substdS {ccat = ccat} ccatnatelim Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ =
+  let module S = CCat ccat
+      module Snatelim = CCatwithnatelim ccatnatelim
+  in
+  S.starTm (Snatelim.natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) (S.starTm (S.qq u P P= u₁) dS (S.is-section₀ dSₛ dS₁ ∙ S.ft-star ∙ S.pp₀) S.qq₁) (S.ss₀ ∙ S.comp₀ ∙ S.qq₀) Snatelim.natelimStr₁                           
+
+record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatuunat : CCatwithUUNat ccat ccatuu) (ccatel : CCatwithEl ccat ccatuu ccatuunat) (ccatelnat : CCatwithElNat ccat ccatuu ccatuunat ccatel) : Set₁ where
   open CCat ccat renaming (Mor to MorC)
   open CCatwithUU ccatuu
+  open CCatwithUUNat ccatuunat
   open CCatwithEl ccatel
+  open CCatwithElNat ccatelnat
 
   field
     idStr  : (i : ℕ) (Γ : Ob n) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i Γ) (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ ElStr i Γ a aₛ a₁)
@@ -652,13 +856,32 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
     reflStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (reflStr Γ A A= a aₛ a₁)
     reflStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (reflStr Γ A A= a aₛ a₁) ≡ IdStr Γ A A= a aₛ a₁ a aₛ a₁
 
-  reflStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} → ∂₀ (reflStr Γ A A= u uₛ u₁) ≡ Γ
-  reflStr₀ {_} = is-section₀ reflStrₛ reflStr₁ ∙ IdStr=
 
+reflStr₀ : {ccat : CCat} {ccatid : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatid) (let module S = CCat ccat) (let module Srefl = CCatwithrefl ccatrefl) {Γ : S.Ob n} {A : S.Ob (suc n)} {A= : S.ft A ≡ Γ} {u : S.Mor n (suc n)} {uₛ : S.is-section u} {u₁ : S.∂₁ u ≡ A} → S.∂₀ (Srefl.reflStr Γ A A= u uₛ u₁) ≡ Γ
+reflStr₀ {ccat = ccat} {ccatid = ccatid} ccatrefl =
+  let module S = CCat ccat
+      module SId = CCatwithId ccatid
+      module Srefl = CCatwithrefl ccatrefl
+  in
+    S.is-section₀ Srefl.reflStrₛ Srefl.reflStr₁ ∙ SId.IdStr=
+
+reflNatRHS : {ccat : CCat} {ccatid : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatid) (let module S = CCat ccat) (g : S.Mor n m) (Δ : S.Ob n) (g₀ : S.∂₀ g ≡ Δ) {Γ : S.Ob m} (A : S.Ob (suc m)) (A= : S.ft A ≡ Γ) (u : S.Mor m (suc m)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) (g₁ : S.∂₁ g ≡ Γ)
+                  → S.Mor n (suc n)
+reflNatRHS {ccat = ccat} {ccatid = ccatid} ccatrefl g Δ g₀ A A= u uₛ u₁ g₁ =
+  let module S = CCat ccat
+      module Srefl = CCatwithrefl ccatrefl
+      u₀ = S.is-section₀ uₛ u₁ ∙ A=
+  in
+    Srefl.reflStr Δ (S.star g A A= g₁) (S.ft-star ∙ g₀) (S.starTm g u u₀ g₁) S.ssₛ (S.starTm₁ g A= u uₛ u₁ g₁)
+
+record CCatwithreflNat (ccat : CCat) (ccatid : CCatwithId ccat) (ccatrefl : CCatwithrefl ccat ccatid) : Set₁ where
+  open CCat ccat renaming (Mor to MorC)
+  open CCatwithId ccatid
+  open CCatwithrefl ccatrefl
+  
   field
-    reflStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {g₁ : ∂₁ g ≡ Γ}
-                 (let u₀ = is-section₀ uₛ u₁ ∙ A=)
-             → starTm g (reflStr Γ A A= u uₛ u₁) reflStr₀ g₁ ≡ reflStr Δ (star g A A= g₁) (ft-star ∙ g₀) (starTm g u u₀ g₁) ssₛ (starTm₁ g A= u uₛ u₁ g₁)
+    reflStrNat : {n m : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {g₁ : ∂₁ g ≡ Γ}                
+             → starTm g (reflStr Γ A A= u uₛ u₁) (reflStr₀ ccatrefl) g₁ ≡ reflNatRHS ccatrefl g Δ g₀ A A= u uₛ u₁ g₁
 
 
 
@@ -768,25 +991,38 @@ record StructuredCCat : Set₁ where
   field
     ccat : CCat
     ccatUU : CCatwithUU ccat
-    ccatEl : CCatwithEl ccat ccatUU
+    ccatUUNat : CCatwithUUNat ccat ccatUU
+    ccatEl : CCatwithEl ccat ccatUU ccatUUNat
+    ccatElNat : CCatwithElNat ccat ccatUU ccatUUNat ccatEl
     ccatPi : CCatwithPi ccat
+    ccatPiNat : CCatwithPiNat ccat ccatPi
     ccatSig : CCatwithSig ccat
+    ccatSigNat : CCatwithSigNat ccat ccatSig
     ccatNat : CCatwithNat ccat
+    ccatNatNat : CCatwithNatNat ccat ccatNat
     ccatId : CCatwithId ccat
+    ccatIdNat : CCatwithIdNat ccat ccatId
+    
     ccatuu : CCatwithuu ccat ccatUU
-    ccatpi : CCatwithpi ccat ccatUU ccatEl
+    ccatuuNat : CCatwithuuNat ccat ccatUU ccatuu
+    ccatpi : CCatwithpi ccat ccatUU ccatUUNat ccatEl ccatElNat
+    ccatpiNat : CCatwithpiNat ccat ccatUU ccatUUNat ccatEl ccatElNat ccatpi
     ccatlam : CCatwithlam ccat ccatPi
-    ccatapp : CCatwithapp ccat ccatPi
-    ccatsig : CCatwithsig ccat ccatUU ccatEl
+    ccatlamNat : CCatwithlamNat ccat ccatPi ccatlam
+    ccatapp : CCatwithapp ccat ccatPi ccatPiNat
+    ccatappNat : CCatwithappNat ccat ccatPi ccatPiNat ccatapp
+    ccatsig : CCatwithsig ccat ccatUU ccatUUNat ccatEl ccatElNat
+    ccatsigNat : CCatwithsigNat ccat ccatUU ccatUUNat ccatEl ccatElNat ccatsig
     ccatpair : CCatwithpair ccat ccatSig
-    ccatpr1 : CCatwithpr1 ccat ccatSig
-    ccatpr2 : CCatwithpr2 ccat ccatSig ccatpr1
-    ccatnat : CCatwithnat ccat ccatUU
+    ccatpr1 : CCatwithpr1 ccat ccatSig ccatSigNat
+    ccatpr2 : CCatwithpr2 ccat ccatSig ccatSigNat ccatpr1
+    ccatnat : CCatwithnat ccat ccatUU ccatUUNat
     ccatzero : CCatwithzero ccat ccatNat
-    ccatsuc : CCatwithsuc ccat ccatNat
-    ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
-    ccatid : CCatwithid ccat ccatUU ccatEl
+    ccatsuc : CCatwithsuc ccat ccatNat ccatNatNat
+    ccatnatelim : CCatwithnatelim ccat ccatNat ccatNatNat ccatzero ccatsuc
+    ccatid : CCatwithid ccat ccatUU ccatUUNat ccatEl ccatElNat
     ccatrefl : CCatwithrefl ccat ccatId
+    ccatreflNat : CCatwithreflNat ccat ccatId ccatrefl
     -- ccatjj : CCatwithjj ccat ccatId ccatrefl
 
   open CCat ccat renaming (Mor to MorC)
@@ -810,6 +1046,7 @@ record StructuredCCat : Set₁ where
   open CCatwithnatelim ccatnatelim public
   open CCatwithid ccatid public
   open CCatwithrefl ccatrefl public
+  open CCatwithreflNat ccatreflNat public
   -- open CCatwithjj ccatjj public
 
   field
@@ -819,16 +1056,17 @@ record StructuredCCat : Set₁ where
     betaSig1Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr1Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ a
     betaSig2Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr2Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ b
 
-    betaNatelimZero : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
-                      {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
-                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=} →
-                      natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
+    betaNatZero : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+                  {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
+                  {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=} →
+                  natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
 
-    betaNatelimSuc : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
-                     {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
-                     {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=}
-                     {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
-                 natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ starTm (natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) (starTm (qq u P P= u₁) dS (is-section₀ dSₛ dS₁ ∙ ft-star ∙ pp₀) qq₁) (ss₀ ∙ comp₀ ∙ qq₀) natelimStr₁                           
+    betaNatSuc : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+                 {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
+                 {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=}
+                 {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
+                 natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ Tm-substdS ccatnatelim Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ 
+                 
                                     
                                
 
