@@ -53,25 +53,29 @@ iarg x = arg (arg-info hidden relevant) x
 
 {- Shifting de Bruijn indices -}
 
-{-# TERMINATING #-}
 shift : ℕ → Term → Term
 shiftArg : ℕ → Arg Term → Arg Term
+shiftListArg : ℕ → List (Arg Term) → List (Arg Term)
 shiftAbs : ℕ → Abs Term → Abs Term
 shiftSort : ℕ → Sort → Sort
 shiftClause : ℕ → Clause → Clause
+shiftListClause : ℕ → List Clause → List Clause
 
-shift n (var x args) = var (n + x) (map (shiftArg n) args)
-shift n (con c args) = con c (map (shiftArg n) args)
-shift n (def f args) = def f (map (shiftArg n) args)
+shift n (var x args) = var (n + x) (shiftListArg n args)
+shift n (con c args) = con c (shiftListArg n args)
+shift n (def f args) = def f (shiftListArg n args)
 shift n (lam v t) = lam v (shiftAbs n t)
-shift n (pat-lam cs args) = pat-lam (map (shiftClause n) cs) (map (shiftArg n) args)
+shift n (pat-lam cs args) = pat-lam (shiftListClause n cs) (shiftListArg n args)
 shift n (pi a b) = pi (shiftArg n a) (shiftAbs n b)
 shift n (agda-sort s) = agda-sort (shiftSort n s)
 shift n (lit l) = lit l
-shift n (meta x args) = meta x (map (shiftArg n) args)
+shift n (meta x args) = meta x (shiftListArg n args)
 shift n unknown = unknown
 
 shiftArg n (arg i x) = arg i (shift n x)
+
+shiftListArg n [] = []
+shiftListArg n (a ∷ as) = shiftArg n a ∷ shiftListArg n as
 
 shiftAbs n (abs s x) = abs s (shift n x)
 
@@ -81,6 +85,9 @@ shiftSort n unknown = unknown
 
 shiftClause n (clause ps t) = clause ps (shift n t)
 shiftClause n (absurd-clause ps) = absurd-clause ps
+
+shiftListClause n [] = []
+shiftListClause n (c ∷ cs) = shiftClause n c ∷ shiftListClause n cs
 
 
 if_then_else_ : {A : Set} → Bool → A → A → A

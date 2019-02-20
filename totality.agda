@@ -490,10 +490,6 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
             → isDefined (⟦ subst2Tm t u v ⟧Tm X'')
 ⟦subst2⟧Tmᵈ X= X'= t tᵈ u uᵈ u₁ v vᵈ v₁ = ⟦tsubst⟧Tmᵈ t tᵈ _ (⟦idMor++⟧ᵈ X= X'= u uᵈ u₁ v vᵈ v₁)
 
-postulate
-  starTm-comp : {m n k : ℕ} {g : MorC m k} {f : MorC n m} {Y : Ob m} (g₀ : ∂₀ g ≡ Y) {f₁ : ∂₁ f ≡ Y} {u : MorC k (suc k)} {X : Ob k} {u₀ : ∂₀ u ≡ X} {g₁ : ∂₁ g ≡ X}
-              → starTm (comp g f g₀ f₁) u u₀ (comp₁ ∙ g₁) ≡ starTm f (starTm g u u₀ g₁) (ss₀ ∙ comp₀ ∙ g₀) f₁
-
 ⟦subst2⟧Tm= : {X : Ob (suc (suc n))} {X' : Ob (suc n)} (X= : ft X ≡ X') {X'' : Ob n} (X'= : ft X' ≡ X'') (t : TmExpr (suc (suc n)))
             → (tᵈ : isDefined (⟦ t ⟧Tm X))
             → (u : TmExpr n)
