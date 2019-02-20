@@ -216,6 +216,9 @@ module CCat+ (C : CCat) where
     star-varCL'' : {g : Mor m (suc k)} {f : Mor n m}  {X : Ob m} {g₀ : ∂₀ g ≡ X} {f₁ : ∂₁ f ≡ X} → starTm f (ss g) (ss₀ ∙ g₀) f₁ ≡ ss (comp g f g₀ f₁)
     star-varCL'' = ss-comp  ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = refl})) refl)
 
+    starTm-comp : {m n k : ℕ} {g : Mor m k} {f : Mor n m} {Y : Ob m} (g₀ : ∂₀ g ≡ Y) {f₁ : ∂₁ f ≡ Y} {u : Mor k (suc k)} {X : Ob k} {u₀ : ∂₀ u ≡ X} {g₁ : ∂₁ g ≡ X}
+                → starTm (comp g f g₀ f₁) u u₀ (comp₁ ∙ g₁) ≡ starTm f (starTm g u u₀ g₁) (ss₀ ∙ comp₀ ∙ g₀) f₁
+    starTm-comp g₀ = ap ss (! assoc) ∙ ! (star-varCL'' {g₀ = comp₀ ∙ g₀})
 
 
 
