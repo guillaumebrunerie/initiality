@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import typetheory
@@ -1739,11 +1739,11 @@ betaSig2StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → /
                                                                                                                                                     (dTm A= a aₛ a₁)
                                                                                                                                                     (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))))))))))))))
 
--- betaNatZeroS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
+-- betaNatZeroStrS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
 --                (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : S.∂₁ dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))
 --                (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : S.∂₁ dS ≡ T-dS₁ sucStrSynCCat Γ P P=) →
 --                natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStrS Γ) (zeroStrₛS Γ) (zeroStr₁S Γ)  ≡ dO               
--- betaNatZeroS = let fixSubstTy X = (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (getTy X)) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _)))                      
+-- betaNatZeroStrS = let fixSubstTy X = (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (getTy X)) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _)))                      
 --                   in
 --                   //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → eq (box
 --                            (CtxSymm (reflectOb (S.is-section₀ dOₛ dO₁)))
@@ -1751,12 +1751,12 @@ betaSig2StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → /
 --                            (MorTran (der Γ) (der Γ , SubstTy (dTy P P=) (idMor+ (der Γ) Zero)) (idMor+= (der Γ) (BetaNatZero (dTy P P=) (dTm refl dO dOₛ dO₁) (congTmTy (fixSubstTy P) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)))) (MorSymm (der Γ) (der Γ , SubstTy (dTy P P=) (idMor+ (der Γ) Zero)) (morTm=idMorTm refl dO dOₛ dO₁)))))))))
 
 
--- betaNatSucS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
+-- betaNatSucStrS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
 --                (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : S.∂₁ dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))
 --                (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : S.∂₁ dS ≡ T-dS₁ sucStrSynCCat Γ P P=)
 --                (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) →
 --                natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStrS Γ u uₛ u₁) (sucStrₛS Γ u) (sucStr₁S Γ u) ≡ Tm-substdS natelimStrSynCCat Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ 
--- betaNatSucS = let fixSubstTy X = (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (getTy X)) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _)))                      
+-- betaNatSucStrS = let fixSubstTy X = (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (getTy X)) (ap (λ z → z , suc (var last)) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _)) ∙  ! (weakenTyInsert' _ _ _ _)))                      
 --                   in
 --                 //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ → eq (box
 --                   (CtxRefl (der Γ))
@@ -1818,7 +1818,7 @@ ccatpr2 strSynCCat = pr2StrSynCCat
 ccatnat strSynCCat = natStrSynCCat
 ccatzero strSynCCat = zeroStrSynCCat
 ccatsuc strSynCCat = sucStrSynCCat
-ccatnatelim strSynCCat = ? --natelimStrSynCCat
+ccatnatelim strSynCCat = {!!} --natelimStrSynCCat
 ccatid strSynCCat = idStrSynCCat
 ccatrefl strSynCCat = reflStrSynCCat
 
@@ -1826,8 +1826,8 @@ ccatrefl strSynCCat = reflStrSynCCat
 betaPiStr strSynCCat {Γ = Γ} {A = A} {B = B} {u = u} {a = a} = betaPiStrS Γ A _ B _ u _ _ a _ _
 betaSig1Str strSynCCat {Γ = Γ} {A = A} {B = B} {a = a} {b = b} = betaSig1StrS Γ A _ B _ a _ _ b _ _
 betaSig2Str strSynCCat {Γ = Γ} {A = A} {B = B}  {a = a} {b = b} = betaSig2StrS Γ A _ B _ a _ _ b _ _
-betaNatZero strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} = ? --betaNatZeroS Γ P _ dO _ _ dS _ _
-betaNatSuc strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = ? --betaNatSucS Γ P _ dO _ _ dS _ _ u _ _
+betaNatZeroStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} = {!!} --betaNatZeroS Γ P _ dO _ _ dS _ _
+betaNatSucStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = {!!} --betaNatSucS Γ P _ dO _ _ dS _ _ u _ _
 eluuStr strSynCCat {Γ = Γ} = eluuStrS _ Γ
 elpiStr strSynCCat {Γ = Γ} {a = a} {b = b} = elpiStrS _ Γ a _ _ b _ _
 elsigStr strSynCCat {Γ = Γ} {a = a} {b = b} = elsigStrS _ Γ a _ _ b _ _

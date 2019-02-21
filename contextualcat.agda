@@ -383,12 +383,13 @@ record CCatwithpi (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl 
   open CCatwithUU ccatuu
   open CCatwithEl ccatel
 
+
   field
     piStr  : (i : ℕ) (Γ : Ob n) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i Γ) (b : MorC (suc n) (suc (suc n))) (bₛ : is-section b) (b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)) → MorC n (suc n)
     piStrₛ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → is-section (piStr i Γ a aₛ a₁ b bₛ b₁)
     piStr₁ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₁ (piStr i Γ a aₛ a₁ b bₛ b₁) ≡ UUStr i Γ
 
-  piStr₀ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₀ (piStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
+  piStr₀ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC(suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₀ (piStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
   piStr₀ {_} = is-section₀ piStrₛ piStr₁ ∙ UUStr=
 
   field
@@ -414,9 +415,9 @@ record CCatwithlam (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
     lamStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → is-section (lamStr Γ A A= B B= u uₛ u₁)
     lamStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → ∂₁ (lamStr Γ A A= B B= u uₛ u₁) ≡ PiStr Γ A A= B B=
 
-  lamStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → ∂₀ (lamStr Γ A A= B B= u uₛ u₁) ≡ Γ
-  lamStr₀ {_} = is-section₀ lamStrₛ lamStr₁ ∙ PiStr=
-
+  lamStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC(suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} → ∂₀ (lamStr Γ A A= B B= u uₛ u₁) ≡ Γ
+  lamStr₀ {_}  = is-section₀ lamStrₛ lamStr₁ ∙ PiStr=
+   
   field
     lamStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (A : Ob (suc m)) (A= : ft A ≡ Γ) (B : Ob (suc (suc m))) (B= : ft B ≡ A) (u : MorC (suc m) (suc (suc m))) (uₛ : is-section u) (u₁ : ∂₁ u ≡ B) (g₁ : ∂₁ g ≡ Γ) (let u₀ = is-section₀ uₛ u₁ ∙  B=)
              → starTm g (lamStr Γ A A= B B= u uₛ u₁) lamStr₀ g₁  ≡ lamStr Δ (star g A A= g₁) (ft-star ∙ g₀) (star+ g B B= A= g₁) (ft-star ∙ qq₀) (starTm+ g A= u u₀ g₁) ssₛ (starTm+₁ g B= A= u uₛ u₁ g₁)
@@ -428,15 +429,15 @@ record CCatwithlam (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
 record CCatwithapp (ccat : CCat) (ccatpi : CCatwithPi ccat) : Set₁ where
   open CCat+ ccat renaming (Mor to MorC)
   open CCatwithPi ccatpi
-
+ 
   field
     appStr  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) (f : MorC n (suc n)) (fₛ : is-section f) (f₁ : ∂₁ f ≡ PiStr Γ A A= B B=) (a : MorC n (suc n)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) → MorC n (suc n)
     appStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁)
     appStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ star a B B= a₁
 
-  appStr₀ :  {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ}  {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₀ (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ Γ
+  appStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ}  {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₀ (appStr Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ Γ
   appStr₀ {_} {_} {_} {A=} {_} {_} {_} {_} {_} {_} {aₛ} {a₁} = is-section₀ appStrₛ appStr₁ ∙ ft-star ∙ is-section₀ aₛ a₁ ∙ A=
-
+  
   field
     appStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (A : Ob (suc m)) (A= : ft A ≡ Γ) (B : Ob (suc (suc m))) (B= : ft B ≡ A) (f : MorC m (suc m)) (fₛ : is-section f) (f₁ : ∂₁ f ≡ PiStr Γ A A= B B=)
                 (a : MorC m (suc m)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A) (g₁ : ∂₁ g ≡ Γ)
@@ -473,8 +474,8 @@ record CCatwithsig (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl
     sigStrₛ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → is-section (sigStr i Γ a aₛ a₁ b bₛ b₁)
     sigStr₁ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₁ (sigStr i Γ a aₛ a₁ b bₛ b₁) ≡ UUStr i Γ
 
-  sigStr₀ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₀ (sigStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
-  sigStr₀ {_} = is-section₀ sigStrₛ sigStr₁ ∙ UUStr=
+  sigStr₀ : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC(suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} → ∂₀ (sigStr i Γ a aₛ a₁ b bₛ b₁) ≡ Γ
+  sigStr₀ {_}  = is-section₀ sigStrₛ sigStr₁ ∙ UUStr=
 
   field
     sigStrNat' : {i : ℕ} (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (a : MorC m (suc m)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ UUStr i Γ)
@@ -528,7 +529,8 @@ record CCatwithpair (ccat : CCat) (ccatsig : CCatwithSig ccat) : Set₁ where
 record CCatwithpr1 (ccat : CCat) (ccatsig : CCatwithSig ccat) : Set₁ where
   open CCat+ ccat renaming (Mor to MorC)
   open CCatwithSig ccatsig
-
+ 
+  
   field
     pr1Str  : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ SigStr Γ A A= B B=) → MorC n (suc n)
     pr1Strₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ SigStr Γ A A= B B=} → is-section (pr1Str Γ A A= B B= u uₛ u₁)
@@ -591,7 +593,7 @@ record CCatwithpr2 (ccat : CCat) (ccatsig : CCatwithSig ccat) (ccatpr1 : CCatwit
 record CCatwithnat (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
   open CCat+ ccat renaming (Mor to MorC)
   open CCatwithUU ccatuu
-
+ 
   field
     natStr  : (i : ℕ) (Γ : Ob n) → MorC n (suc n)
     natStrₛ : {i : ℕ} {Γ : Ob n} → is-section (natStr i Γ)
@@ -780,9 +782,10 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
     reflStrₛ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → is-section (reflStr Γ A A= a aₛ a₁)
     reflStr₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} → ∂₁ (reflStr Γ A A= a aₛ a₁) ≡ IdStr Γ A A= a aₛ a₁ a aₛ a₁
 
+
   reflStr₀ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} → ∂₀ (reflStr Γ A A= u uₛ u₁) ≡ Γ
   reflStr₀ {_} = is-section₀ reflStrₛ reflStr₁ ∙ IdStr=
-
+  
   field
     reflStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (A : Ob (suc m)) (A= : ft A ≡ Γ) (u : MorC m (suc m)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ A) (g₁ : ∂₁ g ≡ Γ)
                  (let u₀ = is-section₀ uₛ u₁ ∙ A=)
@@ -905,17 +908,18 @@ record StructuredCCat : Set₁ where
     ccatSig : CCatwithSig ccat
     ccatNat : CCatwithNat ccat
     ccatId : CCatwithId ccat
+    
     ccatuu : CCatwithuu ccat ccatUU
     ccatpi : CCatwithpi ccat ccatUU ccatEl
     ccatlam : CCatwithlam ccat ccatPi
-    ccatapp : CCatwithapp ccat ccatPi
+    ccatapp : CCatwithapp ccat ccatPi 
     ccatsig : CCatwithsig ccat ccatUU ccatEl
     ccatpair : CCatwithpair ccat ccatSig
-    ccatpr1 : CCatwithpr1 ccat ccatSig
+    ccatpr1 : CCatwithpr1 ccat ccatSig 
     ccatpr2 : CCatwithpr2 ccat ccatSig ccatpr1
     ccatnat : CCatwithnat ccat ccatUU
     ccatzero : CCatwithzero ccat ccatNat
-    ccatsuc : CCatwithsuc ccat ccatNat
+    ccatsuc : CCatwithsuc ccat ccatNat 
     ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
     ccatid : CCatwithid ccat ccatUU ccatEl
     ccatrefl : CCatwithrefl ccat ccatId
@@ -951,12 +955,12 @@ record StructuredCCat : Set₁ where
     betaSig1Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr1Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ a
     betaSig2Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr2Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ b
 
-    betaNatZero : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+    betaNatZeroStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
                       {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
                       {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=} →
-                      natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
+                        natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
 
-    betaNatSuc : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+    betaNatSucStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
                      {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=}
                      {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
