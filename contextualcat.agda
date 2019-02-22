@@ -73,13 +73,13 @@ module CCat+ (C : CCat) where
 
 
   comp' : (g : Mor m k) (f : Mor n m) {X : Ob m}  (_ : ∂₀ g ≡ X) (_ : ∂₁ f ≡ X) → Mor n k
-  comp' g f q p = comp g f q p
+  comp' g f q p = comp g f q p -- comp g f (# q) (# p)
 
   star' : (f : Mor m n) (X : Ob (suc n)) {Y : Ob n} (q : ft X ≡ Y) (f₁ : ∂₁ f ≡ Y) → Ob (suc m)
-  star' f X q f₁ = star f X q f₁
+  star' f X q f₁ = star f X q f₁ -- star f X (# q) (# f₁)
 
   qq' : (f : Mor m n) (X : Ob (suc n)) {Y : Ob n} (q : ft X ≡ Y) (f₁ : ∂₁ f ≡ Y) → Mor (suc m) (suc n)
-  qq' f X q f₁ = qq f X q f₁
+  qq' f X q f₁ = qq f X q f₁ -- qq f X (# q) (# f₁)
 
   {- Sections of [pp] -}
 
@@ -736,7 +736,7 @@ Tm-substdS {ccat = ccat} ccatnatelim Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u u�
   let open CCat+ ccat
       open CCatwithnatelim ccatnatelim
   in
-  starTm (natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) (starTm (qq u P P= u₁) dS (is-section₀ dSₛ dS₁ ∙ ft-star ∙ pp₀) qq₁) (ss₀ ∙ comp₀ ∙ qq₀) natelimStr₁                           
+  starTm (natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) (starTm (qq u P P= u₁) dS (is-section₀ dSₛ dS₁ ∙ ft-star ∙ pp₀) qq₁) (ss₀ ∙ comp₀ ∙ qq₀) natelimStr₁
 
 
 record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl ccat ccatuu) : Set₁ where

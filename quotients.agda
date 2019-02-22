@@ -125,12 +125,12 @@ module _ {A : Set} {R : EquivRel A} where
 
   -- Non-dependent elimination
   //-rec : ∀ {l} {B : Set l} (proj* : A → B) (eq* : {a b : A} (r : a ≃ b) → proj* a ≡ proj* b) → A // R → B
-  //-rec proj* eq* = //-elim proj* λ r → PathOver-Cst _ (eqR r) (eq* r)
+  //-rec proj* eq* = //-elim proj* (λ r → PathOver-Cst _ (eqR r) (eq* r))
 
   -- Dependent elimination into a Prop
 
   //-elimP : ∀ {l} {B : A // R → Prop l} (proj* : (a : A) → B (proj a)) → (x : A // R) → B x
-  //-elimP {B = B} proj* x = unbox (//-elim {B = λ x → Box (B x)} (λ a → box (proj* a)) (λ r → PathOver-Box (λ z → B z) (eqR r) (box (proj* _)) (box (proj* _))) x)
+  //-elimP {B = B} proj* x = unbox (//-elim {B = λ x → Box (B x)} (λ a → box (proj* a)) (λ r → # (PathOver-Box (λ z → B z) (eqR r) (box (proj* _)) (box (proj* _)))) x)
 
   -- Dependent elimination in a dependent type of the form x.((y : B) → C x y) with B a Set
   //-elim-PiS : ∀ {l l'} {B : Set l} {C : A // R → B → Set l'} (proj* : (a : A) (b : B) → C (proj a) b) (eq* : {a b : A} (r : a ≃ b) (y : B) → PathOver (λ x → C x y) (eqR r) (proj* a y) (proj* b y)) → (x : A // R) → (y : B) → C x y

@@ -8,7 +8,7 @@ open import contextualcat
 open import quotients
 open import termmodel
 import partialinterpretation
-import totality hiding (lhs)
+import totality
 
 module _ (sC : StructuredCCat) where
 

@@ -1303,7 +1303,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦⟧TmEq Γᵈ {u = app A B (lam A B u) a} (BetaPi dA dB du da) = betaPiStr ∙ ! (⟦subst⟧Tm= (⟦⟧Ty-ft A) u _ a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da))
 ⟦⟧TmEq Γᵈ (BetaSig1 dA dB da db) = betaSig1Str
 ⟦⟧TmEq Γᵈ (BetaSig2 dA dB da db) = betaSig2Str
-⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = betaNatZero
+⟦⟧TmEq Γᵈ (BetaNatZero dP ddO ddS) = betaNatZeroStr
 ⟦⟧TmEq {Γ = Γ} Γᵈ {u = natelim P dO dS (suc u)} (BetaNatSuc dP ddO ddS du) =
   let
     Pᵈ : isDefined (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)))
@@ -1331,8 +1331,8 @@ cong⟦⟧Mor refl δᵈ = δᵈ
     uᵈ : isDefined (⟦ u ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ))
     uᵈ = ⟦⟧Tmᵈ Γᵈ du
   in
-  betaNatSuc ∙ {!!}
-  ∙ ! (⟦subst2⟧Tm= (⟦⟧Ty-ft P) NatStr= dS dSᵈ u (⟦⟧Tmᵈ Γᵈ du) (⟦⟧Tm₁ Γᵈ du) (natelim P dO dS u) (Pᵈ , ⟦⟧Ty-ft P , dOᵈ , ⟦⟧Tmₛ dO , dO₁ , dSᵈ , ⟦⟧Tmₛ dS , dS₁ , uᵈ , ⟦⟧Tmₛ u , ⟦⟧Tm₁ Γᵈ du , tt) natelimStr₁)
+  {!betaNatSucStr ∙ {!!}
+  ∙ ! (⟦subst2⟧Tm= (⟦⟧Ty-ft P) NatStr= dS dSᵈ u (⟦⟧Tmᵈ Γᵈ du) (⟦⟧Tm₁ Γᵈ du) (natelim P dO dS u) (Pᵈ , ⟦⟧Ty-ft P , dOᵈ , ⟦⟧Tmₛ dO , dO₁ , dSᵈ , ⟦⟧Tmₛ dS , dS₁ , uᵈ , ⟦⟧Tmₛ u , ⟦⟧Tm₁ Γᵈ du , tt) natelimStr₁)!}
 ⟦⟧TmEq Γᵈ (BetaIdRefl dA dP dd da) = {!#J#!}
 
 ⟦tsubst⟧Tyᵈ (uu i) tt δ δᵈ = tt

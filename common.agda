@@ -9,9 +9,9 @@ open import Agda.Builtin.Bool public
    Using only [#] might be unsafe too. -}
 
 postulate
-  ‗ : {A : Prop} → A
+  ‗ : ∀ {l} {A : Prop l} → A
 
-# : {A : Prop} → A → A
+# : ∀ {l} {A : Prop l} → A → A
 # a = ‗
 
 {- Relevant equality (used only in a few places, when we need to transport along it) -}
