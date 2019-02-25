@@ -14,6 +14,8 @@ postulate
 # : ∀ {l} {A : Prop l} → A → A
 # a = ‗
 
+{-# NOINLINE # #-}
+
 {- Relevant equality (used only in a few places, when we need to transport along it) -}
 
 data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
