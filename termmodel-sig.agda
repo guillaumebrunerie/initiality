@@ -182,7 +182,7 @@ pr2StrSynCCat : CCatwithpr2 synCCat SigStrSynCCat pr1StrSynCCat
 CCatwithpr2.pr2Str pr2StrSynCCat = pr2StrS
 CCatwithpr2.pr2Strₛ pr2StrSynCCat {Γ = Γ} {A = A} {B = B} {u = u} = pr2StrₛS Γ A _ B _ u _ _
 CCatwithpr2.pr2Str₁ pr2StrSynCCat {Γ = Γ} {A = A} {B = B} {u = u} = pr2Str₁S Γ A _ B _ u _ _
-CCatwithpr2.pr2StrNat' pr2StrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ u uₛ u₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (getTy B [ idMor _ , pr1 (getTy A) (getTy B) (getTm u) ]Ty)) (idMor[]Mor (mor g)) ∙ ! (substCommutes[]Ty _ _ _))))))))
+CCatwithpr2.pr2StrNat' pr2StrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ u uₛ u₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (getTy B [ idMor _ , pr1 (getTy A) (getTy B) (getTm u) ]Ty)) (idMor[]Mor (mor g)) ∙ []Ty-substTy)))))))
 
 
 {- ElSig= -}

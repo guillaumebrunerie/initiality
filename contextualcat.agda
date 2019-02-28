@@ -1,6 +1,6 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
 
-open import common hiding (_,_) --; _∙_; !; ap) renaming (_∙#_ to _∙_; !# to !; ap# to ap)
+open import common hiding (_,_; _∙_; !; ap) renaming (_∙#_ to _∙_; !# to !; ap# to ap)
 
 
 {- Definition of contextual categories as algebras of an essentially algebraic theory -}
@@ -73,13 +73,13 @@ module CCat+ (C : CCat) where
 
 
   comp' : (g : Mor m k) (f : Mor n m) {X : Ob m}  (_ : ∂₀ g ≡ X) (_ : ∂₁ f ≡ X) → Mor n k
-  comp' g f q p = comp g f q p -- comp g f (# q) (# p)
+  comp' g f q p = comp g f (## q) (## p)
 
   star' : (f : Mor m n) (X : Ob (suc n)) {Y : Ob n} (q : ft X ≡ Y) (f₁ : ∂₁ f ≡ Y) → Ob (suc m)
-  star' f X q f₁ = star f X q f₁ -- star f X (# q) (# f₁)
+  star' f X q f₁ = star f X (## q) (## f₁)
 
   qq' : (f : Mor m n) (X : Ob (suc n)) {Y : Ob n} (q : ft X ≡ Y) (f₁ : ∂₁ f ≡ Y) → Mor (suc m) (suc n)
-  qq' f X q f₁ = qq f X q f₁ -- qq f X (# q) (# f₁)
+  qq' f X q f₁ = qq f X (## q) (## f₁)
 
   {- Sections of [pp] -}
 

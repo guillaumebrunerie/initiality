@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
 
 open import common
 open import typetheory
@@ -76,11 +76,10 @@ ftS : {n : ℕ} → ObS (suc n) → ObS n
 ftS = //-rec (λ X → proj (ftS-// X)) ftS-eq
 
 ppS-// : (X : DCtx (suc n)) → MorS (suc n) n
-ppS-// Γ = proj (dmor Γ (ftS-// Γ) (weakenMor (idMor _)) (ConvMor (WeakMor (getTy Γ) (idMorDerivable (getdCtx Γ))) (CtxTy=Ctx' Γ) (CtxRefl (getdCtx Γ)) ))
---ppS-// Γd@((Γ , A), (dΓ , dA)) = proj (dmor Γd (Γ , dΓ) (weakenMor (idMor n)) (WeakMor A (idMorDerivable dΓ)))
+ppS-// Γ = proj (dmor Γ (ftS-// Γ) (weakenMor (idMor _)) (ConvMor (WeakMor (idMorDerivable (getdCtx Γ))) (CtxTy=Ctx' Γ) (CtxRefl (getdCtx Γ)) ))
 
 ppS-eq : {X X' : DCtx (suc n)} (_ : X ≃ X') → ppS-// X ≡ ppS-// X'
-ppS-eq {X = (Γ , A), (dΓ , dA)} {(Γ' , A'), (dΓ' , dA')} (box (dΓ= , dA=)) = eq (box (dΓ= , dA=) dΓ= (MorRefl (WeakMor A (idMorDerivable dΓ))))
+ppS-eq {X = (Γ , A), (dΓ , dA)} {(Γ' , A'), (dΓ' , dA')} (box (dΓ= , dA=)) = eq (box (dΓ= , dA=) dΓ= (MorRefl (WeakMor (idMorDerivable dΓ))))
 
 ppS : (X : ObS (suc n)) → MorS (suc n) n
 ppS = //-rec ppS-// ppS-eq
@@ -161,7 +160,7 @@ qqS-// f X p = proj (dmor (starS-//-u f X p) X (weakenMor+ (mor f)) (ConvMor
                                                                        (CtxRefl ((der (lhs f)) , SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb p)))) (CtxTy=Ctx' X)))
 
 qqS-eq : (f g : DMor m n) (r : f ≃ g) (Γ Δ : DCtx (suc n)) (r' : Γ ≃ Δ) (p : ∂₁S (proj f) ≡ ftS (proj Γ)) (q : ∂₁S (proj g) ≡ ftS (proj Δ)) → qqS-// f Γ p ≡ qqS-// g Δ q
-qqS-eq (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) (dmor (Γ' , dΓ') (Δ' , dΔ') δ' dδ') (box dΓ= dΔ= dδ=) ((Γ'' , A) , (dΓ'' , dA)) ((Δ'' , B) , (dΔ'' , dB)) (box (dΓ''= , dA , dB , dA= , dA=')) p q = eq (((box (dΓ= , SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) , SubstTy dB (ConvMor dδ' (CtxRefl dΓ') (reflectOb q)) , SubstTyFullEq dB (ConvMor dδ (CtxRefl dΓ) (CtxTran dΔ= (reflectOb q))) (ConvTyEq dA= dΓ''=) (ConvMorEq dδ= (CtxRefl dΓ) (CtxTran dΔ= (reflectOb q))) , SubstTyFullEq dB (ConvMor dδ dΓ= (CtxTran dΔ= (reflectOb q))) (ConvTyEq dA= dΓ''=) (ConvMorEq dδ= dΓ= (CtxTran dΔ= (reflectOb q)))) (dΓ''= , dA , dB , dA= , dA=') (WeakMorEq _ (ConvMorEq dδ= (CtxRefl dΓ) (reflectOb p)) , congTmRefl (congTmTy (weaken[]Ty _ _ _) (VarLast (SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflectOb p))))) refl))))
+qqS-eq (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) (dmor (Γ' , dΓ') (Δ' , dΔ') δ' dδ') (box dΓ= dΔ= dδ=) ((Γ'' , A) , (dΓ'' , dA)) ((Δ'' , B) , (dΔ'' , dB)) (box (dΓ''= , dA , dB , dA= , dA=')) p q = eq (((box (dΓ= , SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) , SubstTy dB (ConvMor dδ' (CtxRefl dΓ') (reflectOb q)) , SubstTyFullEq dB (ConvMor dδ (CtxRefl dΓ) (CtxTran dΔ= (reflectOb q))) (ConvTyEq dA= dΓ''=) (ConvMorEq dδ= (CtxRefl dΓ) (CtxTran dΔ= (reflectOb q))) , SubstTyFullEq dB (ConvMor dδ dΓ= (CtxTran dΔ= (reflectOb q))) (ConvTyEq dA= dΓ''=) (ConvMorEq dδ= dΓ= (CtxTran dΔ= (reflectOb q)))) (dΓ''= , dA , dB , dA= , dA=') (WeakMorEq (ConvMorEq dδ= (CtxRefl dΓ) (reflectOb p)) , congTmRefl (congTmTy (weaken[]Ty _ _ _) (VarLast (SubstTy dA (ConvMor dδ (CtxRefl dΓ) (reflectOb p))))) refl))))
 
 
 
@@ -214,7 +213,7 @@ ft-starS : (f : MorS m n) (X : ObS (suc n)) (p : ∂₁S f ≡ ftS X) → ftS (s
 ft-starS = //-elimP (λ f → //-elimP (ft-starS-// f))
 
 pp-qqS-// : (f : DMor m n) (X : DCtx (suc n)) (p : ∂₁S (proj f) ≡ ftS (proj X)) → compS (ppS (proj X)) (qqS (proj f) (proj X) p) (qq₁S (proj f) (proj X) p ∙ ! (pp₀S (proj X))) ≡ compS (proj f) (ppS (starS (proj f) (proj X) p)) (pp₁S (starS (proj f) (proj X) p) ∙ ft-starS (proj f) (proj X) p)
-pp-qqS-// (dmor (Γ , dΓ) (Δ' , dΔ') δ dδ) ((Δ , B), (dΔ , dB)) p = eq (box (CtxRefl dΓ , SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) , SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) , TyRefl (SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p))) , TyRefl (SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)))) (CtxSymm (reflectOb p)) (MorSymm (dΓ , (SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)))) dΔ (congMorRefl ( ! (weaken[]Mor δ (idMor _) last) ∙ ap weakenMor ([idMor]Mor δ) ∙ ! ([weakenMor]Mor δ (idMor _) ∙ ap weakenMor (idMor[]Mor δ))) (SubstMor (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) (WeakMor _ (idMorDerivable dΓ))))))
+pp-qqS-// (dmor (Γ , dΓ) (Δ' , dΔ') δ dδ) ((Δ , B), (dΔ , dB)) p = eq (box (CtxRefl dΓ , SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) , SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) , TyRefl (SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p))) , TyRefl (SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)))) (CtxSymm (reflectOb p)) (MorSymm (dΓ , (SubstTy dB (ConvMor dδ (CtxRefl dΓ) (reflectOb p)))) dΔ (congMorRefl ( ! (weaken[]Mor δ (idMor _) last) ∙ ap weakenMor ([idMor]Mor δ) ∙ ! ([weakenMor]Mor δ (idMor _) ∙ ap weakenMor (idMor[]Mor δ))) (SubstMor (ConvMor dδ (CtxRefl dΓ) (reflectOb p)) (WeakMor (idMorDerivable dΓ))))))
 
 pp-qqS : (f : MorS m n) (X : ObS (suc n)) (p : ∂₁S f ≡ ftS X) → compS (ppS X) (qqS f X p) (qq₁S f X p ∙ ! (pp₀S X)) ≡ compS f (ppS (starS f X p)) (pp₁S (starS f X p) ∙ ft-starS f X p)
 pp-qqS = //-elimP (λ f → //-elimP (pp-qqS-// f))
@@ -223,7 +222,7 @@ star-idS : {n : ℕ} (X : ObS (suc n)) → starS (idS n (ftS X)) X (id₁S n (ft
 star-idS = //-elimP (λ {((Γ , A), (dΓ , dA)) → DCtx= (ap (_,_ Γ) ([idMor]Ty A))}) --ap-irr (λ x z → proj ((Γ , x) , z)) ([idMor]Ty A)
 
 qq-idS : (X : ObS (suc n)) → qqS (idS n (ftS X)) X (id₁S n (ftS X)) ≡ idS (suc n) X
-qq-idS {n = n} = //-elimP (λ {((Γ , A), (dΓ , dA)) → DMor= (ap (_,_ Γ) ([idMor]Ty A)) refl refl}) --ap-irr2 (λ x z t → (proj (dmor ((Γ , x) , (dΓ , z)) ((Γ , A), (dΓ , dA)) (weakenMor' last (idMor n) , var last) t))) ([idMor]Ty A) {b = SubstTy dA (idMorDerivable dΓ)} {b' = dA} {c = (WeakMor (A [ idMor _ ]Ty) (idMorDerivable dΓ)) , (congTm (weaken[]Ty A (idMor n) last) refl (VarLast (congTy (! ([idMor]Ty _)) dA)))} {c' = (WeakMor A (idMorDerivable dΓ)) , (congTm (ap weakenTy (! ([idMor]Ty A)) ∙ weaken[]Ty A (idMor n) last) refl (VarLast dA))
+qq-idS {n = n} = //-elimP (λ {((Γ , A), (dΓ , dA)) → DMor= (ap (_,_ Γ) ([idMor]Ty A)) refl refl})
 
 star-compS-// : (g : DMor m k) (f : DMor n m) (X : DCtx (suc k)) (p : ∂₁S (proj f) ≡ ∂₀S (proj g)) (q : ∂₁S (proj g) ≡ ftS (proj X)) → starS (compS (proj g) (proj f) p) (proj X) (comp₁S (proj g) (proj f) p ∙ q) ≡ starS (proj f) (starS (proj g) (proj X) q) (p ∙ ! (ft-starS (proj g) (proj X) q))
 star-compS-// (dmor Δd@(Δ , dΔ) Θd θ dθ) (dmor Γd@(Γ , dΓ) Δd'@(Δ' , dΔ') δ dδ) ((Γ' , A), (dΓ' , dA)) p q = DCtx= (ap (_,_ Γ) (! ([]Ty-assoc _ _ _))) --ap-irr (λ x z → proj ((Γ , x), z)) (! ([]Ty-assoc δ θ A))
@@ -233,7 +232,7 @@ star-compS = //-elimP (λ g → //-elimP (λ f → //-elimP (star-compS-// g f))
 
 
 qq-compS-// : (g : DMor m k) (f : DMor n m) (p : ∂₁S (proj f) ≡ ∂₀S (proj g)) (X : DCtx (suc k)) (q : ∂₁S (proj g) ≡ ftS (proj X)) → qqS (compS (proj g) (proj f) p) (proj X) (comp₁S (proj g) (proj f) p ∙ q) ≡ compS (qqS (proj g) (proj X) q) (qqS (proj f) (starS (proj g) (proj X) q) (p ∙ ! (ft-starS (proj g) (proj X) q))) (qq₁S (proj f) (starS (proj g) (proj X) q) (p ∙ ! (ft-starS (proj g) (proj X) q)) ∙ ! (qq₀S (proj g) (proj X) q))
-qq-compS-// (dmor Δd@(Δ , dΔ) Θd θ dθ) (dmor Γd@(Γ , dΓ) Δd'@(Δ' , dΔ') δ dδ) p ((Γ' , A), (dΓ' , dA)) q = DMor= (ap (_,_ Γ) (! ([]Ty-assoc _ _ _))) refl (ap (λ z → z , var last) (weaken[]Mor _ _ _ ∙ ! (weakenMorInsert _ _ _ ))) --eq (((CtxRefl dΓ ,, congTyRefl (SubstTy dA (SubstMor (ConvMor dθ (CtxSymm (reflect p)) (reflect q)) dδ)) (! ([]Ty-assoc δ θ A))) , (CtxRefl dΓ' ,, TyRefl dA)) , (congMorRefl (weaken[]Mor _ _ _ ∙ ! (weakenMorInsert _ _ _)) (WeakMor _ (SubstMor (ConvMor dθ (CtxSymm (reflect p)) (reflect q)) dδ)) , TmRefl (weakenDerLast dA (SubstMor (ConvMor dθ (CtxSymm (reflect p)) (reflect q)) dδ))))
+qq-compS-// (dmor Δd@(Δ , dΔ) Θd θ dθ) (dmor Γd@(Γ , dΓ) Δd'@(Δ' , dΔ') δ dδ) p ((Γ' , A), (dΓ' , dA)) q = DMor= (ap (_,_ Γ) (! ([]Ty-assoc _ _ _))) refl (ap (λ z → z , var last) (weaken[]Mor _ _ _ ∙ ! (weakenMorInsert _ _ _ )))
 
 qq-compS : (g : MorS m k) (f : MorS n m) (p : ∂₁S f ≡ ∂₀S g) (X : ObS (suc k)) (q : ∂₁S g ≡ ftS X) → qqS (compS g f p) X (comp₁S g f p ∙ q) ≡ compS (qqS g X q) (qqS f (starS g X q) (p ∙ ! (ft-starS g X q))) (qq₁S f (starS g X q) (p ∙ ! (ft-starS g X q)) ∙ ! (qq₀S g X q))
 qq-compS = //-elimP (λ g → //-elimP (λ f p → //-elimP λ X → qq-compS-// g f p X))
@@ -284,24 +283,24 @@ qq₀ synCCat {f = f} {X = X} {q = q} {f₁ = f₁} = qq₀S f X (f₁ ∙ ! q)
 qq₁ synCCat {f = f} {X = X} {q = q} {f₁ = f₁} = qq₁S f X (f₁ ∙ ! q)
 ss synCCat f = ssS f
 ss₀ synCCat {f = f} = ss₀S f
-ss₁ synCCat {f = f} p = {!ss₁S f!}
+ss₁ synCCat {f = f} refl = ss₁S f
 pt synCCat = ptS
 pt-unique synCCat = pt-uniqueS
 ptmor synCCat = ptmorS
 ptmor₀ synCCat {X = X} = ptmor₀S X
 ptmor₁ synCCat {X = X} = ptmor₁S X
 ptmor-unique synCCat = ptmor-uniqueS
-id-right synCCat {f = f} p = {!id-rightS f!}
-id-left synCCat {f = f} p = {!id-leftS f!}
+id-right synCCat {f = f} refl = id-rightS f
+id-left synCCat {f = f} refl = id-leftS f
 assoc synCCat {h = h} {g = g} {f = f} {f₁ = f₁} {g₀ = g₀} {g₁ = g₁} {h₀ = h₀} = assocS h g f (f₁ ∙ ! g₀) (g₁ ∙ ! h₀)
 ft-star synCCat {f = f} {X = X} {p = p} {f₁ = f₁} = ft-starS f X (f₁ ∙ ! p)
 pp-qq synCCat {f = f} {X = X} {p = p} {f₁ = f₁} = pp-qqS f X (f₁ ∙ ! p)
-star-id synCCat {X = X} {p = p} = {!star-idS X!}
-qq-id synCCat {X = X} {p = p} = {!qq-idS X!}
+star-id synCCat {X = X} {p = refl} = star-idS X
+qq-id synCCat {X = X} {p = refl} = qq-idS X
 star-comp synCCat {g = g} {f = f} {f₁ = f₁} {g₀ = g₀} {X = X} {p = p} {g₁ = g₁} = star-compS g f X (f₁ ∙ ! g₀) (g₁ ∙ ! p)
 qq-comp synCCat {g = g} {f} {f₁ = f₁} {g₀ = g₀} {X = X} {p = p} {g₁ = g₁} = qq-compS g f (f₁ ∙ ! g₀) X (g₁ ∙ ! p)
-ss-pp synCCat {f = f} p {f₁ = f₁} = {!ss-ppS f!}
-ss-qq synCCat {f = f} {f₁ = f₁} = {!ss-qqS f!}
+ss-pp synCCat {f = f} refl {f₁ = refl} = ss-ppS f
+ss-qq synCCat {f = f} {f₁ = refl} = ss-qqS f
 ss-comp synCCat {U = U} {p = p} {g = g} {g₁ = g₁} {f = f} {f₁ = f₁} = ss-compS U g f (g₁ ∙ ! p) f₁
 
 {- The syntactic structured contextual category. We start with some helper functions. -}

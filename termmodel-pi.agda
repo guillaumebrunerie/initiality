@@ -133,7 +133,7 @@ appStrSynCCat : CCatwithapp synCCat PiStrSynCCat
 CCatwithapp.appStr appStrSynCCat = appStrS
 CCatwithapp.appStrₛ appStrSynCCat {Γ = Γ} {A = A} {B = B} {f = f} {a = a} = appStrₛS Γ A _ B _ f _ _ a _ _
 CCatwithapp.appStr₁ appStrSynCCat {Γ = Γ} {A = A} {B = B} {f = f} {a = a} = appStr₁S Γ A _ B _ f _ _ a _ _
-CCatwithapp.appStrNat' appStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ f fₛ f₁ → //-elimP (λ a aₛ a₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (getTy B [ idMor _ , getTm a ]Ty)) (idMor[]Mor (mor g)) ∙ ! (substCommutes[]Ty _ _ _)))))))))
+CCatwithapp.appStrNat' appStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ f fₛ f₁ → //-elimP (λ a aₛ a₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (substTy (getTy B) (getTm a))) (idMor[]Mor (mor g)) ∙ []Ty-substTy))))))))
 
 
 {- ElPi= -}

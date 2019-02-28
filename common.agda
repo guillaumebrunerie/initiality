@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
 
 open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
@@ -118,6 +118,12 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
 
 infix 4 _≡_
 
+primitive
+  primEraseEquality : ∀ {l} {A : Set l} {x y : A} → x ≡ y → x ≡ y
+
+## : ∀ {l} {A : Set l} {x y : A} → x ≡ y → x ≡ y
+## p = primEraseEquality p
+
 
 Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → (a ΣS., b) ≡R (a' , b')
 Σ= reflR = reflR
@@ -126,13 +132,13 @@ ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
 ap# : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
-ap# f p = # (ap f p)
+ap# f p = ## (ap f p)
 
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
 
 _∙#_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
-p ∙# q = # (p ∙ q)
+p ∙# q = ## (p ∙ q)
 
 infixr 4 _∙_ _∙#_
 
@@ -140,7 +146,7 @@ infixr 4 _∙_ _∙#_
 ! refl = refl
 
 !# : {A : Set} {a b : A} → a ≡ b → b ≡ a
-!# p = # (! p)
+!# p = ## (! p)
 
 squash≡ : {A : Set} {a b : A} → a ≡R b → a ≡ b
 squash≡ reflR = refl
