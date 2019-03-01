@@ -45,7 +45,7 @@ compS-// g f p = proj (compS-//-u g f p)
 
 compS-eq : (g g' : DMor m k) (r : g ≃ g') (f f' : DMor n m) (r' : f ≃ f') (p : ∂₁S (proj f) ≡ ∂₀S (proj g)) (q : ∂₁S (proj f') ≡ ∂₀S (proj g')) → compS-// g f p ≡ compS-// g' f' q
 compS-eq (dmor (Γ , dΓ) (Δ , dΔ) δ dδ) (dmor (Γ' , dΓ') (Δ' , dΔ') δ' dδ') (box dΓ= dΔ= dδ=) (dmor (Γ'' , dΓ'') (Δ'' , dΔ'') δ'' dδ'') (dmor (Γ''' , dΓ''') (Δ''' , dΔ''') δ''' dδ''') (box dΓ''= dΔ''= dδ''=) p q =
-  eq (box dΓ''= dΔ= (SubstMorFullEq dΔ'' dΔ (ConvMor dδ' (CtxSymm (CtxTran (reflectOb p) dΓ=)) (CtxSymm dΔ=)) (ConvMorEq dδ= (CtxSymm (CtxTran (reflectOb p) (CtxRefl dΓ))) (CtxRefl dΔ)) dδ'' dδ''=))
+  eq (box dΓ''= dΔ= (SubstMorFullEq dΓ'' dΔ'' dΔ (ConvMorEq dδ= (CtxSymm (CtxTran (reflectOb p) (CtxRefl dΓ))) (CtxRefl dΔ)) dδ''=))
 
 
 compS : (g : MorS m k) (f : MorS n m) (_ : ∂₁S f ≡ ∂₀S g) → MorS n k

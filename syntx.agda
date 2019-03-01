@@ -80,6 +80,12 @@ weakenCommutesInsert (prev k) l u (δ , u') = ap (λ z → z , _) (weakenCommute
 weakenMor+ : Mor n m → Mor (suc n) (suc m)
 weakenMor+ δ = weakenMor δ , var last
 
+getLHS : {n m : ℕ} → Mor n (suc m) → Mor n m
+getLHS (δ , u) = δ
+
+getRHS : {n m : ℕ} → Mor n (suc m) → TmExpr n
+getRHS (δ , u) = u
+
 generate-subst : Name → Name → Name → TC ⊤
 generate-subst []Ty []Tm []Var = do
   generateClausewise []Ty []Tm
@@ -94,8 +100,8 @@ _[_]Ty : {n m : ℕ} → TyExpr m → (δ : Mor n m) → TyExpr n
 _[_]Tm : {n m : ℕ} → TmExpr m → (δ : Mor n m) → TmExpr n
 
 _[_]Var : Fin m → (δ : Mor n m) → TmExpr n
-last [ δ , u ]Var = u
-prev k [ δ , u ]Var = k [ δ ]Var
+last [ δ ]Var = getRHS δ
+prev k [ δ ]Var = k [ getLHS δ ]Var
 
 unquoteDef _[_]Ty _[_]Tm = generate-subst _[_]Ty _[_]Tm (quote _[_]Var)
 
@@ -109,12 +115,6 @@ unquoteDef _[_]Ty _[_]Tm = generate-subst _[_]Ty _[_]Tm (quote _[_]Var)
 -- not pattern match on the first morphism, we only need to know that its length
 -- is of the form [suc n]. This is used to make the proofs of naturalities in
 -- the term model much nicer.
-
-getLHS : {n m : ℕ} → Mor n (suc m) → Mor n m
-getLHS (δ , u) = δ
-
-getRHS : {n m : ℕ} → Mor n (suc m) → TmExpr n
-getRHS (δ , u) = u
 
 _[_]Mor : {n m k : ℕ} → Mor n k → (δ : Mor m n) → Mor m k
 _[_]Mor {k = 0} _ δ = ◇

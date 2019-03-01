@@ -1077,10 +1077,10 @@ ConvMorEq {Δ = ◇} {Δ' = ◇} {δ = ◇} {◇} dδ= dΓ= dΔ= = tt
 ConvMorEq {Δ = Δ , B} {Δ' = Δ' , B'} {δ = δ , u} {δ' , u₁} (dδ= , du=) dΓ= (dΔ= , dB , dB' , dB= , dB=') =
   (ConvMorEq dδ= dΓ= dΔ= , ConvTmEq (ConvEq (SubstTy dB (MorEqMor1 (CtxEqCtx1 dΓ=) (CtxEqCtx1 dΔ=) dδ=)) du= (SubstTyEq dB= (MorEqMor1 (CtxEqCtx1 dΓ=) (CtxEqCtx1 dΔ=) dδ=))) dΓ=)
 
-SubstMorFullEq : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ θ' : Mor m k} {δ δ' : Mor n m} → (⊢ Δ) → (⊢ Θ) → (Δ ⊢ θ' ∷> Θ) → (Δ ⊢ θ == θ' ∷> Θ) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ θ [ δ ]Mor == θ' [ δ' ]Mor ∷> Θ)
-SubstMorFullEq {Θ = ◇} {◇} {◇} dΔ tt dθ' tt dδ dδ= = tt
-SubstMorFullEq {Θ = Θ , C} {θ , w} {θ' , w'} dΔ (dΘ , dC) (dθ' , dw') (dθ= , dw=) dδ dδ= =
-  (SubstMorFullEq dΔ dΘ dθ' dθ= dδ dδ= , congTmEqTy ([]Ty-assoc _ _ _) (SubstTmFullEq (Conv (SubstTy dC dθ') dw' (SubstTyMorEq dC dθ' (MorSymm dΔ dΘ dθ=))) dδ dw= dδ=))
+SubstMorFullEq : {Γ : Ctx n} {Δ : Ctx m} {Θ : Ctx k} {θ θ' : Mor m k} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (⊢ Θ) → (Δ ⊢ θ == θ' ∷> Θ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ θ [ δ ]Mor == θ' [ δ' ]Mor ∷> Θ)
+SubstMorFullEq {Θ = ◇} {◇} {◇} dΓ dΔ tt tt dδ= = tt
+SubstMorFullEq {Θ = Θ , C} {θ , w} {θ' , w'} dΓ dΔ (dΘ , dC) (dθ= , dw=) dδ= =
+  (SubstMorFullEq dΓ dΔ dΘ dθ= dδ= , congTmEqTy ([]Ty-assoc _ _ _) (SubstTmFullEq (Conv (SubstTy dC (MorEqMor2 dΔ dΘ dθ=)) (TmEqTm2 dΔ (ConvEq (SubstTy dC (MorEqMor1 dΔ dΘ dθ=)) dw= (SubstTyMorEq dC (MorEqMor1 dΔ dΘ dθ=) dθ=))) (SubstTyMorEq dC (MorEqMor2 dΔ dΘ dθ=) (MorSymm dΔ dΘ dθ=))) (MorEqMor1 dΓ dΔ dδ=) dw= dδ=))
 
 
 SubstTyMorEq2 : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m}
