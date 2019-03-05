@@ -25,7 +25,7 @@ NatStrS : ObS n → ObS (suc n)
 NatStrS = //-elim-Ctx (λ Γ → proj (NatStrS-// Γ)) (λ rΓ → proj= (NatStrS-eq rΓ))
 
 NatStr=S : (Γ : ObS n) → ftS (NatStrS Γ) ≡ Γ
-NatStr=S = //-elimP (λ Γ → refl)
+NatStr=S = //-elimP-Ctx (λ Γ → refl)
 
 NatStrNatS : (g : MorS n m) (Γ : ObS m) (g₁ : ∂₁S g ≡ Γ) → S.star g (NatStrS Γ) (NatStr=S Γ) g₁ ≡ NatStrS (∂₀S g)
 NatStrNatS = //-elimP (λ g → //-elimP (λ Γ g₁ → refl))
@@ -197,7 +197,7 @@ natelimStrSynCCat : CCatwithnatelim synCCat NatStrSynCCat zeroStrSynCCat sucStrS
 CCatwithnatelim.natelimStr natelimStrSynCCat = natelimStrS
 CCatwithnatelim.natelimStrₛ natelimStrSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = natelimStrₛS Γ P _ dO _ _ dS _ _ u _ _
 CCatwithnatelim.natelimStr₁ natelimStrSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = natelimStr₁S Γ P _ dO _ _ dS _ _ u _ _
-CCatwithnatelim.natelimStrNat' natelimStrSynCCat = {!//-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (substTy (getTy P) (getTm u))) (idMor[]Mor (mor g)) ∙ []Ty-substTy))))))))!}
+CCatwithnatelim.natelimStrNat' natelimStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (substTy (getTy P) (getTm u))) (idMor[]Mor (mor g)) ∙ []Ty-substTy))))))))
 
 
 {- ElNat= -}

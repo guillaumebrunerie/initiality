@@ -6,6 +6,7 @@ open import common hiding (_,_; _∙_; !; ap) renaming (_∙#_ to _∙_; !# to !
 {- Definition of contextual categories as algebras of an essentially algebraic theory -}
 
 record CCat : Set₁ where
+  no-eta-equality
   field
     -- objects
     Ob : ℕ → Set
@@ -900,6 +901,7 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
 
 
 record StructuredCCat : Set₁ where
+  no-eta-equality
   field
     ccat : CCat
     ccatUU : CCatwithUU ccat

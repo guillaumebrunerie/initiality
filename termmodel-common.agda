@@ -12,6 +12,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Preliminary definitions -}
 
 record DCtx (n : ℕ) : Set where
+  no-eta-equality
   constructor _,_
   field
     ctx : Ctx n
@@ -19,6 +20,7 @@ record DCtx (n : ℕ) : Set where
 open DCtx public
 
 record DMor (n m : ℕ) : Set where
+  no-eta-equality
   constructor dmor
   field
     lhs : DCtx n
@@ -88,8 +90,11 @@ getCtx ((Γ , _) , _) = Γ
 getdCtx : (Γ : DCtx (suc n)) → ⊢ getCtx Γ
 getdCtx ((_ , _) , (dΓ , _)) = dΓ
 
+getTy' : Ctx (suc n) → TyExpr n
+getTy' (Δ , B) = B
+
 getTy : (X : DCtx (suc n)) → TyExpr n
-getTy ((_ , A) , _) = A
+getTy Δ = getTy' (ctx Δ)
 
 getdTy : (Γ : DCtx (suc n)) → Derivable (getCtx Γ ⊢ getTy Γ)
 getdTy ((_ , _) , (_ , dA)) = dA
@@ -126,5 +131,5 @@ dLHS {Δ = (Δ , B) , (dΔ , dB)} {δ = δ , u} (dδ , du) = dδ
 getLHS= : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ δ == δ' ∷> ctx Δ → Γ ⊢ getLHS δ == getLHS δ' ∷> getCtx Δ
 getLHS= {Δ = (Δ , B) , (dΔ , dB)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = dδ=
 
-getRHS= : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ δ == δ' ∷> ctx Δ → Derivable (Γ ⊢ getRHS δ == getRHS δ' :> (getTy Δ [ getLHS δ ]Ty))
-getRHS= {Δ = (Δ , B) , (dΔ , dB)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = du=
+getRHS= : {Γ : Ctx m} {Δ : Ctx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ δ == δ' ∷> Δ → Derivable (Γ ⊢ getRHS δ == getRHS δ' :> (getTy' Δ [ getLHS δ ]Ty))
+getRHS= {Δ = (Δ , B)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = du=

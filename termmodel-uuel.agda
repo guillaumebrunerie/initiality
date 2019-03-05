@@ -24,7 +24,7 @@ UUStrS : (i : ℕ) → ObS n → ObS (suc n)
 UUStrS i = //-elim-Ctx (λ Γ → proj (UUStrS-// i Γ)) (λ rΓ → proj= (UUStrS-eq rΓ))
 
 UUStr=S : (i : ℕ) (Γ : ObS n) → ftS (UUStrS i Γ) ≡ Γ
-UUStr=S i = //-elimP (λ Γ → refl)
+UUStr=S i = //-elimP-Ctx (λ Γ → refl)
 
 UUStrSynCCat : CCatwithUU synCCat
 CCatwithUU.UUStr UUStrSynCCat = UUStrS
@@ -47,7 +47,7 @@ ElStrS i = //-elim-Ctx (λ Γ → //-elim-Tm (λ v vₛ v₁ → proj (ElStrS-//
                        (λ rΓ → //-elimP-Tm (λ v vₛ v₁ v₁' → proj= (ElStrS-eq rΓ (ref v) vₛ vₛ v₁ v₁')))
 
 ElStr=S : (i : ℕ) (Γ : ObS n) (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ UUStrS i Γ) → ftS (ElStrS i Γ v vₛ v₁) ≡ Γ
-ElStr=S i = //-elimP (λ Γ → //-elimP (λ v vₛ v₁ → refl))
+ElStr=S i = //-elimP-Ctx (λ Γ → //-elimP (λ v vₛ v₁ → refl))
 
 ElStrSynCCat : CCatwithEl synCCat UUStrSynCCat
 CCatwithEl.ElStr ElStrSynCCat i Γ v vₛ v₁ = ElStrS i Γ v vₛ v₁
