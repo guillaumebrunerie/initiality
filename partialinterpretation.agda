@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common hiding (_>>=_; return)
 open import typetheory
@@ -6,6 +6,10 @@ open import syntx
 open import contextualcat
 
 module _ (sC : StructuredCCat) where
+
+postulate  -- Used for things related to jj
+  #J#  : {P : Prop} → P
+  #J#S : {A : Set₁} → A
 
 _>>=_ = common._>>=_ {M = Partial}
 return = common.return {M = Partial}
@@ -201,7 +205,7 @@ ap-irr-reflStr refl refl refl = refl
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ [A])
   return (reflStr X [A] (unbox [A]=) [u] (unbox [u]ₛ) (unbox [u]₁))
-⟦ jj A P d a b p ⟧Tm X = {!!} {- do
+⟦ jj A P d a b p ⟧Tm X = #J#S {- do
   [A] ← ⟦ A ⟧Ty X
   [A]= ← assume (ft [A] ≡ X)
   [P] ← ⟦ P ⟧Ty (T-ftP X [A] (unbox [A]=)) 
@@ -257,7 +261,7 @@ ap-irr-reflStr refl refl refl = refl
 ⟦⟧Tmₛ (natelim P d0 dS u) = natelimStrₛ
 ⟦⟧Tmₛ (id i a u v) = idStrₛ
 ⟦⟧Tmₛ (refl A u) = reflStrₛ
-⟦⟧Tmₛ (jj A P d a b p) = {!!} {-jjStrₛ-}
+⟦⟧Tmₛ (jj A P d a b p) = #J# {-jjStrₛ-}
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 ⟦⟧Ty-ft (uu i) = UUStr=
@@ -283,7 +287,7 @@ ap-irr-reflStr refl refl refl = refl
 ⟦⟧Tm₀ (natelim P d0 dS u) = natelimStr₀
 ⟦⟧Tm₀ (id i a u v) = idStr₀
 ⟦⟧Tm₀ (refl A u) = reflStr₀
-⟦⟧Tm₀ (jj A P d a b p) = {!!} {-jjStr₀-}
+⟦⟧Tm₀ (jj A P d a b p) = #J# {-jjStr₀-}
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} {Z : Ob (suc n)} (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Z) → ft Z ≡ X
 ⟦⟧Tm₁-ft u u₁ = ap ft (! u₁) ∙ ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u

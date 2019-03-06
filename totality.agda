@@ -13,9 +13,6 @@ open CCat+ ccat renaming (Mor to MorC; id to idC)
 
 open import partialinterpretation sC
 
-postulate  -- Used for things related to jj
-  #J# : {P : Prop} → P
-
 {-- We start by stating the types of the main properties that we are going to prove by mutual induction
 
 Unfortunately we cannot define ⟦weaken⟧ᵈ in terms of ⟦tsubst⟧ᵈ because ⟦tsubst⟧Ty+ᵈ calls

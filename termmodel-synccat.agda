@@ -430,10 +430,10 @@ uncurrifyTy+ C ((x , A) , A=) = C x A A=
 //-elimP-Ty {p = reflR} proj* = PathOver-CstPi (//-elimP (λ A → PathOver-PropPi (λ A= A=' → PathOver-in (PathOver-out (proj* A A= A=')))))
 
 uncurrifyTm : ∀ {l} {A : ObS (suc n)} (C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l) → ΣS (MorS n (suc n)) (λ u → (S.is-section u) × (S.∂₁ u ≡ A)) → Set l
-uncurrifyTm C (u , (uₛ , u₁)) = C u uₛ u₁
+uncurrifyTm C (u , uₛu₁) = C u (fst uₛu₁) (snd uₛu₁)
 
 uncurrifyTm+ : ∀ {l} {X : Set} {A : X → ObS (suc n)} (C : (x : X) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A x) → Set l) → ΣS (X ×S MorS n (suc n)) (λ {(x , u) → (S.is-section u) × (S.∂₁ u ≡ A x)}) → Set l
-uncurrifyTm+ C ((x , u) , (uₛ , u₁)) = C x u uₛ u₁
+uncurrifyTm+ C ((x , u) , uₛu₁) = C x u (fst uₛu₁) (snd uₛu₁)
 
 //-elim-Tm : ∀ {l} {A : ObS (suc n)} {C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l}
            → (proj* : (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : S.∂₁ (proj u) ≡ A) → C (proj u) uₛ u₁)

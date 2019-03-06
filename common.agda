@@ -53,6 +53,7 @@ abstract
 {- Constructions for Prop -}
 
 record Σ (A : Prop) (B : A → Prop) : Prop where
+  no-eta-equality
   constructor _,_
   field
     fst : A

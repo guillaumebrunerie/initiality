@@ -42,6 +42,7 @@ Explanation of the flags
 * the flag `--without-K` is not required, but it’s nice to see that everything compiles with it
 * the flag `-v tc.unquote:10` adds some debug output when running Agda from the command line, it can be used to see the full code of the functions defined by reflection
 * the flag `--allow-unsolved-metas` is used only if some file is incomplete but we want to compile another file depending on it anyway. It should not be used in a finished proof!
+* the flag `--no-auto-inline` disables an optimization which seems to actually cause worse performance when combined with Prop (issue #3510)
 
 Files
 -----
