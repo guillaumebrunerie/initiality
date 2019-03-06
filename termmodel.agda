@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
 
 open import common
 open import typetheory
@@ -48,8 +48,8 @@ ccatrefl strSynCCat = reflStrSynCCat
 betaPiStr strSynCCat {Γ = Γ} {A = A} {B = B} {u = u} {a = a} = betaPiStrS Γ A _ B _ u _ _ a _ _
 betaSig1Str strSynCCat {Γ = Γ} {A = A} {B = B} {a = a} {b = b} = betaSig1StrS Γ A _ B _ a _ _ b _ _
 betaSig2Str strSynCCat {Γ = Γ} {A = A} {B = B}  {a = a} {b = b} = betaSig2StrS Γ A _ B _ a _ _ b _ _
-betaNatZeroStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} = {!!} --betaNatZeroS Γ P _ dO _ _ dS _ _
-betaNatSucStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = {!!} --betaNatSucS Γ P _ dO _ _ dS _ _ u _ _
+betaNatZeroStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} = betaNatZeroStrS Γ P _ dO _ _ dS _ _
+betaNatSucStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = betaNatSucStrS Γ P _ dO _ _ dS _ _ u _ _
 eluuStr strSynCCat {Γ = Γ} = eluuStrS _ Γ
 elpiStr strSynCCat {Γ = Γ} {a = a} {b = b} = elpiStrS _ Γ a _ _ b _ _
 elsigStr strSynCCat {Γ = Γ} {a = a} {b = b} = elsigStrS _ Γ a _ _ b _ _

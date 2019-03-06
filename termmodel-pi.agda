@@ -29,7 +29,7 @@ PiStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → 
                      (λ rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Ty (λ B B= B=' → proj= (PiStrS-eq rΓ (ref A) A= A=' (ref B) B= B='))))
 
 PiStr=S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) → ftS (PiStrS Γ A A= B B=) ≡ Γ
-PiStr=S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → refl)))
+PiStr=S = //-elimP-Ctx (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → refl)))
 
 PiStrSynCCat : CCatwithPi synCCat
 CCatwithPi.PiStr PiStrSynCCat = PiStrS 
