@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 

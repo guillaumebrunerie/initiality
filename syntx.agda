@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K -v tc.unquote:10 --no-auto-inline #-}
+{-# OPTIONS --rewriting --prop --without-K -v tc.unquote:10 #-}
  
 open import common
 open import typetheory

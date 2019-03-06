@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
 
-open import common hiding (_,_; _∙_; !; ap) renaming (_∙#_ to _∙_; !# to !; ap# to ap)
+open import common
 
 
 {- Definition of contextual categories as algebras of an essentially algebraic theory -}
@@ -72,22 +72,12 @@ module CCat+ (C : CCat) where
   ap-irr-star : {f f' : Mor m n} (f= : f ≡ f') {X X' : Ob (suc n)} (X= : X ≡ X') {Y Y' : Ob n} {q : ft X ≡ Y} {q' : ft X' ≡ Y'} {f₁ : ∂₁ f ≡ Y} {f₁' : ∂₁ f' ≡ Y'} → star f X q f₁ ≡ star f' X' q' f₁'
   ap-irr-star refl refl {q = q} {q'} = ap-irr2 (λ Y y z → star _ _ {Y = Y} y z) (! q ∙ q')
 
-
-  comp' : (g : Mor m k) (f : Mor n m) {X : Ob m}  (_ : ∂₀ g ≡ X) (_ : ∂₁ f ≡ X) → Mor n k
-  comp' g f q p = comp g f (## q) (## p)
-
-  star' : (f : Mor m n) (X : Ob (suc n)) {Y : Ob n} (q : ft X ≡ Y) (f₁ : ∂₁ f ≡ Y) → Ob (suc m)
-  star' f X q f₁ = star f X (## q) (## f₁)
-
-  qq' : (f : Mor m n) (X : Ob (suc n)) {Y : Ob n} (q : ft X ≡ Y) (f₁ : ∂₁ f ≡ Y) → Mor (suc m) (suc n)
-  qq' f X q f₁ = qq f X (## q) (## f₁)
-
   {- Sections of [pp] -}
 
 
   abstract
     is-section : (u : Mor n (suc n)) → Prop
-    is-section u  = comp' (pp (∂₁ u)) u pp₀ refl ≡ id (∂₀ u)
+    is-section u = comp (pp (∂₁ u)) u pp₀ refl ≡ id (∂₀ u)
   
     is-section₀ : {u : Mor n (suc n)} {X : Ob (suc n)} (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) → ∂₀ u ≡ ft X
     is-section₀ uₛ u₁ = ! id₁ ∙ ap ∂₁ (! uₛ) ∙ comp₁ ∙ pp₁ ∙ ap ft u₁
@@ -95,10 +85,10 @@ module CCat+ (C : CCat) where
     ssₛ : {f : Mor m (suc n)}  → is-section (ss f)
     ssₛ = ap-irr-comp (ap pp (ss₁ refl)) refl ∙ ss-pp refl ∙ ap id (! ss₀)
  
-    is-section= : {X : Ob (suc n)} {Y : Ob n} (X= : ft X ≡ Y) {u : Mor n (suc n)} (uₛ : is-section u)  (u₁ : ∂₁ u ≡ X) → comp' (pp X) u pp₀ u₁ ≡ id Y
+    is-section= : {X : Ob (suc n)} {Y : Ob n} (X= : ft X ≡ Y) {u : Mor n (suc n)} (uₛ : is-section u)  (u₁ : ∂₁ u ≡ X) → comp (pp X) u pp₀ u₁ ≡ id Y
     is-section= refl uₛ refl = uₛ ∙ ap id (is-section₀ uₛ refl)
 
-    is-section→ : {u : Mor n (suc n)} (p : comp' (pp (∂₁ u)) u pp₀ refl ≡ id (∂₀ u)) → is-section u
+    is-section→ : {u : Mor n (suc n)} (p : comp (pp (∂₁ u)) u pp₀ refl ≡ id (∂₀ u)) → is-section u
     is-section→ p = p
   
   -- ss-comp-section₁ : (g : Mor m (suc m)) (f : Mor n m) {X : Ob m} (g₀ : ∂₀ g ≡ X) (f₁ : ∂₁ f ≡ X) (gₛ : is-section g) {Y : Ob (suc m)} (p : ft Y ≡ X) (g₁ : ∂₁ g ≡ Y) → ∂₁ (ss (comp g f g₀ f₁) (comp₁ ∙ g₁)) ≡ star f Y f₁ p
@@ -123,7 +113,7 @@ module CCat+ (C : CCat) where
 
   star^ last X+ X p q = X+
   star^ {n = zero} (prev ()) X+ X p q
-  star^ {n = suc n} (prev k) X+ X p q = star' (qq^ k p q) X refl qq^₁
+  star^ {n = suc n} (prev k) X+ X p q = star (qq^ k p q) X refl qq^₁
 
   abstract
     qq^ last {X+ = X+} p q = pp X+
@@ -154,38 +144,38 @@ module CCat+ (C : CCat) where
   {- Other helper functions -}
 
   star+ : (g : Mor n m) (X : Ob (suc (suc m))) {X' : Ob (suc m)} (X= : ft X ≡ X') {X'' : Ob m} (X'= : ft X' ≡ X'') (g₁ : ∂₁ g ≡ X'') → Ob (suc (suc n))
-  star+ g X {X'} X= X'= g₁ = star' (qq' g X' X'= g₁) X X= qq₁
+  star+ g X {X'} X= X'= g₁ = star (qq g X' X'= g₁) X X= qq₁
 
   star++ : (g : Mor n m) (X : Ob (suc (suc (suc m)))) {X' : Ob (suc (suc m))} (X= : ft X ≡ X') {X'' : Ob (suc m)} (X'= : ft X' ≡ X'') {X''' : Ob m} (X''= : ft X'' ≡ X''') (g₁ : ∂₁ g ≡ X''') → Ob (suc (suc (suc n)))
-  star++ g X {X'} X= {X''} X'= {X'''} X''= g₁ = star+ (qq' g X'' X''= g₁) X X= X'= qq₁
+  star++ g X {X'} X= {X''} X'= {X'''} X''= g₁ = star+ (qq g X'' X''= g₁) X X= X'= qq₁
   
   star+++ : (g : Mor n m) (X : Ob (suc (suc (suc (suc m))))) {X' : Ob (suc (suc (suc m)))}  (X= : ft X ≡ X') {X'' : Ob (suc (suc m))} (X'= : ft X' ≡ X'') {X''' : Ob (suc m)} (X''= : ft X'' ≡ X''') {X'''' : Ob m} (X'''= : ft X''' ≡ X'''') (g₁ : ∂₁ g ≡ X'''') → Ob (suc (suc (suc (suc n))))
-  star+++ g X {X'} X= {X''} X'= {X'''} X''= {X''''} X'''= g₁ = star++ (qq' g X''' X'''= g₁) X X= X'= X''= qq₁
+  star+++ g X {X'} X= {X''} X'= {X'''} X''= {X''''} X'''= g₁ = star++ (qq g X''' X'''= g₁) X X= X'= X''= qq₁
 
   starTm : (g : Mor n m) {X : Ob m} (u : Mor m (suc m)) (u₀ : ∂₀ u ≡ X) (g₁ : ∂₁ g ≡ X) → Mor n (suc n)
   starTm g {X} u u₀ g₁ = ss (comp u g u₀ g₁)
 
   starTm+ : (g : Mor n m) {X : Ob (suc m)} {X' : Ob m} (X= : ft X ≡ X') (u : Mor (suc m) (suc (suc m))) (u₀ : ∂₀ u ≡ X) (g₁ : ∂₁ g ≡ X') → Mor (suc n) (suc (suc n))
-  starTm+ g {X} X= u u₀ g₁ = starTm (qq' g X X= g₁) u u₀ qq₁
+  starTm+ g {X} X= u u₀ g₁ = starTm (qq g X X= g₁) u u₀ qq₁
 
   starTm++ : (g : Mor n m) {X : Ob (suc (suc m))} {X' : Ob (suc m)} (X= : ft X ≡ X') {X'' : Ob m} (X'= : ft X' ≡ X'') (u : Mor (suc (suc m)) (suc (suc (suc m)))) (u₀ : ∂₀ u ≡ X) (g₁ : ∂₁ g ≡ X'')  → Mor (suc (suc n)) (suc (suc (suc n)))
-  starTm++ g {X} {X'} X= {X''} X'= u u₀ g₁ = starTm+ (qq' g X' X'= g₁) X= u u₀ qq₁
+  starTm++ g {X} {X'} X= {X''} X'= u u₀ g₁ = starTm+ (qq g X' X'= g₁) X= u u₀ qq₁
 
   abstract
     ap-irr-starTm : {f f' : Mor m n} (f= : f ≡ f') {u u' : Mor n (suc n)} (u= : u ≡ u') {Y Y' : Ob n} {u₀ : ∂₀ u ≡ Y} {u₀' : ∂₀ u' ≡ Y'} {f₁ : ∂₁ f ≡ Y} {f₁' : ∂₁ f' ≡ Y'} → starTm f u u₀ f₁ ≡ starTm f' u' u₀' f₁'
     ap-irr-starTm f= u= = ap ss (ap-irr-comp u= f=)
 
-    starTm₁ : (g : Mor n m) {X : Ob (suc m)} {X' : Ob m} (X= : ft X ≡ X') (u : Mor m (suc m)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) (g₁ : ∂₁ g ≡ X')  → ∂₁ (starTm g u (is-section₀ uₛ u₁ ∙ X=) g₁) ≡ star' g X X= g₁
+    starTm₁ : (g : Mor n m) {X : Ob (suc m)} {X' : Ob m} (X= : ft X ≡ X') (u : Mor m (suc m)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) (g₁ : ∂₁ g ≡ X')  → ∂₁ (starTm g u (is-section₀ uₛ u₁ ∙ X=) g₁) ≡ star g X X= g₁
     starTm₁ g X= u uₛ u₁ g₁ = ss₁ (comp₁ ∙ u₁) ∙ ap-irr-star (! assoc ∙ ap-irr-comp (is-section= X= uₛ u₁) refl ∙ id-right g₁) refl 
 
     starTm+₁ : (g : Mor n m) {X : Ob (suc (suc m))} {X' : Ob (suc m)} (X= : ft X ≡ X') {X'' : Ob m} (X'= : ft X' ≡ X'') (u : Mor (suc m) (suc (suc m))) (uₛ : is-section u) (u₁ : ∂₁ u ≡ X)  (g₁ : ∂₁ g ≡ X'') → ∂₁ (starTm+ g X'= u (is-section₀ uₛ u₁ ∙ X=) g₁) ≡ star+ g X X= X'= g₁
-    starTm+₁ g {X' = X'} X= X'= u uₛ u₁ g₁ = starTm₁ (qq' g X' X'= g₁) X= u uₛ u₁ qq₁
+    starTm+₁ g {X' = X'} X= X'= u uₛ u₁ g₁ = starTm₁ (qq g X' X'= g₁) X= u uₛ u₁ qq₁
 
     starTm++₁ : (g : Mor n m) {X : Ob (suc (suc (suc m)))} {X' : Ob (suc (suc m))} (X= : ft X ≡ X') {X'' : Ob (suc m)} (X'= : ft X' ≡ X'') {X''' : Ob m} (X''= : ft X'' ≡ X''') (u : Mor (suc (suc m)) (suc (suc (suc m)))) (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) (g₁ : ∂₁ g ≡ X''') → ∂₁ (starTm++ g X'= X''= u (is-section₀ uₛ u₁ ∙ X=) g₁) ≡ star++ g X X= X'= X''= g₁
-    starTm++₁ g {X} {X'} X= {X''} X'= {X'''} X''= u uₛ u₁ g₁ = starTm+₁ (qq' g X'' X''= g₁) X= X'= u uₛ u₁ qq₁
+    starTm++₁ g {X} {X'} X= {X''} X'= {X'''} X''= u uₛ u₁ g₁ = starTm+₁ (qq g X'' X''= g₁) X= X'= u uₛ u₁ qq₁
 
     star-pp : {n m : ℕ} {g : Mor n m} {A : Ob (suc m)} {B : Ob (suc m)} {X : Ob m} {A= : ft A ≡ X} {B= : ft B ≡ X} {g₁ : ∂₁ g ≡ X}
-           → star (qq g A A= g₁) (star (pp A) B B= (pp₁ ∙ A=)) (ft-star ∙ pp₀) qq₁ ≡ star' (pp (star' g A A= g₁)) (star' g B B= g₁) ft-star (pp₁ ∙ ft-star)
+           → star (qq g A A= g₁) (star (pp A) B B= (pp₁ ∙ A=)) (ft-star ∙ pp₀) qq₁ ≡ star (pp (star g A A= g₁)) (star g B B= g₁) ft-star (pp₁ ∙ ft-star)
     star-pp = ! star-comp ∙ ap-irr-star pp-qq refl ∙ star-comp
 
     star-pp' : {n : ℕ} {g : Mor n (suc n)} {A : Ob (suc n)} {B : Ob (suc n)} {X : Ob n} (A= : ft A ≡ X) {B= : ft B ≡ X} (gₛ : is-section g) {g₁ : ∂₁ g ≡ A}
@@ -663,12 +653,12 @@ T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc  Γ P P= = let open CCat+ ccat
                                                               open CCatwithNat ccatnat
                                                               open CCatwithsuc ccatsuc
                                                           in
-                                                          star' (pp P)
-                                                                  (star' (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last (NatStr Γ)) (varCL₁ ∙ NatStrNat pp₀))
-                                                                           (star' (qq' (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
-                                                                                    P P= qq₁)
-                                                                           (ft-star ∙ qq₀ ∙  NatStrNat pp₀) sucStr₁) 
-                                                                  (ft-star ∙ sucStr₀) (pp₁ ∙ P=) 
+                                                          star (pp P)
+                                                               (star (sucStr (NatStr Γ) (varC last (NatStr Γ)) (varCₛ last (NatStr Γ)) (varCL₁ ∙ NatStrNat pp₀))
+                                                                     (star (qq (pp (NatStr Γ)) (NatStr Γ) NatStr= (pp₁ ∙ NatStr=))
+                                                                           P P= qq₁)
+                                                                     (ft-star ∙ qq₀ ∙  NatStrNat pp₀) sucStr₁)
+                                                               (ft-star ∙ sucStr₀) (pp₁ ∙ P=)
 
 
 record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CCatwithzero ccat ccatnat) (ccatsuc : CCatwithsuc ccat ccatnat) : Set₁ where
@@ -813,7 +803,7 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
 -- --subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))
 --   T-d₁ : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc n)))))
 --          (P= : ft P ≡ T-ftP Γ A A=) (d : MorC (suc n) (suc (suc n))) → Ob (suc (suc n))
---   T-d₁ Γ A A= P P= d = {!!} -- let wA = star' (pp A) A A= (pp₁ ∙ A=)
+--   T-d₁ Γ A A= P P= d = {!!} -- let wA = star (pp A) A A= (pp₁ ∙ A=)
 --   --                          wwA = star+ (pp A) wA {X' = A} (ft-star ∙ pp₀) {X'' = Γ} A= (pp₁ ∙ A=)
 --   --                          wwwA = star++ (pp A) wwA {X' = wA} (ft-star ∙ qq₀) {X'' = A} (ft-star ∙ pp₀) {X''' = Γ} A= (pp₁ ∙ A=)
 --   --                          wP : Ob (suc (suc (suc (suc (suc n)))))
@@ -873,15 +863,15 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
 --     jjStr₁ : ∀ {Γ A A= P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ Γ A A= P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁}
 --              (let wA = star (pp A) A A= (pp₁ ∙ A=))
 --            → ∂₁ (jjStr {n = n} Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
---              ≡ star' p
---                     (star' (qq b
---                               (star' (qq a
+--              ≡ star p
+--                     (star (qq b
+--                               (star (qq a
 --                                         wA
 --                                         (ft-star ∙ pp₀) a₁)
 --                                      (T-ftP Γ A A=)
 --                                      IdStr= qq₁)
 --                               (ft-star ∙ qq₀) (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=}  star-id)  star-comp))
---                           (star' (qq (qq a
+--                           (star (qq (qq a
 --                                          wA
 --                                          (ft-star ∙ pp₀) a₁)
 --                                      (T-ftP Γ A A=)

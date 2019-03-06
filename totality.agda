@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import typetheory
@@ -1091,13 +1091,13 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       Pᵈw = ⟦weakenTy+⟧ᵈ' k P Pᵈ X+= X= NatStr= naturalityNat
 
       P=w : ft (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw) ≡ NatStr Y
-      P=w = # (⟦⟧Ty-ft (weakenTy' (prev k) P))
+      P=w = ⟦⟧Ty-ft (weakenTy' (prev k) P)
 
       dOᵈw : isDefined (⟦ weakenTm' k dO ⟧Tm Y)
-      dOᵈw = # (⟦weakenTm⟧ᵈ' k dO dOᵈ X+= X= Y=)
+      dOᵈw = ⟦weakenTm⟧ᵈ' k dO dOᵈ X+= X= Y=
 
       dOₛw : is-section (⟦ weakenTm' k dO ⟧Tm Y $ dOᵈw)
-      dOₛw = # (⟦⟧Tmₛ (weakenTm' k dO))
+      dOₛw = ⟦⟧Tmₛ (weakenTm' k dO)
 
       dO₁w : ∂₁ (⟦ weakenTm' k dO ⟧Tm Y $ dOᵈw) ≡ _
       dO₁w = ⟦weakenTm⟧₁' k dO dOᵈ X+= X= Y= dO₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (qq^₀ ∙ Y=)) (! wP=)
@@ -1308,32 +1308,32 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦⟧TmEq {Γ = Γ} Γᵈ {u = natelim P dO dS (suc u)} (BetaNatSuc dP ddO ddS du) =
   let
     Pᵈ : isDefined (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)))
-    Pᵈ = # (⟦⟧Tyᵈ (Γᵈ , tt , tt) dP)
+    Pᵈ = ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP
 
     dOᵈ : isDefined (⟦ dO ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ))
-    dOᵈ = # (⟦⟧Tmᵈ Γᵈ ddO)
+    dOᵈ = ⟦⟧Tmᵈ Γᵈ ddO
 
     dO₁ : ∂₁ (⟦ dO ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ) $ dOᵈ) ≡ star (zeroStr (⟦ Γ ⟧Ctx $ Γᵈ))
                                                      (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP)
                                                      (⟦⟧Ty-ft P)
                                                      zeroStr₁
-    dO₁ = # (⟦⟧Tm₁ Γᵈ ddO ∙ ⟦subst⟧Ty= NatStr= P Pᵈ zero tt zeroStr₁)
+    dO₁ = ⟦⟧Tm₁ Γᵈ ddO ∙ ⟦subst⟧Ty= NatStr= P Pᵈ zero tt zeroStr₁
 
     dSᵈ : isDefined (⟦ dS ⟧Tm (⟦ (Γ , nat) , P ⟧Ctx $ ((Γᵈ , tt , tt) , Pᵈ , tt)))
-    dSᵈ = # (⟦⟧Tmᵈ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS)
+    dSᵈ = ⟦⟧Tmᵈ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS
 
     dS₁ : ∂₁ (⟦ dS ⟧Tm (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ Pᵈ) $ dSᵈ)
           ≡ T-dS₁ ccatsuc (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP) (⟦⟧Ty-ft P)
-    dS₁ = # (⟦⟧Tm₁ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS
-            ∙ ! (⟦weakenTy⟧= (substTy (weakenTy' (prev last) P) (suc (var last))) (⟦subst⟧Tyᵈ NatStr= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (suc (var last)) (tt , ssₛ , (varCL₁ ∙ NatStrNat pp₀) , tt) sucStr₁) (⟦⟧Ty-ft P))
+    dS₁ = ⟦⟧Tm₁ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS
+          ∙ ! (⟦weakenTy⟧= (substTy (weakenTy' (prev last) P) (suc (var last))) (⟦subst⟧Tyᵈ NatStr= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (suc (var last)) (tt , ssₛ , (varCL₁ ∙ NatStrNat pp₀) , tt) sucStr₁) (⟦⟧Ty-ft P))
             ∙ ap-irr-star refl (⟦subst⟧Ty= NatStr= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (suc (var last)) (tt , ssₛ , (varCL₁ ∙ NatStrNat pp₀) , tt) sucStr₁
-              ∙ ap-irr-star refl (! (⟦weakenTy+⟧= P Pᵈ NatStr= NatStr= (NatStrNat pp₀)))))
+              ∙ ap-irr-star refl (! (⟦weakenTy+⟧= P Pᵈ NatStr= NatStr= (NatStrNat pp₀))))
 
     uᵈ : isDefined (⟦ u ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ))
-    uᵈ = # (⟦⟧Tmᵈ Γᵈ du)
+    uᵈ = ⟦⟧Tmᵈ Γᵈ du
 
     natelimᵈ : isDefined (⟦ natelim P dO dS u ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ))
-    natelimᵈ = # (Pᵈ , ⟦⟧Ty-ft P , dOᵈ , ⟦⟧Tmₛ dO , dO₁ , dSᵈ , ⟦⟧Tmₛ dS , dS₁ , uᵈ , ⟦⟧Tmₛ u , ⟦⟧Tm₁ Γᵈ du , tt)
+    natelimᵈ = (Pᵈ , ⟦⟧Ty-ft P , dOᵈ , ⟦⟧Tmₛ dO , dO₁ , dSᵈ , ⟦⟧Tmₛ dS , dS₁ , uᵈ , ⟦⟧Tmₛ u , ⟦⟧Tm₁ Γᵈ du , tt)
   in
   betaNatSucStr ∙ ! (⟦subst2⟧Tm= (⟦⟧Ty-ft P) NatStr= dS dSᵈ u uᵈ (⟦⟧Tm₁ Γᵈ du) (natelim P dO dS u) natelimᵈ natelimStr₁) where
 
@@ -1465,13 +1465,13 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       Pᵈs = ⟦tsubst⟧Ty+ᵈ P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat
 
       P=s : ft (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs) ≡ NatStr X
-      P=s = # (⟦⟧Ty-ft (P [ weakenMor+ δ ]Ty))
+      P=s = ⟦⟧Ty-ft (P [ weakenMor+ δ ]Ty)
 
       dOᵈs : isDefined (⟦ dO [ δ ]Tm ⟧Tm X)
-      dOᵈs = # (⟦tsubst⟧Tmᵈ dO dOᵈ δ δᵈ)
+      dOᵈs = ⟦tsubst⟧Tmᵈ dO dOᵈ δ δᵈ
 
       dOₛs : is-section (⟦ dO [ δ ]Tm ⟧Tm X $ dOᵈs)
-      dOₛs = # (⟦⟧Tmₛ (dO [ δ ]Tm))
+      dOₛs = ⟦⟧Tmₛ (dO [ δ ]Tm)
 
       dO₁s : ∂₁ (⟦ dO [ δ ]Tm ⟧Tm X $ dOᵈs) ≡ _
       dO₁s = ⟦tsubst⟧Tm₁ dO dOᵈ δ δᵈ dO₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (⟦⟧Mor₀ δ)) (! sP=) 

@@ -1,20 +1,9 @@
-{-# OPTIONS --rewriting --prop --without-K --no-auto-inline #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
-
-{- Hack to reduce the size of proofs, you are not supposed to use [‗] directly.
-   Using only [#] might be unsafe too. -}
-
-postulate
-  ‗ : ∀ {l} {A : Prop l} → A
-
-# : ∀ {l} {A : Prop l} → A → A
-# a = ‗
-
-{-# NOINLINE # #-}
 
 {- Relevant equality (used only in a few places, when we need to transport along it) -}
 
@@ -119,12 +108,6 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
 
 infix 4 _≡_
 
-primitive
-  primEraseEquality : ∀ {l} {A : Set l} {x y : A} → x ≡ y → x ≡ y
-
-## : ∀ {l} {A : Set l} {x y : A} → x ≡ y → x ≡ y
-## p = primEraseEquality p
-
 
 Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → (a ΣS., b) ≡R (a' , b')
 Σ= reflR = reflR
@@ -132,22 +115,13 @@ primitive
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
-ap# : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
-ap# f p = ## (ap f p)
-
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
 
-_∙#_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
-p ∙# q = ## (p ∙ q)
-
-infixr 4 _∙_ _∙#_
+infixr 4 _∙_
 
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
-
-!# : {A : Set} {a b : A} → a ≡ b → b ≡ a
-!# p = ## (! p)
 
 squash≡ : {A : Set} {a b : A} → a ≡R b → a ≡ b
 squash≡ reflR = refl
