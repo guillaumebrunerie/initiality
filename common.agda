@@ -327,7 +327,7 @@ _∎ : ∀ {i} {A : Set i} (x : A) → x ≡ x
 _∎ _ = refl
 
 
-{- Some results about natural numbers -}
+{- Some results about natural numbers using ≡R -}
 
 n+0 : (n : ℕ) → n ≡R (n + zero)
 n+0 0 = reflR
@@ -336,6 +336,10 @@ n+0 (suc n) = apR suc (n+0 n)
 n+suc : (n m : ℕ) → suc (n + m) ≡R (n + suc m)
 n+suc 0 m = reflR
 n+suc (suc n) m = apR suc (n+suc n m)
+
++-commR : (n m : ℕ) → (n + m) ≡R (m + n)
++-commR zero m = n+0 m
++-commR (suc n) m = apR suc (+-commR n m) R∙ n+suc m n
 
 suc-inj : _≡R_ {A = ℕ} (suc m) (suc n) → m ≡R n
 suc-inj reflR = reflR
