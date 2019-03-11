@@ -224,7 +224,10 @@ data Derivable : Judgment → Prop where
   -- Eta-equivalences
   EtaPi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f : TmExpr n}
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B)
-    → Derivable (Γ ⊢ lam A B (app (weakenTy A) (weakenTy' (prev last) B) (weakenTm f) (var last)) == f :> pi A B)
+    → Derivable (Γ ⊢ f == lam A B (app (weakenTy A) (weakenTy' (prev last) B) (weakenTm f) (var last)) :> pi A B)
+  EtaSig : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
+    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B)
+    → Derivable (Γ ⊢ u == pair A B (pr1 A B u) (pr2 A B u) :> sig A B)
 
 {- Derivability of contexts, context equality, context morphisms, and context morphism equality -}
 
@@ -521,10 +524,14 @@ SubstTmEq (BetaIdRefl {A = A} {d = d} dA dP dd da) dδ =  -- Using WeakMor+ in t
                         (congTmTy ([]Ty-subst3Ty ∙ ap-subst3Ty []Ty-weakenTy3 refl refl (ap-refl-Tm []Ty-weakenTy refl)) (SubstTm dd (WeakMor+ dA dδ)))
                         (SubstTm da dδ))
 SubstTmEq (EtaPi {f = f} dA dB df) dδ =
-  congTmEq! (ap-lam-Tm refl refl (ap-app-Tm []Ty-weakenTy []Ty-weakenTy1 ([]-weakenTm f) refl)) refl refl
+  congTmEq! refl (ap-lam-Tm refl refl (ap-app-Tm []Ty-weakenTy []Ty-weakenTy1 ([]-weakenTm f) refl)) refl
             (EtaPi (SubstTy dA dδ)
                    (SubstTy dB (WeakMor+ dA dδ))
                    (SubstTm df dδ))
+SubstTmEq (EtaSig {u = u} dA dB du) dδ =
+  EtaSig (SubstTy dA dδ)
+         (SubstTy dB (WeakMor+ dA dδ))
+         (SubstTm du dδ)
 
 
 SubstTyMorEq (Pi dA dB) dδ dδ= = PiCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=))
@@ -688,10 +695,14 @@ WeakTmEq (BetaIdRefl {d = d} dA dP dd da) =
                         (congTmTy (weakenTy-subst3Ty ∙ ap-subst3Ty weakenTy-weakenTy3 refl refl (ap-refl-Tm weakenTy-weakenTy refl)) (WeakTm dd))
                         (WeakTm da))
 WeakTmEq (EtaPi {f = f} dA dB df) =
-  congTmEq! (ap-lam-Tm refl refl (ap-app-Tm weakenTy-weakenTy weakenTy-weakenTy1 (! (weakenTmCommutes _ f)) refl)) refl refl
+  congTmEq! refl (ap-lam-Tm refl refl (ap-app-Tm weakenTy-weakenTy weakenTy-weakenTy1 (! (weakenTmCommutes _ f)) refl)) refl
             (EtaPi (WeakTy dA)
                    (WeakTy dB)
                    (WeakTm df))
+WeakTmEq (EtaSig {u = u} dA dB du) =
+  EtaSig (WeakTy dA)
+         (WeakTy dB)
+         (WeakTm du)
 
 
 
@@ -825,6 +836,10 @@ ConvTmEq (EtaPi dA dB df) dΓ= =
   EtaPi (ConvTy dA dΓ=)
         (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=)))
         (ConvTm df dΓ=)
+ConvTmEq (EtaSig dA dB du) dΓ= =
+  EtaSig (ConvTy dA dΓ=)
+         (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=)))
+         (ConvTm du dΓ=)
 
 {- Subst3 -}
 
@@ -926,7 +941,8 @@ TmEqTm1 dΓ (BetaSig2 {B = B} dA dB da db) = Conv (SubstTy dB (idMorDerivable d�
 TmEqTm1 dΓ (BetaNatZero dP ddO ddS) = Natelim dP ddO ddS Zero
 TmEqTm1 dΓ (BetaNatSuc dP ddO ddS du) = Natelim dP ddO ddS (Suc du)
 TmEqTm1 dΓ (BetaIdRefl dA dP dd da) = JJ dA dP dd da da (Refl dA da)
-TmEqTm1 dΓ (EtaPi dA dB df) = Lam dA dB (congTmTy (substTy-weakenTy' ∙ [idMor]Ty _) (App (WeakTy dA) (WeakTy dB) (WeakTm df) (VarLast dA)))
+TmEqTm1 dΓ (EtaPi dA dB df) = df
+TmEqTm1 dΓ (EtaSig dA dB du) = du
 
 TmEqTm2 dΓ (TmSymm du=) = TmEqTm1 dΓ du=
 TmEqTm2 dΓ (TmTran _ du= dv=) = TmEqTm2 dΓ dv=
@@ -1060,7 +1076,8 @@ TmEqTm2 dΓ (BetaNatSuc dP ddO ddS du) =
        (SubstTm ddS ((idMorDerivable dΓ , du) , Natelim dP ddO ddS du))
        (congTyRefl' (SubstTy dP (idMorDerivable dΓ , Suc du)) (subst2Ty-weakenTy1 ∙ substTy-substTy ∙ subst2Ty-weakenTy2))
 TmEqTm2 dΓ (BetaIdRefl dA dP dd da) = congTmTy (substTy-subst3Ty ∙ ap-subst3Ty refl refl refl (ap-refl-Tm substTy-weakenTy refl)) (Subst1Tm dΓ dd da)
-TmEqTm2 dΓ (EtaPi dA dB df) = df
+TmEqTm2 dΓ (EtaPi dA dB df) = Lam dA dB (congTmTy (substTy-weakenTy' ∙ [idMor]Ty _) (App (WeakTy dA) (WeakTy dB) (WeakTm df) (VarLast dA)))
+TmEqTm2 dΓ (EtaSig dA dB du) = Pair dA dB (Pr1 dA dB du) (Pr2 dA dB du)
 
 MorEqMor1 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ δ ∷> Δ)
 MorEqMor2 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → (⊢ Γ) → (⊢ Δ) → (Γ ⊢ δ == δ' ∷> Δ) → (Γ ⊢ δ' ∷> Δ)

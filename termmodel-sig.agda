@@ -196,7 +196,7 @@ elsigStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b b�
 
 betaSig1StrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ S.star a B B= a₁) → pr1StrS Γ A A= B B= (pairStrS Γ A A= B B= a aₛ a₁ b bₛ b₁) (pairStrₛS Γ A A= B B= a aₛ a₁ b bₛ b₁) (pairStr₁S Γ A A= B B= a aₛ a₁ b bₛ b₁) ≡ a
 betaSig1StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ →
-             eq (box (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=) ))
+             eq (box (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)))
                      (CtxTran (CtxTy=Ctx A A=) (CtxSymm (reflectOb a₁)))
                      (MorTran (der Γ) (der Γ , dTy A A=) (idMor+= (der Γ) (BetaSig1 (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))
                                                          (MorSymm (der Γ) (der Γ , dTy A A=) (morTm=idMorTm A= a aₛ a₁)))))))))
@@ -229,3 +229,9 @@ betaSig2StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → /
                                                                                                                                                     (dTy+ A= B B=)
                                                                                                                                                     (dTm A= a aₛ a₁)
                                                                                                                                                     (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))))))))))))))
+
+{- EtaSig -}
+
+etaSigStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ SigStrS Γ A A= B B=)
+           → u ≡ pairStrS Γ A A= B B= (pr1StrS Γ A A= B B= u uₛ u₁) (pr1StrₛS Γ A A= B B= u uₛ u₁) (pr1Str₁S Γ A A= B B= u uₛ u₁) (pr2StrS Γ A A= B B= u uₛ u₁) (pr2StrₛS Γ A A= B B= u uₛ u₁) (pr2Str₁S Γ A A= B B= u uₛ u₁)
+etaSigStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ u uₛ u₁ → eq (box (reflectOb (S.is-section₀ uₛ u₁)) (reflectOb u₁) (ConvMorEq (MorTran (der Γ) (der Γ , Sig (dTy A A=) (dTy+ A= B B=)) (morTm=idMorTm refl u uₛ u₁) (idMor+= (der Γ) (EtaSig (dTy A A=) (dTy+ A= B B=) (dTm refl u uₛ u₁)))) (reflectOb (! (S.is-section₀ uₛ u₁))) (reflectOb (! u₁))))))))

@@ -208,11 +208,11 @@ ap-irr-reflStr refl refl refl = refl
 ⟦ jj A P d a b p ⟧Tm X = #J#S {- do
   [A] ← ⟦ A ⟧Ty X
   [A]= ← assume (ft [A] ≡ X)
-  [P] ← ⟦ P ⟧Ty (T-ftP X [A] (unbox [A]=)) 
+  [P] ← ⟦ P ⟧Ty (T-ftP ccatId X [A] (unbox [A]=))
   [P]= ← assume (ft [P] ≡ _)
   [d] ← ⟦ d ⟧Tm [A]
   [d]ₛ ← assume (is-section [d])
-  [d]₁ ← assume (∂₁ [d] ≡ {!!})
+  [d]₁ ← assume (∂₁ [d] ≡ _)
   [a] ← ⟦ a ⟧Tm X
   [a]ₛ ← assume (is-section [a])
   [a]₁ ← assume (∂₁ [a] ≡ [A])
