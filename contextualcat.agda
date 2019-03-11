@@ -260,6 +260,9 @@ module CCat+ (C : CCat) where
   ss-id₁ : {X : Ob (suc n)} {Y : Ob n} {X= : ft X ≡ Y} → ∂₁ (ss (id X)) ≡ star (pp X) X X= (pp₁ ∙ X=)
   ss-id₁ = ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl
 
+  star-varCL-star-qqpp : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} → star (varC last A) (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀) varCL₁ ≡ B
+  star-varCL-star-qqpp {B= = B=} = ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star (ap-irr-comp ((! (id-left qq₀) ∙ ap-irr-comp (ap-irr-qq refl refl) (ap id (ap-irr-star refl refl) ∙ ! qq-id)) ∙ ! (qq-comp {g₁ = pp₁})) refl ∙ ! (ss-qq {f₁ = id₁})) refl ∙ star-id {p = B=}
+
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
 record CCatwithUU (ccat : CCat) : Set₁ where
@@ -957,7 +960,10 @@ record StructuredCCat : Set₁ where
                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=}
                      {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
                  natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ Tm-substdS ccatnatelim Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁                                  
-                               
+
+    etaPiStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=}
+             → lamStr Γ A A= B B= (appStr A (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀) (starTm (pp A) f (is-section₀ fₛ f₁ ∙ PiStr=) (pp₁ ∙ A=)) ssₛ (starTm₁ (pp A) PiStr= f fₛ f₁ (pp₁ ∙ A=) ∙ PiStrNat pp₀) (varC last A) (varCₛ last A) varCL₁) appStrₛ (appStr₁ ∙ star-varCL-star-qqpp) ≡ f
+
     eluuStr : {i : ℕ} {Γ : Ob n} → ElStr (suc i) Γ (uuStr i Γ) uuStrₛ uuStr₁ ≡ UUStr i Γ
     elpiStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} 
             → ElStr i Γ (piStr i Γ a aₛ a₁ b bₛ b₁) piStrₛ piStr₁ ≡ PiStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=

@@ -1337,6 +1337,13 @@ cong⟦⟧Mor refl δᵈ = δᵈ
   in
   betaNatSucStr ∙ ! (⟦subst2⟧Tm= (⟦⟧Ty-ft P) NatStr= dS dSᵈ u uᵈ (⟦⟧Tm₁ Γᵈ du) (natelim P dO dS u) natelimᵈ natelimStr₁) where
 
+⟦⟧TmEq Γᵈ {u = lam A B _} {u' = f} (EtaPi dA dB df) =
+  ap-irr-lamStr refl refl refl
+    (ap-irr-appStr refl (! (⟦weakenTy⟧= A (⟦⟧Tyᵈ Γᵈ dA) (⟦⟧Ty-ft A)))
+                        (! (⟦weakenTy+⟧= B (⟦⟧Tyᵈ (Γᵈ , (⟦⟧Tyᵈ Γᵈ dA) , tt) dB) (⟦⟧Ty-ft A) (⟦⟧Ty-ft A) (⟦weakenTy⟧= A (⟦⟧Tyᵈ Γᵈ dA) (⟦⟧Ty-ft A))))
+                        (! (⟦weakenTm⟧= f (⟦⟧Tmᵈ Γᵈ df) (⟦⟧Ty-ft A)))
+                        refl)
+  ∙ etaPiStr {fₛ = ⟦⟧Tmₛ f} {f₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = ⟦⟧Tyᵈ Γᵈ dA , ⟦⟧Ty-ft A , ⟦⟧Tyᵈ (Γᵈ , ⟦⟧Tyᵈ Γᵈ dA , tt) dB , ⟦⟧Ty-ft B , tt} df}
 
 ⟦⟧TmEq Γᵈ (BetaIdRefl dA dP dd da) = #J#
 
