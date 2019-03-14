@@ -206,6 +206,34 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
              → star (qq (pp X+) X' p (pp₁ ∙ X=)) (⟦ A ⟧Ty X' $ Aᵈ) (⟦⟧Ty-ft A) qq₁ ≡ ⟦ weakenTy' (prev last) A ⟧Ty Y $ ⟦weakenTy+⟧ᵈ A Aᵈ X= p Y=
 ⟦weakenTy+⟧= A Aᵈ X= refl Y= = ap-irr-star (ap-irr-qq (! qq^last) refl) refl ∙ ⟦weakenTy+⟧=' last A Aᵈ X= refl refl (ap-irr-star qq^last refl ∙ Y=)
 
+{- Weakening at [prev (prev last)] -}
+
+⟦weakenTy++⟧ᵈ : {X+ : Ob (suc n)} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc n)))
+              → (Aᵈ : isDefined (⟦ A ⟧Ty X''))
+              → (X= : ft X+ ≡ X) {Y : Ob (suc (suc (suc n)))} (p : ft X'' ≡ X') (p' : ft X' ≡ X) (Y= : star (qq (pp X+) X' p' (pp₁ ∙ X=)) X'' p qq₁ ≡ Y)
+              → isDefined (⟦ weakenTy' (prev (prev last)) A ⟧Ty Y)
+⟦weakenTy++⟧ᵈ A Aᵈ X= refl refl Y= = ⟦weakenTy⟧ᵈ' (prev (prev last)) A Aᵈ X= refl (ap-irr-star (qq^prev ∙ ap-irr-qq qq^last refl) refl ∙ Y=)
+
+⟦weakenTy++⟧= : {X+ : Ob (suc n)} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc n)))
+              → (Aᵈ : isDefined (⟦ A ⟧Ty X''))
+              → (X= : ft X+ ≡ X) {Y : Ob (suc (suc (suc n)))} (p : ft X'' ≡ X') (p' : ft X' ≡ X) (Y= : star (qq (pp X+) X' p' (pp₁ ∙ X=)) X'' p qq₁ ≡ Y)
+              → star (qq (qq (pp X+) X' p' (pp₁ ∙ X=)) X'' p qq₁) (⟦ A ⟧Ty X'' $ Aᵈ) (⟦⟧Ty-ft A) qq₁ ≡ ⟦ weakenTy' (prev (prev last)) A ⟧Ty Y $ ⟦weakenTy++⟧ᵈ A Aᵈ X= p p' Y=
+⟦weakenTy++⟧= A Aᵈ X= refl refl Y= = ap-irr-star (ap-irr-qq (ap-irr-qq (! qq^last) refl ∙ ! qq^prev) refl ∙ ! qq^prev) refl ∙ ⟦weakenTy⟧=' (prev (prev last)) A Aᵈ X= refl (ap-irr-star (qq^prev ∙ ap-irr-qq qq^last refl) refl ∙ Y=)
+
+{- Weakening at [prev (prev (prev last))] -}
+
+⟦weakenTy+++⟧ᵈ : {X+ : Ob (suc n)} {X''' : Ob (suc (suc (suc n)))} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc (suc n))))
+               → (Aᵈ : isDefined (⟦ A ⟧Ty X'''))
+               → (X= : ft X+ ≡ X) {Y : Ob (suc (suc (suc (suc n))))} (p : ft X''' ≡ X'') (p' : ft X'' ≡ X') (p'' : ft X' ≡ X) (Y= : star (qq (qq (pp X+) X' p'' (pp₁ ∙ X=)) X'' p' qq₁) X''' p qq₁ ≡ Y)
+               → isDefined (⟦ weakenTy' (prev (prev (prev last))) A ⟧Ty Y)
+⟦weakenTy+++⟧ᵈ A Aᵈ X= refl refl refl Y= = ⟦weakenTy⟧ᵈ' (prev (prev (prev last))) A Aᵈ X= refl (ap-irr-star (qq^prev ∙ ap-irr-qq (qq^prev ∙ ap-irr-qq qq^last refl) refl) refl ∙ Y=)
+
+⟦weakenTy+++⟧= : {X+ : Ob (suc n)} {X''' : Ob (suc (suc (suc n)))} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc (suc n))))
+               → (Aᵈ : isDefined (⟦ A ⟧Ty X'''))
+               → (X= : ft X+ ≡ X) {Y : Ob (suc (suc (suc (suc n))))} (p : ft X''' ≡ X'') (p' : ft X'' ≡ X') (p'' : ft X' ≡ X) (Y= : star (qq (qq (pp X+) X' p'' (pp₁ ∙ X=)) X'' p' qq₁) X''' p qq₁ ≡ Y)
+               → star (qq (qq (qq (pp X+) X' p'' (pp₁ ∙ X=)) X'' p' qq₁) X''' p qq₁) (⟦ A ⟧Ty X''' $ Aᵈ) (⟦⟧Ty-ft A) qq₁ ≡ ⟦ weakenTy' (prev (prev (prev last))) A ⟧Ty Y $ ⟦weakenTy+++⟧ᵈ A Aᵈ X= p p' p'' Y=
+⟦weakenTy+++⟧= A Aᵈ X= refl refl refl Y= = ap-irr-star (ap-irr-qq (ap-irr-qq (ap-irr-qq (! qq^last) refl ∙ ! qq^prev) refl ∙ ! qq^prev) refl ∙ ! qq^prev) refl ∙ ⟦weakenTy⟧=' (prev (prev (prev last))) A Aᵈ X= refl (ap-irr-star (qq^prev ∙ ap-irr-qq (qq^prev ∙ ap-irr-qq qq^last refl) refl) refl ∙ Y=)
+
 {- Weakening of morphisms -}
 
 ⟦weakenMor⟧ᵈ : {X+ : Ob (suc n)} {X : Ob n} (X= : ft X+ ≡ X) {Y : Ob m} (δ : Mor n m)
@@ -847,11 +875,12 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       Aᵈ : isDefined (⟦ A ⟧Ty X)
       Aᵈ = ⟦⟧Tyᵈ Γᵈ dA
       [A] = ⟦ A ⟧Ty X $ Aᵈ
-      [A]-ft : ft [A] ≡ X
-      [A]-ft = ⟦⟧Ty-ft A
+      A= : ft [A] ≡ X
+      A= = ⟦⟧Ty-ft A
+
       wAᵈ : isDefined (⟦ weakenTy A ⟧Ty [A])
-      wAᵈ = ⟦weakenTy⟧ᵈ A Aᵈ [A]-ft
-      wA= = ⟦weakenTy⟧= A Aᵈ [A]-ft
+      wAᵈ = ⟦weakenTy⟧ᵈ A Aᵈ A=
+      wA= = ⟦weakenTy⟧= A Aᵈ A=
       [wA] = ⟦ weakenTy A ⟧Ty [A] $ wAᵈ
       [wA]-ft : ft [wA] ≡ [A]
       [wA]-ft = ⟦⟧Ty-ft (weakenTy A)
@@ -862,58 +891,61 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       [wwA]-ft : ft [wwA] ≡ [wA]
       [wwA]-ft = ⟦⟧Ty-ft (weakenTy (weakenTy A))
       idᵈ : isDefined (⟦ id (weakenTy (weakenTy A)) (var (prev last)) (var last) ⟧Ty [wA])
-      idᵈ = (wwAᵈ , [wwA]-ft , tt , varCₛ (prev last) [wA] , (varC+₁ last [wA]-ft (varCL₁ ∙ wA=) ∙ wwA=) , tt , varCₛ last [wA] , (varCL₁ ∙ wwA=) , tt) 
+      idᵈ = wwAᵈ , [wwA]-ft , tt , varCₛ (prev last) [wA] , (varC+₁ last [wA]-ft (varCL₁ ∙ wA=) ∙ wwA=) , tt , varCₛ last [wA] , (varCL₁ ∙ wwA=) , tt
       [id] = ⟦ id (weakenTy (weakenTy A)) (var (prev last)) (var last) ⟧Ty [wA] $ idᵈ
       [id]-ft : ft [id] ≡ [wA]
       [id]-ft = ⟦⟧Ty-ft (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) {Aᵈ = idᵈ}
       Pᵈ' : isDefined (⟦ P ⟧Ty [id])
       Pᵈ' = ⟦⟧Tyᵈ (((Γᵈ , (Aᵈ , tt)) , wAᵈ , tt) , (idᵈ , tt)) dP
-      Pᵈ : isDefined (⟦ P ⟧Ty (T-ftP ccatId X (⟦ A ⟧Ty X $ Aᵈ) [A]-ft))
-      Pᵈ = cong⟦⟧Ty {A = P} (ap-irr-IdStr (! wA=) (! wwA= ∙ ap-irr-star (ap pp (! wA=)) (! wA=)) (ap (varC (prev last)) (! wA=)) (ap (varC last) (! wA=))) Pᵈ' 
+      Pᵈ : isDefined (⟦ P ⟧Ty (T-ftP ccatId X (⟦ A ⟧Ty X $ Aᵈ) A=))
+      Pᵈ = cong⟦⟧Ty {A = P} (! (ap-irr-IdStr wA= (ap-irr-star (ap pp wA=) wA= ∙ wwA=) (ap (varC (prev last)) wA=) (ap (varC last) wA=))) Pᵈ'
       P= = ⟦⟧Ty-ft P
+
       [varL] = ⟦ var last ⟧Tm [A] $ tt
       varL₁ : ∂₁ [varL] ≡ [wA]
       varL₁ = varCL₁ ∙ wA=
       wwA'ᵈ : isDefined (⟦ weakenTy' (prev last) (weakenTy A) ⟧Ty [wA])
-      wwA'ᵈ = ⟦weakenTy⟧ᵈ' (prev last) (weakenTy A) wAᵈ [A]-ft [A]-ft (ap-irr-star {!!} refl ∙ wA=)
+      wwA'ᵈ = ⟦weakenTy+⟧ᵈ (weakenTy A) wAᵈ A= A= wA=
       [wwA'] = ⟦ weakenTy' (prev last) (weakenTy A) ⟧Ty [wA] $ wwA'ᵈ
-      wwA'=' : star (qq (pp [A]) [A] [A]-ft (pp₁ ∙ [A]-ft)) [wA] (⟦⟧Ty-ft (weakenTy A)) qq₁ ≡ [wwA']
+      wwA'=' : star (qq (pp [A]) [A] A= (pp₁ ∙ A=)) [wA] (⟦⟧Ty-ft (weakenTy A)) qq₁ ≡ [wwA']
       wwA'=' = ap-irr-star (ap-irr-qq (! qq^last) refl ∙ ! qq^prev) refl ∙ ⟦weakenTy⟧=' (prev last) (weakenTy A) wAᵈ refl refl (ap-irr-star qq^last refl ∙ wA=)
       [wwA']-ft : ft [wwA'] ≡ [wA]
       [wwA']-ft = ⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))
       -- varL₁' : ∂₁ [varL] ≡ star [varL] [wwA'] [wwA']-ft varL₁
-      -- varL₁' = varL₁ ∙ ! (ap-irr-star (varCL-qq [A]-ft) refl ∙ star-id) ∙ star-comp  ∙ ap-irr-star refl wwA'= -- ! (star-id {p = ⟦⟧Ty-ft (weakenTy A)}) ∙ ap-irr-star (ss-qq ∙ ap-irr-comp (ap-irr-qq (id-left pp₀) refl) refl {g₀' = qq₀} {f₁' = ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl}) refl ∙ star-comp ∙ ap-irr-star refl wwA'= 
+      -- varL₁' = varL₁ ∙ ! (ap-irr-star (varCL-qq A=) refl ∙ star-id) ∙ star-comp  ∙ ap-irr-star refl wwA'= -- ! (star-id {p = ⟦⟧Ty-ft (weakenTy A)}) ∙ ap-irr-star (ss-qq ∙ ap-irr-comp (ap-irr-qq (id-left pp₀) refl) refl {g₀' = qq₀} {f₁' = ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl}) refl ∙ star-comp ∙ ap-irr-star refl wwA'= 
       wwwAᵈ : isDefined (⟦ weakenTy (weakenTy' (prev last) (weakenTy A)) ⟧Ty [wwA'])
       wwwAᵈ = ⟦weakenTy⟧ᵈ (weakenTy' (prev last) (weakenTy A)) wwA'ᵈ [wwA']-ft
       wwwA= = ⟦weakenTy⟧= (weakenTy' (prev last) (weakenTy A)) wwA'ᵈ [wwA']-ft
       [wwwA] = ⟦ weakenTy (weakenTy' (prev last) (weakenTy A)) ⟧Ty [wwA'] $ wwwAᵈ
       widᵈ : isDefined (⟦ weakenTy' (prev (prev last)) (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⟧Ty [wwA'])
-      widᵈ = ⟦weakenTy⟧ᵈ' (prev (prev last))
-               (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) idᵈ [A]-ft {!!} {!!} --(wwwAᵈ , ⟦⟧Ty-ft (weakenTy (weakenTy' (prev last) (weakenTy A))) , tt , varCₛ (prev last) [wwA'] , (varC+₁ last (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))) (varCL₁ {Y = [A]} {X= = ⟦⟧Ty-ft (weakenTy A)} ∙  ap-irr-star (ap pp (! wA=)) (! wA=) ∙ ! star-comp ∙ ap-irr-star (! pp-qq) refl ∙ star-comp ∙ ap-irr-star refl wA= ∙ wwA'=) ∙ wwwA=) , tt , varCₛ last [wwA'] , (varCL₁ ∙ wwwA=) , tt)
+      widᵈ = ⟦weakenTy++⟧ᵈ (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) idᵈ A= (⟦⟧Ty-ft (weakenTy A)) A= wwA'='
       [wid] = ⟦ weakenTy' (prev (prev last)) (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⟧Ty [wwA'] $ widᵈ
-      wid= = ⟦weakenTy⟧=' (prev (prev last))
-               (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) idᵈ [A]-ft {!!} {!!}
-      wid=' : star (qq (qq (pp [A]) [A] [A]-ft (pp₁ ∙ [A]-ft)) [wA] [wA]-ft qq₁) [id] IdStr= qq₁ ≡ [wid]
-      wid=' = {!!} --ap-irr-star (ap-irr-qq (ap-irr-qq (ap pp (! [wA]-ft) ∙ ! qq^last) (! [wA]-ft) ∙ ! qq^prev) refl ∙ ! qq^prev) refl ∙ wid=
+      wid= = ⟦weakenTy++⟧= (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) idᵈ A= (⟦⟧Ty-ft (weakenTy A)) A= wwA'='
       [wid]-ft : ft [wid] ≡ [wwA']
-      [wid]-ft = ⟦⟧Ty-ft (weakenTy' (prev (prev last)) (id (weakenTy (weakenTy A)) (var (prev last)) (var last)))
+      [wid]-ft = ⟦⟧Ty-ft (weakenTy' (prev (prev last)) (id (weakenTy (weakenTy A)) (var (prev last)) (var last))) {Aᵈ = widᵈ}
       reflᵈ : isDefined (⟦ refl (weakenTy A) (var last) ⟧Tm [A])
       reflᵈ = (wAᵈ , ⟦⟧Ty-ft (weakenTy A) , tt , varCₛ last [A] , (varCL₁ ∙ wA=) , tt)
-      refl₁ : ∂₁ (⟦ refl (weakenTy A) (var last) ⟧Tm [A] $ reflᵈ) ≡ star [varL] (star (qq [varL] [wwA'] [wwA']-ft varL₁) [wid] [wid]-ft qq₁) (ft-star ∙ qq₀) {!varL₁'!}
-      refl₁ = reflStr₁ ∙ {!!} --reflStr₁ ∙ ! (! (star-comp {g₀ = qq₀}) ∙ IdStrNat (comp₀ ∙ ss₀ ∙ id₀) ∙ ap-irr-IdStr refl (ap-irr-star refl (! wwwA=) ∙ ! star-comp ∙ ap-irr-star refl (! wwA'=) {f₁' = comp₁ ∙ pp₁ ∙ (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))) ∙ ! wA=} ∙ ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star refl (! wA=) ∙ ! star-comp ∙ ap-irr-star (! assoc ∙ ap-irr-comp pp-qq refl {f₁' = comp₁ ∙ pp₁} ∙ (assoc {g₀ = pp₀ ∙ wA= ∙ (! (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))))} ∙ ap-irr-comp refl (ap-irr-comp refl (! assoc ∙ ap-irr-comp pp-qq refl ∙  assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ ss₀ ∙ id₀) ssₛ varL₁') ∙ id-left (ss₀ ∙ id₀)) ∙ is-section= (ft-star ∙ pp₀) ssₛ varCL₁) ∙ id-left pp₀)) refl ∙ wA=) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = pp₁ ∙ (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A)))})) refl ∙ ! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ ss₀ ∙ id₀) ssₛ (varCL₁ {X= = [A]-ft} ∙ ! (ap-irr-star refl (! wwA'=) {f₁' = varCL₁}∙ ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star refl (! wA=) ∙ ! star-comp ∙ ap-irr-star (! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ pp₀) ssₛ (ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl)) ∙ id-left pp₀) refl))) ∙ id-left (ss₀ ∙ id₀)) ∙ ss-of-section (ss (idC (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA))) ssₛ) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq  {f₁ = id₁})) refl ∙ id-right (comp₁ ∙ qq₁)) ∙ ss-comp ∙ ap ss (! (assoc {g₁ = qq₁ ∙ ! wwA'= ∙ ap-irr-star refl (! wA=) ∙ ! star-comp ∙ ap-irr-star pp-qq refl ∙ star-comp {g₁ = pp₁ ∙ [A]-ft}}) ∙ ap-irr-comp (ap-irr-comp refl (ap-irr-qq refl (! (star-comp ∙ ap-irr-star refl wA= ∙ wwA'=) ∙ ap-irr-star pp-qq refl {q' = [A]-ft} ∙ star-comp)) ∙ ! qq-comp ∙  ap-irr-qq (is-section= (ft-star ∙ pp₀) ssₛ (ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl)) refl {q' = ft-star ∙ pp₀} ∙ qq-id) refl ∙ id-right (ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl)) ∙ ss-of-section _ ssₛ))
+      -- refl₁ : ∂₁ (⟦ refl (weakenTy A) (var last) ⟧Tm [A] $ reflᵈ) ≡ star [varL] (star (qq [varL] [wwA'] [wwA']-ft varL₁) [wid] [wid]-ft qq₁) (ft-star ∙ qq₀) {!!}
+      -- refl₁ = reflStr₁ ∙ {!!} --reflStr₁ ∙ ! (! (star-comp {g₀ = qq₀}) ∙ IdStrNat (comp₀ ∙ ss₀ ∙ id₀) ∙ ap-irr-IdStr refl (ap-irr-star refl (! wwwA=) ∙ ! star-comp ∙ ap-irr-star refl (! wwA'=) {f₁' = comp₁ ∙ pp₁ ∙ (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))) ∙ ! wA=} ∙ ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star refl (! wA=) ∙ ! star-comp ∙ ap-irr-star (! assoc ∙ ap-irr-comp pp-qq refl {f₁' = comp₁ ∙ pp₁} ∙ (assoc {g₀ = pp₀ ∙ wA= ∙ (! (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))))} ∙ ap-irr-comp refl (ap-irr-comp refl (! assoc ∙ ap-irr-comp pp-qq refl ∙  assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ ss₀ ∙ id₀) ssₛ varL₁') ∙ id-left (ss₀ ∙ id₀)) ∙ is-section= (ft-star ∙ pp₀) ssₛ varCL₁) ∙ id-left pp₀)) refl ∙ wA=) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = pp₁ ∙ (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A)))})) refl ∙ ! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ ss₀ ∙ id₀) ssₛ (varCL₁ {X= = A=} ∙ ! (ap-irr-star refl (! wwA'=) {f₁' = varCL₁}∙ ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star refl (! wA=) ∙ ! star-comp ∙ ap-irr-star (! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ pp₀) ssₛ (ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl)) ∙ id-left pp₀) refl))) ∙ id-left (ss₀ ∙ id₀)) ∙ ss-of-section (ss (idC (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA))) ssₛ) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq  {f₁ = id₁})) refl ∙ id-right (comp₁ ∙ qq₁)) ∙ ss-comp ∙ ap ss (! (assoc {g₁ = qq₁ ∙ ! wwA'= ∙ ap-irr-star refl (! wA=) ∙ ! star-comp ∙ ap-irr-star pp-qq refl ∙ star-comp {g₁ = pp₁ ∙ A=}}) ∙ ap-irr-comp (ap-irr-comp refl (ap-irr-qq refl (! (star-comp ∙ ap-irr-star refl wA= ∙ wwA'=) ∙ ap-irr-star pp-qq refl {q' = A=} ∙ star-comp)) ∙ ! qq-comp ∙  ap-irr-qq (is-section= (ft-star ∙ pp₀) ssₛ (ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl)) refl {q' = ft-star ∙ pp₀} ∙ qq-id) refl ∙ id-right (ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl)) ∙ ss-of-section _ ssₛ))
       wPᵈ : isDefined (⟦ weakenTy' (prev (prev (prev last))) P ⟧Ty [wid])
-      wPᵈ = ⟦weakenTy⟧ᵈ' (prev (prev (prev last))) P Pᵈ' [A]-ft {!!} ({!? !} ∙ wid=)
+      wPᵈ = ⟦weakenTy+++⟧ᵈ P Pᵈ' A= IdStr= [wA]-ft A= wid= -- ⟦weakenTy⟧ᵈ' (prev (prev (prev last))) P Pᵈ' A= {!!} ({!? !} ∙ wid=)
       -- wPsubst3ᵈ : isDefined (⟦ subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last)) ⟧Ty [A])
       -- wPsubst3ᵈ = ⟦subst3⟧Tyᵈ [wid]-ft [wwA']-ft [wA]-ft (weakenTy' (prev (prev (prev last))) P) {!!} (var last) tt varL₁ (var last) tt varL₁' (refl (weakenTy A) (var last)) reflᵈ refl₁
       -- wPsubst3= = ⟦subst3⟧Ty= IdStr= (⟦⟧Ty-ft (weakenTy' (prev last) (weakenTy A))) (⟦⟧Ty-ft (weakenTy A)) (weakenTy' (prev (prev (prev last))) P) {!!} (var last) tt varL₁ (var last) tt varL₁' (refl (weakenTy A) (var last)) reflᵈ refl₁
       dᵈ : isDefined (⟦ d ⟧Tm (⟦ A ⟧Ty X $ Aᵈ))
       dᵈ = ⟦⟧Tmᵈ (Γᵈ , Aᵈ , tt) dd
       dₛ = ⟦⟧Tmₛ d
-      δ = ((idMor _ , var last) , refl (weakenTy A) (var last))
-      tᵈ : isDefined (⟦ P [ δ ]Ty ⟧Ty (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA))
-      tᵈ = {!⟦subst2⟧Tyᵈ (IdStr= ∙ ft-star ∙ pp₀) (ft-star ∙ pp₀) P Pᵈ (var last) tt varCL₁ (refl (weakenTy A) (var last)) reflᵈ refl₁!}
+      -- δ = ((idMor _ , var last) , refl (weakenTy A) (var last))
+      -- tᵈ : isDefined (⟦ P [ δ ]Ty ⟧Ty (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA))
+      -- tᵈ = {!⟦subst2⟧Tyᵈ (IdStr= ∙ ft-star ∙ pp₀) (ft-star ∙ pp₀) P Pᵈ (var last) tt varCL₁ (refl (weakenTy A) (var last)) reflᵈ refl₁!}
+      d₁ : ∂₁ (⟦ d ⟧Tm (⟦ A ⟧Ty X $ Aᵈ) $ dᵈ) ≡ T-d₁ ccatrefl (⟦ Γ ⟧Ctx $ Γᵈ)
+                                                              (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA)
+                                                              A=
+                                                              (⟦ P ⟧Ty (T-ftP ccatId (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ Aᵈ) A=) $ Pᵈ)
+                                                              P=
+                                                              (⟦ d ⟧Tm (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA) $ dᵈ)
       d₁ = ⟦⟧Tm₁ {Γ = Γ , A} (Γᵈ , Aᵈ , tt) {u = d} {uᵈ = dᵈ} {A = subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))} {Aᵈ = {!⟦subst3⟧Tyᵈ {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!}!}} dd
-           ∙ ⟦subst3⟧Ty= [wid]-ft [wwA']-ft [wA]-ft (weakenTy' (prev (prev (prev last))) P) wPᵈ (var last) tt (varCL₁ ∙ ⟦weakenTy⟧= A Aᵈ (⟦⟧Ty-ft A)) (var last) tt {!(varCL₁ {X= = ⟦⟧Ty-ft A} ∙ {!star-pp!})!} (refl (weakenTy A) (var last)) {!!} {!!} ∙ {!!}
+           ∙ ⟦subst3⟧Ty= [wid]-ft [wwA']-ft [wA]-ft (weakenTy' (prev (prev (prev last))) P) wPᵈ (var last) tt {!(varCL₁ ∙ ⟦weakenTy⟧= A Aᵈ (⟦⟧Ty-ft A))!} (var last) tt (varCL₁ {X= = ⟦⟧Ty-ft A} ∙ {!wwA=!}) (refl (weakenTy A) (var last)) reflᵈ {!!} ∙ {!!}
 
       aᵈ : isDefined (⟦ a ⟧Tm X)
       aᵈ = ⟦⟧Tmᵈ Γᵈ da
@@ -928,8 +960,8 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       pᵈ : isDefined (⟦ p ⟧Tm X)
       pᵈ = ⟦⟧Tmᵈ Γᵈ dp
       pₛ = ⟦⟧Tmₛ p
-      p₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = (Aᵈ , [A]-ft , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt)} dp
-      in (Aᵈ , [A]-ft , Pᵈ , P= , dᵈ , dₛ , d₁ {-! dd ∙ ⟦subst3⟧Ty= {!!} {!!} (ft-star ∙ pp₀) (weakenTy' (prev (prev (prev last))) P) (⟦weakenTy⟧ᵈ' (prev (prev (prev last))) P Pᵈ' A= {!!} {!IdStrNat ? ∙ ?!}) (var last) tt (varCL₁ ∙ {!!}) (var last) tt (varCL₁ ∙ {!wA=!}) (refl (weakenTy A) (var last)) reflᵈ {!refl₁!} ∙ {!!}!})-} , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt) -}
+      p₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = (Aᵈ , A= , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt)} dp
+      in (Aᵈ , A= , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt)-}
 
 
 ⟦⟧Morᵈ {Δ = ◇} _ _ {◇} tt = tt
