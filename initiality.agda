@@ -630,10 +630,11 @@ module _ (sf sg : StructuredCCatMor strSynCCat sC) where
                        (uniqueness-Tm-// dΓ Nat du (IH (<-+-it 0)))
     ∙ ! (sucStr→ sg (proj (Γ , dΓ)) (proj (TmToMor dΓ Nat du)) (TmToMorₛ dΓ Nat du) refl)
   uniqueness-Tm-// {Γ = Γ} dΓ _ {u = natelim P dO dS u} (Natelim dP ddO ddS du) (acc IH) =
-    let ddS₁ = WeakTy (SubstTy (WeakTy dP) (idMorDerivable (dΓ , Nat) , Suc (VarLast Nat))) in
+    let ddS₁ = SubstTy (WeakTy (WeakTy dP)) (idMorDerivable ((dΓ , Nat) , dP) , Suc (VarPrev Nat (VarLast Nat))) {-WeakTy (SubstTy (WeakTy dP) (idMorDerivable (dΓ , Nat) , Suc (VarLast Nat)))-} in
     natelimStr→ sf (proj (Γ , dΓ)) (proj (((Γ , nat) , P) , ((dΓ , Nat) , dP))) refl
                    (proj (TmToMor dΓ (SubstTy dP (idMorDerivable dΓ , Zero)) ddO)) (TmToMorₛ dΓ (SubstTy dP (idMorDerivable dΓ , Zero)) ddO) refl
-                   (proj (TmToMor ((dΓ , Nat) , dP) ddS₁ ddS)) (TmToMorₛ ((dΓ , Nat) , dP) ddS₁ ddS) (eq {R = ObEquiv} (box (CtxRefl ((dΓ , Nat) , dP) ,, congTyRefl ddS₁ (ap weakenTy (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _ ∙ ap (λ u → u [ _ ]Ty) (ap (λ u → u [ _ ]Ty) (ap (weakenTy' _) (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _ ∙ ap (λ u → P [ u , var last ]Ty) (! (weakenMorCommutes _ _))))))))
+                   (proj (TmToMor ((dΓ , Nat) , dP) ddS₁ ddS)) (TmToMorₛ ((dΓ , Nat) , dP) ddS₁ ddS) (eq {R = ObEquiv} (box (CtxRefl ((dΓ , Nat) , dP) ,, congTyRefl ddS₁
+                   (! (fixSubstTy P)))))
                    (proj (TmToMor dΓ Nat du)) (TmToMorₛ dΓ Nat du) refl
     ∙ ap-irr-natelimStr (uniqueness-Ob-// _ (IH <-ctx))
                         (uniqueness-Ob-// _ (IH (<-+-it' 0 (+suc+-lemma _ _ _))))
@@ -642,7 +643,7 @@ module _ (sf sg : StructuredCCatMor strSynCCat sC) where
                         (uniqueness-Tm-// dΓ Nat du (IH (<-+-it 3)))
     ∙ ! (natelimStr→ sg (proj (Γ , dΓ)) (proj (((Γ , nat) , P) , ((dΓ , Nat) , dP))) refl
                         (proj (TmToMor dΓ (SubstTy dP (idMorDerivable dΓ , Zero)) ddO)) (TmToMorₛ dΓ (SubstTy dP (idMorDerivable dΓ , Zero)) ddO) refl
-                        (proj (TmToMor ((dΓ , Nat) , dP) ddS₁ ddS)) (TmToMorₛ ((dΓ , Nat) , dP) ddS₁ ddS) (eq {R = ObEquiv} (box (CtxRefl ((dΓ , Nat) , dP) ,, congTyRefl ddS₁ (ap weakenTy (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _ ∙ ap (λ u → u [ _ ]Ty) (ap (λ u → u [ _ ]Ty) (ap (weakenTy' _) (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _ ∙ ap (λ u → P [ u , var last ]Ty) (! (weakenMorCommutes _ _))))))))
+                        (proj (TmToMor ((dΓ , Nat) , dP) ddS₁ ddS)) (TmToMorₛ ((dΓ , Nat) , dP) ddS₁ ddS) (eq {R = ObEquiv} (box (CtxRefl ((dΓ , Nat) , dP) ,, congTyRefl ddS₁ (!(fixSubstTy P)))))
                         (proj (TmToMor dΓ Nat du)) (TmToMorₛ dΓ Nat du) refl)
 
   uniqueness-Tm-// {Γ = Γ} dΓ _ {u = id i a u v} (IdUU da du dv) (acc IH) =

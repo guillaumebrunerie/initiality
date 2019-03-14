@@ -815,10 +815,12 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       natthing = NatStrNat pp₀
       auxauxᵈ = ⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= natthing
       auxᵈ = ⟦subst⟧Tyᵈ NatStr= (weakenTy' (prev last) P) auxauxᵈ (suc (var last)) (tt , (ssₛ , (varCL₁ ∙ natthing) , tt)) sucStr₁
-      dS₁ = ⟦⟧Tm₁ ((Γᵈ , (tt , tt)) , Pᵈ , tt) ddS
-            ∙ ! (⟦weakenTy⟧= (substTy (weakenTy' (prev last) P) (suc (var last))) auxᵈ (⟦⟧Ty-ft P))
-            ∙ ap-irr-star refl (⟦subst⟧Ty= NatStr= (weakenTy' (prev last) P) auxauxᵈ (suc (var last)) (tt , (ssₛ , (varCL₁ ∙ natthing) , tt)) sucStr₁
-              ∙ ap-irr-star refl (! (⟦weakenTy+⟧= P Pᵈ NatStr= NatStr= natthing)))
+      dS₁ = ⟦⟧Tm₁ ((Γᵈ , (tt , tt)) , Pᵈ , tt) ddS ∙ ⟦subst⟧Ty= NatStr= (weakenTy' (prev last) (weakenTy' (prev last) P))
+                                                                (⟦weakenTy+⟧ᵈ (weakenTy' (prev last) P) auxauxᵈ P= NatStr= (NatStrNat pp₀))
+                                                                (suc (var (prev last))) (tt , ssₛ , (varC+₁ last P= varCL₁ ∙ ! (star-comp {g₀ = pp₀}) ∙ NatStrNat (comp₀ ∙ pp₀)) , tt) sucStr₁ ∙
+                                                     ap-irr-star refl (! (ap-irr-star (ap-irr-qq refl natthing)
+                                                                                      (⟦weakenTy+⟧= P Pᵈ NatStr= NatStr= natthing) ∙
+                                                                          ⟦weakenTy+⟧= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= natthing) P= NatStr= (NatStrNat pp₀)))
       uᵈ  = ⟦⟧Tmᵈ Γᵈ du
       uₛ  = ⟦⟧Tmₛ u
       u₁  = ⟦⟧Tm₁ Γᵈ du
@@ -1087,7 +1089,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       naturalityNat = NatStrNat (qq^₀ ∙ Y=)
 
       wP= : _
-      wP= = ! (⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat)
+      wP= = ⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat
 
       Pᵈw : isDefined (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y))
       Pᵈw = ⟦weakenTy+⟧ᵈ' k P Pᵈ X+= X= NatStr= naturalityNat
@@ -1102,7 +1104,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dOₛw = ⟦⟧Tmₛ (weakenTm' k dO)
 
       dO₁w : ∂₁ (⟦ weakenTm' k dO ⟧Tm Y $ dOᵈw) ≡ _
-      dO₁w = ⟦weakenTm⟧₁' k dO dOᵈ X+= X= Y= dO₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (qq^₀ ∙ Y=)) (! wP=)
+      dO₁w = ⟦weakenTm⟧₁' k dO dOᵈ X+= X= Y= dO₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (qq^₀ ∙ Y=)) wP=
 
       dSᵈw : isDefined
              (⟦ weakenTm' (prev (prev k)) dS ⟧Tm
@@ -1114,15 +1116,22 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dSₛw = ⟦⟧Tmₛ (weakenTm' (prev (prev k)) dS)
 
       dS₁w : ∂₁ (⟦ weakenTm' (prev (prev k)) dS ⟧Tm (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw) $ dSᵈw)
-           ≡ star (pp (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw)) (star (sucStr (NatStr Y) (varC last (NatStr Y)) _ _) (star (qq (pp (NatStr Y)) (NatStr Y) NatStr= (pp₁ ∙ NatStr=)) (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw) _ _) _ _) _ _
-      dS₁w = ⟦weakenTm++⟧₁' k dS dSᵈ X+= X= (ft-star ∙ pp₀) (⟦⟧Ty-ft P) NatStr= (⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat) dS₁
-             ∙ star-pp
-             ∙ ap-irr-star
-               (ap pp (⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat))
-               (starstar NatStr= sucStrₛ
-                ∙ ap-irr-star (sucStrNat (qq₀ ∙ naturalityNat) ∙ ap-irr-sucStr refl (star-varCL ∙ ap ss (ap idC naturalityNat)))
-                              (star-qqpp' (NatStrNat pp₀) ∙ ap-irr-star (ap-irr-qq (ap pp naturalityNat) naturalityNat) (⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat)))
-
+             ≡ star (sucStr (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw)
+                            (varC (prev last) (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw))
+                            (varCₛ (prev last) (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw))
+                            (varC+₁ last P=w (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
+                    (star+ (pp (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw))
+                           (star+ (pp (NatStr Y))
+                                  (⟦ weakenTy' (prev k) P ⟧Ty (NatStr Y) $ Pᵈw)
+                                  P=w NatStr= (pp₁ ∙ NatStr=))
+                           (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=w))
+                    (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp) 
+      dS₁w = ⟦weakenTm++⟧₁' k dS dSᵈ X+= X= (ft-star ∙ sucStr₀) P= NatStr= wP= dS₁ ∙
+             starstar (ft-star ∙ pp₀) sucStrₛ ∙ ap-irr-star (sucStrNat qq₀ ∙ ap-irr-sucStr (⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat)
+                                                                                           (star-varCL'' ∙ ap ss (pp-qq ∙ ap-irr-comp refl refl {f₁' = pp₁ ∙ ft-star ∙ qq₀}) ∙ ! ss-comp ∙ ap ss (ap pp wP=)))
+                                                            (star-qqqqpp ∙ ap-irr-star (ap-irr-qq (ap pp wP=) (ap-irr-star (ap pp naturalityNat) naturalityNat))
+                                                                                       (ap-irr-star (ap-irr-qq (ap pp naturalityNat) naturalityNat) wP=))
+           
       uᵈw : isDefined (⟦ weakenTm' k u ⟧Tm Y)
       uᵈw = ⟦weakenTm⟧ᵈ' k u uᵈ X+= X= Y=
 
@@ -1131,7 +1140,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 
       u₁w : ∂₁ (⟦ weakenTm' k u ⟧Tm Y $ uᵈw) ≡ _
       u₁w = ⟦weakenTm⟧₁' k u uᵈ X+= X= Y= u₁ ∙ naturalityNat
-
+      
 ⟦weakenTm⟧ᵈ' k (id i a u v) (aᵈ , aₛ , a₁ , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) X+= X= Y= =
   (⟦weakenTm⟧ᵈ' k a aᵈ X+= X= Y= ,
    ⟦⟧Tmₛ (weakenTm' k a) ,
@@ -1327,10 +1336,15 @@ cong⟦⟧Mor refl δᵈ = δᵈ
     dS₁ : ∂₁ (⟦ dS ⟧Tm (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ Pᵈ) $ dSᵈ)
           ≡ T-dS₁ ccatsuc (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP) (⟦⟧Ty-ft P)
     dS₁ = ⟦⟧Tm₁ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS
-          ∙ ! (⟦weakenTy⟧= (substTy (weakenTy' (prev last) P) (suc (var last))) (⟦subst⟧Tyᵈ NatStr= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (suc (var last)) (tt , ssₛ , (varCL₁ ∙ NatStrNat pp₀) , tt) sucStr₁) (⟦⟧Ty-ft P))
-            ∙ ap-irr-star refl (⟦subst⟧Ty= NatStr= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (suc (var last)) (tt , ssₛ , (varCL₁ ∙ NatStrNat pp₀) , tt) sucStr₁
-              ∙ ap-irr-star refl (! (⟦weakenTy+⟧= P Pᵈ NatStr= NatStr= (NatStrNat pp₀))))
-
+          ∙ ⟦subst⟧Ty= NatStr= (weakenTy' (prev last) (weakenTy' (prev last) P))
+                               (⟦weakenTy+⟧ᵈ (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (⟦⟧Ty-ft P) NatStr= (NatStrNat pp₀))
+                               (suc (var (prev last)))
+                               (tt , ssₛ , (varC+₁ last (⟦⟧Ty-ft P) varCL₁ ∙ ! (star-comp {g₀ = pp₀}) ∙ NatStrNat (comp₀ ∙ pp₀)) , tt)
+                               sucStr₁
+          ∙ ap-irr-star refl (! (ap-irr-star (ap-irr-qq refl (NatStrNat pp₀))
+                                             (⟦weakenTy+⟧= P Pᵈ NatStr= NatStr= (NatStrNat pp₀))
+                                 ∙ ⟦weakenTy+⟧= (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (⟦⟧Ty-ft P) NatStr= (NatStrNat pp₀))) 
+                             
     uᵈ : isDefined (⟦ u ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ))
     uᵈ = ⟦⟧Tmᵈ Γᵈ du
 
@@ -1469,7 +1483,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       naturalityNat = NatStrNat (⟦⟧Mor₀ δ)
 
       sP= : _
-      sP= = ! (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat)
+      sP= = ⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat
 
       Pᵈs : isDefined (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X))
       Pᵈs = ⟦tsubst⟧Ty+ᵈ P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat
@@ -1484,7 +1498,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dOₛs = ⟦⟧Tmₛ (dO [ δ ]Tm)
 
       dO₁s : ∂₁ (⟦ dO [ δ ]Tm ⟧Tm X $ dOᵈs) ≡ _
-      dO₁s = ⟦tsubst⟧Tm₁ dO dOᵈ δ δᵈ dO₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (⟦⟧Mor₀ δ)) (! sP=) 
+      dO₁s = ⟦tsubst⟧Tm₁ dO dOᵈ δ δᵈ dO₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (⟦⟧Mor₀ δ)) sP= 
 
       dSᵈs : isDefined
              (⟦ dS [ weakenMor+ (weakenMor+ δ) ]Tm ⟧Tm
@@ -1496,16 +1510,22 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dSₛs = ⟦⟧Tmₛ (dS [ weakenMor+ (weakenMor+ δ) ]Tm)
 
       dS₁s : ∂₁ (⟦ dS [ weakenMor+ (weakenMor+ δ) ]Tm ⟧Tm (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs) $ dSᵈs)
-           ≡ star (pp (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs)) (star (sucStr (NatStr X) (varC last (NatStr X)) _ _) (star (qq (pp (NatStr X)) (NatStr X) NatStr= (pp₁ ∙ NatStr=)) (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs) _ _) _ _) _ _
-      dS₁s = ⟦tsubst⟧Tm++₁ dS dSᵈ δ δᵈ (⟦⟧Ty-ft (P [ weakenMor+ δ ]Ty)) NatStr= (⟦⟧Ty-ft P) NatStr= (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat) (ft-star ∙ pp₀) dS₁
-             ∙ star-pp
-               ∙ ap-irr-star
-                   (ap pp (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat))
-                   (starstar NatStr= sucStrₛ
-                     ∙ ap-irr-star
-                        (sucStrNat (qq₀ ∙ naturalityNat) ∙ ap-irr-sucStr refl (star-varCL ∙ ap ss (ap idC naturalityNat)))
-                        (star-qqpp' (NatStrNat pp₀) ∙ ap-irr-star (ap-irr-qq (ap pp naturalityNat) naturalityNat) (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat)))
-
+           ≡ star (sucStr (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs)
+                          (varC (prev last) (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs))
+                          (varCₛ (prev last) (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs))
+                          (varC+₁ last P=s (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
+                  (star+ (pp (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs))
+                         (star+ (pp (NatStr X))
+                                (⟦ P [ weakenMor+ δ ]Ty ⟧Ty (NatStr X) $ Pᵈs)
+                                P=s NatStr= (pp₁ ∙ NatStr=))
+                         (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=s))
+                  (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)            
+      dS₁s = ⟦tsubst⟧Tm++₁ dS dSᵈ δ δᵈ (⟦⟧Ty-ft (P [ weakenMor+ δ ]Ty)) NatStr= (⟦⟧Ty-ft P) NatStr= (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= NatStr= naturalityNat) (ft-star ∙ sucStr₀) dS₁
+             ∙ starstar (ft-star ∙ pp₀) sucStrₛ
+             ∙ ap-irr-star (sucStrNat qq₀ ∙ ap-irr-sucStr sP= (star-varCL'' ∙ ap ss (pp-qq ∙ ap-irr-comp refl refl {f₁' = pp₁ ∙ ft-star ∙ qq₀}) ∙ ! ss-comp ∙ ap ss (ap pp sP=)))
+                           (star-qqqqpp ∙ ap-irr-star (ap-irr-qq (ap pp sP=) (ap-irr-star (ap pp naturalityNat) naturalityNat))
+                                                      (ap-irr-star (ap-irr-qq (ap pp naturalityNat) naturalityNat) sP=))
+             
       uᵈs : isDefined (⟦ u [ δ ]Tm ⟧Tm X)
       uᵈs = ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ
 

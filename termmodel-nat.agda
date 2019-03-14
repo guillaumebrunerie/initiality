@@ -110,10 +110,10 @@ CCatwithsuc.sucStr₁ sucStrSynCCat {Γ = Γ} {u = u} = sucStr₁S Γ u
 CCatwithsuc.sucStrNat' sucStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ u uₛ u₁ g₁ → refl))))
 
 
-{- natelim -}
+{- natelim -} 
 
-fixSubstTy : (X : DCtx (suc (suc n))) → ((getTy X [ weakenMor' last (weakenMor' last (idMor _)) , var last ]Ty) [ (weakenMor' last (idMor _) , var last) , suc (var last) ]Ty) [ weakenMor' last (weakenMor' last (idMor _)) , var (prev last) ]Ty ≡ weakenTy' last (weakenTy' (prev last) (getTy X) [ (weakenMor' last (idMor _) , var last) , suc (var last) ]Ty)
-fixSubstTy X = (! (weaken[]Ty _ _ last) ∙ ap weakenTy ([idMor]Ty _ ∙ []Ty-assoc _ _ _ ∙ ap (λ z → (getTy X) [ z , suc (var last) ]Ty) (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _) ∙  ! (weakenTyInsert' _ _ _ _)))
+fixSubstTy : (X : TyExpr (suc n)) → ((X [ weakenMor (weakenMor (idMor n)) , var last ]Ty) [ weakenMor (weakenMor (idMor _)) , var last ]Ty) [ idMor _ , suc (var (prev last)) ]Ty ≡ weakenTy' (prev last) (weakenTy' (prev last) X) [ idMor _ , suc (var (prev last)) ]Ty
+fixSubstTy X = ([]Ty-assoc _ _ _ ∙ ap (λ z → (X) [ weakenMor (weakenMor (idMor _)) , var last ]Ty [ (z , var (prev last)) , suc (var (prev last)) ]Ty) (weakenMorInsert _ _ (suc (var (prev last))) ∙ [idMor]Mor _) ∙ []Ty-assoc _ _ _ ∙ ap (λ z → (X) [ z , suc (var (prev last)) ]Ty) (weakenMorInsert _ _ (suc (var (prev last))) ∙ weakenMorInsert _ _ (var (prev last)) ∙ idMor[]Mor _)) ∙ ! (weakenTyInsert' (prev last) (weakenTy' (prev last) (X)) (weakenMor (idMor _) , suc (var (prev last))) (var last) ∙ weakenTyInsert' (prev last) (X) (weakenMor (weakenMor (idMor _)) , suc (var (prev last))) (var (prev last)))
 
 
 natelimStrS-// : (Γ : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj P) ≡ NatStrS (proj Γ))
@@ -122,8 +122,8 @@ natelimStrS-// : (Γ : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj P) ≡ N
                  (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ NatStrS (proj Γ))
                  → DMor n (suc n)
 natelimStrS-// Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ =
-  let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> weakenTy (substTy (weakenTy' (prev last) (getTy P)) (suc (var last))))
-      ddS = congTmTy (fixSubstTy P) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
+  let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
+      ddS = congTmTy (fixSubstTy (getTy P)) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
   in dmorTm Γ (substTy (getTy P) (getTm u)) (SubstTy (dTy P P=) (idMor+ (der Γ) (dTm refl u uₛ u₁)))
               (natelim (getTy P) (getTm dO) (getTm dS) (getTm u))
               (Natelim (dTy P P=)
@@ -137,12 +137,12 @@ natelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {P P' : DCtx (suc (suc n))
                    (dS'₁ : ∂₁S (proj dS') ≡ T-dS₁ sucStrSynCCat (proj Γ') (proj P') P'=)
                    {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : ∂₁S (proj u) ≡ NatStrS (proj Γ)) (u'₁ : ∂₁S (proj u') ≡ NatStrS (proj Γ')) → proj {R = MorEquiv} (natelimStrS-// Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ proj (natelimStrS-// Γ' P' P'= dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁)
 natelimStrS-eq {Γ = Γ} {Γ'} rΓ {P} {P'} rP P= P'= {dO} {dO'} rdO dOₛ dO'ₛ dO₁ dO'₁ {dS} {dS'} rdS dSₛ dS'ₛ dS₁ dS'₁ {u} {u'} ru uₛ u'ₛ u₁ u'₁ =
-  let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> weakenTy (substTy (weakenTy' (prev last) (getTy P)) (suc (var last))))
-      ddS = congTmTy (fixSubstTy P) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
-      ddS' : Derivable (((ctx Γ' , nat) , getTy P') ⊢ getTm dS' :> weakenTy (substTy (weakenTy' (prev last) (getTy P')) (suc (var last))))
-      ddS' = congTmTy (fixSubstTy P') (dTm {Γ = (((_ , _) , _) , ((der Γ' , Nat) , dTy P' P'=))} (eq (box (CtxSymm (CtxTy=Ctx P' P'=)))) dS' dS'ₛ dS'₁)
-      ddS= : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS == getTm dS' :> weakenTy (substTy (weakenTy' (prev last) (getTy P)) (suc (var last))))
-      ddS= = congTmEqTy (fixSubstTy P) (dTm= {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (box (unOb≃ rP ,, SubstTyEq (SubstTyEq (SubstTyEq (dTy= rP P=) ((WeakMor (WeakMor (idMorDerivable (der Γ)))) , (VarLast Nat))) ((idMorDerivable (der Γ , Nat)) , (Suc (VarLast Nat)))) (ConvMor (WeakMor (WeakMor (idMorDerivable (der Γ)))) (CtxTy=Ctx P P=) (CtxRefl (der Γ)) , ConvTm (VarPrev Nat (VarLast Nat)) (CtxTy=Ctx P P=)))) (eq (box (CtxSymm (CtxTy=Ctx P P=)))) rdS dSₛ dS'ₛ dS₁ dS'₁)
+  let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
+      ddS = congTmTy (fixSubstTy (getTy P)) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
+      ddS' : Derivable (((ctx Γ' , nat) , getTy P') ⊢ getTm dS' :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P'))) (suc (var (prev last))))
+      ddS' = congTmTy (fixSubstTy (getTy P')) (dTm {Γ = (((_ , _) , _) , ((der Γ' , Nat) , dTy P' P'=))} (eq (box (CtxSymm (CtxTy=Ctx P' P'=)))) dS' dS'ₛ dS'₁)
+      ddS= : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS == getTm dS' :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
+      ddS= = congTmEqTy (fixSubstTy (getTy P)) (dTm= {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (box (unOb≃ rP ,, SubstTyEq (SubstTyEq (SubstTyEq (dTy= rP P=) (WeakMor+ Nat (WeakMor (idMorDerivable (der Γ))))) (WeakMor+ Nat (WeakMor (WeakMor (idMorDerivable (der Γ))) , VarPrev Nat (VarLast Nat)))) (ConvMor (idMor+ ((der Γ , Nat) , dTy P P=) (Suc (VarPrev Nat (VarLast Nat)))) (CtxTy=Ctx P P=) (CtxRefl (((der Γ , Nat) , dTy P P=) , Nat))))) (eq (box (CtxSymm (CtxTy=Ctx P P=)))) rdS dSₛ dS'ₛ dS₁ dS'₁)
                   in  
                dmorTm= rΓ (SubstTy (dTy P P=) (idMor+ (der Γ) (dTm refl u uₛ u₁)))
                           (SubstTy (dTy P' P'=) (idMor+ (der Γ') (dTm refl u' u'ₛ u'₁)))
@@ -180,8 +180,8 @@ abstract
  natelimStrₛS =
    //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ →
                dmorTmₛ (SubstTy (dTy P P=) (idMor+ (der Γ) (dTm refl u uₛ u₁)))
-                       (let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> weakenTy (substTy (weakenTy' (prev last) (getTy P)) (suc (var last))))
-                            ddS = congTmTy (fixSubstTy P) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
+                       (let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
+                            ddS = congTmTy (fixSubstTy (getTy P)) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
                         in Natelim (dTy P P=)
                                    (dTm refl dO dOₛ dO₁)
                                    ddS
@@ -217,8 +217,8 @@ betaNatZeroStrS = //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dO�
                            (CtxSymm (reflectOb dO₁))
                            (MorTran (der Γ) (der Γ , SubstTy (dTy P P=) (idMor+ (der Γ) Zero))
                                     (idMor+= (der Γ)
-                                             (let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> weakenTy (substTy (weakenTy' (prev last) (getTy P)) (suc (var last))))
-                                                  ddS = congTmTy (fixSubstTy P) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)                    
+                                             (let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
+                                                  ddS = congTmTy (fixSubstTy (getTy P)) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)                    
                                               in BetaNatZero (dTy P P=) (dTm refl dO dOₛ dO₁) ddS)) (MorSymm (der Γ) (der Γ , SubstTy (dTy P P=) (idMor+ (der Γ) Zero)) (morTm=idMorTm refl dO dOₛ dO₁)))))))))
 
 
@@ -234,16 +234,15 @@ betaNatSucStrS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ
                (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) →
                natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStrS Γ u uₛ u₁) (sucStrₛS Γ u) (sucStr₁S Γ u) ≡ Tm-substdS natelimStrSynCCat Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ 
 betaNatSucStrS = //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ →
-                 let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> weakenTy (substTy (weakenTy' (prev last) (getTy P)) (suc (var last))))
-                     ddS = congTmTy (fixSubstTy P) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)                    
+                 let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
+                     ddS = congTmTy (fixSubstTy (getTy P)) (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (eq (box (CtxSymm (CtxTy=Ctx P P=)))) dS dSₛ dS₁)                    
                  in up-to-rhsTyEq2 (MorRefl (idMorDerivable (der Γ)))
-                                   ((congTyEq ([]Ty-assoc ((idMor _ , getRHS (mor u)) , natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) (weakenMor (idMor (suc _))) _ ∙
-                                              []Ty-assoc _ (idMor (suc _) , suc (var last)) (getTy P [ weakenMor (weakenMor (idMor _)) , var last ]Ty) ∙
-                                              []Ty-assoc _ (weakenMor (weakenMor (idMor _)) , var last) (getTy P) ∙
-                                              ap (λ z → getTy P [ z , suc (getRHS (mor u)) ]Ty)
-                                                 (weakenMorInsert (weakenMor (idMor _)) _ (suc (getRHS (mor u))) ∙ weakenMorInsert _ _ (getRHS (mor u)) ∙
-                                                  (idMor[]Mor _) ∙ weakenMorInsert _ _ (getRHS (mor u)) ∙ (idMor[]Mor _) ∙ weakenMorInsert _ _ (natelim _ _ _ _) ∙
-                                                  weakenMorInsert _ _ (getRHS (mor u)) ∙ (idMor[]Mor _)))
+                                   ((congTyEq ([]Ty-assoc _ _ _ ∙ []Ty-assoc _ _ _ ∙ []Ty-assoc _ _ _ ∙
+                                                 ap (λ z → getTy P [ z , suc (getRHS (mor u)) ]Ty)
+                                                    (weakenMorInsert _ _ (suc (getRHS (mor u))) ∙ weakenMorInsert _ _ (getRHS (mor u)) ∙ (idMor[]Mor _) ∙
+                                                     weakenMorInsert _ _ (suc (getTm u)) ∙ weakenMorInsert _ _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙
+                                                     weakenMorInsert _ _ (getTm u) ∙ idMor[]Mor _ ∙
+                                                     weakenMorInsert _ _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙ weakenMorInsert _ _ (getTm u) ∙ idMor[]Mor _))
                                              (! (ap (λ z → (getTy (rhs dS) [ ((getLHS (mor dS)) [ weakenMor' last (mor u) , var last ]Mor) ]Ty) [ z , natelim _ _ _ _ ]Ty)
                                                     (weakenMorInsert (idMor _) (idMor _) (natelim _ _ _ _) ∙ (idMor[]Mor _)) ∙
                                                      []Ty-assoc (idMor _ , natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) (getLHS (mor dS) [ weakenMor (mor u) , var last ]Mor) (getTy (rhs dS)) ∙
@@ -255,7 +254,7 @@ betaNatSucStrS = //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dO�
                                                             {δ' = (getLHS (mor dS)) [ mor u , natelim (getTy P) (getTm dO) (getTm dS) (getTm u) ]Mor}
                                                             (der Γ) (der P) (dTy= (reflect (! dS₁)) refl)
                                                             (congMorEq refl refl
-                                                                       (idMor[]Mor ((idMor _ , getRHS (mor u)) , natelim (getTy P) (getTm dO) (getTm dS) (getTm u))) refl
+                                                                       (idMor[]Mor _) refl
                                                                        (SubstMorFullEq {Δ = (ctx Γ , nat) , getTy P} {θ = idMor _} {θ' = getLHS (mor dS)}
                                                                                        {δ = (idMor _ , getRHS (mor u)) , natelim (getTy P) (getTm dO) (getTm dS) (getTm u)}
                                                                                        {δ' = mor u , natelim (getTy P) (getTm dO) (getTm dS) (getTm u)}
@@ -267,13 +266,11 @@ betaNatSucStrS = //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dO�
                                                                                                   (CtxRefl ((der Γ , Nat) , dTy P P=)) (CtxTy=Ctx P P=))
                                                                                        (MorSymm (der Γ) (der Γ , Nat) (morTm=idMorTm refl u uₛ u₁) ,
                                                                                         TmRefl (Natelim (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁))))))))
-                                   (TmTran (TmEqTm2 (der Γ) (BetaNatSuc (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁)))
+                                   ((TmTran (TmEqTm2 (der Γ) (BetaNatSuc (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁)))
                                            (BetaNatSuc (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁))
-                                           (congTmEq refl (! ([]Tm-assoc _ _ (getTm dS) ∙ ap (λ z → (getTm dS) [ z , natelim (getTy P) (getTm dO) (getTm dS) (getTm u) ]Tm) (weakenMorInsert (mor u) _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙ [idMor]Mor _)))
-                                                          (weakenTyInsert _ _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙ []Ty-assoc _ _ _ ∙ ap (λ z → (weakenTy' (prev last) (getTy P)) [ (z , getTm u) , suc (getTm u) ]Ty)
-                                                                                                        (weakenMorInsert _ _ (getTm u) ∙ idMor[]Mor _ ) ∙ (weakenTyInsert' (prev last) _ _ (getTm u)))
+                                           ((congTmEq refl (! ([]Tm-assoc _ _ (getTm dS) ∙ ap (λ z → (getTm dS) [ z , natelim (getTy P) (getTm dO) (getTm dS) (getTm u) ]Tm) (weakenMorInsert (mor u) _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙ [idMor]Mor _)))
+                                                          ([]Ty-assoc _ _ _ ∙ ap (λ z → weakenTy' (prev last) (weakenTy' (prev last) (getTy P)) [ ((z , getTm u) , natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) , suc (getTm u) ]Ty) (weakenMorInsert _ _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙ weakenMorInsert _ _ (getTm u) ∙ (idMor[]Mor _)) ∙ weakenTyInsert' (prev last) _ _ (natelim (getTy P) (getTm dO) (getTm dS) (getTm u)) ∙ weakenTyInsert' (prev last) _ _ (getTm u))
                                                           (SubstTmMorEq ddS (idMor+ (der Γ) (dTm refl u uₛ u₁) , Natelim (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁))
                                                                             (MorSymm (der Γ) (der Γ , Nat)
                                                                                      (morTm=idMorTm refl u uₛ u₁) ,
-                                                                                      TmRefl (Natelim (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁))))))))))))
-
+                                                                                      TmRefl (Natelim (dTy P P=) (dTm refl dO dOₛ dO₁) ddS (dTm refl u uₛ u₁))))))))))))))
