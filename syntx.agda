@@ -735,3 +735,6 @@ weakenTy+-to-[]Ty = ap (weakenTy' (prev last)) (! ([idMor]Ty _)) ∙ weaken[]Ty 
 
 weakenTm-to-[]Tm : {u : TmExpr n} → weakenTm u ≡ u [ weakenMor (idMor n) ]Tm
 weakenTm-to-[]Tm {u = u} = ap weakenTm (! ([idMor]Tm _)) ∙ weaken[]Tm u _ _
+
+ap-[]Ty : {A A' : TyExpr n} {δ δ' : Mor m n} → A ≡ A' → δ ≡ δ' → A [ δ ]Ty ≡ A' [ δ' ]Ty
+ap-[]Ty refl refl = refl
