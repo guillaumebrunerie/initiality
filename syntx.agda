@@ -183,7 +183,7 @@ weakenCommutesTm' m k l (pair A B a b) p = ΣSS= (apR-pair-Tm (sndΣSSℕR (weak
 weakenCommutesTm' m k l (pr1 A B u) p = ΣSS= (apR-pr1-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
 weakenCommutesTm' m k l (pr2 A B u) p = ΣSS= (apR-pr2-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
 weakenCommutesTm' m k l (nat i) p = reflR
-weakenCommutesTm' m k l (zero) p = reflR
+weakenCommutesTm' m k l (zero) p = reflR 
 weakenCommutesTm' m k l (suc x) p = ΣSS= (apR-suc-Tm (sndΣSSℕR (weakenCommutesTm' m k l (x) p)))
 weakenCommutesTm' m k l (natelim P d0 dS u) p = ΣSS= (apR-natelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (P) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (d0) p)) (sndΣSSℕR (weakenCommutesTm' (suc (suc m)) k (suc (suc l)) dS (apR suc (apR suc p) R∙  apR suc (n+suc _ m) R∙ n+suc _ (suc m)))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
 weakenCommutesTm' m k l (id i a u v) p = ΣSS= (apR-id-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)) (sndΣSSℕR (weakenCommutesTm' m k l (v) p)))
