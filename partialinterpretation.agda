@@ -58,9 +58,6 @@ ap-irr-natelimStr refl refl refl refl refl = refl
 ap-irr-idStr : {n : ℕ} {i : ℕ} {X X' : _} (X-eq : X ≡ X') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i X a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i X' a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
 ap-irr-idStr refl refl refl refl = refl
 
-ap-irr-reflStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {a : _} {a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → reflStr {n = n} Γ A A= a aₛ a₁ ≡ reflStr {n = n} Γ' A' A=' a' aₛ' a₁'
-ap-irr-reflStr refl refl refl = refl
-
 
 {- Partial interpretation of types and terms -}
 

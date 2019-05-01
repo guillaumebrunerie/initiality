@@ -65,7 +65,7 @@ module CCat+ (C : CCat) where
 
   ap-irr-comp : {g g' : Mor m k} (g= : g ≡ g') {f f' : Mor n m} (f= : f ≡ f') {X X' : Ob m} {g₀ : ∂₀ g ≡ X} {g₀' : ∂₀ g' ≡ X'} {f₁ : ∂₁ f ≡ X} {f₁' : ∂₁ f' ≡ X'} → comp g f g₀ f₁ ≡ comp g' f' g₀' f₁'
   ap-irr-comp refl refl {g₀ = g₀} {g₀'} = ap-irr2 (λ X y z → comp _ _ {X = X} y z) (! g₀ ∙ g₀')
-
+  
   ap-irr-qq : {f f' : Mor m n} (f= : f ≡ f') {X X' : Ob (suc n)} (X= : X ≡ X') {Y Y' : Ob n} {q : ft X ≡ Y} {q' : ft X' ≡ Y'} {f₁ : ∂₁ f ≡ Y} {f₁' : ∂₁ f' ≡ Y'} → qq f X q f₁ ≡ qq f' X' q' f₁'
   ap-irr-qq refl refl {q = q} {q'} = ap-irr2 (λ Y y z → qq _ _ {Y = Y} y z) (! q ∙ q')
 
@@ -83,7 +83,7 @@ module CCat+ (C : CCat) where
     is-section₀ uₛ u₁ = ! id₁ ∙ ap ∂₁ (! uₛ) ∙ comp₁ ∙ pp₁ ∙ ap ft u₁
 
     ssₛ : {f : Mor m (suc n)} → is-section (ss f)
-    ssₛ = ap-irr-comp (ap pp (ss₁ refl)) refl ∙ ss-pp refl ∙ ap id (! ss₀)
+    ssₛ = ap-irr-comp (ap pp (ss₁ refl)) refl ∙ ss-pp refl ∙ ap id (! ss₀)  --ap-irr-comp (ap pp (ss₁ refl)) refl ∙ ss-pp refl ∙ ap id (! ss₀)
  
     is-section= : {X : Ob (suc n)} {Y : Ob n} (X= : ft X ≡ Y) {u : Mor n (suc n)} (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) → comp (pp X) u pp₀ u₁ ≡ id Y
     is-section= refl uₛ refl = uₛ ∙ ap id (is-section₀ uₛ refl)
@@ -171,13 +171,13 @@ module CCat+ (C : CCat) where
     starTm++₁ : (g : Mor n m) {X : Ob (suc (suc (suc m)))} {X' : Ob (suc (suc m))} (X= : ft X ≡ X') {X'' : Ob (suc m)} (X'= : ft X' ≡ X'') {X''' : Ob m} (X''= : ft X'' ≡ X''') (u : Mor (suc (suc m)) (suc (suc (suc m)))) (uₛ : is-section u) (u₁ : ∂₁ u ≡ X) (g₁ : ∂₁ g ≡ X''') → ∂₁ (starTm++ g X'= X''= u (is-section₀ uₛ u₁ ∙ X=) g₁) ≡ star++ g X X= X'= X''= g₁
     starTm++₁ g {X} {X'} X= {X''} X'= {X'''} X''= u uₛ u₁ g₁ = starTm+₁ (qq g X'' X''= g₁) X= X'= u uₛ u₁ qq₁
 
-    star-pp : {n m : ℕ} {g : Mor n m} {A : Ob (suc m)} {B : Ob (suc m)} {X : Ob m} {A= : ft A ≡ X} {B= : ft B ≡ X} {g₁ : ∂₁ g ≡ X}
-           → star (qq g A A= g₁) (star (pp A) B B= (pp₁ ∙ A=)) (ft-star ∙ pp₀) qq₁ ≡ star (pp (star g A A= g₁)) (star g B B= g₁) ft-star (pp₁ ∙ ft-star)
-    star-pp = ! star-comp ∙ ap-irr-star pp-qq refl ∙ star-comp
+    star-pp : {n m : ℕ} {g : Mor n m} {A : Ob (suc m)} {B : Ob (suc m)} {X : Ob m} {A= : ft A ≡ X} {B= : ft B ≡ X} {g₁ : ∂₁ g ≡ X} {Y : Ob n} (g₀ : ∂₀ g ≡ Y)
+           → star (qq g A A= g₁) (star (pp A) B B= (pp₁ ∙ A=)) (ft-star ∙ pp₀) qq₁ ≡ star (pp (star g A A= g₁)) (star g B B= g₁) (ft-star ∙ g₀) (pp₁ ∙ ft-star ∙ g₀)
+    star-pp refl = ! star-comp ∙ ap-irr-star pp-qq refl ∙ star-comp 
 
-    star-pp' : {n : ℕ} {g : Mor n (suc n)} {A : Ob (suc n)} {B : Ob (suc n)} {X : Ob n} (A= : ft A ≡ X) {B= : ft B ≡ X} (gₛ : is-section g) {g₁ : ∂₁ g ≡ A} {w₁ : _} {w₂ : _}
-             → star g (star (pp A) B B= w₁) w₂ g₁ ≡ B
-    star-pp' {g = g} A= {B=} gₛ {g₁} = ! star-comp ∙ ap-irr-star (is-section= A= gₛ g₁) refl {q' = B=} ∙ star-id
+    star-pp' : {n : ℕ} {g : Mor n (suc n)} {A : Ob (suc n)} {X : Ob n} (A= : ft A ≡ X) (gₛ : is-section g) (g₁ : ∂₁ g ≡ A) {w₁ : _} {w₂ : _}
+             → star g (star (pp A) A A= w₁) w₂ g₁ ≡ A
+    star-pp' {g = g} A= gₛ g₁ = ! star-comp ∙ ap-irr-star (is-section= A= gₛ g₁) refl {q' = A=} ∙ star-id
 
     star-qqpp : {n m : ℕ} {g : Mor n m} {B : Ob (suc (suc m))} {A : Ob (suc m)} {B= : ft B ≡ A} {X : Ob m} {A= : ft A ≡ X}
               → {g₁ : ∂₁ g ≡ X}
@@ -216,19 +216,9 @@ module CCat+ (C : CCat) where
              → star g (star a B B= a₁) (ft-star ∙ is-section₀ aₛ a₁ ∙ A=) g₁ ≡ star (starTm g a (is-section₀ aₛ a₁ ∙ A=) g₁) (star (qq g A A= g₁) B B= qq₁) (ft-star ∙ qq₀) (starTm₁ g A= a aₛ a₁ g₁)
     starstar {g = g} {B} {B=} A= {g₁} {a} aₛ {a₁} = ! star-comp ∙ ap-irr-star (ss-qq ∙ ap-irr-comp (ap-irr-qq (! assoc ∙ ap-irr-comp (is-section= A= aₛ a₁) refl ∙ id-right g₁) refl) refl {g₀' = qq₀}) refl ∙ star-comp
 
-    star-varCL : {g : Mor n m} {A : Ob (suc m)} {X : Ob m} {A= : ft A ≡ X} {g₁ : ∂₁ g ≡ X} → starTm (qq g A A= g₁) (ss (id A)) (ss₀ ∙ id₀) qq₁ ≡ ss (id (star g A A= g₁))
-    star-varCL {A = A} = ss-comp {U = A} ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = id₁})) refl ∙ id-right qq₁) ∙ ! (ss-comp {U = A} ∙ ap ss (id-left qq₀))
-
-    star-varCL' : {g : Mor n (suc m)} {A : Ob (suc m)} {g₁ : ∂₁ g ≡ A} → starTm g (ss (id A)) (ss₀ ∙ id₀) g₁ ≡ ss g
-    star-varCL' {g₁ = g₁} = ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = id₁})) refl ∙ id-right g₁)
-
-    star-varCL'' : {g : Mor m (suc k)} {f : Mor n m} {X : Ob m} {g₀ : ∂₀ g ≡ X} {f₁ : ∂₁ f ≡ X} → starTm f (ss g) (ss₀ ∙ g₀) f₁ ≡ ss (comp g f g₀ f₁)
-    star-varCL'' = ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = refl})) refl)
-
-    starTm-comp : {m n k : ℕ} {g : Mor m k} {f : Mor n m} {Y : Ob m} (g₀ : ∂₀ g ≡ Y) {f₁ : ∂₁ f ≡ Y} {u : Mor k (suc k)} {X : Ob k} {u₀ : ∂₀ u ≡ X} {g₁ : ∂₁ g ≡ X}
-                → starTm (comp g f g₀ f₁) u u₀ (comp₁ ∙ g₁) ≡ starTm f (starTm g u u₀ g₁) (ss₀ ∙ comp₀ ∙ g₀) f₁
-    starTm-comp g₀ = ap ss (! assoc) ∙ ! (star-varCL'' {g₀ = comp₀ ∙ g₀})
-
+    starstar+ : {g : Mor n m} {C : Ob (suc (suc (suc m)))} {B : Ob (suc (suc m))} {C= : ft C ≡ B} {A : Ob (suc m)} {B= : ft B ≡ A} {X : Ob m} (A= : ft A ≡ X) {g₁ : ∂₁ g ≡ X} {a : Mor m (suc m)} (aₛ : is-section a) {a₁ : ∂₁ a ≡ A}
+              → star (qq g (star a B B= a₁) (ft-star ∙ is-section₀ aₛ a₁ ∙ A=) g₁) (star (qq a B B= a₁) C C= qq₁) (ft-star ∙ qq₀) qq₁ ≡ star (qq (starTm g a (is-section₀ aₛ a₁ ∙ A=) g₁) (star (qq g A A= g₁) B B= qq₁) (ft-star ∙ qq₀) (starTm₁ g A= a aₛ a₁ g₁)) (star (qq (qq g A A= g₁) B B= qq₁) C C= qq₁) (ft-star ∙ qq₀ ) qq₁
+    starstar+ {g = g} {C} {B} {C=} {B= = B=} A= {g₁} {a} aₛ {a₁} = ! star-comp ∙ ap-irr-star (! qq-comp ∙ ap-irr-qq (ss-qq ∙ ap-irr-comp (ap-irr-qq (! assoc ∙ ap-irr-comp (is-section= A= aₛ a₁) refl ∙ id-right g₁) refl) refl {g₀' = qq₀}) refl ∙ qq-comp) refl ∙ star-comp
 
 
   pp^  : (k : Fin n) → Ob n → Mor n (n -F k)
@@ -275,6 +265,23 @@ module CCat+ (C : CCat) where
   varC+₁ last refl refl = ss₁ pp₁ ∙ star-comp ∙ ap-irr-star refl (! varCL₁)
   varC+₁ (prev k) {X = X} {Y = Y} refl refl = ss₁ (comp₁ ∙ pp^₁ (prev k) Y) ∙ ap-irr-star (! assoc) refl ∙ star-comp ∙ (ap-irr-star refl (! (ss₁ (pp^₁ (prev k) Y))))
 
+  abstract
+    star-varCL : {g : Mor n m} {A : Ob (suc m)} {X : Ob m} {A= : ft A ≡ X} {g₁ : ∂₁ g ≡ X} → starTm (qq g A A= g₁) (varC last A) (ss₀ ∙ id₀) qq₁ ≡ varC last (star g A A= g₁)
+    star-varCL {A = A} = ss-comp {U = A} ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = id₁})) refl ∙ id-right qq₁) ∙ ! (ss-comp {U = A} ∙ ap ss (id-left qq₀))
+
+    star-varCL' : {g : Mor n (suc m)} {A : Ob (suc m)} {g₁ : ∂₁ g ≡ A} → starTm g (varC last A) (ss₀ ∙ id₀) g₁ ≡ ss g
+    star-varCL' {g₁ = g₁} = ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = id₁})) refl ∙ id-right g₁)
+
+    star-varCL'' : {g : Mor m (suc k)} {f : Mor n m} {X : Ob m} {g₀ : ∂₀ g ≡ X} {f₁ : ∂₁ f ≡ X} → starTm f (ss g) (ss₀ ∙ g₀) f₁ ≡ ss (comp g f g₀ f₁)
+    star-varCL'' = ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = refl})) refl)
+
+    starTm-comp : {m n k : ℕ} {g : Mor m k} {f : Mor n m} {Y : Ob m} (g₀ : ∂₀ g ≡ Y) {f₁ : ∂₁ f ≡ Y} {u : Mor k (suc k)} {X : Ob k} {u₀ : ∂₀ u ≡ X} {g₁ : ∂₁ g ≡ X}
+                → starTm (comp g f g₀ f₁) u u₀ (comp₁ ∙ g₁) ≡ starTm f (starTm g u u₀ g₁) (ss₀ ∙ comp₀ ∙ g₀) f₁
+    starTm-comp g₀ = ap ss (! assoc) ∙ ! (star-varCL'' {g₀ = comp₀ ∙ g₀})
+
+    starTm-id : {X : Ob n} {u : Mor n (suc n)} (u₀ : ∂₀ u ≡ X) (uₛ : is-section u) → starTm (id X) u u₀ id₁ ≡ u
+    starTm-id u₀ uₛ = ap ss (id-left u₀) ∙ ss-of-section _ uₛ
+ 
   star-varC+ : {g : Mor n m} {B : Ob (suc (suc m))} {A : Ob (suc m)} {X : Ob m} {B= : ft B ≡ A} {A= : ft A ≡ X} {g₁ : ∂₁ g ≡ X}
              → starTm (qq (qq g A A= g₁) B B= qq₁) (varC (prev last) B) (ss₀ ∙ pp₀) qq₁
                ≡ varC (prev last) (star (qq g A A= g₁) B B= qq₁)
@@ -292,7 +299,7 @@ module CCat+ (C : CCat) where
                                         C
                                         C=
                                         qq₁)
-                                  (ft-star ∙ qq₀ ∙ refl)
+                                  (ft-star ∙ qq₀)
                                   qq₁ ≡ C
   star-qqvarCL-star-qqqqpp {B= = B=} {C= = C=} = ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! (ss-qq {f₁ = id₁})) refl ∙ qq-id {p = B=}) refl ∙ star-id {p = C=}
 
@@ -364,6 +371,7 @@ record CCatwithSig (ccat : CCat) : Set₁ where
   SigStrNat g₀ {g₁ = g₁} = SigStrNat' _ _ g₀ _ _ _ _ _ g₁
 
 record CCatwithNat (ccat : CCat) : Set₁ where
+  no-eta-equality
   open CCat+ ccat renaming (Mor to MorC)
 
   field
@@ -377,6 +385,7 @@ record CCatwithNat (ccat : CCat) : Set₁ where
   NatStrNat g₀ = NatStrNat' _ _ g₀ _ 
 
 record CCatwithId (ccat : CCat) : Set₁ where
+  no-eta-equality
   open CCat+ ccat renaming (Mor to MorC)
 
   field
@@ -391,7 +400,7 @@ record CCatwithId (ccat : CCat) : Set₁ where
              → star g (IdStr Γ A A= a aₛ a₁ b bₛ b₁) IdStr= g₁ ≡ IdStr Δ (star g A A= g₁) (ft-star ∙ g₀) (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁) (starTm g b b₀ g₁) ssₛ (starTm₁ g A= b bₛ b₁ g₁)
   IdStrNat g₀ = IdStrNat' _ _ g₀ _ _ _ _ _ _ _ _ _ _
 
-  ap-irr-IdStr : {Γ Γ' : Ob n} (rΓ : Γ ≡ Γ') {A A' : Ob (suc n)} (rA : A ≡ A') {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'} {u u' : MorC n (suc n)}(ru : u ≡ u') {uₛ : is-section u} {u₁ : ∂₁ u ≡ A} {uₛ' : is-section u'} {u₁' : ∂₁ u' ≡ A'}  {v v' : MorC n (suc n)} (rv : v ≡ v'){vₛ : is-section v} {v₁ : ∂₁ v ≡ A} {vₛ' : is-section v'} {v₁' : ∂₁ v' ≡ A'} → IdStr Γ A A= u uₛ u₁ v vₛ v₁ ≡ IdStr Γ' A' A'= u' uₛ' u₁' v' vₛ' v₁'
+  ap-irr-IdStr : {Γ Γ' : Ob n} (rΓ : Γ ≡ Γ') {A A' : Ob (suc n)} (rA : A ≡ A') {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'} {u u' : MorC n (suc n)} (ru : u ≡ u') {uₛ : is-section u} {u'ₛ : is-section u'} {u₁ : ∂₁ u ≡ A} {u'₁ : ∂₁ u' ≡ A'} {v v' : MorC n (suc n)} (rv : v ≡ v') {vₛ : is-section v} {v'ₛ : is-section v'} {v₁ : ∂₁ v ≡ A} {v'₁ : ∂₁ v' ≡ A'} → IdStr Γ A A= u uₛ u₁ v vₛ v₁ ≡ IdStr Γ' A' A'= u' u'ₛ u'₁ v' v'ₛ v'₁
   ap-irr-IdStr refl refl refl refl = refl
 
 record CCatwithuu (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
@@ -669,6 +678,7 @@ record CCatwithzero (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
 
 
 record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
+  no-eta-equality
   open CCat+ ccat renaming (Mor to MorC)
   open CCatwithNat ccatnat
 
@@ -805,6 +815,7 @@ record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl 
 
 
 record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
+  no-eta-equality
   open CCat+ ccat renaming (Mor to MorC)
   open CCatwithId ccatid
 
@@ -826,54 +837,76 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
                  (let u₀ = is-section₀ uₛ u₁ ∙ A=)
              → starTm g (reflStr Γ A A= u uₛ u₁) reflStr₀ g₁ ≡ reflStr Δ (star g A A= g₁) (ft-star ∙ g₀) (starTm g u u₀ g₁) ssₛ (starTm₁ g A= u uₛ u₁ g₁)
   reflStrNat g₀ = reflStrNat' _ _ g₀ _ _ _ _ _ _ _
+  
+  ap-irr-reflStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {a : _} {a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → reflStr {n = n} Γ A A= a aₛ a₁ ≡ reflStr {n = n} Γ' A' A=' a' aₛ' a₁'
+  ap-irr-reflStr refl refl refl = refl
 
 
--- T-ftP : {ccat : CCat} (ccatId : CCatwithId ccat) (let open CCat+ ccat) (let open CCatwithId ccatId) (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) → Ob (suc (suc (suc n)))
--- T-ftP {ccat = ccat} ccatId Γ A A= =
---   let open CCat+ ccat
---       open CCatwithId ccatId in
---   IdStr (star (pp A) A A= (pp₁ ∙ A=))
---         (star (pp (star (pp A) A A= (pp₁ ∙ A=))) (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) (pp₁ ∙ ft-star ∙ pp₀))
---         (ft-star ∙ pp₀)
---         (varC (prev last) (star (pp A) A A= (pp₁ ∙ A=))) (varCₛ (prev last) (star (pp A) A A= (pp₁ ∙ A=))) (varC+₁ last (ft-star ∙ pp₀) varCL₁)
---         (varC last (star (pp A) A A= (pp₁ ∙ A=))) (varCₛ last (star (pp A) A A= (pp₁ ∙ A=))) varCL₁
+abstract
+  T-ftP : {ccat : CCat} (ccatId : CCatwithId ccat) (let open CCat+ ccat) (let open CCatwithId ccatId) (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) → Ob (suc (suc (suc n)))
+  T-ftP {ccat = ccat} ccatId Γ A A= =
+    let open CCat+ ccat
+        open CCatwithId ccatId in
+    IdStr (star (pp A) A A= (pp₁ ∙ A=))
+          (star (pp (star (pp A) A A= (pp₁ ∙ A=))) (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) (pp₁ ∙ ft-star ∙ pp₀))
+          (ft-star ∙ pp₀)
+          (varC (prev last) (star (pp A) A A= (pp₁ ∙ A=))) (varCₛ (prev last) (star (pp A) A A= (pp₁ ∙ A=))) (varC+₁ last (ft-star ∙ pp₀) varCL₁)
+          (varC last (star (pp A) A A= (pp₁ ∙ A=))) (varCₛ last (star (pp A) A A= (pp₁ ∙ A=))) varCL₁
+          
+  [T-ftP] : {ccat : CCat} (ccatId : CCatwithId ccat) (let open CCat+ ccat) (let open CCatwithId ccatId) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} →
+            T-ftP ccatId Γ A A= ≡ IdStr (star (pp A) A A= (pp₁ ∙ A=))
+                                        (star (pp (star (pp A) A A= (pp₁ ∙ A=))) (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) (pp₁ ∙ ft-star ∙ pp₀))
+                                        (ft-star ∙ pp₀)
+                                        (varC (prev last) (star (pp A) A A= (pp₁ ∙ A=))) (varCₛ (prev last) (star (pp A) A A= (pp₁ ∙ A=))) (varC+₁ last (ft-star ∙ pp₀) varCL₁)
+                                        (varC last (star (pp A) A A= (pp₁ ∙ A=))) (varCₛ last (star (pp A) A A= (pp₁ ∙ A=))) varCL₁
+  [T-ftP] ccatId = refl
 
--- T-d₁ : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc n)))))
---        (P= : ft P ≡ T-ftP ccatId Γ A A=) (d : Mor (suc n) (suc (suc n))) → Ob (suc (suc n))
--- T-d₁ {n} {ccat = ccat} {ccatId} ccatrefl Γ A A= P P= d =
---   let open CCat+ ccat
---       open CCatwithId ccatId
---       open CCatwithrefl ccatrefl
---       wA = star (pp A) A A= (pp₁ ∙ A=)
---       wwA = star+ (pp A) wA (ft-star ∙ pp₀) A= (pp₁ ∙ A=)
---       wwwA = star++ (pp A) (T-ftP ccatId Γ A A=) IdStr= (ft-star ∙ pp₀) A= (pp₁ ∙ A=)
---       wP : Ob (suc (suc (suc (suc (suc n)))))
---       wP = star+++ (pp A) P P= IdStr= (ft-star ∙ pp₀) A= (pp₁ ∙ A=)
---   in
---     star (reflStr A wA (ft-star ∙ pp₀) (varC last A) (varCₛ last A) varCL₁)
---          (star (qq (varC last A)
---                    (star (qq (varC last A)
---                              wwA
---                              (ft-star ∙ qq₀)
---                              varCL₁)
---                          wwwA
---                          (ft-star ∙ qq₀)
---                          qq₁)
---                    (ft-star ∙ qq₀ ∙ star-varCL-star-qqpp)
---                    varCL₁)
---                (star (qq (qq (varC last A) wwA (ft-star ∙ qq₀) varCL₁) wwwA (ft-star ∙ qq₀) qq₁)
---                      wP (ft-star ∙ qq₀) qq₁)
---                (ft-star ∙ qq₀)
---                qq₁)
---          (ft-star ∙ qq₀
---            ∙ ap-irr-star refl (ap-irr-star refl (IdStrNat qq₀ {g₁ = qq₁}) ∙ IdStrNat qq₀ {g₁ = qq₁}) ∙ IdStrNat (ss₀ ∙ id₀) {g₁ = ss₁ id₁ ∙ {!!}}
---            ∙ ap-irr-IdStr refl {!star-varCL-star-qqpp!} {!!} {!!})
---            -- ∙ ap-irr-star refl (ap-irr-star refl (IdStrNat qq₀ ∙ ap-irr-IdStr refl (ap-irr-star refl (ap-irr-star refl refl ∙ ! star-pp) {q' = ft-star ∙ qq₀}) star-varC+ star-varCL)
---            --                      ∙ IdStrNat qq₀
---            --                      ∙ ap-irr-IdStr star-varCL-star-qqpp star-qqvarCL-star-qqqqpp thing (star-varCL ∙ refl))
---            -- ∙ IdStrNat (ss₀ ∙ id₀)
---            -- ∙ ap-irr-IdStr refl star-varCL-star-qqpp (star-varCL'' ∙ ap ss (is-section= (ft-star ∙ pp₀) ssₛ varCL₁)) (ap-irr-starTm refl refl ∙ star-varCL' ∙ ss-of-section _ ssₛ))
---          reflStr₁
+  T-ftP= : {ccat : CCat} (ccatId : CCatwithId ccat) (let open CCat+ ccat) (let open CCatwithId ccatId) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} → ft (T-ftP ccatId Γ A A=) ≡ star (pp A) A A= (pp₁ ∙ A=)
+  T-ftP= {ccat = ccat} ccatId  =
+    let open CCat+ ccat
+        open CCatwithId ccatId in IdStr=
+
+  T-ftPNat : {ccat : CCat} (ccatId : CCatwithId ccat) (let open CCat+ ccat) (let open CCatwithId ccatId) {g : Mor m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {g₁ : ∂₁ g ≡ Γ} → star++ g (T-ftP ccatId Γ A A=) (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁ ≡ T-ftP ccatId Δ (star g A A= g₁) (ft-star ∙ g₀)
+  T-ftPNat {ccat = ccat} ccatId g₀ = let open CCat+ ccat
+                                         open CCatwithId ccatId in
+                                     IdStrNat qq₀ ∙ ap-irr-IdStr (star-pp g₀) (star-pp qq₀ ∙ ap-irr-star (ap pp (star-pp g₀)) (star-pp g₀)) (star-varC+ ∙ ap (varC (prev last)) (star-pp g₀)) (star-varCL ∙ ap (varC last) (star-pp g₀))
+
+abstract
+  T-d₁ : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc n))))) (P= : ft P ≡ T-ftP ccatId Γ A A=) (d : Mor (suc n) (suc (suc n))) → Ob (suc (suc n))
+  T-d₁ {n} {ccat = ccat} {ccatId} ccatrefl Γ A A= P P= d =
+       let open CCat+ ccat
+           open CCatwithId ccatId
+           open CCatwithrefl ccatrefl
+           wA = star (pp A) A A= (pp₁ ∙ A=)
+           wwA = star+ (pp A) wA (ft-star ∙ pp₀) A= (pp₁ ∙ A=)
+           widA = star++ (pp A) (T-ftP ccatId Γ A A=) IdStr= (ft-star ∙ pp₀) A= (pp₁ ∙ A=)
+           wP : Ob (suc (suc (suc (suc (suc n)))))
+           wP = star+++ (pp A) P P= IdStr= (ft-star ∙ pp₀) A= (pp₁ ∙ A=)
+       in
+         star (reflStr A wA (ft-star ∙ pp₀) (varC last A) (varCₛ last A) varCL₁)
+              (star (qq (varC last A)
+                        (star (qq (varC last A) wwA (ft-star ∙ qq₀) varCL₁) widA (ft-star ∙ qq₀) qq₁)
+                        (ft-star ∙ qq₀)
+                        (varCL₁ ∙ ! star-varCL-star-qqpp))
+                    (star (qq (qq (varC last A) wwA (ft-star ∙ qq₀) varCL₁) widA (ft-star ∙ qq₀) qq₁)
+                          wP (ft-star ∙ qq₀) qq₁)
+                    (ft-star ∙ qq₀)
+                    qq₁)
+              (ft-star ∙ qq₀)
+              (reflStr₁ ∙ ! (ap-irr-star refl (! star-comp ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! ss-qq) refl {q' = ft-star ∙ pp₀} ∙ qq-id) refl {q' = IdStr=} ∙ star-id) ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁} ∙
+                         ap-irr-IdStr refl (! star-comp ∙ ap-irr-star (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁ ) refl {q' = ft-star ∙ pp₀}∙ star-id)
+                                          (star-varCL'' ∙ ap ss (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁))
+                                          (star-varCL' ∙ ss-of-section _ (varCₛ last _))))
+
+  T-d₁= : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc n))))} {P= : ft P ≡ T-ftP ccatId Γ A A=} {d : Mor (suc n) (suc (suc n))} → ft (T-d₁ ccatrefl Γ A A= P P= d) ≡ A
+  T-d₁= {ccat = ccat} ccatrefl = let open CCat+ ccat
+                                     open CCatwithrefl ccatrefl
+                                 in ft-star ∙ reflStr₀
+
+  T-d₁Nat : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatId) (let open CCat+ ccat) (let open CCatwithId ccatId) (let open CCatwithrefl ccatrefl) {g : Mor m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc n))))} {P= : ft P ≡ T-ftP ccatId Γ A A=} {d : Mor (suc n) (suc (suc n))} (dₛ : is-section d) (d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d) {g₁ : ∂₁ g ≡ Γ} → star (qq g A A= g₁) (T-d₁ ccatrefl Γ A A= P P= d) (T-d₁= ccatrefl) qq₁ ≡ T-d₁ ccatrefl Δ (star g A A= g₁) (ft-star ∙ g₀) (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀) (starTm+ g A= d (is-section₀ dₛ d₁ ∙ T-d₁= ccatrefl) g₁)
+  T-d₁Nat {ccat = ccat} ccatrefl g₀ dₛ d₁ = let open CCat+ ccat
+                                                open CCatwithrefl ccatrefl in
+                                            starstar (ft-star ∙ varC₀ {k = last}) reflStrₛ ∙ ap-irr-star (reflStrNat qq₀ ∙ ap-irr-reflStr refl (star-pp g₀) star-varCL) (starstar+ (ft-star ∙ varC₀ {k = last}) (varCₛ last _) ∙ {!ap-irr-star ? ?!})
 
 -- record CCatwithjj (ccat : CCat) (ccatId : CCatwithId ccat) (ccatrefl : CCatwithrefl ccat ccatId) : Set₁ where
 --   open CCat+ ccat renaming (Mor to MorC)
@@ -893,238 +926,270 @@ record CCatwithrefl (ccat : CCat) (ccatid : CCatwithId ccat) : Set₁ where
 --            → is-section (jjStr {n = n} Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
 --     jjStr₁ : ∀ {Γ A A= P P= d a b p} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁}
 --              (let wA = star (pp A) A A= (pp₁ ∙ A=))
+--              (let [wA][a] = star-pp' A= aₛ a₁)
+--              (let [wA][b] = star-pp' A= bₛ b₁)
 --            → ∂₁ (jjStr {n = n} Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
---              ≡ star p
---                     (star (qq b
---                               (star (qq a
---                                         wA
---                                         (ft-star ∙ pp₀) a₁)
---                                      (T-ftP ccatId Γ A A=)
---                                      IdStr= qq₁)
---                               (ft-star ∙ qq₀) (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) ∙ star-comp))
---                           (star (qq (qq a
---                                          wA
---                                          (ft-star ∙ pp₀) a₁)
---                                      (T-ftP ccatId Γ A A=)
---                                      IdStr= qq₁)
---                                 P
---                                 P= qq₁)
---                           (ft-star ∙ qq₀) qq₁)
---                     {!(ft-star ∙ qq₀ ∙ ! (star-comp {g₀ = qq₀}) ∙ IdStrNat (comp₀ ∙ is-section₀ bₛ b₁ ∙ A=) ∙ ap-irr-IdStr refl
---                              (! star-comp ∙ ap-irr-star (! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl
---                                                                                                                 (is-section= (ft-star ∙ is-section₀ aₛ a₁ ∙ A=)
---                                                                                                                              bₛ (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) ∙ star-comp)) ∙ id-left (is-section₀ aₛ a₁ ∙ A=)) refl ∙ ! star-comp ∙ ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) (ss-comp ∙ ap ss (! assoc ∙ ap-irr-comp (! (ss-qq {f₁ = pp₁ ∙ ft-star  pp₀})) refl ∙ ! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc ∙ ap-irr-comp refl (is-section= (ft-star ∙ is-section₀ aₛ a₁ ∙ A=)                                                                                                                             bₛ (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=}  star-id)  star-comp))  id-left (is-section₀ aₛ a₁ ∙ A=))  ss-of-section a aₛ) (ss-comp  ap ss (! assoc  ap-irr-comp (! (ss-qq {f₁ = id₁})) refl  id-right (comp₁ ∙ qq₁))  ss-comp  ap ss (! assoc  ap-irr-comp (! qq-comp  ap-irr-qq (is-section= A= aₛ a₁) refl {q' = A=}  qq-id) refl  id-right b₁)  ss-of-section b bₛ))!} p₁
+--              ≡ star p (star (qq b (star (qq a wA (ft-star ∙ pp₀) a₁)
+--                                         (T-ftP ccatId Γ A A=)
+--                                         (T-ftP= ccatId) qq₁)
+--                                   (ft-star ∙ qq₀) (b₁ ∙ ! (ap-irr-star (is-section= A= aₛ a₁) refl {q' = A=} ∙ star-id) ∙ star-comp))
+--                             (star (qq (qq a wA (ft-star ∙ pp₀) a₁)
+--                                       (T-ftP ccatId Γ A A=)
+--                                       (T-ftP= ccatId) qq₁)
+--                                   P P= qq₁)
+--                             (ft-star ∙ qq₀) qq₁)
+--                       (ft-star ∙ qq₀) (p₁ ∙ ! (ap-irr-star refl (ap-irr-star refl ([T-ftP] ccatId) ∙ IdStrNat qq₀ ∙
+--                                                                  ap-irr-IdStr [wA][a] 
+--                                                                               (star-pp (is-section₀ aₛ a₁ ∙ A=) ∙ ap-irr-star (ap pp [wA][a]) [wA][a]) {A'= = ft-star ∙ pp₀}
+--                                                                               (star-varCL'' ∙ ap ss (pp-qq ∙ ap-irr-comp refl (ap pp [wA][a]) {g₀' = is-section₀ aₛ a₁} {f₁' = pp₁})) {u'ₛ = ssₛ} {u'₁ = ss₁ (comp₁ ∙ a₁) ∙ ap-irr-star (! assoc ∙ ap-irr-comp (is-section= A= aₛ a₁) refl ∙ id-right (pp₁ ∙ A=)) refl}
+--                                                                               (star-varCL ∙ ap (varC last) [wA][a]) {v'ₛ = ssₛ} {v'₁ = varCL₁}) ∙
+--                                                                  IdStrNat (is-section₀ bₛ b₁ ∙ A=) ∙ ap-irr-IdStr refl [wA][b]
+--                                                                                                                        (! (starTm-comp pp₀) ∙ ap-irr-starTm (is-section= A= bₛ b₁) refl ∙ starTm-id (is-section₀ aₛ a₁ ∙ A= ) aₛ)
+--                                                                                                                        (star-varCL' ∙ ss-of-section _ bₛ)))
 
 --   jjStr₀ : ∀ {Γ A A= P P= d dₛ} {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d} → ∀ {a aₛ a₁ b bₛ b₁ p pₛ p₁}
 --          → ∂₀ (jjStr {n = n} Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ Γ
 --   jjStr₀ {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {pₛ} {p₁} = is-section₀ jjStrₛ jjStr₁ ∙ ft-star ∙ is-section₀ pₛ p₁ ∙ IdStr=
 
+--   field
+--     jjStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (A : Ob (suc m)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc m)))))
+--                 (P= : ft P ≡ T-ftP ccatId Γ A A=)
+--                 (d : MorC (suc m) (suc (suc m))) (dₛ : is-section d)
+--                 (d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d)
+--                 (a : MorC m (suc m)) (aₛ : is-section a) (a₁ : ∂₁ a ≡ A)
+--                 (b : MorC m (suc m)) (bₛ : is-section b) (b₁ : ∂₁ b ≡ A)
+--                 (p : MorC m (suc m)) (pₛ : is-section p) (p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁) (g₁ : ∂₁ g ≡ Γ)
+--                 (let d₀ = is-section₀ dₛ d₁ ∙ (T-d₁= ccatrefl)) (let a₀ = is-section₀ aₛ a₁ ∙ A=) (let b₀ = is-section₀ bₛ b₁ ∙ A=) (let p₀ = is-section₀ pₛ p₁ ∙ IdStr=) →
+--                 starTm g (jjStr Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) jjStr₀ g₁ ≡ jjStr Δ (star g A A= g₁) (ft-star ∙ g₀)
+--                                                                                                  (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀)
+--                                                                                                  (starTm+ g A= d d₀ g₁) ssₛ (starTm+₁ g (T-d₁= ccatrefl) A= d dₛ d₁ g₁ ∙ T-d₁Nat ccatrefl g₀ dₛ d₁) 
+--                                                                                                  (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁)
+--                                                                                                  (starTm g b b₀ g₁) ssₛ (starTm₁ g A= b bₛ b₁ g₁)
+--                                                                                                  (starTm g p p₀ g₁) ssₛ (starTm₁ g IdStr= p pₛ p₁ g₁ ∙ IdStrNat g₀)
 
-T-lhsEtaPi : {ccat : CCat} (ccatPi : CCatwithPi ccat) (ccatlam : CCatwithlam ccat ccatPi) (ccatapp : CCatwithapp ccat ccatPi) (let open CCat+ ccat) (let open CCatwithPi ccatPi)
-           (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) (f : Mor n (suc n)) (fₛ : is-section f) (f₁ : ∂₁ f ≡ PiStr Γ A A= B B=) → Mor n (suc n)
-T-lhsEtaPi {ccat = ccat} ccatPi ccatlam ccatapp Γ A A= B B= f fₛ f₁ =
-  let open CCat+ ccat
-      open CCatwithPi ccatPi
-      open CCatwithlam ccatlam
-      open CCatwithapp ccatapp
-  in
-  lamStr Γ A A= B B= (appStr A (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀)
-                               (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀)
-                               (starTm (pp A) f (is-section₀ fₛ f₁ ∙ PiStr=) (pp₁ ∙ A=)) ssₛ (starTm₁ (pp A) PiStr= f fₛ f₁ (pp₁ ∙ A=) ∙ PiStrNat pp₀)
-                               (varC last A) (varCₛ last A) varCL₁)
-                     appStrₛ
-                     (appStr₁ ∙ star-varCL-star-qqpp)
+
+--   -- jjStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc m))))}
+--   --            {P= : ft P ≡ T-ftP ccatId Γ A A=}
+--   --            {d : MorC (suc m) (suc (suc m))} {dₛ : is-section d}
+--   --            {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d}
+--   --            {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A}
+--   --            {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A}
+--   --            {p : MorC m (suc m)} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁} {g₁ : ∂₁ g ≡ Γ}
+--   --            (let d₀ = is-section₀ dₛ d₁ ∙ (T-d₁= ccatrefl)) (let a₀ = is-section₀ aₛ a₁ ∙ A=) (let b₀ = is-section₀ bₛ b₁ ∙ A=) (let p₀ = is-section₀ pₛ p₁ ∙ IdStr=) →
+--   --            starTm g (jjStr Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) jjStr₀ g₁ ≡ jjStr Δ (star g A A= g₁) (ft-star ∙ g₀)
+--   --                                                                                             (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀)
+--   --                                                                                             (starTm+ g A= d d₀ g₁) ssₛ (starTm+₁ g (T-d₁= ccatrefl) A= d dₛ d₁ g₁ ∙ T-d₁Nat ccatrefl g₀ dₛ d₁) 
+--   --                                                                                             (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁)
+--   --                                                                                             (starTm g b b₀ g₁) ssₛ (starTm₁ g A= b bₛ b₁ g₁)
+--   --                                                                                             (starTm g p p₀ g₁) ssₛ (starTm₁ g IdStr= p pₛ p₁ g₁ ∙ IdStrNat g₀)
+--   -- jjStrNat {g = g} {Δ} g₀ {Γ} {A} {A=} {P} {P=} {d} {dₛ} {d₁} {a} {aₛ} {a₁} {b} {bₛ} {b₁} {p} {pₛ} {p₁} {g₁} = jjStrNat' g Δ g₀ Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ g₁
+                
+
+-- -- -- T-lhsEtaPi : {ccat : CCat} (ccatPi : CCatwithPi ccat) (ccatlam : CCatwithlam ccat ccatPi) (ccatapp : CCatwithapp ccat ccatPi) (let open CCat+ ccat) (let open CCatwithPi ccatPi)
+-- -- --            (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc (suc n))) (B= : ft B ≡ A) (f : Mor n (suc n)) (fₛ : is-section f) (f₁ : ∂₁ f ≡ PiStr Γ A A= B B=) → Mor n (suc n)
+-- -- -- T-lhsEtaPi {ccat = ccat} ccatPi ccatlam ccatapp Γ A A= B B= f fₛ f₁ =
+-- -- --   let open CCat+ ccat
+-- -- --       open CCatwithPi ccatPi
+-- -- --       open CCatwithlam ccatlam
+-- -- --       open CCatwithapp ccatapp
+-- -- --   in
+-- -- --   lamStr Γ A A= B B= (appStr A (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀)
+-- -- --                                (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀)
+-- -- --                                (starTm (pp A) f (is-section₀ fₛ f₁ ∙ PiStr=) (pp₁ ∙ A=)) ssₛ (starTm₁ (pp A) PiStr= f fₛ f₁ (pp₁ ∙ A=) ∙ PiStrNat pp₀)
+-- -- --                                (varC last A) (varCₛ last A) varCL₁)
+-- -- --                      appStrₛ
+-- -- --                      (appStr₁ ∙ star-varCL-star-qqpp)
 
 
-record StructuredCCat : Set₁ where
-  no-eta-equality
-  field
-    ccat : CCat
-    ccatUU : CCatwithUU ccat
-    ccatEl : CCatwithEl ccat ccatUU
-    ccatPi : CCatwithPi ccat
-    ccatSig : CCatwithSig ccat
-    ccatNat : CCatwithNat ccat
-    ccatId : CCatwithId ccat
+-- -- -- record StructuredCCat : Set₁ where
+-- -- --   no-eta-equality
+-- -- --   field
+-- -- --     ccat : CCat
+-- -- --     ccatUU : CCatwithUU ccat
+-- -- --     ccatEl : CCatwithEl ccat ccatUU
+-- -- --     ccatPi : CCatwithPi ccat
+-- -- --     ccatSig : CCatwithSig ccat
+-- -- --     ccatNat : CCatwithNat ccat
+-- -- --     ccatId : CCatwithId ccat
     
-    ccatuu : CCatwithuu ccat ccatUU
-    ccatpi : CCatwithpi ccat ccatUU ccatEl
-    ccatlam : CCatwithlam ccat ccatPi
-    ccatapp : CCatwithapp ccat ccatPi 
-    ccatsig : CCatwithsig ccat ccatUU ccatEl
-    ccatpair : CCatwithpair ccat ccatSig
-    ccatpr1 : CCatwithpr1 ccat ccatSig 
-    ccatpr2 : CCatwithpr2 ccat ccatSig ccatpr1
-    ccatnat : CCatwithnat ccat ccatUU
-    ccatzero : CCatwithzero ccat ccatNat
-    ccatsuc : CCatwithsuc ccat ccatNat 
-    ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
-    ccatid : CCatwithid ccat ccatUU ccatEl
-    ccatrefl : CCatwithrefl ccat ccatId
-    -- ccatjj : CCatwithjj ccat ccatId ccatrefl
+-- -- --     ccatuu : CCatwithuu ccat ccatUU
+-- -- --     ccatpi : CCatwithpi ccat ccatUU ccatEl
+-- -- --     ccatlam : CCatwithlam ccat ccatPi
+-- -- --     ccatapp : CCatwithapp ccat ccatPi 
+-- -- --     ccatsig : CCatwithsig ccat ccatUU ccatEl
+-- -- --     ccatpair : CCatwithpair ccat ccatSig
+-- -- --     ccatpr1 : CCatwithpr1 ccat ccatSig 
+-- -- --     ccatpr2 : CCatwithpr2 ccat ccatSig ccatpr1
+-- -- --     ccatnat : CCatwithnat ccat ccatUU
+-- -- --     ccatzero : CCatwithzero ccat ccatNat
+-- -- --     ccatsuc : CCatwithsuc ccat ccatNat 
+-- -- --     ccatnatelim : CCatwithnatelim ccat ccatNat ccatzero ccatsuc
+-- -- --     ccatid : CCatwithid ccat ccatUU ccatEl
+-- -- --     ccatrefl : CCatwithrefl ccat ccatId
+-- -- --     -- ccatjj : CCatwithjj ccat ccatId ccatrefl
 
-  open CCat+ ccat renaming (Mor to MorC)
-  open CCatwithUU ccatUU public
-  open CCatwithEl ccatEl public
-  open CCatwithPi ccatPi public
-  open CCatwithSig ccatSig public
-  open CCatwithNat ccatNat public
-  open CCatwithId ccatId public
-  open CCatwithuu ccatuu public
-  open CCatwithpi ccatpi public
-  open CCatwithlam ccatlam public
-  open CCatwithapp ccatapp public
-  open CCatwithsig ccatsig public
-  open CCatwithpair ccatpair public
-  open CCatwithpr1 ccatpr1 public
-  open CCatwithpr2 ccatpr2 public
-  open CCatwithnat ccatnat public
-  open CCatwithzero ccatzero public
-  open CCatwithsuc ccatsuc public
-  open CCatwithnatelim ccatnatelim public
-  open CCatwithid ccatid public
-  open CCatwithrefl ccatrefl public
-  -- open CCatwithjj ccatjj public
+-- -- --   open CCat+ ccat renaming (Mor to MorC)
+-- -- --   open CCatwithUU ccatUU public
+-- -- --   open CCatwithEl ccatEl public
+-- -- --   open CCatwithPi ccatPi public
+-- -- --   open CCatwithSig ccatSig public
+-- -- --   open CCatwithNat ccatNat public
+-- -- --   open CCatwithId ccatId public
+-- -- --   open CCatwithuu ccatuu public
+-- -- --   open CCatwithpi ccatpi public
+-- -- --   open CCatwithlam ccatlam public
+-- -- --   open CCatwithapp ccatapp public
+-- -- --   open CCatwithsig ccatsig public
+-- -- --   open CCatwithpair ccatpair public
+-- -- --   open CCatwithpr1 ccatpr1 public
+-- -- --   open CCatwithpr2 ccatpr2 public
+-- -- --   open CCatwithnat ccatnat public
+-- -- --   open CCatwithzero ccatzero public
+-- -- --   open CCatwithsuc ccatsuc public
+-- -- --   open CCatwithnatelim ccatnatelim public
+-- -- --   open CCatwithid ccatid public
+-- -- --   open CCatwithrefl ccatrefl public
+-- -- --   -- open CCatwithjj ccatjj public
 
-  field
-    {- Additional structure corresponding to equality rules -}
-    betaPiStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A}
-            → appStr Γ A A= B B= (lamStr Γ A A= B B= u uₛ u₁) lamStrₛ lamStr₁ a aₛ a₁ ≡ starTm a u (is-section₀ uₛ u₁ ∙ B=) a₁
-    betaSig1Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr1Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ a
-    betaSig2Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr2Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ b
+-- -- --   field
+-- -- --     {- Additional structure corresponding to equality rules -}
+-- -- --     betaPiStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A}
+-- -- --             → appStr Γ A A= B B= (lamStr Γ A A= B B= u uₛ u₁) lamStrₛ lamStr₁ a aₛ a₁ ≡ starTm a u (is-section₀ uₛ u₁ ∙ B=) a₁
+-- -- --     betaSig1Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr1Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ a
+-- -- --     betaSig2Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr2Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ b
 
-    betaNatZeroStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
-                      {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
-                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=} →
-                        natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
+-- -- --     betaNatZeroStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+-- -- --                       {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
+-- -- --                       {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=} →
+-- -- --                         natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
 
-    betaNatSucStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
-                     {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
-                     {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=}
-                     {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
-                 natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ Tm-substdS ccatnatelim Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁
+-- -- --     betaNatSucStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+-- -- --                      {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
+-- -- --                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=}
+-- -- --                      {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
+-- -- --                  natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ Tm-substdS ccatnatelim Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁
 
-    etaPiStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=}
-             → f ≡ T-lhsEtaPi ccatPi ccatlam ccatapp Γ A A= B B= f fₛ f₁
-    etaSigStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ SigStr Γ A A= B B=}
-             → u ≡ pairStr Γ A A= B B= (pr1Str Γ A A= B B= u uₛ u₁) pr1Strₛ pr1Str₁ (pr2Str Γ A A= B B= u uₛ u₁) pr2Strₛ pr2Str₁
+-- -- --     etaPiStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {f : MorC n (suc n)} {fₛ : is-section f} {f₁ : ∂₁ f ≡ PiStr Γ A A= B B=}
+-- -- --              → f ≡ T-lhsEtaPi ccatPi ccatlam ccatapp Γ A A= B B= f fₛ f₁
+-- -- --     etaSigStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ SigStr Γ A A= B B=}
+-- -- --              → u ≡ pairStr Γ A A= B B= (pr1Str Γ A A= B B= u uₛ u₁) pr1Strₛ pr1Str₁ (pr2Str Γ A A= B B= u uₛ u₁) pr2Strₛ pr2Str₁
 
-    eluuStr : {i : ℕ} {Γ : Ob n} → ElStr (suc i) Γ (uuStr i Γ) uuStrₛ uuStr₁ ≡ UUStr i Γ
-    elpiStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} 
-            → ElStr i Γ (piStr i Γ a aₛ a₁ b bₛ b₁) piStrₛ piStr₁ ≡ PiStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=
-    elsigStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)}
-            → ElStr i Γ (sigStr i Γ a aₛ a₁ b bₛ b₁) sigStrₛ sigStr₁ ≡ SigStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=
-    elnatStr : {i : ℕ} {Γ : Ob n} → ElStr i Γ (natStr i Γ) natStrₛ natStr₁ ≡ NatStr Γ
-    elidStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i Γ a aₛ a₁}
-                      {v : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i Γ a aₛ a₁} → ElStr i Γ (idStr i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) idStrₛ idStr₁ ≡ IdStr Γ (ElStr i Γ a aₛ a₁) ElStr= u uₛ u₁ v vₛ v₁
-
-
-
-{- Morphisms of contextual categories -}
-
-record CCatMor (C D : CCat) : Set where
-  open CCat+
-  field
-    Ob→ : Ob C n → Ob D n
-    Mor→ : Mor C n m → Mor D n m
-    ∂₀→ : {X : Mor C n m} → Ob→ (∂₀ C X) ≡ ∂₀ D (Mor→ X)
-    ∂₁→ : {X : Mor C n m} → Ob→ (∂₁ C X) ≡ ∂₁ D (Mor→ X)
-    id→ : {X : Ob C n} → Mor→ (id C X) ≡ id D (Ob→ X)
-    comp→ : {n m k : ℕ} {g : Mor C m k} {f : Mor C n m} {X : Ob C m} {g₀ : ∂₀ C g ≡ X} {f₁ : ∂₁ C f ≡ X} → Mor→ (comp C g f g₀ f₁) ≡ comp D (Mor→ g) (Mor→ f) (! ∂₀→ ∙ ap Ob→ g₀) (! ∂₁→ ∙ ap Ob→ f₁)
-    ft→ : {X : Ob C (suc n)} → Ob→ (ft C X) ≡ ft D (Ob→ X)
-    pp→ : {X : Ob C (suc n)} → Mor→ (pp C X) ≡ pp D (Ob→ X)
-    star→ : {n m : ℕ} {f : Mor C m n} {X : Ob C (suc n)} {Y : Ob C n} {q : ft C X ≡ Y} {f₁ : ∂₁ C f ≡ Y} → Ob→ (star C f X q f₁) ≡ star D (Mor→ f) (Ob→ X) (! ft→ ∙ ap Ob→ q) (! ∂₁→ ∙ ap Ob→ f₁)
-    qq→ : {n m : ℕ} {f : Mor C m n} {X : Ob C (suc n)} {Y : Ob C n} {q : ft C X ≡ Y} {f₁ : ∂₁ C f ≡ Y} → Mor→ (qq C f X q f₁) ≡ qq D (Mor→ f) (Ob→ X) (! ft→ ∙ ap Ob→ q) (! ∂₁→ ∙ ap Ob→ f₁)
-    ss→ : {f : Mor C m (suc n)} → Mor→ (ss C f) ≡ ss D (Mor→ f)
-    pt→ : Ob→ (pt C) ≡ pt D
-    ptmor→ : {X : Ob C n} → Mor→ (ptmor C X) ≡ ptmor D (Ob→ X)
-
-  Mor→ₛ : {n : ℕ} {u : Mor C n (suc n)} (uₛ : is-section C u) → is-section D (Mor→ u)
-  Mor→ₛ uₛ = is-section→ D (! (comp→ ∙ ap-irr-comp D (pp→ ∙ ap (pp D) ∂₁→) refl) ∙ ap Mor→ (is-section= C (! (is-section₀ C uₛ refl)) uₛ refl) ∙ id→ ∙ ap (id D) ∂₀→) 
-
-  Mor→₁ : {n : ℕ} {u : Mor C n (suc n)} {X : Ob C (suc n)} (u₁ : ∂₁ C u ≡ X) → ∂₁ D (Mor→ u) ≡ Ob→ X
-  Mor→₁ u₁ = ! ∂₁→ ∙ ap Ob→ u₁
+-- -- --     eluuStr : {i : ℕ} {Γ : Ob n} → ElStr (suc i) Γ (uuStr i Γ) uuStrₛ uuStr₁ ≡ UUStr i Γ
+-- -- --     elpiStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)} 
+-- -- --             → ElStr i Γ (piStr i Γ a aₛ a₁ b bₛ b₁) piStrₛ piStr₁ ≡ PiStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=
+-- -- --     elsigStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)}
+-- -- --             → ElStr i Γ (sigStr i Γ a aₛ a₁ b bₛ b₁) sigStrₛ sigStr₁ ≡ SigStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=
+-- -- --     elnatStr : {i : ℕ} {Γ : Ob n} → ElStr i Γ (natStr i Γ) natStrₛ natStr₁ ≡ NatStr Γ
+-- -- --     elidStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i Γ a aₛ a₁}
+-- -- --                       {v : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i Γ a aₛ a₁} → ElStr i Γ (idStr i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) idStrₛ idStr₁ ≡ IdStr Γ (ElStr i Γ a aₛ a₁) ElStr= u uₛ u₁ v vₛ v₁
 
 
-{- Morphisms of structured contextual categories -}
 
-record StructuredCCatMor (sC sD : StructuredCCat) : Set where
-  private
-    open StructuredCCat
-    C = ccat sC
-    D = ccat sD
+-- -- -- {- Morphisms of contextual categories -}
 
-  field
-    ccat→ : CCatMor C D
+-- -- -- record CCatMor (C D : CCat) : Set where
+-- -- --   open CCat+
+-- -- --   field
+-- -- --     Ob→ : Ob C n → Ob D n
+-- -- --     Mor→ : Mor C n m → Mor D n m
+-- -- --     ∂₀→ : {X : Mor C n m} → Ob→ (∂₀ C X) ≡ ∂₀ D (Mor→ X)
+-- -- --     ∂₁→ : {X : Mor C n m} → Ob→ (∂₁ C X) ≡ ∂₁ D (Mor→ X)
+-- -- --     id→ : {X : Ob C n} → Mor→ (id C X) ≡ id D (Ob→ X)
+-- -- --     comp→ : {n m k : ℕ} {g : Mor C m k} {f : Mor C n m} {X : Ob C m} {g₀ : ∂₀ C g ≡ X} {f₁ : ∂₁ C f ≡ X} → Mor→ (comp C g f g₀ f₁) ≡ comp D (Mor→ g) (Mor→ f) (! ∂₀→ ∙ ap Ob→ g₀) (! ∂₁→ ∙ ap Ob→ f₁)
+-- -- --     ft→ : {X : Ob C (suc n)} → Ob→ (ft C X) ≡ ft D (Ob→ X)
+-- -- --     pp→ : {X : Ob C (suc n)} → Mor→ (pp C X) ≡ pp D (Ob→ X)
+-- -- --     star→ : {n m : ℕ} {f : Mor C m n} {X : Ob C (suc n)} {Y : Ob C n} {q : ft C X ≡ Y} {f₁ : ∂₁ C f ≡ Y} → Ob→ (star C f X q f₁) ≡ star D (Mor→ f) (Ob→ X) (! ft→ ∙ ap Ob→ q) (! ∂₁→ ∙ ap Ob→ f₁)
+-- -- --     qq→ : {n m : ℕ} {f : Mor C m n} {X : Ob C (suc n)} {Y : Ob C n} {q : ft C X ≡ Y} {f₁ : ∂₁ C f ≡ Y} → Mor→ (qq C f X q f₁) ≡ qq D (Mor→ f) (Ob→ X) (! ft→ ∙ ap Ob→ q) (! ∂₁→ ∙ ap Ob→ f₁)
+-- -- --     ss→ : {f : Mor C m (suc n)} → Mor→ (ss C f) ≡ ss D (Mor→ f)
+-- -- --     pt→ : Ob→ (pt C) ≡ pt D
+-- -- --     ptmor→ : {X : Ob C n} → Mor→ (ptmor C X) ≡ ptmor D (Ob→ X)
+
+-- -- --   Mor→ₛ : {n : ℕ} {u : Mor C n (suc n)} (uₛ : is-section C u) → is-section D (Mor→ u)
+-- -- --   Mor→ₛ uₛ = is-section→ D (! (comp→ ∙ ap-irr-comp D (pp→ ∙ ap (pp D) ∂₁→) refl) ∙ ap Mor→ (is-section= C (! (is-section₀ C uₛ refl)) uₛ refl) ∙ id→ ∙ ap (id D) ∂₀→) 
+
+-- -- --   Mor→₁ : {n : ℕ} {u : Mor C n (suc n)} {X : Ob C (suc n)} (u₁ : ∂₁ C u ≡ X) → ∂₁ D (Mor→ u) ≡ Ob→ X
+-- -- --   Mor→₁ u₁ = ! ∂₁→ ∙ ap Ob→ u₁
+
+
+-- -- -- {- Morphisms of structured contextual categories -}
+
+-- -- -- record StructuredCCatMor (sC sD : StructuredCCat) : Set where
+-- -- --   private
+-- -- --     open StructuredCCat
+-- -- --     C = ccat sC
+-- -- --     D = ccat sD
+
+-- -- --   field
+-- -- --     ccat→ : CCatMor C D
     
-  open CCatMor ccat→
-  open CCat+
+-- -- --   open CCatMor ccat→
+-- -- --   open CCat+
   
-  field
-    UUStr→ : {n : ℕ} (i : ℕ) (Γ : Ob C n) → Ob→ (UUStr sC i Γ) ≡ UUStr sD i (Ob→ Γ)
-    ElStr→ : (i : ℕ) (Γ : Ob C n) (v : Mor C n (suc n)) (vₛ : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC i Γ)
-           → Ob→ (ElStr sC i Γ v vₛ v₁) ≡ ElStr sD i (Ob→ Γ) (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ UUStr→ i Γ)
-    PiStr→  : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) → Ob→ (PiStr sC Γ A A= B B=) ≡ PiStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=)
-    SigStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) → Ob→ (SigStr sC Γ A A= B B=) ≡ SigStr sD (Ob→ Γ) (Ob→ A)(! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=)
-    NatStr→ : (Γ : Ob C n) → Ob→ (NatStr sC Γ) ≡ NatStr sD (Ob→ Γ)
-    IdStr→  : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A) (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ A)
-            → Ob→ (IdStr sC Γ A A= a aₛ a₁ b bₛ b₁) ≡ IdStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁)
+-- -- --   field
+-- -- --     UUStr→ : {n : ℕ} (i : ℕ) (Γ : Ob C n) → Ob→ (UUStr sC i Γ) ≡ UUStr sD i (Ob→ Γ)
+-- -- --     ElStr→ : (i : ℕ) (Γ : Ob C n) (v : Mor C n (suc n)) (vₛ : is-section C v) (v₁ : ∂₁ C v ≡ UUStr sC i Γ)
+-- -- --            → Ob→ (ElStr sC i Γ v vₛ v₁) ≡ ElStr sD i (Ob→ Γ) (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ UUStr→ i Γ)
+-- -- --     PiStr→  : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) → Ob→ (PiStr sC Γ A A= B B=) ≡ PiStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=)
+-- -- --     SigStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) → Ob→ (SigStr sC Γ A A= B B=) ≡ SigStr sD (Ob→ Γ) (Ob→ A)(! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=)
+-- -- --     NatStr→ : (Γ : Ob C n) → Ob→ (NatStr sC Γ) ≡ NatStr sD (Ob→ Γ)
+-- -- --     IdStr→  : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A) (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ A)
+-- -- --             → Ob→ (IdStr sC Γ A A= a aₛ a₁ b bₛ b₁) ≡ IdStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁)
 
 
-    uuStr→ : (i : ℕ) (Γ : Ob C n)
-            → Mor→ (uuStr sC i Γ) ≡ uuStr sD i (Ob→ Γ)
-    piStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (b : Mor C (suc n) (suc (suc n))) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ UUStr sC i (ElStr sC i Γ a aₛ a₁))
-            → Mor→ (piStr sC i Γ a aₛ a₁ b bₛ b₁) ≡ piStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁ ∙ UUStr→ i (ElStr sC i Γ a aₛ a₁) ∙ ap (UUStr sD i) (ElStr→ i Γ a aₛ a₁))
-    lamStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (u : Mor C (suc n) (suc (suc n))) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ B)
-            → Mor→ (lamStr sC Γ A A= B B= u uₛ u₁) ≡ lamStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁)
-    appStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (f : Mor C n (suc n)) (fₛ : is-section C f) (f₁ : ∂₁ C f ≡ PiStr sC Γ A A= B B=) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
-            → Mor→ (appStr sC Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ appStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ f) (Mor→ₛ fₛ) (Mor→₁ f₁ ∙ PiStr→ Γ A A= B B=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
-    sigStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (b : Mor C (suc n) (suc (suc n))) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ UUStr sC i (ElStr sC i Γ a aₛ a₁))
-            → Mor→ (sigStr sC i Γ a aₛ a₁ b bₛ b₁) ≡ sigStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁ ∙ UUStr→ i (ElStr sC i Γ a aₛ a₁) ∙ ap (UUStr sD i) (ElStr→ i Γ a aₛ a₁))
-    pairStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A) (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ star C a B B= a₁)
-            → Mor→ (pairStr sC Γ A A= B B= a aₛ a₁ b bₛ b₁) ≡ pairStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁ ∙ star→)
-    pr1Str→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ SigStr sC Γ A A= B B=)
-            → Mor→ (pr1Str sC Γ A A= B B= u uₛ u₁) ≡ pr1Str sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ SigStr→ Γ A A= B B=)
-    pr2Str→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ SigStr sC Γ A A= B B=)
-            → Mor→ (pr2Str sC Γ A A= B B= u uₛ u₁) ≡ pr2Str sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ SigStr→ Γ A A= B B=)
-    natStr→ : (i : ℕ) (Γ : Ob C n)
-            → Mor→ (natStr sC i Γ) ≡ natStr sD i (Ob→ Γ)
-    zeroStr→ : (Γ : Ob C n)
-            → Mor→ (zeroStr sC Γ) ≡ zeroStr sD (Ob→ Γ)
-    sucStr→ : (Γ : Ob C n) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ NatStr sC Γ)
-            → Mor→ (sucStr sC Γ u uₛ u₁) ≡ sucStr sD (Ob→ Γ) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ NatStr→ Γ)
-    natelimStr→ : (Γ : Ob C n) (P : Ob C (suc (suc n))) (P= : ft C P ≡ NatStr sC Γ)
-                  (dO : Mor C n (suc n)) (dOₛ : is-section C dO) (dO₁ : ∂₁ C dO ≡ star C (zeroStr sC Γ) P P= (zeroStr₁ sC))
-                  (dS : Mor C (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section C dS) (dS₁ : ∂₁ C dS ≡ T-dS₁ (ccatsuc sC) Γ P P=)
-                  (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ NatStr sC Γ)
-            → Mor→ (natelimStr sC Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
-              ≡ natelimStr sD (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
-                              (Mor→ dO) (Mor→ₛ dOₛ) (Mor→₁ dO₁ ∙ star→ ∙ ap-irr-star D (zeroStr→ Γ) refl)
-                              (Mor→ dS) (Mor→ₛ dSₛ) (Mor→₁ dS₁ ∙ star→ ∙ ap-irr-star D (sucStr→ _ _ _ _ ∙ ap-irr-sucStr sD refl (ss→ ∙ ap (ss D) pp→)) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) ) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) refl)))
-                              (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ NatStr→ Γ)
-    idStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ ElStr sC i Γ a aₛ a₁)
-                     (v : Mor C n (suc n)) (vₛ : is-section C v) (v₁ : ∂₁ C v ≡ ElStr sC i Γ a aₛ a₁)
-            → Mor→ (idStr sC i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ idStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ ElStr→ i Γ a aₛ a₁) (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ ElStr→ i Γ a aₛ a₁)
-    reflStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
-            → Mor→ (reflStr sC Γ A A= a aₛ a₁) ≡ reflStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
+-- -- --     uuStr→ : (i : ℕ) (Γ : Ob C n)
+-- -- --             → Mor→ (uuStr sC i Γ) ≡ uuStr sD i (Ob→ Γ)
+-- -- --     piStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (b : Mor C (suc n) (suc (suc n))) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ UUStr sC i (ElStr sC i Γ a aₛ a₁))
+-- -- --             → Mor→ (piStr sC i Γ a aₛ a₁ b bₛ b₁) ≡ piStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁ ∙ UUStr→ i (ElStr sC i Γ a aₛ a₁) ∙ ap (UUStr sD i) (ElStr→ i Γ a aₛ a₁))
+-- -- --     lamStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (u : Mor C (suc n) (suc (suc n))) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ B)
+-- -- --             → Mor→ (lamStr sC Γ A A= B B= u uₛ u₁) ≡ lamStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁)
+-- -- --     appStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (f : Mor C n (suc n)) (fₛ : is-section C f) (f₁ : ∂₁ C f ≡ PiStr sC Γ A A= B B=) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
+-- -- --             → Mor→ (appStr sC Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ appStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ f) (Mor→ₛ fₛ) (Mor→₁ f₁ ∙ PiStr→ Γ A A= B B=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
+-- -- --     sigStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (b : Mor C (suc n) (suc (suc n))) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ UUStr sC i (ElStr sC i Γ a aₛ a₁))
+-- -- --             → Mor→ (sigStr sC i Γ a aₛ a₁ b bₛ b₁) ≡ sigStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁ ∙ UUStr→ i (ElStr sC i Γ a aₛ a₁) ∙ ap (UUStr sD i) (ElStr→ i Γ a aₛ a₁))
+-- -- --     pairStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A) (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ star C a B B= a₁)
+-- -- --             → Mor→ (pairStr sC Γ A A= B B= a aₛ a₁ b bₛ b₁) ≡ pairStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁) (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁ ∙ star→)
+-- -- --     pr1Str→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ SigStr sC Γ A A= B B=)
+-- -- --             → Mor→ (pr1Str sC Γ A A= B B= u uₛ u₁) ≡ pr1Str sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ SigStr→ Γ A A= B B=)
+-- -- --     pr2Str→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (B : Ob C (suc (suc n))) (B= : ft C B ≡ A) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ SigStr sC Γ A A= B B=)
+-- -- --             → Mor→ (pr2Str sC Γ A A= B B= u uₛ u₁) ≡ pr2Str sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ B) (! ft→ ∙ ap Ob→ B=) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ SigStr→ Γ A A= B B=)
+-- -- --     natStr→ : (i : ℕ) (Γ : Ob C n)
+-- -- --             → Mor→ (natStr sC i Γ) ≡ natStr sD i (Ob→ Γ)
+-- -- --     zeroStr→ : (Γ : Ob C n)
+-- -- --             → Mor→ (zeroStr sC Γ) ≡ zeroStr sD (Ob→ Γ)
+-- -- --     sucStr→ : (Γ : Ob C n) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ NatStr sC Γ)
+-- -- --             → Mor→ (sucStr sC Γ u uₛ u₁) ≡ sucStr sD (Ob→ Γ) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ NatStr→ Γ)
+-- -- --     natelimStr→ : (Γ : Ob C n) (P : Ob C (suc (suc n))) (P= : ft C P ≡ NatStr sC Γ)
+-- -- --                   (dO : Mor C n (suc n)) (dOₛ : is-section C dO) (dO₁ : ∂₁ C dO ≡ star C (zeroStr sC Γ) P P= (zeroStr₁ sC))
+-- -- --                   (dS : Mor C (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section C dS) (dS₁ : ∂₁ C dS ≡ T-dS₁ (ccatsuc sC) Γ P P=)
+-- -- --                   (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ NatStr sC Γ)
+-- -- --             → Mor→ (natelimStr sC Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
+-- -- --               ≡ natelimStr sD (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
+-- -- --                               (Mor→ dO) (Mor→ₛ dOₛ) (Mor→₁ dO₁ ∙ star→ ∙ ap-irr-star D (zeroStr→ Γ) refl)
+-- -- --                               (Mor→ dS) (Mor→ₛ dSₛ) (Mor→₁ dS₁ ∙ star→ ∙ ap-irr-star D (sucStr→ _ _ _ _ ∙ ap-irr-sucStr sD refl (ss→ ∙ ap (ss D) pp→)) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) ) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) refl)))
+-- -- --                               (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ NatStr→ Γ)
+-- -- --     idStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ ElStr sC i Γ a aₛ a₁)
+-- -- --                      (v : Mor C n (suc n)) (vₛ : is-section C v) (v₁ : ∂₁ C v ≡ ElStr sC i Γ a aₛ a₁)
+-- -- --             → Mor→ (idStr sC i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ idStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ ElStr→ i Γ a aₛ a₁) (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ ElStr→ i Γ a aₛ a₁)
+-- -- --     reflStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
+-- -- --             → Mor→ (reflStr sC Γ A A= a aₛ a₁) ≡ reflStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
 
 
-module _ {sC sD : StructuredCCat} where
-  open StructuredCCatMor
-  open StructuredCCat
-  open CCatMor
-  open CCat
+-- -- -- module _ {sC sD : StructuredCCat} where
+-- -- --   open StructuredCCatMor
+-- -- --   open StructuredCCat
+-- -- --   open CCatMor
+-- -- --   open CCat
 
-  {- Equalities between morphisms between structured contextual categories -}
+-- -- --   {- Equalities between morphisms between structured contextual categories -}
 
-  structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
-                      → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
-                      → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
-                      → f ≡ g
-  structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ n → funextI (λ m → funext k)))  where
+-- -- --   structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
+-- -- --                       → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
+-- -- --                       → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
+-- -- --                       → f ≡ g
+-- -- --   structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ n → funextI (λ m → funext k)))  where
 
-    lemma : {f g : StructuredCCatMor sC sD}
-            → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
-            → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
-            → f ≡ g
-    lemma refl refl = refl
+-- -- --     lemma : {f g : StructuredCCatMor sC sD}
+-- -- --             → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
+-- -- --             → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
+-- -- --             → f ≡ g
+-- -- --     lemma refl refl = refl
