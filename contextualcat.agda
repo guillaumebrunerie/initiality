@@ -224,7 +224,7 @@ module CCat+ (C : CCat) where
     star-qqqqpp' = ! star-comp ∙ ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star (ap-irr-comp refl (! qq-comp) ∙ ! (qq-comp {g₀ = pp₀}) ∙ ap-irr-qq (ap-irr-comp refl pp-qq ∙ ! assoc ∙ ap-irr-comp pp-qq refl ∙ assoc {g₀ = pp₀ }) refl ∙ qq-comp ∙ ap-irr-comp refl qq-comp {g₀' = qq₀} ) refl ∙ star-comp ∙ star-comp 
     
     starstar : {g : Mor n m} {B : Ob (suc (suc m))} {A : Ob (suc m)} {B= : ft B ≡ A} {X : Ob m} (A= : ft A ≡ X) {g₁ : ∂₁ g ≡ X} {a : Mor m (suc m)} (aₛ : is-section a) {a₁ : ∂₁ a ≡ A}
-             → star g (star a B B= a₁) (ft-star ∙ is-section₀ aₛ a₁ ∙ A=) g₁ ≡ star (starTm g a (is-section₀ aₛ a₁ ∙ A=) g₁) (star (qq g A A= g₁) B B= qq₁) (ft-star ∙ qq₀) (starTm₁ g A= a aₛ a₁ g₁)
+             → star g (star a B B= a₁) (ft-star ∙ is-section₀ aₛ a₁ ∙ A=) g₁ ≡ star (starTm g a (is-section₀ aₛ a₁ ∙ A=) g₁) (star+ g B B= A= g₁) (ft-star ∙ qq₀) (starTm₁ g A= a aₛ a₁ g₁)
     starstar {g = g} {B} {B=} A= {g₁} {a} aₛ {a₁} = ! star-comp ∙ ap-irr-star (ss-qq ∙ ap-irr-comp (ap-irr-qq (! assoc ∙ ap-irr-comp (is-section= A= aₛ a₁) refl ∙ id-right g₁) refl) refl {g₀' = qq₀}) refl ∙ star-comp
 
     starstar+ : {g : Mor n m} {C : Ob (suc (suc (suc m)))} {B : Ob (suc (suc m))} {C= : ft C ≡ B} {A : Ob (suc m)} {B= : ft B ≡ A} {X : Ob m} (A= : ft A ≡ X) {g₁ : ∂₁ g ≡ X} {a : Mor m (suc m)} (aₛ : is-section a) {a₁ : ∂₁ a ≡ A}
@@ -718,17 +718,39 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
                 → sucStr Γ u uₛ u₁ ≡ sucStr Γ' u' uₛ' u₁'
   ap-irr-sucStr refl refl = refl
 
+abstract
+  T-dS₁ : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) → Ob (suc (suc (suc n)))
+  T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc  Γ P P= = let open CCat+ ccat
+                                                                open CCatwithNat ccatnat
+                                                                open CCatwithsuc ccatsuc
+                                                            in
+                                                            star (sucStr P (varC (prev last) P) (varCₛ (prev last) P) (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
+                                                                 (star+ (pp P) (star+ (pp (NatStr Γ)) P P= NatStr= (pp₁ ∙ NatStr=)) (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=))
+                                                                 (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
 
-T-dS₁ : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat)  (Γ : Ob n)(P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) → Ob (suc (suc (suc n)))
-T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc  Γ P P= = let open CCat+ ccat
-                                                              open CCatwithNat ccatnat
-                                                              open CCatwithsuc ccatsuc
-                                                          in
-                                                          star (sucStr P (varC (prev last) P) (varCₛ (prev last) P) (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
-                                                               (star+ (pp P) (star+ (pp (NatStr Γ)) P P= NatStr= (pp₁ ∙ NatStr=)) (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=))
-                                                               (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
+  [T-dS₁] : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) (let open CCatwithsuc ccatsuc) {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ} →
+             T-dS₁ ccatsuc Γ P P= ≡ star (sucStr P (varC (prev last) P) (varCₛ (prev last) P) (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
+                                         (star+ (pp P) (star+ (pp (NatStr Γ)) P P= NatStr= (pp₁ ∙ NatStr=)) (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=))
+                                         (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
+  [T-dS₁] _ = refl
 
+  T-dS₁= : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+           → ft (T-dS₁ ccatsuc Γ P P=) ≡ P
+  T-dS₁= {ccat = ccat} {ccatnat = ccatnat} ccatsuc = let open CCat+ ccat
+                                                         open CCatwithNat ccatnat
+                                                         open CCatwithsuc ccatsuc
+                                                     in ft-star ∙ sucStr₀
+          
+  
 
+  T-dS₁Nat : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) (let open CCatwithsuc ccatsuc) {g : Mor m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ} {g₁ : ∂₁ g ≡ Γ} → star++ g (T-dS₁ ccatsuc Γ P P=) (T-dS₁= ccatsuc) P= NatStr= g₁ ≡ T-dS₁ ccatsuc Δ (star+ g P P= NatStr= g₁) (ft-star ∙ qq₀ ∙ NatStrNat g₀)
+  T-dS₁Nat {ccat = ccat} {ccatnat = ccatnat} ccatsuc g₀ =  let open CCat+ ccat
+                                                               open CCatwithNat ccatnat
+                                                               open CCatwithsuc ccatsuc
+                                                           in
+                                                        starstar (ft-star ∙ pp₀) sucStrₛ ∙ ap-irr-star (sucStrNat qq₀ ∙ ap-irr-sucStr refl star-varC+)
+                                                        (star-qqqqpp' ∙ ap-irr-star (ap-irr-qq refl (ap-irr-star (ap pp (NatStrNat g₀)) (NatStrNat g₀))) (ap-irr-star (ap-irr-qq (ap pp (NatStrNat g₀)) (NatStrNat g₀)) refl))
+                                                       
 record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CCatwithzero ccat ccatnat) (ccatsuc : CCatwithsuc ccat ccatnat) : Set₁ where
   open CCat+ ccat renaming (Mor to MorC)
   open CCatwithNat ccatnat
@@ -753,37 +775,28 @@ record CCatwithnatelim (ccat : CCat) (ccatnat : CCatwithNat ccat) (ccatzero : CC
   field
     natelimStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (P : Ob (suc (suc m))) (P= : ft P ≡ NatStr Γ) (dO : MorC m (suc m)) (dOₛ : is-section dO) (dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁) (dS : MorC (suc (suc m)) (suc (suc (suc m)))) (dSₛ : is-section dS) (dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=) (u : MorC m (suc m)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ NatStr Γ) (g₁ : ∂₁ g ≡ Γ)
                     (let dO₀ = is-section₀ dOₛ dO₁ ∙ ft-star ∙ zeroStr₀)
-                    (let dS₀ = is-section₀ dSₛ dS₁ ∙ ft-star ∙ sucStr₀)
+                    (let dS₀ = is-section₀ dSₛ dS₁ ∙ T-dS₁= ccatsuc)
                     (let u₀ = is-section₀ uₛ u₁ ∙ NatStr=)
                     (let nat = NatStrNat g₀)
                   → starTm g (natelimStr {n = m} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) natelimStr₀ g₁
                   ≡ natelimStr Δ (star+ g P P= NatStr= g₁) (ft-star ∙ qq₀ ∙ nat)
                                  (starTm g dO dO₀ g₁) ssₛ (starTm₁ g (ft-star ∙ zeroStr₀) dO dOₛ dO₁ g₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat g₀ {g₁ = g₁}) refl)
-                                 (starTm++ g P= NatStr= dS dS₀ g₁) ssₛ (starTm++₁ g (ft-star ∙ sucStr₀) P= NatStr= dS dSₛ dS₁ g₁ ∙
-                                                                        starstar (ft-star ∙ pp₀) sucStrₛ ∙
-                                                                        ap-irr-star (sucStrNat qq₀ ∙
-                                                                                     ap-irr-sucStr refl (star-varCL'' ∙ ap ss (pp-qq ∙ ap-irr-comp refl refl {f₁' = pp₁ ∙ ft-star ∙ qq₀}) ∙ ! ss-comp))
-                                                                                    (star-qqqqpp' ∙ ap-irr-star (ap-irr-qq refl (ap-irr-star (ap pp (NatStrNat g₀)) (NatStrNat g₀))) (ap-irr-star (ap-irr-qq (ap pp (NatStrNat g₀)) (NatStrNat g₀)) refl)))
+                                 (starTm++ g P= NatStr= dS dS₀ g₁) ssₛ (starTm++₁ g (T-dS₁= ccatsuc) P= NatStr= dS dSₛ dS₁ g₁ ∙ T-dS₁Nat ccatsuc g₀)
                                  (starTm g u u₀ g₁) ssₛ (starTm₁ g NatStr= u uₛ u₁ g₁ ∙ nat)
                                  
                                    
 
-  -- natelimStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {P : Ob (suc (suc m))} {P= : ft P ≡ NatStr Γ} {dO : MorC m (suc m)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁} {dS : MorC (suc (suc m)) (suc (suc (suc m)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc Γ P P=} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} {g₁ : ∂₁ g ≡ Γ}
-  --                   (let dO₀ = is-section₀ dOₛ dO₁ ∙ ft-star ∙ zeroStr₀)
-  --                   (let dS₀ = is-section₀ dSₛ dS₁ ∙ ft-star ∙ sucStr₀)
-  --                   (let u₀ = is-section₀ uₛ u₁ ∙ NatStr=)
-  --                   (let nat = NatStrNat g₀)
-  --                 → starTm g (natelimStr {n = m} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) natelimStr₀ g₁
-  --                 ≡ natelimStr Δ (star+ g P P= NatStr= g₁) (ft-star ∙ qq₀ ∙ nat)
-  --                                (starTm g dO dO₀ g₁) ssₛ (starTm₁ g (ft-star ∙ zeroStr₀) dO dOₛ dO₁ g₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat g₀ {g₁ = g₁}) refl)
-  --                                (starTm++ g P= NatStr= dS dS₀  g₁) ssₛ (starTm++₁ g (ft-star ∙ sucStr₀) P= NatStr= dS dSₛ dS₁ g₁ ∙
-  --                                                                        starstar (ft-star ∙ pp₀) sucStrₛ ∙
-  --                                                                        ap-irr-star (sucStrNat qq₀ ∙
-  --                                                                                     ap-irr-sucStr refl (star-varCL'' ∙ ap ss (pp-qq ∙ ap-irr-comp refl refl {f₁' = pp₁ ∙ ft-star ∙ qq₀}) ∙ ! ss-comp))
-  --                                                                                    (star-qqqqpp' ∙ ap-irr-star (ap-irr-qq refl (ap-irr-star (ap pp (NatStrNat g₀)) (NatStrNat g₀)))
-  --                                                                                                               (ap-irr-star (ap-irr-qq (ap pp (NatStrNat g₀)) (NatStrNat g₀)) refl)))
-  --                                (starTm g u u₀ g₁) ssₛ (starTm₁ g NatStr= u uₛ u₁ g₁ ∙ nat)
-  -- natelimStrNat {g = g} {Δ} g₀ {Γ} {P} {P=} {dO} {dOₛ} {dO₁} {dS} {dSₛ} {dS₁} {u} {uₛ} {u₁} {g₁} = natelimStrNat' g Δ g₀ Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ g₁
+  natelimStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {P : Ob (suc (suc m))} {P= : ft P ≡ NatStr Γ} {dO : MorC m (suc m)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁} {dS : MorC (suc (suc m)) (suc (suc (suc m)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc Γ P P=} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} {g₁ : ∂₁ g ≡ Γ}
+                    (let dO₀ = is-section₀ dOₛ dO₁ ∙ ft-star ∙ zeroStr₀)
+                    (let dS₀ = is-section₀ dSₛ dS₁ ∙ T-dS₁= ccatsuc)
+                    (let u₀ = is-section₀ uₛ u₁ ∙ NatStr=)
+                    (let nat = NatStrNat g₀)
+                  → starTm g (natelimStr {n = m} Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) natelimStr₀ g₁
+                  ≡ natelimStr Δ (star+ g P P= NatStr= g₁) (ft-star ∙ qq₀ ∙ nat)
+                                 (starTm g dO dO₀ g₁) ssₛ (starTm₁ g (ft-star ∙ zeroStr₀) dO dOₛ dO₁ g₁ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat g₀ {g₁ = g₁}) refl)
+                                 (starTm++ g P= NatStr= dS dS₀  g₁) ssₛ (starTm++₁ g (T-dS₁= ccatsuc) P= NatStr= dS dSₛ dS₁ g₁ ∙ T-dS₁Nat ccatsuc g₀)
+                                 (starTm g u u₀ g₁) ssₛ (starTm₁ g NatStr= u uₛ u₁ g₁ ∙ nat)
+  natelimStrNat {g = g} {Δ} g₀ {Γ} {P} {P=} {dO} {dOₛ} {dO₁} {dS} {dSₛ} {dS₁} {u} {uₛ} {u₁} {g₁} = natelimStrNat' g Δ g₀ Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ g₁
 
 
 Tm-substdS : {ccat : CCat} {ccatnat : CCatwithNat ccat} {ccatzero : CCatwithzero ccat ccatnat} {ccatsuc : CCatwithsuc ccat ccatnat} (ccatnatelim : CCatwithnatelim ccat ccatnat ccatzero ccatsuc) (let open CCat+ ccat) (let open CCatwithNat ccatnat) (let open CCatwithzero ccatzero) (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) (dO : Mor n (suc n)) (dOₛ : is-section dO) (dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁) (dS : Mor (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section dS) (dS₁ : ∂₁ dS ≡ T-dS₁ ccatsuc Γ P P=) (u : Mor n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ NatStr Γ) → Mor n (suc n)
@@ -792,7 +805,7 @@ Tm-substdS {ccat = ccat} {ccatsuc = ccatsuc} ccatnatelim Γ P P= dO dOₛ dO₁ 
       open CCatwithsuc ccatsuc
       open CCatwithnatelim ccatnatelim
   in
-  starTm (natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) (starTm (qq u P P= u₁) dS (is-section₀ dSₛ dS₁ ∙ ft-star ∙ sucStr₀) qq₁) (ss₀ ∙ comp₀ ∙ qq₀) natelimStr₁
+  starTm (natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) (starTm (qq u P P= u₁) dS (is-section₀ dSₛ dS₁ ∙ T-dS₁= ccatsuc) qq₁) (ss₀ ∙ comp₀ ∙ qq₀) natelimStr₁
 
 
 record CCatwithid (ccat : CCat) (ccatuu : CCatwithUU ccat) (ccatel : CCatwithEl ccat ccatuu) : Set₁ where
@@ -929,7 +942,7 @@ abstract
                                      open CCatwithrefl ccatrefl
                                  in ft-star ∙ reflStr₀
 
-  T-d₁Nat : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatId) (let open CCat+ ccat) (let open CCatwithId ccatId) (let open CCatwithrefl ccatrefl) {g : Mor m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc n))))} {P= : ft P ≡ T-ftP ccatId Γ A A=} {d : Mor (suc n) (suc (suc n))} (dₛ : is-section d) (d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d) {g₁ : ∂₁ g ≡ Γ} → star (qq g A A= g₁) (T-d₁ ccatrefl Γ A A= P P= d) (T-d₁= ccatrefl) qq₁ ≡ T-d₁ ccatrefl Δ (star g A A= g₁) (ft-star ∙ g₀) (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀) (starTm+ g A= d (is-section₀ dₛ d₁ ∙ T-d₁= ccatrefl) g₁)
+  T-d₁Nat : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccat ccatId) (let open CCat+ ccat) (let open CCatwithId ccatId) (let open CCatwithrefl ccatrefl) {g : Mor m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc n))))} {P= : ft P ≡ T-ftP ccatId Γ A A=} {d : Mor (suc n) (suc (suc n))} (dₛ : is-section d) (d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d) {g₁ : ∂₁ g ≡ Γ} → star+ g (T-d₁ ccatrefl Γ A A= P P= d) (T-d₁= ccatrefl) A= g₁ ≡ T-d₁ ccatrefl Δ (star g A A= g₁) (ft-star ∙ g₀) (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀) (starTm+ g A= d (is-section₀ dₛ d₁ ∙ T-d₁= ccatrefl) g₁)
   T-d₁Nat {ccat = ccat} {ccatId = ccatId} ccatrefl g₀ dₛ d₁ = let open CCat+ ccat
                                                                   open CCatwithId ccatId
                                                                   open CCatwithrefl ccatrefl
@@ -1002,21 +1015,21 @@ record CCatwithjj (ccat : CCat) (ccatId : CCatwithId ccat) (ccatrefl : CCatwithr
                                                                                                  (starTm g p p₀ g₁) ssₛ (starTm₁ g IdStr= p pₛ p₁ g₁ ∙ IdStrNat g₀)
 
 
-  -- jjStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc m))))}
-  --            {P= : ft P ≡ T-ftP ccatId Γ A A=}
-  --            {d : MorC (suc m) (suc (suc m))} {dₛ : is-section d}
-  --            {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d}
-  --            {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A}
-  --            {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A}
-  --            {p : MorC m (suc m)} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁} {g₁ : ∂₁ g ≡ Γ}
-  --            (let d₀ = is-section₀ dₛ d₁ ∙ (T-d₁= ccatrefl)) (let a₀ = is-section₀ aₛ a₁ ∙ A=) (let b₀ = is-section₀ bₛ b₁ ∙ A=) (let p₀ = is-section₀ pₛ p₁ ∙ IdStr=) →
-  --            starTm g (jjStr Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) jjStr₀ g₁ ≡ jjStr Δ (star g A A= g₁) (ft-star ∙ g₀)
-  --                                                                                             (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀)
-  --                                                                                             (starTm+ g A= d d₀ g₁) ssₛ (starTm+₁ g (T-d₁= ccatrefl) A= d dₛ d₁ g₁ ∙ T-d₁Nat ccatrefl g₀ dₛ d₁) 
-  --                                                                                             (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁)
-  --                                                                                             (starTm g b b₀ g₁) ssₛ (starTm₁ g A= b bₛ b₁ g₁)
-  --                                                                                             (starTm g p p₀ g₁) ssₛ (starTm₁ g IdStr= p pₛ p₁ g₁ ∙ IdStrNat g₀)
-  -- jjStrNat {g = g} {Δ} g₀ {Γ} {A} {A=} {P} {P=} {d} {dₛ} {d₁} {a} {aₛ} {a₁} {b} {bₛ} {b₁} {p} {pₛ} {p₁} {g₁} = jjStrNat' g Δ g₀ Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ g₁
+  jjStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc m)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc m))))}
+             {P= : ft P ≡ T-ftP ccatId Γ A A=}
+             {d : MorC (suc m) (suc (suc m))} {dₛ : is-section d}
+             {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A A= P P= d}
+             {a : MorC m (suc m)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A}
+             {b : MorC m (suc m)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ A}
+             {p : MorC m (suc m)} {pₛ : is-section p} {p₁ : ∂₁ p ≡ IdStr Γ A A= a aₛ a₁ b bₛ b₁} {g₁ : ∂₁ g ≡ Γ}
+             (let d₀ = is-section₀ dₛ d₁ ∙ (T-d₁= ccatrefl)) (let a₀ = is-section₀ aₛ a₁ ∙ A=) (let b₀ = is-section₀ bₛ b₁ ∙ A=) (let p₀ = is-section₀ pₛ p₁ ∙ IdStr=) →
+             starTm g (jjStr Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) jjStr₀ g₁ ≡ jjStr Δ (star g A A= g₁) (ft-star ∙ g₀)
+                                                                                              (star+++ g P P= (T-ftP= ccatId) (ft-star ∙ pp₀) A= g₁) (ft-star ∙ qq₀ ∙ T-ftPNat ccatId g₀)
+                                                                                              (starTm+ g A= d d₀ g₁) ssₛ (starTm+₁ g (T-d₁= ccatrefl) A= d dₛ d₁ g₁ ∙ T-d₁Nat ccatrefl g₀ dₛ d₁) 
+                                                                                              (starTm g a a₀ g₁) ssₛ (starTm₁ g A= a aₛ a₁ g₁)
+                                                                                              (starTm g b b₀ g₁) ssₛ (starTm₁ g A= b bₛ b₁ g₁)
+                                                                                              (starTm g p p₀ g₁) ssₛ (starTm₁ g IdStr= p pₛ p₁ g₁ ∙ IdStrNat g₀)
+  jjStrNat {g = g} {Δ} g₀ {Γ} {A} {A=} {P} {P=} {d} {dₛ} {d₁} {a} {aₛ} {a₁} {b} {bₛ} {b₁} {p} {pₛ} {p₁} {g₁} = jjStrNat' g Δ g₀ Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ g₁
                 
 
 T-lhsEtaPi : {ccat : CCat} (ccatPi : CCatwithPi ccat) (ccatlam : CCatwithlam ccat ccatPi) (ccatapp : CCatwithapp ccat ccatPi) (let open CCat+ ccat) (let open CCatwithPi ccatPi)
@@ -1122,6 +1135,7 @@ record StructuredCCat : Set₁ where
 {- Morphisms of contextual categories -}
 
 record CCatMor (C D : CCat) : Set where
+  no-eta-equality
   open CCat+
   field
     Ob→ : Ob C n → Ob D n
@@ -1192,6 +1206,12 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
             → Mor→ (zeroStr sC Γ) ≡ zeroStr sD (Ob→ Γ)
     sucStr→ : (Γ : Ob C n) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ NatStr sC Γ)
             → Mor→ (sucStr sC Γ u uₛ u₁) ≡ sucStr sD (Ob→ Γ) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ NatStr→ Γ)
+
+
+  T-dS→ : {Γ : Ob C n} {P : Ob C (suc (suc n))} {P= : ft C P ≡ NatStr sC Γ} → Ob→ (T-dS₁ (ccatsuc sC) Γ P P=) ≡ T-dS₁ (ccatsuc sD) (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
+  T-dS→ {_} {Γ} {P} {P=} = ap Ob→ ([T-dS₁] (ccatsuc sC)) ∙ star→ ∙ ap-irr-star D (sucStr→ _ _ _ _ ∙ ap-irr-sucStr sD refl (ss→ ∙ ap (ss D) pp→)) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) ) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) refl)) ∙ ! ([T-dS₁] (ccatsuc sD))
+  
+  field
     natelimStr→ : (Γ : Ob C n) (P : Ob C (suc (suc n))) (P= : ft C P ≡ NatStr sC Γ)
                   (dO : Mor C n (suc n)) (dOₛ : is-section C dO) (dO₁ : ∂₁ C dO ≡ star C (zeroStr sC Γ) P P= (zeroStr₁ sC))
                   (dS : Mor C (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section C dS) (dS₁ : ∂₁ C dS ≡ T-dS₁ (ccatsuc sC) Γ P P=)
@@ -1199,13 +1219,52 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
             → Mor→ (natelimStr sC Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
               ≡ natelimStr sD (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
                               (Mor→ dO) (Mor→ₛ dOₛ) (Mor→₁ dO₁ ∙ star→ ∙ ap-irr-star D (zeroStr→ Γ) refl)
-                              (Mor→ dS) (Mor→ₛ dSₛ) (Mor→₁ dS₁ ∙ star→ ∙ ap-irr-star D (sucStr→ _ _ _ _ ∙ ap-irr-sucStr sD refl (ss→ ∙ ap (ss D) pp→)) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) ) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) refl)))
+                              (Mor→ dS) (Mor→ₛ dSₛ) (Mor→₁ dS₁ ∙ T-dS→)
                               (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ NatStr→ Γ)
     idStr→ : (i : ℕ) (Γ : Ob C n) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ UUStr sC i Γ) (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ ElStr sC i Γ a aₛ a₁)
                      (v : Mor C n (suc n)) (vₛ : is-section C v) (v₁ : ∂₁ C v ≡ ElStr sC i Γ a aₛ a₁)
             → Mor→ (idStr sC i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ idStr sD i (Ob→ Γ) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁ ∙ UUStr→ i Γ) (Mor→ u) (Mor→ₛ uₛ) (Mor→₁ u₁ ∙ ElStr→ i Γ a aₛ a₁) (Mor→ v) (Mor→ₛ vₛ) (Mor→₁ v₁ ∙ ElStr→ i Γ a aₛ a₁)
     reflStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
             → Mor→ (reflStr sC Γ A A= a aₛ a₁) ≡ reflStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
+
+  T-ftP→ : {Γ : Ob C n} {A : Ob C (suc n)} {A= : ft C A ≡ Γ} → Ob→ (T-ftP (ccatId sC) Γ A A=) ≡ T-ftP (ccatId sD) (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=)
+  T-ftP→ {_} {Γ} {A} {A=} = ap Ob→ ([T-ftP] (ccatId sC)) ∙ IdStr→ (star C (pp C A) A A= (pp₁ C ∙ A=))
+                                                                  (star C (pp C (star C (pp C A) A A= (pp₁ C ∙ A=))) (star C (pp C A) A A= (pp₁ C ∙ A=)) (ft-star C ∙ pp₀ C) (pp₁ C ∙ ft-star C ∙ pp₀ C))
+                                                                  (ft-star C ∙ pp₀ C)
+                                                                  (varC C (prev last) (star C (pp C A) A A= (pp₁ C ∙ A=)))
+                                                                  (varCₛ C (prev last) (star C (pp C A) A A= (pp₁ C ∙ A=)))
+                                                                  (varC+₁ C last (ft-star C ∙ pp₀ C) (varCL₁ C) )
+                                                                  (varC C last (star C (pp C A) A A= (pp₁ C ∙ A=)))
+                                                                  (varCₛ C last (star C (pp C A) A A= (pp₁ C ∙ A=)))
+                                                                  (varCL₁ C) ∙
+                                                           ap-irr-IdStr sD (star→ ∙ ap-irr-star D pp→ refl)
+                                                                           (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (star→ ∙ ap-irr-star D pp→ refl)) (star→ ∙ ap-irr-star D pp→ refl))
+                                                                           (ss→ ∙ ap (ss D) (pp→ ∙ ap (pp D) (star→ ∙ ap-irr-star D pp→ refl)))
+                                                                           (ss→ ∙ ap (ss D) (id→ ∙ ap (id D) (star→ ∙ ap-irr-star D pp→ refl))) ∙
+                                                           ! ([T-ftP] (ccatId sD))
+
+  T-d₁→ : {Γ : Ob C n} {A : Ob C (suc n)} {A= : ft C A ≡ Γ} {P : Ob C (suc (suc (suc (suc n))))} {P= : ft C P ≡ T-ftP (ccatId sC) Γ A A=} {d : Mor C (suc n) (suc (suc n))} →
+             Ob→ (T-d₁ (ccatrefl sC) Γ A A= P P= d) ≡ T-d₁ (ccatrefl sD) (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ T-ftP→) (Mor→ d)
+  T-d₁→ {_} {Γ} {A} {A=} {P} {P=} {d} = ap Ob→ ([T-d₁] (ccatrefl sC)) ∙ star→ ∙
+                                        ap-irr-star D (reflStr→ A (star C (pp C A) A A= (pp₁ C ∙ A=)) (ft-star C ∙ pp₀ C) (varC C last A) (varCₛ C last A) (varCL₁ C) ∙
+                                                       ap-irr-reflStr sD refl (star→ ∙ ap-irr-star D pp→ refl) (ss→ ∙ ap (ss D) id→))
+                                                      (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (ss→ ∙ ap (ss D) id→)
+                                                                                                (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (ss→ ∙ ap (ss D) id→)
+                                                                                                                                          (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ refl)
+                                                                                                                                                                 (star→ ∙ ap-irr-star D pp→ refl)))
+                                                                                                                       (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D pp→ refl)
+                                                                                                                                                                 (star→ ∙ ap-irr-star D pp→ refl)) T-ftP→)))
+                                                                             (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D (ss→ ∙ ap (ss D) id→)
+                                                                                                                                          (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ refl)
+                                                                                                                                                                 (star→ ∙ ap-irr-star D pp→ refl)))
+                                                                                                                       (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D pp→ refl)
+                                                                                                                                                                 (star→ ∙ ap-irr-star D pp→ refl)) T-ftP→))
+                                                                                                    (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D pp→ refl)
+                                                                                                                                                                 (star→ ∙ ap-irr-star D pp→ refl))
+                                                                                                                            T-ftP→)
+                                                                                                                            refl))) ∙
+                                        ! ([T-d₁] (ccatrefl sD))
+  field
     jjStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (P : Ob C (suc (suc (suc (suc n)))))
              (P= : ft C P ≡ T-ftP (ccatId sC) Γ A A=)
              (d : Mor C (suc n) (suc (suc n))) (dₛ : is-section C d)
@@ -1214,44 +1273,29 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
              (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ A)
              (p : Mor C n (suc n)) (pₛ : is-section C p) (p₁ : ∂₁ C p ≡ IdStr sC Γ A A= a aₛ a₁ b bₛ b₁)
              → Mor→ (jjStr sC Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ jjStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ P)
-                                                                                      (! ft→ ∙ ap Ob→ (P= ∙ [T-ftP] (ccatId sC)) ∙
-                                                                                       IdStr→ (star C (pp C A) A A= (pp₁ C ∙ A=))
-                                                                                              (star C (pp C (star C (pp C A) A A= (pp₁ C ∙ A=))) (star C (pp C A) A A= (pp₁ C ∙ A=)) (ft-star C ∙ pp₀ C) (pp₁ C ∙ ft-star C ∙ pp₀ C))
-                                                                                              (ft-star C ∙ pp₀ C)
-                                                                                              (varC C (prev last) (star C (pp C A) A A= (pp₁ C ∙ A=)))
-                                                                                              (varCₛ C (prev last) (star C (pp C A) A A= (pp₁ C ∙ A=)))
-                                                                                              (varC+₁ C last (ft-star C ∙ pp₀ C) (varCL₁ C) )
-                                                                                              (varC C last (star C (pp C A) A A= (pp₁ C ∙ A=)))
-                                                                                              (varCₛ C last (star C (pp C A) A A= (pp₁ C ∙ A=)))
-                                                                                              (varCL₁ C) ∙
-                                                                                       ap-irr-IdStr sD (star→ ∙ ap-irr-star D pp→ refl)
-                                                                                                       (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (star→ ∙ ap-irr-star D pp→ refl)) (star→ ∙ ap-irr-star D pp→ refl))
-                                                                                                       (ss→ ∙ ap (ss D) (pp→ ∙ ap (pp D) (star→ ∙ ap-irr-star D pp→ refl)))
-                                                                                                       (ss→ ∙ ap (ss D) (id→ ∙ ap (id D) (star→ ∙ ap-irr-star D pp→ refl))) ∙
-                                                                                       ! ([T-ftP] (ccatId sD)))
-                                                                                      (Mor→ d) (Mor→ₛ dₛ) (Mor→₁ d₁ ∙ ap Ob→ ([T-d₁] (ccatrefl sC)) ∙ star→ ∙
-                                                                                                          ap-irr-star D (reflStr→ A (star C (pp C A) A A= (pp₁ C ∙ A=)) (ft-star C ∙ pp₀ C) (varC C last A) (varCₛ C last A)  (varCL₁ C) ∙ ap-irr-reflStr sD refl (star→ ∙ ap-irr-star D pp→ refl) (ss→ ∙ ap (ss D) id→)) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (ss→ ∙ ap (ss D) id→) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (ss→ ∙ ap (ss D) id→) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ refl) (star→ ∙ ap-irr-star D pp→ refl))) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D pp→ refl) (star→ ∙ ap-irr-star D pp→ refl)) {!!}))) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D (ss→ ∙ ap (ss D) id→) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ refl) (star→ ∙ ap-irr-star D pp→ refl))) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D pp→ refl) (star→ ∙ ap-irr-star D pp→ refl)) {!!})) (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D (qq→ ∙ ap-irr-qq D pp→ refl) (star→ ∙ ap-irr-star D pp→ refl)) {!!}) refl))) ∙ ! ([T-d₁] (ccatrefl sD)))
+                                                                                      (! ft→ ∙ ap Ob→ P= ∙ T-ftP→)
+                                                                                      (Mor→ d) (Mor→ₛ dₛ) (Mor→₁ d₁ ∙ T-d₁→)
                                                                                       (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
                                                                                       (Mor→ b) (Mor→ₛ bₛ) (Mor→₁ b₁)
-                                                                                      (Mor→ p) (Mor→ₛ pₛ) (Mor→₁ p₁ ∙ IdStr→ Γ A A= a aₛ a₁ b bₛ b₁ )
+                                                                                      (Mor→ p) (Mor→ₛ pₛ) (Mor→₁ p₁ ∙ IdStr→ Γ A A= a aₛ a₁ b bₛ b₁)
 
 
--- module _ {sC sD : StructuredCCat} where
---   open StructuredCCatMor
---   open StructuredCCat
---   open CCatMor
---   open CCat
+module _ {sC sD : StructuredCCat} where
+  open StructuredCCatMor
+  open StructuredCCat
+  open CCatMor
+  open CCat
 
---   {- Equalities between morphisms between structured contextual categories -}
+  {- Equalities between morphisms between structured contextual categories -}
 
---   structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
---                       → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
---                       → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
---                       → f ≡ g
---   structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ n → funextI (λ m → funext k)))  where
+  structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
+                      → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
+                      → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
+                      → f ≡ g
+  structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ n → funextI (λ m → funext k)))  where
 
---     lemma : {f g : StructuredCCatMor sC sD}
---             → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
---             → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
---             → f ≡ g
---     lemma refl refl = refl
+    lemma : {f g : StructuredCCatMor sC sD}
+            → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
+            → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
+            → f ≡ g
+    lemma refl refl = refl
