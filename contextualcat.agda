@@ -1163,7 +1163,6 @@ record StructuredCCat : Set₁ where
 {- Morphisms of contextual categories -}
 
 record CCatMor (C D : CCat) : Set where
-  no-eta-equality
   open CCat+
   field
     Ob→ : Ob C n → Ob D n
@@ -1323,24 +1322,35 @@ record StructuredCCatMor+ (sC sD : StructuredCCat) : Set where
                                                                                       (Mor→ p) (Mor→ₛ pₛ) (Mor→₁ p₁ ∙ IdStr→ Γ A A= a aₛ a₁ b bₛ b₁)
 
 
--- module _ {sC sD : StructuredCCat} where
---   open StructuredCCatMor+
---   open StructuredCCatMor
---   open StructuredCCat
---   open CCatMor
---   open CCat
+module _ {sC sD : StructuredCCat} where
+  open StructuredCCatMor+
+  open StructuredCCatMor
+  open StructuredCCat
+  open CCatMor
+  open CCat
 
---   {- Equalities between morphisms between structured contextual categories -}
+  {- Equalities between morphisms between structured contextual categories -}
 
---   structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
---                       → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
---                       → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
---                       → f ≡ g
---   structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ n → funextI (λ m → funext k)))  where
+  structuredCCatMorEq : {f g : StructuredCCatMor sC sD}
+                      → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
+                      → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
+                      → f ≡ g
+  structuredCCatMorEq h k = lemma (funextI (λ n → funext h)) (funextI (λ m → funextI (λ n → funext k)))  where
+  
+    lemma : {f g : StructuredCCatMor sC sD}
+            → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
+            → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
+            → f ≡ g
+    lemma refl refl = refl
+  
+  structuredCCatMor+Eq : {f+ g+ : StructuredCCatMor+ sC sD} (let f = strucCCat→ f+) (let g = strucCCat→ g+)                      
+                      → ({n : ℕ} (X : Ob (ccat sC) n) → Ob→ (ccat→ f) X ≡ Ob→ (ccat→ g) X)
+                      → ({n m : ℕ} (X : Mor (ccat sC) n m) → Mor→ (ccat→ f) X ≡ Mor→ (ccat→ g) X)
+                      → f+ ≡ g+
+  structuredCCatMor+Eq h k = lemma (structuredCCatMorEq h k)  where
 
---     lemma : {f g : StructuredCCatMor sC sD}
---             → ((λ {n} → Ob→ (ccat→ f) {n}) ≡ (λ {n} → Ob→ (ccat→ g) {n}))
---             → ((λ {n m} → Mor→ (ccat→ f) {n} {m}) ≡ (λ {n m} → Mor→ (ccat→ g) {n} {m}))
---             → f ≡ g
---     lemma refl refl = refl
+    lemma : {f+ g+ : StructuredCCatMor+ sC sD} (let f = strucCCat→ f+) (let g = strucCCat→ g+)
+            → f ≡ g
+            → f+ ≡ g+
+    lemma refl = refl
  
