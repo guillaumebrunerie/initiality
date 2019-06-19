@@ -7,10 +7,7 @@ complete proof for a type theory with only Pi-types and a base dependent type is
 are now working on extending the type theory to a type theory with Pi-types, Sigma-types, natural
 numbers, identity types, and an infinite hierarchy of universes.
 
-It requires a quite recent version of the master branch of Agda (to have the `variable` keyword,
-`Prop` and various issues fixed). For instance commit
-[764038c](https://github.com/agda/agda/tree/764038cf20dae68b463801fd049113011b4ade03) from January
-2019 should work.
+This project requires at least Agda 2.6.0. It will not work with earlier versions of Agda.
 
 Some design decisions
 ---------------------
@@ -41,8 +38,9 @@ Explanation of the flags
 * the flag `--rewriting` is required to have quotients that compute
 * the flag `--without-K` is not required, but it’s nice to see that everything compiles with it
 * the flag `-v tc.unquote:10` adds some debug output when running Agda from the command line, it can be used to see the full code of the functions defined by reflection
-* the flag `--allow-unsolved-metas` is used only if some file is incomplete but we want to compile another file depending on it anyway. It should not be used in a finished proof!
 * the flag `--no-auto-inline` disables an optimization which seems to actually cause worse performance when combined with Prop (issue #3510)
+
+* the flag `--allow-unsolved-metas` is used only if some file is incomplete but we want to compile another file depending on it anyway. It should not be used in a finished proof!
 
 Files
 -----

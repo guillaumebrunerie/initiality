@@ -49,13 +49,6 @@ record Σ (A : Prop) (B : A → Prop) : Prop where
     snd : B fst
 open Σ public
 
-record Σl {l} {l'} (A : Prop l) (B : A → Prop l') : Prop (l ⊔ l') where
-  constructor _,_
-  field
-    fst : A
-    snd : B fst
-open Σ public
-
 record ΣS {l} {l'} (A : Set l) (B : A → Prop l') : Set (l ⊔ l') where
   constructor _,_
   field
