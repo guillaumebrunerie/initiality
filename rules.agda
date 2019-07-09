@@ -848,6 +848,10 @@ Subst1Tm : {Γ : Ctx n} {B : TyExpr n} {A : TyExpr (suc n)} {t : TmExpr (suc n)}
          → Derivable (Γ ⊢ substTm t u :> substTy A u)
 Subst1Tm dΓ dt du = SubstTm dt (idMorDerivable dΓ , congTmTy! ([idMor]Ty _) du)
 
+Subst2Ty : {Γ : Ctx n} {B : TyExpr n} {C : TyExpr (suc n)} {D : TyExpr (suc (suc n))} {u v : TmExpr n}
+         → ⊢ Γ → Derivable ((((Γ , B) , C)) ⊢ D) → Derivable (Γ ⊢ u :> B) → Derivable (Γ ⊢ v :> substTy C u) → Derivable (Γ ⊢ subst2Ty D u v)
+Subst2Ty dΓ dA du dv = SubstTy dA ((idMorDerivable dΓ , congTmTy! ([idMor]Ty _) du) , dv)
+
 Subst3Ty : {Γ : Ctx n} {B : TyExpr n} {C : TyExpr (suc n)} {D : TyExpr (suc (suc n))} {A : TyExpr (suc (suc (suc n)))} {u v w : TmExpr n}
          → ⊢ Γ → Derivable ((((Γ , B) , C) , D) ⊢ A) → Derivable (Γ ⊢ u :> B) → Derivable (Γ ⊢ v :> substTy C u) → Derivable (Γ ⊢ w :> subst2Ty D u v)
          → Derivable (Γ ⊢ subst3Ty A u v w)
