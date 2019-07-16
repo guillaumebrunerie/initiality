@@ -244,7 +244,7 @@ _⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Prop
 Γ ⊢ (δ , u) ∷> (Δ , A) = (Γ ⊢ δ ∷> Δ) × Derivable (Γ ⊢ u :> A [ δ ]Ty) 
 
 _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
-Γ ⊢ ◇ == ◇ ∷> ◇ = Unit
+Γ ⊢ ◇ == ◇ ∷> ◇ = Unit -- why not δ == ◇?
 Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == u' :> A [ δ ]Ty)
 
 

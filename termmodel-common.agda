@@ -49,6 +49,7 @@ data _Mor≃_ (δ δ' : DMor n m) : Prop where
 unMor≃-lhs : {δ δ' : DMor n m} → δ Mor≃ δ' → ⊢ ctx (lhs δ) == ctx (lhs δ')
 unMor≃-lhs (box x _ _) = x
 
+
 unMor≃-rhs : {δ δ' : DMor n m} → δ Mor≃ δ' → ⊢ ctx (rhs δ) == ctx (rhs δ')
 unMor≃-rhs (box _ x _) = x
 
@@ -118,6 +119,9 @@ CtxTy=Ctx {Γ = Γ} A@((_ , _) , (_ , _)) A= = CtxSymm (reflectOb A=) ,, TyRefl 
 
 CtxTy=Ctx' : (Γ : DCtx (suc n)) → ⊢ (getCtx Γ , getTy Γ) == ctx Γ
 CtxTy=Ctx' ((_ , _) , dΓ@(_ , _)) = CtxRefl dΓ
+
+Mor=LHSRHS : (δ : DMor m (suc n)) → ctx (lhs δ) ⊢ mor δ == getLHS (mor δ) , getRHS (mor δ) ∷> ctx (rhs δ)
+Mor=LHSRHS (dmor _ ((_ , _) , (_ , _)) (_ , _) (dδ , du)) = MorRefl (dδ , du)
 
 getCtx= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') → ⊢ getCtx Γ == getCtx Γ'
 getCtx= {Γ = (Γ , A) , _} {(Γ' , A') , _} (box (dΓ= , _ , _ , _ , _)) = dΓ=

@@ -489,6 +489,10 @@ weakenMorInsert : (θ : Mor n m) (δ : Mor k n) (t : TmExpr k) →  weakenMor θ
 weakenMorInsert ◇ _ _ = refl
 weakenMorInsert (θ , u) δ t rewrite weakenMorInsert θ δ t | weakenTmInsert u δ t = refl
 
+weakenMorInsert' : (θ : Mor n m) (δ : Mor k (suc n)) → weakenMor θ [ δ ]Mor ≡ θ [ getLHS δ ]Mor
+weakenMorInsert' ◇ _  = refl
+weakenMorInsert' θ (δ , t) = weakenMorInsert θ δ t
+
 
 [weakenMor]Mor : (δ : Mor n m) (θ : Mor m l) → (weakenMor θ [ weakenMor+ δ ]Mor) ≡ weakenMor (θ [ δ ]Mor)
 [weakenMor]Ty  : (δ : Mor n m) (C : TyExpr m) → (weakenTy C [ weakenMor+ δ ]Ty) ≡ weakenTy (C [ δ ]Ty)
@@ -735,6 +739,9 @@ weakenTy+-to-[]Ty = ap (weakenTy' (prev last)) (! ([idMor]Ty _)) ∙ weaken[]Ty 
 
 weakenTm-to-[]Tm : {u : TmExpr n} → weakenTm u ≡ u [ weakenMor (idMor n) ]Tm
 weakenTm-to-[]Tm {u = u} = ap weakenTm (! ([idMor]Tm _)) ∙ weaken[]Tm u _ _
+
+weakenMor-to-[]Mor : {δ : Mor m n} → weakenMor δ ≡ δ [ weakenMor (idMor _) ]Mor
+weakenMor-to-[]Mor {δ = δ} = ap weakenMor (! ([idMor]Mor _)) ∙ weaken[]Mor δ _ _ 
 
 ap-[]Ty : {A A' : TyExpr n} {δ δ' : Mor m n} → A ≡ A' → δ ≡ δ' → A [ δ ]Ty ≡ A' [ δ' ]Ty
 ap-[]Ty refl refl = refl

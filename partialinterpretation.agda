@@ -202,7 +202,7 @@ ap-irr-idStr refl refl refl refl = refl
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ [A])
   return (reflStr X [A] (unbox [A]=) [u] (unbox [u]ₛ) (unbox [u]₁))
-⟦ jj A P d a b p ⟧Tm X = #J#S {- do
+⟦ jj A P d a b p ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [A]= ← assume (ft [A] ≡ X)
   [P] ← ⟦ P ⟧Ty (T-ftP ccatId X [A] (unbox [A]=))
@@ -219,7 +219,7 @@ ap-irr-idStr refl refl refl refl = refl
   [p] ← ⟦ p ⟧Tm X
   [p]ₛ ← assume (is-section [p])
   [p]₁ ← assume (∂₁ [p] ≡ IdStr X [A] (unbox [A]=) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
-  return (jjStr X [A] (unbox [A]=) [P] (unbox [P]=) [d] (unbox [d]ₛ) (unbox [d]₁) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁) [p] (unbox [p]ₛ) (unbox [p]₁))-}
+  return (jjStr X [A] (unbox [A]=) [P] (unbox [P]=) [d] (unbox [d]ₛ) (unbox [d]₁) [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁) [p] (unbox [p]ₛ) (unbox [p]₁))
 
 {- Partial interpretation of contexts and context morphisms -}
 
@@ -284,7 +284,7 @@ ap-irr-idStr refl refl refl refl = refl
 ⟦⟧Tm₀ (natelim P d0 dS u) = natelimStr₀
 ⟦⟧Tm₀ (id i a u v) = idStr₀
 ⟦⟧Tm₀ (refl A u) = reflStr₀
-⟦⟧Tm₀ (jj A P d a b p) = #J# {-jjStr₀-}
+⟦⟧Tm₀ (jj A P d a b p) = jjStr₀
 
 ⟦⟧Tm₁-ft : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} {Z : Ob (suc n)} (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Z) → ft Z ≡ X
 ⟦⟧Tm₁-ft u u₁ = ap ft (! u₁) ∙ ! (is-section₀ (⟦⟧Tmₛ u) refl) ∙ ⟦⟧Tm₀ u
