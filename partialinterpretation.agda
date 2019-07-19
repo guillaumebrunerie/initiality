@@ -58,6 +58,16 @@ ap-irr-natelimStr refl refl refl refl refl = refl
 ap-irr-idStr : {n : ℕ} {i : ℕ} {X X' : _} (X-eq : X ≡ X') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i X a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i X' a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
 ap-irr-idStr refl refl refl refl = refl
 
+ap-irr-jjStr : {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A ≡ A') {ftA : ft A ≡ Γ} {ftA' : ft A' ≡ Γ'}
+               {P P' : Ob (suc (suc (suc (suc n))))} (P= : P ≡ P')
+               {ftP : ft P ≡ T-ftP ccatId Γ A ftA} {ftP' : ft P' ≡ T-ftP ccatId Γ' A' ftA'}
+               {d d' : MorC (suc n) (suc (suc n))} (d= : d ≡ d') {dₛ : is-section d} {d'ₛ : is-section d'}
+               {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A ftA P ftP} {d'₁ : ∂₁ d' ≡ T-d₁ ccatrefl Γ' A' ftA' P' ftP'}
+               {a a' : MorC n (suc n)} (a= : a ≡ a') {aₛ : is-section a} {a'ₛ : is-section a'} {a₁ : ∂₁ a ≡ A} {a'₁ : ∂₁ a' ≡ A'}
+               {b b' : MorC n (suc n)} (b= : b ≡ b') {bₛ : is-section b} {b'ₛ : is-section b'} {b₁ : ∂₁ b ≡ A} {b'₁ : ∂₁ b' ≡ A'}
+               {p p' : MorC n (suc n)} (p= : p ≡ p') {pₛ : is-section p} {p'ₛ : is-section p'} {p₁ : ∂₁ p ≡ IdStr Γ A ftA a aₛ a₁ b bₛ b₁} {p'₁ : ∂₁ p' ≡ IdStr Γ' A' ftA' a' a'ₛ a'₁ b' b'ₛ b'₁} → jjStr Γ A ftA P ftP d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ ≡ jjStr Γ' A' ftA' P' ftP' d' d'ₛ d'₁ a' a'ₛ a'₁ b' b'ₛ b'₁ p' p'ₛ p'₁
+ap-irr-jjStr refl refl refl refl refl refl refl = refl
+
 
 {- Partial interpretation of types and terms -}
 

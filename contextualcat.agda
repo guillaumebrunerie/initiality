@@ -12,7 +12,7 @@ record CCat : Set₁ where
     Ob : ℕ → Set
     -- morphisms
     Mor : ℕ → ℕ → Set
-    -- domain and codomain
+    -- domain and codomain(prev (prev (prev k)))
     ∂₀ : Mor n m → Ob n
     ∂₁ : Mor n m → Ob m
     -- identity morphism
@@ -743,13 +743,14 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
 
 
 T-dS₁ : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) → Ob (suc (suc (suc n)))
-T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc  Γ P P= = let open CCat+ ccat
-                                                              open CCatwithNat ccatnat
-                                                              open CCatwithsuc ccatsuc
-                                                          in
-                                                          star (sucStr P (varC (prev last) P) (varCₛ (prev last) P) (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
-                                                               (star+ (pp P) (star+ (pp (NatStr Γ)) P P= NatStr= (pp₁ ∙ NatStr=)) (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=))
-                                                               (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
+T-dS₁ {ccat = ccat} {ccatnat = ccatnat} ccatsuc Γ P P= = let open CCat+ ccat
+                                                             open CCatwithNat ccatnat
+                                                             open CCatwithsuc ccatsuc
+                                                         in
+                                                         star (sucStr P (varC (prev last) P) (varCₛ (prev last) P) (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
+                                                              (star+ (pp P) (star+ (pp (NatStr Γ)) P P= NatStr= (pp₁ ∙ NatStr=)) (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=))
+                                                              (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
+
 
 abstract
   T-dS₁= : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
@@ -759,7 +760,8 @@ abstract
                                                          open CCatwithsuc ccatsuc
                                                      in ft-star ∙ sucStr₀
           
-  
+  ap-irr-T-dS₁ : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {P P' : Ob (suc (suc n))} (P= : P ≡ P') {ftP : ft P ≡ NatStr Γ} {ftP' : ft P' ≡ NatStr Γ'} → T-dS₁ ccatsuc Γ P ftP ≡ T-dS₁ ccatsuc Γ' P' ftP'
+  ap-irr-T-dS₁ ccatsuc refl refl  = refl
 
   T-dS₁Nat : {ccat : CCat} {ccatnat : CCatwithNat ccat} (ccatsuc : CCatwithsuc ccat ccatnat) (let open CCat+ ccat) (let open CCatwithNat ccatnat) (let open CCatwithsuc ccatsuc) {g : Mor m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ} {g₁ : ∂₁ g ≡ Γ} → star++ g (T-dS₁ ccatsuc Γ P P=) (T-dS₁= ccatsuc) P= NatStr= g₁ ≡ T-dS₁ ccatsuc Δ (star+ g P P= NatStr= g₁) (ft-star ∙ qq₀ ∙ NatStrNat g₀)
   T-dS₁Nat {ccat = ccat} {ccatnat = ccatnat} ccatsuc g₀ =  let open CCat+ ccat
@@ -954,6 +956,10 @@ T-d₁ {n} {ccat = ccat} {ccatId} ccatrefl Γ A A= P P= =
       wwA = star+ (pp A) wA eq10 A= (pp₁ ∙ A=)
       widA = star++ (pp A) (T-ftP ccatId Γ A A=) (T-ftP= ccatId) eq11 A= (pp₁ ∙ A=)
       wP = star+++ (pp A) P P= (T-ftP= ccatId) eq12 A= (pp₁ ∙ A=)
+
+ap-irr-T-d₁ : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A ≡ A') {ftA : ft A ≡ Γ} {ftA' : ft A' ≡ Γ'} {P P' : Ob (suc (suc (suc (suc n))))} (P= : P ≡ P') {ftP : ft P ≡ T-ftP ccatId Γ A ftA} {ftP' : ft P' ≡ T-ftP ccatId Γ' A' ftA'} → T-d₁ ccatrefl Γ A ftA P ftP ≡ T-d₁ ccatrefl Γ' A' ftA' P' ftP'
+ap-irr-T-d₁ ccatrefl refl refl refl = refl
+
 
 T-jjStr₁ : {ccat : CCat} (ccatId : CCatwithId ccat) (let open CCat+ ccat) (let open CCatwithId ccatId)
            (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ)
