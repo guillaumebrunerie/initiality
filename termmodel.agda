@@ -6,6 +6,7 @@ open import syntx
 open import rules
 open import contextualcat
 open import quotients
+open import partialinterpretation
 
 open import termmodel-common public
 open import termmodel-synccat public
@@ -43,6 +44,7 @@ ccatsuc strSynCCat = sucStrSynCCat
 ccatnatelim strSynCCat = natelimStrSynCCat
 ccatid strSynCCat = idStrSynCCat
 ccatrefl strSynCCat = reflStrSynCCat
+ccatjj strSynCCat = jjStrSynCCat
 
 betaPiStr strSynCCat {Γ = Γ} {A = A} {B = B} {u = u} {a = a} = betaPiStrS Γ A _ B _ u _ _ a _ _
 betaSig1Str strSynCCat {Γ = Γ} {A = A} {B = B} {a = a} {b = b} = betaSig1StrS Γ A _ B _ a _ _ b _ _

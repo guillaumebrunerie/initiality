@@ -107,21 +107,21 @@ CCatwithrefl.reflStrNat' reflStrSynCCat = //-elimP (λ g → JforNat (//-elimP (
 {- JJ (TODO) -}
 
 
-poging : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) (Γ : CCat.Ob ccat n) (A : CCat.Ob ccat (suc n)) (A= : CCat.ft ccat A ≡ Γ) (u v : CCat.Mor ccat n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ ccat u ≡ A) (vₛ : is-section v) (v₁ : ∂₁ ccat v ≡ A) → CCat.Ob ccat (suc n)
-poging {ccat = ccat} {ccatId} ccatrefl Γ A A= u v uₛ u₁ vₛ v₁ = CCatwithId.IdStr ccatId Γ A A= u uₛ u₁ v vₛ v₁
+-- poging : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) (Γ : CCat.Ob ccat n) (A : CCat.Ob ccat (suc n)) (A= : CCat.ft ccat A ≡ Γ) (u v : CCat.Mor ccat n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ ccat u ≡ A) (vₛ : is-section v) (v₁ : ∂₁ ccat v ≡ A) → CCat.Ob ccat (suc n)
+-- poging {ccat = ccat} {ccatId} ccatrefl Γ A A= u v uₛ u₁ vₛ v₁ = CCatwithId.IdStr ccatId Γ A A= u uₛ u₁ v vₛ v₁
 
-pogingS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (u v : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ proj A) (vₛ : S.is-section (proj v)) (v₁ : ∂₁S (proj v) ≡ proj A) (d : DMor n (suc n)) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ poging reflStrSynCCat (proj Γ) (proj A) A= (proj u) (proj v) uₛ u₁ vₛ v₁) → DCtx n
-pogingS-// Γ A A= u v uₛ u₁ vₛ v₁ d dₛ d₁ = {!!}
+-- pogingS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (u v : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ proj A) (vₛ : S.is-section (proj v)) (v₁ : ∂₁S (proj v) ≡ proj A) (d : DMor n (suc n)) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ poging reflStrSynCCat (proj Γ) (proj A) A= (proj u) (proj v) uₛ u₁ vₛ v₁) → DCtx n
+-- pogingS-// Γ A A= u v uₛ u₁ vₛ v₁ d dₛ d₁ = {!!}
 
 
-jjStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ T-ftP IdStrSynCCat (proj Γ) (proj A) A=) (d : DMor (suc n) (suc (suc n))) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ T-d₁ reflStrSynCCat (proj Γ) (proj A) A= (proj P) P=) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : S.∂₁ (proj a) ≡ (proj A)) (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : S.∂₁ (proj b) ≡ (proj A)) (p : DMor n (suc n)) (pₛ : S.is-section (proj p)) (p₁ : S.∂₁ (proj p) ≡ proj (IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁)) → DMor n (suc n)
-jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm Γ (subst3Ty (getTy P) (getTm a) (getTm b) (getTm p)) (Subst3Ty {C = weakenTy (getTy A)} {D = id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)} (der Γ) dP (dTm A= a aₛ a₁) (congTmTy (! (weakenSubstTy (getTy A) (getTm a))) (dTm A= b bₛ b₁)) (congTmTy (! (ap-id-Ty subst2Ty-weakenTy refl refl)) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))) (jj (getTy A) (getTy P) (getTm d) (getTm a) (getTm b) (getTm p)) (JJ (dTy A A=) dP dd (dTm A= a aₛ a₁) (dTm A= b bₛ b₁) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))
-          where dP : Derivable ((((ctx Γ , getTy A) , weakenTy (getTy A)) , id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)) ⊢ getTy P)
-                dP = dTy {Γ = ((((_ , _) , _) , _) , (((der Γ , dTy A A=) , WeakTy (dTy A A=)) , Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))} P (P= ∙ eq (box (CtxSymm ((CtxTy=Ctx A A= ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy (dTy A A=)))) ,,
-                                                    congTyEq refl (ap-id-Ty (weakenTy-to-[]Ty ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl)
-                                                                  (TyRefl (Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))))))
-                dd : Derivable ((ctx Γ , getTy A) ⊢ getTm d :> subst3Ty (weakenTy' (prev (prev (prev last))) (getTy P)) (var last) (var last) (refl (weakenTy (getTy A)) (var last)))
-                dd = congTmTy {!!} (dTm ? d dₛ d₁)
+-- jjStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ T-ftP IdStrSynCCat (proj Γ) (proj A) A=) (d : DMor (suc n) (suc (suc n))) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ T-d₁ reflStrSynCCat (proj Γ) (proj A) A= (proj P) P=) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : S.∂₁ (proj a) ≡ (proj A)) (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : S.∂₁ (proj b) ≡ (proj A)) (p : DMor n (suc n)) (pₛ : S.is-section (proj p)) (p₁ : S.∂₁ (proj p) ≡ proj (IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁)) → DMor n (suc n)
+-- jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm Γ (subst3Ty (getTy P) (getTm a) (getTm b) (getTm p)) (Subst3Ty {C = weakenTy (getTy A)} {D = id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)} (der Γ) dP (dTm A= a aₛ a₁) (congTmTy (! (weakenSubstTy (getTy A) (getTm a))) (dTm A= b bₛ b₁)) (congTmTy (! (ap-id-Ty subst2Ty-weakenTy refl refl)) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))) (jj (getTy A) (getTy P) (getTm d) (getTm a) (getTm b) (getTm p)) (JJ (dTy A A=) dP dd (dTm A= a aₛ a₁) (dTm A= b bₛ b₁) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))
+--           where dP : Derivable ((((ctx Γ , getTy A) , weakenTy (getTy A)) , id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)) ⊢ getTy P)
+--                 dP = dTy {Γ = ((((_ , _) , _) , _) , (((der Γ , dTy A A=) , WeakTy (dTy A A=)) , Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))} P (P= ∙ eq (box (CtxSymm ((CtxTy=Ctx A A= ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy (dTy A A=)))) ,,
+--                                                     congTyEq refl (ap-id-Ty (weakenTy-to-[]Ty ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl)
+--                                                                   (TyRefl (Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))))))
+--                 dd : Derivable ((ctx Γ , getTy A) ⊢ getTm d :> subst3Ty (weakenTy' (prev (prev (prev last))) (getTy P)) (var last) (var last) (refl (weakenTy (getTy A)) (var last)))
+--                 dd = congTmTy {!!} (dTm ? d dₛ d₁)
 
 
 
@@ -135,17 +135,22 @@ jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm 
 -- {-
 -- jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm Γ (substTy (substTy (substTy (getTy P) (weakenTm (weakenTm (getTm p)))) (weakenTm (getTm b))) (getTm a)) (SubstTy (SubstTy (SubstTy {!!} (idMor+ ((der Γ , dTy A A=) , WeakTy (dTy A A=)) (WeakTm (WeakTm (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))))) (idMor+ (der Γ , dTy A A=) (WeakTm (dTm A= b bₛ b₁)))) (idMor+ (der Γ) (dTm A= a aₛ a₁))) (jj (getTy A) (getTy P) (getTm d) (getTm a) (getTm b) (getTm p)) {!JJ (dTy A A=) ? (dTm ? d dₛ d₁)!}-}
 
--- jjStrSynCCat : CCatwithjj synCCat IdStrSynCCat reflStrSynCCat
--- CCatwithjj.jjStr jjStrSynCCat = {!!}
--- CCatwithjj.jjStrₛ jjStrSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a} {b = b} {p = p} = {!!}
--- CCatwithjj.jjStr₁ jjStrSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a} {b = b} {p = p} = {!!}
--- CCatwithjj.jjStrNat' jjStrSynCCat = {!!}
 
--- {- ElId= -}
+postulate
+  #TODO#S : {A : Set} → A
+  #TODO# : {P : Prop} → P
 
--- elidStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ ElStrS i Γ a aₛ a₁)
---                    (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ ElStrS i Γ a aₛ a₁) → ElStrS i Γ (idStrS i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ IdStrS Γ (ElStrS i Γ a aₛ a₁) (ElStr=S i Γ a aₛ a₁) u uₛ u₁ v vₛ v₁
--- elidStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → eq (box (CtxRefl (der Γ) ,, ElId= (dTm refl a aₛ a₁) (dTm refl u uₛ u₁) (dTm refl v vₛ v₁)))))))
+jjStrSynCCat : CCatwithjj synCCat IdStrSynCCat reflStrSynCCat
+CCatwithjj.jjStr jjStrSynCCat = #TODO#S
+CCatwithjj.jjStrₛ jjStrSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a} {b = b} {p = p} = #TODO#
+CCatwithjj.jjStr₁ jjStrSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a} {b = b} {p = p} = #TODO#
+CCatwithjj.jjStrNat' jjStrSynCCat = #TODO#
+
+{- ElId= -}
+
+elidStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ ElStrS i Γ a aₛ a₁)
+                   (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ ElStrS i Γ a aₛ a₁) → ElStrS i Γ (idStrS i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStrₛS i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) (idStr₁S i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) ≡ IdStrS Γ (ElStrS i Γ a aₛ a₁) (ElStr=S i Γ a aₛ a₁) u uₛ u₁ v vₛ v₁
+elidStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ u uₛ u₁ → //-elimP (λ v vₛ v₁ → eq (box (CtxRefl (der Γ) ,, ElId= (dTm refl a aₛ a₁) (dTm refl u uₛ u₁) (dTm refl v vₛ v₁)))))))
 
 
--- {- BetaJ (TODO) -}
+{- BetaJ (TODO) -}
