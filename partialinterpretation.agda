@@ -7,10 +7,6 @@ open import contextualcat
 
 module _ (sC : StructuredCCat) where
 
-postulate  -- Used for things related to jj
-  #J#  : {P : Prop} → P
-  #J#S : {A : Set₁} → A
-
 _>>=_ = common._>>=_ {M = Partial}
 return = common.return {M = Partial}
 
@@ -268,7 +264,7 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
 ⟦⟧Tmₛ (natelim P d0 dS u) = natelimStrₛ
 ⟦⟧Tmₛ (id i a u v) = idStrₛ
 ⟦⟧Tmₛ (refl A u) = reflStrₛ
-⟦⟧Tmₛ (jj A P d a b p) = #J# {-jjStrₛ-}
+⟦⟧Tmₛ (jj A P d a b p) = jjStrₛ
 
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 ⟦⟧Ty-ft (uu i) = UUStr=

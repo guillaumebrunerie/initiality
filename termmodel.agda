@@ -46,11 +46,13 @@ ccatid strSynCCat = idStrSynCCat
 ccatrefl strSynCCat = reflStrSynCCat
 ccatjj strSynCCat = jjStrSynCCat
 
+
 betaPiStr strSynCCat {Γ = Γ} {A = A} {B = B} {u = u} {a = a} = betaPiStrS Γ A _ B _ u _ _ a _ _
 betaSig1Str strSynCCat {Γ = Γ} {A = A} {B = B} {a = a} {b = b} = betaSig1StrS Γ A _ B _ a _ _ b _ _
 betaSig2Str strSynCCat {Γ = Γ} {A = A} {B = B}  {a = a} {b = b} = betaSig2StrS Γ A _ B _ a _ _ b _ _
 betaNatZeroStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} = betaNatZeroStrS Γ P _ dO _ _ dS _ _
 betaNatSucStr strSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = betaNatSucStrS Γ P _ dO _ _ dS _ _ u _ _
+betaIdStr strSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a}  = betaIdStrS Γ A _ P _ d _ _  a _ _
 etaPiStr strSynCCat {Γ = Γ} {A = A} {B = B} {f = f} {fₛ = fₛ} {f₁ = f₁} = etaPiStrS Γ A _ B _ f fₛ f₁
 etaSigStr strSynCCat {Γ = Γ} {A = A} {B = B} {u = u} = etaSigStrS Γ A _ B _ u _ _
 eluuStr strSynCCat {Γ = Γ} = eluuStrS _ Γ

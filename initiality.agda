@@ -668,7 +668,22 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                        (uniqueness-Ob-// _ (IH (<-+-it 0)))
                        (uniqueness-Tm-// dΓ dA du (IH (<-+-it 1)))
     ∙ ! (reflStr→ sg (proj (Γ , dΓ)) (proj ((Γ , A) , (dΓ , dA))) refl (proj (TmToMor dΓ dA du)) (TmToMorₛ dΓ dA du) refl)
-  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = jj A P d a b p} (JJ dA dP dd da db dp) (acc IH) = #J#
+  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = jj A P d a b p} (JJ dA dP dd da db dp) (acc IH) = #TODO#
+    {!-jjStr→ sf+ (proj (Γ , dΓ))
+                (proj ?) ?
+                (proj ?) ?
+                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+     ∙ ap-irr-jjStr ? ? ? ? ? ? ? ∙
+     ! (jjStr→ sg+ (proj (Γ , dΓ))
+                   (proj ?) ?
+                   (proj ?) ?
+                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
+                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?)-!}
 
   uniqueness-Ob : (X : ObS n) → Ob→ f X ≡ Ob→ g X
   uniqueness-Ob = //-elimP (λ Γ → uniqueness-Ob-// Γ (WO-Nat _))
