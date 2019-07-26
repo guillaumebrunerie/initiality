@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline --allow-unsolved-metas #-}
 
 open import common
 open import typetheory
@@ -37,6 +37,7 @@ CCatwithId.IdStr IdStrSynCCat = IdStrS
 CCatwithId.IdStr= IdStrSynCCat = IdStr=S _ _ _ _ _ _ _ _ _
 CCatwithId.IdStrNat' IdStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ g₁ → refl))))))
 
+module idS = CCatwithId IdStrSynCCat
 
 {- id -}
 
@@ -104,60 +105,83 @@ CCatwithrefl.reflStr₁ reflStrSynCCat {Γ = Γ} {A = A} {a = a} = reflStr₁S �
 CCatwithrefl.reflStrNat' reflStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ a aₛ a₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (id (getTy A) (getTm a) (getTm a))) (idMor[]Mor (mor g))))))))
  
 
-{- JJ (TODO) -}
+module reflS = CCatwithrefl reflStrSynCCat
 
+{- JJ (TODO) -}
 
 postulate
   #TODO#S : ∀ {l} {A : Set l} → A
   #TODO# : {P : Prop} → P
 
--- poging : {ccat : CCat} {ccatId : CCatwithId ccat} (ccatrefl : CCatwithrefl ccatId) (let open CCat+ ccat) (let open CCatwithrefl ccatrefl) (Γ : CCat.Ob ccat n) (A : CCat.Ob ccat (suc n)) (A= : CCat.ft ccat A ≡ Γ) (u v : CCat.Mor ccat n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ ccat u ≡ A) (vₛ : is-section v) (v₁ : ∂₁ ccat v ≡ A) → CCat.Ob ccat (suc n)
--- poging {ccat = ccat} {ccatId} ccatrefl Γ A A= u v uₛ u₁ vₛ v₁ = CCatwithId.IdStr ccatId Γ A A= u uₛ u₁ v vₛ v₁
+fixTyJJ : {A : TyExpr n} {P : TyExpr (suc (suc (suc n)))} → subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last)) ≡ (((P [ weakenMor+ (weakenMor+ (weakenMor+ (weakenMor (idMor n)))) ]Ty) [ weakenMor+ (weakenMor+ (idMor (suc n) , var last)) ]Ty) [ weakenMor+ (idMor (suc n) , var last) ]Ty) [ idMor (suc n) , refl (weakenTy A) (var last) ]Ty
+fixTyJJ = #TODO#
 
--- pogingS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (u v : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ proj A) (vₛ : S.is-section (proj v)) (v₁ : ∂₁S (proj v) ≡ proj A) (d : DMor n (suc n)) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ poging reflStrSynCCat (proj Γ) (proj A) A= (proj u) (proj v) uₛ u₁ vₛ v₁) → DCtx n
--- pogingS-// Γ A A= u v uₛ u₁ vₛ v₁ d dₛ d₁ = {!!}
+-- star+S-// : (g : DMor n m) (X : DCtx (suc (suc m))) {X' : DCtx (suc m)} (X= : ftS (proj X) ≡ proj X') {X'' : DCtx m} (X'= : ftS (proj X') ≡ proj X'') (g₁ : ∂₁S (proj g) ≡ proj X'') → DCtx (suc (suc n))
+-- star+S-// g X X= X'= g₁ = starS-// (qqS-// g _ _ X'= g₁) X _ X= (qq₁S-// g _ _ X'= g₁)
 
-
-jjStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ T-ftP IdStrSynCCat (proj Γ) (proj A) A=) (d : DMor (suc n) (suc (suc n))) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ T-d₁ reflStrSynCCat (proj Γ) (proj A) A= (proj P) P=) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : S.∂₁ (proj a) ≡ (proj A)) (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : S.∂₁ (proj b) ≡ (proj A)) (p : DMor n (suc n)) (pₛ : S.is-section (proj p)) (p₁ : S.∂₁ (proj p) ≡ proj (IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁)) → DMor n (suc n)
-jjStrS-// Γ A A= P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = #TODO#S
-
-
--- jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm Γ (subst3Ty (getTy P) (getTm a) (getTm b) (getTm p)) (Subst3Ty {C = weakenTy (getTy A)} {D = id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)} (der Γ) dP (dTm A= a aₛ a₁) (congTmTy (! (weakenSubstTy (getTy A) (getTm a))) (dTm A= b bₛ b₁)) (congTmTy (! (ap-id-Ty subst2Ty-weakenTy refl refl)) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))) (jj (getTy A) (getTy P) (getTm d) (getTm a) (getTm b) (getTm p)) (JJ (dTy A A=) dP dd (dTm A= a aₛ a₁) (dTm A= b bₛ b₁) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))
---           where dP : Derivable ((((ctx Γ , getTy A) , weakenTy (getTy A)) , id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)) ⊢ getTy P)
---                 dP = dTy {Γ = ((((_ , _) , _) , _) , (((der Γ , dTy A A=) , WeakTy (dTy A A=)) , Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))} P (P= ∙ eq (box (CtxSymm ((CtxTy=Ctx A A= ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy (dTy A A=)))) ,,
---                                                     congTyEq refl (ap-id-Ty (weakenTy-to-[]Ty ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl)
---                                                                   (TyRefl (Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))))))
---                 dd : Derivable ((ctx Γ , getTy A) ⊢ getTm d :> subst3Ty (weakenTy' (prev (prev (prev last))) (getTy P)) (var last) (var last) (refl (weakenTy (getTy A)) (var last)))
---                 dd = congTmTy {!!} (dTm ? d dₛ d₁)
+-- star++S-// : (g : DMor n m) (X : DCtx (suc (suc (suc m)))) {X' : DCtx (suc (suc m))} (X= : ftS (proj X) ≡ proj X') {X'' : DCtx (suc m)} (X'= : ftS (proj X') ≡ proj X'') {X''' : DCtx m} (X''= : ftS (proj X'') ≡ proj X''') (g₁ : ∂₁S (proj g) ≡ proj X''') → DCtx (suc (suc (suc n)))
+-- star++S-// g X {X'} X= {X''} X'= {X'''} X''= g₁ = star+S-// (qqS-// g X'' _ X''= g₁) X X= X'= (qq₁S-// g _ _ X''= g₁)
+  
+-- star+++S-// : (g : DMor n m) (X : DCtx (suc (suc (suc (suc m))))) {X' : DCtx (suc (suc (suc m)))} (X= : ftS (proj X) ≡ proj X') {X'' : DCtx (suc (suc m))} (X'= : ftS (proj X') ≡ proj X'') {X''' : DCtx (suc m)} (X''= : ftS (proj X'') ≡ proj X''') {X'''' : DCtx m} (X'''= : ftS (proj X''') ≡ proj X'''') (g₁ : ∂₁S (proj g) ≡ proj X'''') → DCtx (suc (suc (suc (suc n))))
+-- star+++S-// g X {X'} X= {X''} X'= {X'''} X''= {X''''} X'''= g₁ = star++S-// (qqS-// g X''' _ X'''= g₁) X X= X'= X''= (qq₁S-// g _ _ X'''= g₁)
 
 
+-- T-d₁S : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ T-ftP IdStrSynCCat (proj Γ) (proj A) A=)
+--        → DCtx (suc (suc n))  
+-- T-d₁S Γ A A= P P= = starS-// (reflStrS-// A (starS-// (ppS-// A) A _ A= (pp₁S (proj A) ∙ A=)) eq1 (ssS-// (idS-// _ A)) (S.varCₛ last (proj A)) (S.varCL₁ {X = proj A} {X= = A=}))
+--                              (star+S-// (ssS-// (idS-// _ A))
+--                                         (star++S-// (ssS-// (idS-// _ A)) (star+++S-// (ppS-// A) P P= (T-ftP= IdStrSynCCat) eq12 A= (pp₁S (proj A) ∙ A=)) eq2 eq3 eq4 (S.varCL₁ {X = proj A} {X= = A=}))
+--                                         eq5 eq6 eq7)
+--                              _
+--                              eq8
+--                              {!!}
+--       where eq1 = S.ft-star ∙ S.pp₀
+--             eq2 = S.ft-star ∙ S.qq₀
+--             eq3 = S.ft-star ∙ S.qq₀
+--             eq4 = S.ft-star ∙ S.qq₀
+--             eq5 = S.ft-star ∙ S.qq₀
+--             eq6 = S.ft-star ∙ S.qq₀
+--             eq7 = S.varCL₁ {X = proj A} {X= = A=} ∙ ! S.star-varCL-star-qqpp
+--             eq8 = S.ft-star ∙ S.qq₀
+--             eq10 = S.ft-star ∙ S.pp₀
+--             eq11 = S.ft-star ∙ S.pp₀
+--             eq12 = S.ft-star ∙ S.pp₀
 
-{-{A = starS-// (reflStrS-// A (starS-// (ppS-// A) A (pp₁S (proj A))) (ft-starS (ppS (proj A)) (proj A) (pp₁S (proj A)) ∙ pp₀S (proj A) ) (ssS-// (idS-// (suc _) A)) (S.varCₛ last (proj A)) {!!})
-                                       (starS-// (qqS-// (ssS-// (idS-// (suc _) A)) {!!} {!!}) (starS-// (qqS-// (qqS-// (ssS-// (idS-// (suc _) A)) {!!} {!!}) {!!} {!!}) (starS-// (qqS-// (qqS-// (qqS-// (ppS-// A) A (pp₁S (proj A))) (starS-// (ppS-// A) A (pp₁S (proj A))) {!!}) {!!} {!!}) P ({!!} ∙ ! P=)) {!!}) {!!}) {!!}}-}
-{-(idMor+ ((((der Γ) , (dTy A A=)) , (WeakTy (dTy A A=))) , (WeakTy (WeakTy (dTy A A=))))
-                                                                                  (Refl (ConvTy (WeakTy {k = prev (prev last)} {Γ = ((ctx Γ , getTy A) , weakenTy (getTy A))} {T = getTy A} (WeakTy (WeakTy (dTy A A=)))) (((CtxRefl (der Γ) ,, TyRefl (dTy A A=)) ,, TyRefl (WeakTy (dTy A A=))) ,, congTyEq refl weakenTy-weakenTy (TyRefl (WeakTy (WeakTy (dTy A A=)))))) (congTmTy (! (weakenTy-weakenTy {k = prev last} ∙ ap weakenTy weakenTy-weakenTy)) (VarPrev (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=)))))))-}
-
-{-{A = (ctx A , subst3Ty (weakenTy' (prev (prev (prev last))) (getTy P)) (var last) (var last) (refl (weakenTy (getTy A)) (var last))) , der A , ConvTy (Subst3Ty {B = weakenTy (getTy A)} {C = weakenTy' (prev last) (weakenTy (getTy A))} {D = weakenTy' (prev (prev last)) (id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last))} (der Γ , dTy A A=) (WeakTy {T = getTy A} dP) (VarLast (dTy A A=)) (congTmTy (! (ap (λ z → substTy z (var last)) weakenTy-weakenTy ∙ substTy-weakenTy)) (VarLast (dTy A A=))) (congTmTy (ap-id-Ty (! (weakenTyInsert' (prev (prev last)) (weakenTy (weakenTy (getTy A))) (idMor _ , var last) (var last) ∙ weakenTyInsert (weakenTy (getTy A)) (idMor _) (var last) ∙ [idMor]Ty _ )) refl refl) (Refl (WeakTy (dTy A A=)) (VarLast (dTy A A=))))) (CtxTy=Ctx A A=)}-}
--- {-((_ , _) , (der A , ConvTy (Subst3Ty (der Γ , dTy A A=) (WeakTy dP) (VarLast (dTy A A=)) (congTmTy (! (weakenSubstTy (substTy (weakenTy' (prev last) (weakenTy (getTy A))) (var last)) (var last) ∙ ap (λ z → substTy z (var last)) weakenTy-weakenTy ∙ weakenSubstTy (weakenTy (getTy A)) (var last)) ∙ weakenSubstTy (substTy (weakenTy' (prev last) (weakenTy (getTy A))) (var last)) (var last)) (VarLast (dTy A A=))) (congTmTy (ap-id-Ty (! (weakenTyInsert' (prev (prev last)) (weakenTy (weakenTy (getTy A))) (idMor _ , var last) (var last) ∙ weakenTyInsert (weakenTy (getTy A)) (idMor _) (var last) ∙ ([idMor]Ty (weakenTy (getTy A))))) refl refl) (Refl (WeakTy (dTy A A=)) (VarLast (dTy A A=))))) (CtxTy=Ctx A A=)))-}
--- {-
--- jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm Γ (substTy (substTy (substTy (getTy P) (weakenTm (weakenTm (getTm p)))) (weakenTm (getTm b))) (getTm a)) (SubstTy (SubstTy (SubstTy {!!} (idMor+ ((der Γ , dTy A A=) , WeakTy (dTy A A=)) (WeakTm (WeakTm (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))))) (idMor+ (der Γ , dTy A A=) (WeakTm (dTm A= b bₛ b₁)))) (idMor+ (der Γ) (dTm A= a aₛ a₁))) (jj (getTy A) (getTy P) (getTm d) (getTm a) (getTm b) (getTm p)) {!JJ (dTy A A=) ? (dTm ? d dₛ d₁)!}-}
 
 
-jjStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ proj Γ) (A'= : ftS (proj A') ≡ proj Γ') {P P' : DCtx (suc (suc (suc (suc n))))} (rP : P ≃ P') (P= : ftS (proj P) ≡ T-ftP IdStrSynCCat (proj Γ) (proj A) A=) (P'= : ftS (proj P') ≡ T-ftP IdStrSynCCat (proj Γ') (proj A') A'=) {d d' : DMor (suc n) (suc (suc n))} (rd : d ≃ d') (dₛ : S.is-section (proj d)) (d'ₛ : S.is-section (proj d')) (d₁ : ∂₁S (proj d) ≡ T-d₁ reflStrSynCCat (proj Γ) (proj A) A= (proj P) P=) (d'₁ : ∂₁S (proj d') ≡ T-d₁ reflStrSynCCat (proj Γ') (proj A') A'= (proj P') P'=) {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : S.is-section (proj a)) (a'ₛ : S.is-section (proj a')) (a₁ : S.∂₁ (proj a) ≡ (proj A)) (a'₁ : ∂₁S (proj a') ≡ (proj A')) {b b' : DMor n (suc n)} (rb : b ≃ b') (bₛ : S.is-section (proj b)) (b'ₛ : S.is-section (proj b')) (b₁ : S.∂₁ (proj b) ≡ (proj A)) (b'₁ : ∂₁S (proj b') ≡ proj A') {p p' : DMor n (suc n)} (rp : p ≃ p') (pₛ : S.is-section (proj p)) (p'ₛ : S.is-section (proj p')) (p₁ : S.∂₁ (proj p) ≡ proj (IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁)) (p'₁ : ∂₁S (proj p') ≡ proj (IdStrS-// Γ' A' A'= a' a'ₛ a'₁ b' b'ₛ b'₁)) → jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ ≡ jjStrS-// Γ' A' A'= P' P'= d' d'ₛ d'₁ a' a'ₛ a'₁ b' b'ₛ b'₁ p' p'ₛ p'₁
+jjStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : S.ft (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : S.ft (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=)
+            (d : DMor (suc n) (suc (suc n))) (dₛ : S.is-section (proj d)) (d₁ : S.∂₁ (proj d) ≡ reflS.T-d₁ (proj Γ) (proj A) A= (proj P) P=)
+            (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : S.∂₁ (proj a) ≡ (proj A))
+            (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : S.∂₁ (proj b) ≡ (proj A))
+            (p : DMor n (suc n)) (pₛ : S.is-section (proj p)) (p₁ : S.∂₁ (proj p) ≡ idS.IdStr (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) → DMor n (suc n)
+jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ = dmorTm Γ (subst3Ty (getTy P) (getTm a) (getTm b) (getTm p))
+                                                                 (Subst3Ty {C = weakenTy (getTy A)} {D = id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)} (der Γ) dP (dTm A= a aₛ a₁) (congTmTy (! (weakenSubstTy (getTy A) (getTm a))) (dTm A= b bₛ b₁)) (congTmTy (! (ap-id-Ty subst2Ty-weakenTy refl refl)) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁)))
+                                                                 (jj (getTy A) (getTy P) (getTm d) (getTm a) (getTm b) (getTm p))
+                                                                 (JJ (dTy A A=) dP dd (dTm A= a aₛ a₁) (dTm A= b bₛ b₁) (dTm (IdStr=S (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) p pₛ p₁))
+          where dP : Derivable ((((ctx Γ , getTy A) , weakenTy (getTy A)) , id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)) ⊢ getTy P)
+                dP = dTy {Γ = ((((_ , _) , _) , _) , (((der Γ , dTy A A=) , WeakTy (dTy A A=)) , Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))} P (P= ∙ eq (box (CtxSymm ((CtxTy=Ctx A A= ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy (dTy A A=)))) ,,
+                                                    congTyEq refl (ap-id-Ty (weakenTy-to-[]Ty ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl)
+                                                                  (TyRefl (Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))))))
+                dd : Derivable ((ctx Γ , getTy A) ⊢ getTm d :> subst3Ty (weakenTy' (prev (prev (prev last))) (getTy P)) (var last) (var last) (refl (weakenTy (getTy A)) (var last)))
+                dd = congTmTy! #TODO# (dTm {Γ = ((_ , _) , (der Γ , dTy A A=))} #TODO# d dₛ #TODO#)
+
+{-A = ((ctx A , (((getTy P [ weakenMor+ (weakenMor+ (weakenMor+ (weakenMor (idMor _)))) ]Ty) [ weakenMor+ (weakenMor+ (idMor (suc _) , var last)) ]Ty) [ weakenMor+ (idMor (suc _) , var last) ]Ty) [ idMor (suc _) , refl (weakenTy (getTy A)) (var last) ]Ty) , (der A , ConvTy (SubstTy {Δ = (ctx Γ , getTy A) , id (weakenTy (getTy A)) (var last) (var last)} (SubstTy {Δ = ((ctx Γ , getTy A) , weakenTy (getTy A)) , id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)} (SubstTy {Δ = ((((ctx Γ , getTy A) , weakenTy (getTy A)) , weakenTy' (prev last) (weakenTy (getTy A))) , weakenTy' (prev (prev last)) (id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)))} (SubstTy dP (((WeakMor (WeakMor (WeakMor (WeakMor (idMorDerivable (der Γ))))) , congTmTy {!!} (VarPrev (WeakTy (WeakTy (WeakTy (dTy A A=)))) (VarPrev (WeakTy (WeakTy (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))) , congTmTy {!!} (VarPrev (WeakTy (WeakTy (WeakTy (dTy A A=)))) (VarLast (WeakTy (WeakTy (dTy A A=)))))) , congTmTy {!!} (VarLast (WeakTy (Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=)))))))) ((((WeakMor (WeakMor (WeakMor (idMorDerivable (der Γ)))) , congTmTy {!!} (VarPrev (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))))) , congTmTy {!!} (VarPrev (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))))) , congTmTy {!!} (VarPrev (WeakTy (WeakTy (dTy A A=))) (VarLast (WeakTy (dTy A A=))))) , congTmTy {!!} (VarLast (Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=))))))) ((((WeakMor (WeakMor (idMorDerivable (der Γ))) , congTmTy (weakenTy-to-[]Ty ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty ∙ []Ty-assoc _ _ _ ∙ ap (_[_]Ty (getTy A)) (weakenMorInsert _ _ _ ∙ idMor[]Mor _)) (WeakTm (VarLast (dTy A A=)))) , congTmTy weakenTy-to-[]Ty (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))))) , congTmTy (weakenTy-to-[]Ty ∙ ap-id-Ty (weakenTyInsert _ _ _ ∙ ! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _)) refl refl) (VarLast (Id (WeakTy (dTy A A=)) (VarLast (dTy A A=)) (VarLast (dTy A A=)))))) (idMor+ (der Γ , dTy A A=) (Refl (WeakTy (dTy A A=)) (VarLast (dTy A A=))))) (CtxTy=Ctx A A=)))-} 
+
+jjStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ proj Γ) (A'= : ftS (proj A') ≡ proj Γ') {P P' : DCtx (suc (suc (suc (suc n))))} (rP : P ≃ P') (P= : ftS (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=) (P'= : ftS (proj P') ≡ idS.T-ftP (proj Γ') (proj A') A'=) {d d' : DMor (suc n) (suc (suc n))} (rd : d ≃ d') (dₛ : S.is-section (proj d)) (d'ₛ : S.is-section (proj d')) (d₁ : ∂₁S (proj d) ≡ reflS.T-d₁ (proj Γ) (proj A) A= (proj P) P=) (d'₁ : ∂₁S (proj d') ≡ reflS.T-d₁ (proj Γ') (proj A') A'= (proj P') P'=) {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : S.is-section (proj a)) (a'ₛ : S.is-section (proj a')) (a₁ : S.∂₁ (proj a) ≡ (proj A)) (a'₁ : ∂₁S (proj a') ≡ (proj A')) {b b' : DMor n (suc n)} (rb : b ≃ b') (bₛ : S.is-section (proj b)) (b'ₛ : S.is-section (proj b')) (b₁ : S.∂₁ (proj b) ≡ (proj A)) (b'₁ : ∂₁S (proj b') ≡ proj A') {p p' : DMor n (suc n)} (rp : p ≃ p') (pₛ : S.is-section (proj p)) (p'ₛ : S.is-section (proj p')) (p₁ : S.∂₁ (proj p) ≡ proj (IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁)) (p'₁ : ∂₁S (proj p') ≡ proj (IdStrS-// Γ' A' A'= a' a'ₛ a'₁ b' b'ₛ b'₁)) → jjStrS-// Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ ≡ jjStrS-// Γ' A' A'= P' P'= d' d'ₛ d'₁ a' a'ₛ a'₁ b' b'ₛ b'₁ p' p'ₛ p'₁
 jjStrS-eq rΓ rA A= A'= rP P= P'= rd dₛ d'ₛ d₁ d'₁ ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁ rp pₛ p'ₛ p₁ p'₁ = #TODO#
 
-jjStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ T-ftP IdStrSynCCat Γ A A=)
-         (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ T-d₁ reflStrSynCCat Γ A A= P P=)
+jjStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP Γ A A=)
+         (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ Γ A A= P P=)
          (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A)
          (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A)
          (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS = #TODO#S
 
 
-jjStrₛS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ T-ftP IdStrSynCCat Γ A A=) (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ T-d₁ reflStrSynCCat Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → S.is-section (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
+jjStrₛS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP Γ A A=) (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → S.is-section (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
 jjStrₛS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → //-elimP (λ p pₛ p₁ → #TODO#)))))))
 
-jjStr₁S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ T-ftP IdStrSynCCat Γ A A=) (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ T-d₁ reflStrSynCCat Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → ∂₁S (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ T-jjStr₁ IdStrSynCCat Γ A A= P P= a aₛ a₁ b bₛ b₁ p pₛ p₁
+jjStr₁S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP Γ A A=) (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → ∂₁S (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ idS.T-jjStr₁ Γ A A= P P= a aₛ a₁ b bₛ b₁ p pₛ p₁
 jjStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → //-elimP (λ p pₛ p₁ → #TODO#)))))))
 
 
@@ -177,8 +201,8 @@ elidStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ u u�
 {- BetaJ (TODO) -}
 
 
-betaIdStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ T-ftP IdStrSynCCat Γ A A=)
-             (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ T-d₁ reflStrSynCCat Γ A A= P P=)
+betaIdStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP Γ A A=)
+             (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ Γ A A= P P=)
              (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A)
-           → jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ a aₛ a₁ (reflStrS Γ A A= a aₛ a₁) (reflStrₛS Γ A A= a aₛ a₁) (reflStr₁S Γ A A= a aₛ a₁) ≡ S.starTm a d (S.is-section₀ dₛ d₁ ∙ T-d₁= reflStrSynCCat) a₁
+           → jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ a aₛ a₁ (reflStrS Γ A A= a aₛ a₁) (reflStrₛS Γ A A= a aₛ a₁) (reflStr₁S Γ A A= a aₛ a₁) ≡ S.starTm a d (S.is-section₀ dₛ d₁ ∙ reflS.T-d₁=) a₁
 betaIdStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ → #TODO#)))))

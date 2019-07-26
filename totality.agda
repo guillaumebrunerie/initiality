@@ -903,14 +903,14 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       [wwA]-ft = ⟦⟧Ty-ft (weakenTy (weakenTy A))
       idᵈ : isDefined (⟦ id (weakenTy (weakenTy A)) (var (prev last)) (var last) ⟧Ty [wA])
       idᵈ = (wwAᵈ , [wwA]-ft , tt , varCₛ (prev last) [wA] , (varC+₁ last [wA]-ft (varCL₁ ∙ wA=) ∙ wwA=) , tt , varCₛ last [wA] , (varCL₁ ∙ wwA=) , tt)
-      id= : ⟦ id (weakenTy (weakenTy A)) (var (prev last)) (var last) ⟧Ty [wA] $ idᵈ ≡ T-ftP ccatId X [A] A=
+      id= : ⟦ id (weakenTy (weakenTy A)) (var (prev last)) (var last) ⟧Ty [wA] $ idᵈ ≡ T-ftP X [A] A=
       id= = ap-irr-IdStr (! wA=) (! wwA= ∙ ap-irr-star (ap pp (! wA=)) (! wA=)) (ap ss (ap pp (! wA=))) (ap ss (ap idC (! wA=)))
       [id] = ⟦ id (weakenTy (weakenTy A)) (var (prev last)) (var last) ⟧Ty [wA] $ idᵈ
       [id]-ft : ft [id] ≡ [wA]
       [id]-ft = ⟦⟧Ty-ft (id (weakenTy (weakenTy A)) (var (prev last)) (var last)) {Aᵈ = idᵈ}
       Pᵈ' : isDefined (⟦ P ⟧Ty [id])
       Pᵈ' = ⟦⟧Tyᵈ (((Γᵈ , (Aᵈ , tt)) , wAᵈ , tt) , (idᵈ , tt)) dP
-      Pᵈ : isDefined (⟦ P ⟧Ty (T-ftP ccatId X [A] A=))
+      Pᵈ : isDefined (⟦ P ⟧Ty (T-ftP X [A] A=))
       Pᵈ = cong⟦⟧Ty {A = P} id= Pᵈ'
       P= = ⟦⟧Ty-ft P
       wwA'ᵈ : isDefined (⟦ weakenTy' (prev last) (weakenTy A) ⟧Ty [wA])
@@ -938,9 +938,9 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dᵈ : isDefined (⟦ d ⟧Tm (⟦ A ⟧Ty X $ Aᵈ))
       dᵈ = ⟦⟧Tmᵈ (Γᵈ , Aᵈ , tt) dd
       dₛ = ⟦⟧Tmₛ d
-      d₁ : ∂₁ (⟦ d ⟧Tm (⟦ A ⟧Ty X $ Aᵈ) $ dᵈ) ≡ T-d₁ ccatrefl (⟦ Γ ⟧Ctx $ Γᵈ)
-                                                              (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA) A=
-                                                              (⟦ P ⟧Ty (T-ftP ccatId (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ Aᵈ) A=) $ Pᵈ) P=
+      d₁ : ∂₁ (⟦ d ⟧Tm (⟦ A ⟧Ty X $ Aᵈ) $ dᵈ) ≡ T-d₁ (⟦ Γ ⟧Ctx $ Γᵈ)
+                                                     (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ ⟦⟧Tyᵈ Γᵈ dA) A=
+                                                     (⟦ P ⟧Ty (T-ftP (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ A ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ Aᵈ) A=) $ Pᵈ) P=
       d₁ = ⟦⟧Tm₁ {Γ = Γ , A} (Γᵈ , Aᵈ , tt) {u = d} {uᵈ = dᵈ} {A = subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))} dd
                  ∙ ⟦subst3⟧Ty= [wid]-ft [wwA']-ft [wA]-ft
                                (weakenTy' (prev (prev (prev last))) P) wPᵈ
@@ -959,7 +959,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
                                                      (! wid= ∙ ap-irr-star (ap-irr-qq refl (! wA=) {q' = ft-star ∙ pp₀} {f₁' = qq₁})
                                                                            id= {q' = IdStr=} {f₁' = qq₁})
                                          ∙ ! star-comp ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! ss-qq) refl {q' = ft-star ∙ pp₀} ∙ qq-id)
-                                                                   refl {q' = T-ftP= ccatId} ∙ star-id
+                                                                   refl {q' = T-ftP=} ∙ star-id
                          eq3 =  ap-irr-star (ap-irr-reflStr refl (! wA=) refl)
                                (ap-irr-star (ap-irr-qq refl (ap-irr-star (ap-irr-qq refl (! wwA'=' ∙ ap-irr-star refl (! wA=))) (! wid= ∙ ap-irr-star (ap-irr-qq refl (! wA=)) id=)))
                                             (ap-irr-star (ap-irr-qq (ap-irr-qq refl (! wwA'=' ∙ ap-irr-star refl (! wA=))) (! wid= ∙ ap-irr-star (ap-irr-qq refl (! wA=)) id=))
@@ -1189,7 +1189,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dSᵈw = ⟦weakenTm++⟧ᵈ' k dS dSᵈ X+= X= (⟦⟧Ty-ft P) NatStr= (⟦weakenTy+⟧=' k P Pᵈ X+= X= NatStr= naturalityNat)
       dSₛw = ⟦⟧Tmₛ (weakenTm' (prev (prev k)) dS)
       dS₁w = ⟦weakenTm++⟧₁' k dS dSᵈ X+= X= (ft-star ∙ sucStr₀) P= NatStr= wP= dS₁ ∙
-             T-dS₁Nat ccatsuc (qq^₀ ∙ Y=) ∙ ap-irr-T-dS₁ ccatsuc refl wP=
+             T-dS₁Nat (qq^₀ ∙ Y=) ∙ ap-irr-T-dS₁ refl wP=
       uᵈw = ⟦weakenTm⟧ᵈ' k u uᵈ X+= X= Y=
       uₛw = ⟦⟧Tmₛ (weakenTm' k u)
       u₁w = ⟦weakenTm⟧₁' k u uᵈ X+= X= Y= u₁ ∙ naturalityNat
@@ -1216,12 +1216,12 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    Aᵈw = ⟦weakenTy⟧ᵈ' k A Aᵈ X+= X= Y=
    Aw= = ⟦weakenTy⟧=' k A Aᵈ X+= X= Y=
    A=w = ⟦⟧Ty-ft (weakenTy' k A)
-   Pᵈw = ⟦weakenTy+++⟧ᵈ' k P Pᵈ X+= X= (T-ftP= ccatId) (ft-star ∙ pp₀) A= (T-ftPNat ccatId (qq^₀ ∙ Y=) ∙ ap-irr (T-ftP ccatId _) Aw=)
-   Pw= = ⟦weakenTy+++⟧=' k P Pᵈ X+= X= (T-ftP= ccatId) (ft-star ∙ pp₀) A= (T-ftPNat ccatId (qq^₀ ∙ Y=) ∙ ap-irr (T-ftP ccatId _) Aw=)
+   Pᵈw = ⟦weakenTy+++⟧ᵈ' k P Pᵈ X+= X= T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (qq^₀ ∙ Y=) ∙ ap-irr (T-ftP _) Aw=)
+   Pw= = ⟦weakenTy+++⟧=' k P Pᵈ X+= X= T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (qq^₀ ∙ Y=) ∙ ap-irr (T-ftP _) Aw=)
    P=w = ⟦⟧Ty-ft (weakenTy' (prev (prev (prev k))) P)
    dᵈw = ⟦weakenTm+⟧ᵈ' k d dᵈ X+= X= A= Aw=
    dₛw = ⟦⟧Tmₛ (weakenTm' (prev k) d)
-   d₁w = ⟦weakenTm+⟧₁' k d dᵈ X+= X= (T-d₁= ccatrefl) A= Aw= d₁ ∙ T-d₁Nat ccatrefl (qq^₀ ∙ Y=) ∙ ap-irr-T-d₁ ccatrefl refl Aw= Pw=
+   d₁w = ⟦weakenTm+⟧₁' k d dᵈ X+= X= T-d₁= A= Aw= d₁ ∙ T-d₁Nat  (qq^₀ ∙ Y=) ∙ ap-irr-T-d₁ refl Aw= Pw=
    aᵈw = ⟦weakenTm⟧ᵈ' k a aᵈ X+= X= Y=
    aₛw = ⟦⟧Tmₛ (weakenTm' k a)
    a₁w = ⟦weakenTm⟧₁' k a aᵈ X+= X= Y= a₁ ∙ Aw=
@@ -1335,7 +1335,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦weakenTm⟧=' k (jj A P d a b p) (Aᵈ , A= , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt) X+= X= Y= =
   jjStrNat (qq^₀ ∙ Y=) ∙ ap-irr-jjStr refl
                                       (⟦weakenTy⟧=' k A Aᵈ X+= X= Y=)
-                                      (⟦weakenTy+++⟧=' k P Pᵈ X+= X= IdStr= (ft-star ∙ pp₀) A= (T-ftPNat ccatId (qq^₀ ∙ Y=) ∙ ap-irr (T-ftP ccatId _) (⟦weakenTy⟧=' k A Aᵈ X+= X= Y=)))
+                                      (⟦weakenTy+++⟧=' k P Pᵈ X+= X= T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (qq^₀ ∙ Y=) ∙ ap-irr (T-ftP _) (⟦weakenTy⟧=' k A Aᵈ X+= X= Y=)))
                                       (⟦weakenTm+⟧=' k d dᵈ X+= X= A= (⟦weakenTy⟧=' k A Aᵈ X+= X= Y=))
                                       (⟦weakenTm⟧=' k a aᵈ X+= X= Y=)
                                       (⟦weakenTm⟧=' k b bᵈ X+= X= Y=)
@@ -1433,7 +1433,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dO₁ = ⟦⟧Tm₁ Γᵈ ddO ∙ ⟦subst⟧Ty= NatStr= P Pᵈ zero tt zeroStr₁
       dSᵈ = ⟦⟧Tmᵈ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS
       dS₁ : ∂₁ (⟦ dS ⟧Tm (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ Pᵈ) $ dSᵈ)
-            ≡ T-dS₁ ccatsuc (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP) (⟦⟧Ty-ft P)
+            ≡ T-dS₁ (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ P ⟧Ty (NatStr (⟦ Γ ⟧Ctx $ Γᵈ)) $ ⟦⟧Tyᵈ (Γᵈ , tt , tt) dP) (⟦⟧Ty-ft P)
       dS₁ = ⟦⟧Tm₁ ((Γᵈ , tt , tt) , Pᵈ , tt) ddS
             ∙ ⟦subst⟧Ty= NatStr= (weakenTy' (prev last) (weakenTy' (prev last) P))
                                  (⟦weakenTy+⟧ᵈ (weakenTy' (prev last) P) (⟦weakenTy+⟧ᵈ P Pᵈ NatStr= NatStr= (NatStrNat pp₀)) (⟦⟧Ty-ft P) NatStr= (NatStrNat pp₀))
@@ -1585,8 +1585,8 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       dO₁s = ⟦tsubst⟧Tm₁ dO dOᵈ dO₁ δ δᵈ ∙ starstar NatStr= zeroStrₛ ∙ ap-irr-star (zeroStrNat (⟦⟧Mor₀ δ)) sP= 
       dSᵈs = ⟦tsubst⟧Tm++ᵈ dS dSᵈ δ δᵈ P= NatStr= sP=
       dSₛs = ⟦⟧Tmₛ (dS [ weakenMor+ (weakenMor+ δ) ]Tm)
-      dS₁s = ⟦tsubst⟧Tm++₁ dS dSᵈ dS₁ δ δᵈ (T-dS₁= ccatsuc) P= NatStr= sP=
-             ∙ T-dS₁Nat ccatsuc (⟦⟧Mor₀ δ) ∙ ap-irr-T-dS₁ ccatsuc refl sP=
+      dS₁s = ⟦tsubst⟧Tm++₁ dS dSᵈ dS₁ δ δᵈ T-dS₁= P= NatStr= sP=
+             ∙ T-dS₁Nat (⟦⟧Mor₀ δ) ∙ ap-irr-T-dS₁ refl sP=
       uᵈs = ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ
       uₛs = ⟦⟧Tmₛ (u [ δ ]Tm)
       u₁s = ⟦tsubst⟧Tm₁ u uᵈ u₁ δ δᵈ ∙ naturalityNat
@@ -1615,12 +1615,12 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       Aᵈs = ⟦tsubst⟧Tyᵈ A Aᵈ δ δᵈ
       A=s = ⟦⟧Ty-ft (A [ δ ]Ty)
       sA= = ⟦tsubst⟧Ty= A Aᵈ δ δᵈ
-      Pᵈs = ⟦tsubst⟧Ty+++ᵈ  P Pᵈ δ δᵈ IdStr= (ft-star ∙ pp₀) A= (T-ftPNat ccatId (⟦⟧Mor₀ δ) ∙ ap-irr (T-ftP ccatId _) sA=)
+      Pᵈs = ⟦tsubst⟧Ty+++ᵈ P Pᵈ δ δᵈ T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (⟦⟧Mor₀ δ) ∙ ap-irr (T-ftP _) sA=)
       P=s = ⟦⟧Ty-ft (P [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty)
-      sP= = ⟦tsubst⟧Ty+++= P Pᵈ δ δᵈ IdStr= (ft-star ∙ pp₀) A= (T-ftPNat ccatId (⟦⟧Mor₀ δ) ∙ ap-irr (T-ftP ccatId _) sA=)
+      sP= = ⟦tsubst⟧Ty+++= P Pᵈ δ δᵈ T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (⟦⟧Mor₀ δ) ∙ ap-irr (T-ftP _) sA=)
       dᵈs = ⟦tsubst⟧Tm+ᵈ d dᵈ δ δᵈ A= sA=
       dₛs = ⟦⟧Tmₛ (d [ weakenMor+ δ ]Tm)
-      d₁s = ⟦tsubst⟧Tm+₁ d dᵈ d₁ δ δᵈ (ft-star ∙ reflStr₀) A= sA= ∙ T-d₁Nat ccatrefl (⟦⟧Mor₀ δ) ∙ ap-irr-T-d₁ ccatrefl refl sA= sP= 
+      d₁s = ⟦tsubst⟧Tm+₁ d dᵈ d₁ δ δᵈ T-d₁= A= sA= ∙ T-d₁Nat (⟦⟧Mor₀ δ) ∙ ap-irr-T-d₁ refl sA= sP= 
       aᵈs = ⟦tsubst⟧Tmᵈ a aᵈ δ δᵈ
       aₛs = ⟦⟧Tmₛ (a [ δ ]Tm)
       a₁s = ⟦tsubst⟧Tm₁ a aᵈ a₁ δ δᵈ ∙ sA=
@@ -1738,7 +1738,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦tsubst⟧Tm= (jj A P d a b p) (Aᵈ , A= , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt) δ δᵈ =
   jjStrNat (⟦⟧Mor₀ δ)
   ∙ ap-irr-jjStr refl (⟦tsubst⟧Ty= A Aᵈ δ δᵈ )
-                      (⟦tsubst⟧Ty+++= P Pᵈ δ δᵈ (T-ftP= ccatId) (ft-star ∙ pp₀) A= (T-ftPNat ccatId (⟦⟧Mor₀ δ) ∙ ap-irr (T-ftP ccatId _) (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)))
+                      (⟦tsubst⟧Ty+++= P Pᵈ δ δᵈ T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (⟦⟧Mor₀ δ) ∙ ap-irr (T-ftP _) (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)))
                       (⟦tsubst⟧Tm+= d dᵈ δ δᵈ A= (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
                       (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
                       (⟦tsubst⟧Tm= b bᵈ δ δᵈ)

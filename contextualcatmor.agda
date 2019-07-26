@@ -83,13 +83,13 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
             → Mor→ (reflStr sC Γ A A= a aₛ a₁) ≡ reflStr sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Mor→ a) (Mor→ₛ aₛ) (Mor→₁ a₁)
 
   abstract
-    T-dS→ : {Γ : Ob C n} {P : Ob C (suc (suc n))} {P= : ft C P ≡ NatStr sC Γ} → Ob→ (T-dS₁ (ccatsuc sC) Γ P P=) ≡ T-dS₁ (ccatsuc sD) (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
+    T-dS→ : {Γ : Ob C n} {P : Ob C (suc (suc n))} {P= : ft C P ≡ NatStr sC Γ} → Ob→ (T-dS₁ sC Γ P P=) ≡ T-dS₁ sD (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
     T-dS→ {_} {Γ} {P} {P=} =
       star→ ∙ ap-irr-star D (sucStr→ _ _ _ _ ∙ ap-irr-sucStr sD refl (ss→ ∙ ap (ss D) pp→))
                             (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D pp→ (star→ ∙ ap-irr-star D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)))
                                                    (star→ ∙ ap-irr-star D (qq→ ∙ ap-irr-qq D (pp→ ∙ ap (pp D) (NatStr→ Γ)) (NatStr→ Γ)) refl))
 
-    T-ftP→ : {Γ : Ob C n} {A : Ob C (suc n)} {A= : ft C A ≡ Γ} → Ob→ (T-ftP (ccatId sC) Γ A A=) ≡ T-ftP (ccatId sD) (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=)
+    T-ftP→ : {Γ : Ob C n} {A : Ob C (suc n)} {A= : ft C A ≡ Γ} → Ob→ (T-ftP sC Γ A A=) ≡ T-ftP sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=)
     T-ftP→ {_} {Γ} {A} {A=} = IdStr→ (star C (pp C A) A A= (pp₁ C ∙ A=))
                                      (star C (pp C (star C (pp C A) A A= (pp₁ C ∙ A=))) (star C (pp C A) A A= (pp₁ C ∙ A=)) (ft-star C ∙ pp₀ C) (pp₁ C ∙ ft-star C ∙ pp₀ C))
                                      (ft-star C ∙ pp₀ C)
@@ -105,8 +105,8 @@ record StructuredCCatMor (sC sD : StructuredCCat) : Set where
                                               (ss→ ∙ ap (ss D) (id→ ∙ ap (id D) (star→ ∙ ap-irr-star D pp→ refl)))
 
 
-    T-d₁→ : {Γ : Ob C n} {A : Ob C (suc n)} {A= : ft C A ≡ Γ} {P : Ob C (suc (suc (suc (suc n))))} {P= : ft C P ≡ T-ftP (ccatId sC) Γ A A=} →
-            Ob→ (T-d₁ (ccatrefl sC) Γ A A= P P=) ≡ T-d₁ (ccatrefl sD) (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ T-ftP→)
+    T-d₁→ : {Γ : Ob C n} {A : Ob C (suc n)} {A= : ft C A ≡ Γ} {P : Ob C (suc (suc (suc (suc n))))} {P= : ft C P ≡ T-ftP sC Γ A A=} →
+            Ob→ (T-d₁ sC Γ A A= P P=) ≡ T-d₁ sD (Ob→ Γ) (Ob→ A) (! ft→ ∙ ap Ob→ A=) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ T-ftP→)
     T-d₁→ {_} {Γ} {A} {A=} {P} {P=} =
       star→ ∙ ap-irr-star D
         (reflStr→ A (star C (pp C A) A A= (pp₁ C ∙ A=)) (ft-star C ∙ pp₀ C)
@@ -166,7 +166,7 @@ record StructuredCCatMor+ (sC sD : StructuredCCat) : Set where
   field
     natelimStr→ : (Γ : Ob C n) (P : Ob C (suc (suc n))) (P= : ft C P ≡ NatStr sC Γ)
                   (dO : Mor C n (suc n)) (dOₛ : is-section C dO) (dO₁ : ∂₁ C dO ≡ star C (zeroStr sC Γ) P P= (zeroStr₁ sC))
-                  (dS : Mor C (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section C dS) (dS₁ : ∂₁ C dS ≡ T-dS₁ (ccatsuc sC) Γ P P=)
+                  (dS : Mor C (suc (suc n)) (suc (suc (suc n)))) (dSₛ : is-section C dS) (dS₁ : ∂₁ C dS ≡ T-dS₁ sC Γ P P=)
                   (u : Mor C n (suc n)) (uₛ : is-section C u) (u₁ : ∂₁ C u ≡ NatStr sC Γ)
             → Mor→ (natelimStr sC Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
               ≡ natelimStr sD (Ob→ Γ) (Ob→ P) (! ft→ ∙ ap Ob→ P= ∙ NatStr→ Γ)
@@ -176,9 +176,9 @@ record StructuredCCatMor+ (sC sD : StructuredCCat) : Set where
 
   field
     jjStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (P : Ob C (suc (suc (suc (suc n)))))
-             (P= : ft C P ≡ T-ftP (ccatId sC) Γ A A=)
+             (P= : ft C P ≡ T-ftP sC Γ A A=)
              (d : Mor C (suc n) (suc (suc n))) (dₛ : is-section C d)
-             (d₁ : ∂₁ C d ≡ T-d₁ (ccatrefl sC) Γ A A= P P=)
+             (d₁ : ∂₁ C d ≡ T-d₁ sC Γ A A= P P=)
              (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
              (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ A)
              (p : Mor C n (suc n)) (pₛ : is-section C p) (p₁ : ∂₁ C p ≡ IdStr sC Γ A A= a aₛ a₁ b bₛ b₁)

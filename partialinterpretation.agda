@@ -56,9 +56,9 @@ ap-irr-idStr refl refl refl refl = refl
 
 ap-irr-jjStr : {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A ≡ A') {ftA : ft A ≡ Γ} {ftA' : ft A' ≡ Γ'}
                {P P' : Ob (suc (suc (suc (suc n))))} (P= : P ≡ P')
-               {ftP : ft P ≡ T-ftP ccatId Γ A ftA} {ftP' : ft P' ≡ T-ftP ccatId Γ' A' ftA'}
+               {ftP : ft P ≡ T-ftP Γ A ftA} {ftP' : ft P' ≡ T-ftP Γ' A' ftA'}
                {d d' : MorC (suc n) (suc (suc n))} (d= : d ≡ d') {dₛ : is-section d} {d'ₛ : is-section d'}
-               {d₁ : ∂₁ d ≡ T-d₁ ccatrefl Γ A ftA P ftP} {d'₁ : ∂₁ d' ≡ T-d₁ ccatrefl Γ' A' ftA' P' ftP'}
+               {d₁ : ∂₁ d ≡ T-d₁ Γ A ftA P ftP} {d'₁ : ∂₁ d' ≡ T-d₁ Γ' A' ftA' P' ftP'}
                {a a' : MorC n (suc n)} (a= : a ≡ a') {aₛ : is-section a} {a'ₛ : is-section a'} {a₁ : ∂₁ a ≡ A} {a'₁ : ∂₁ a' ≡ A'}
                {b b' : MorC n (suc n)} (b= : b ≡ b') {bₛ : is-section b} {b'ₛ : is-section b'} {b₁ : ∂₁ b ≡ A} {b'₁ : ∂₁ b' ≡ A'}
                {p p' : MorC n (suc n)} (p= : p ≡ p') {pₛ : is-section p} {p'ₛ : is-section p'} {p₁ : ∂₁ p ≡ IdStr Γ A ftA a aₛ a₁ b bₛ b₁} {p'₁ : ∂₁ p' ≡ IdStr Γ' A' ftA' a' a'ₛ a'₁ b' b'ₛ b'₁} → jjStr Γ A ftA P ftP d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ ≡ jjStr Γ' A' ftA' P' ftP' d' d'ₛ d'₁ a' a'ₛ a'₁ b' b'ₛ b'₁ p' p'ₛ p'₁
@@ -185,7 +185,7 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
   [dO]₁ ← assume (∂₁ [dO] ≡ star (zeroStr X) [P] _ _)
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
-  [dS]₁ ← assume (∂₁ [dS] ≡ T-dS₁ ccatsuc X [P] (unbox [P]=))
+  [dS]₁ ← assume (∂₁ [dS] ≡ T-dS₁ X [P] (unbox [P]=))
   [u]  ← ⟦ u ⟧Tm X
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ NatStr X)
@@ -211,7 +211,7 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
 ⟦ jj A P d a b p ⟧Tm X = do
   [A] ← ⟦ A ⟧Ty X
   [A]= ← assume (ft [A] ≡ X)
-  [P] ← ⟦ P ⟧Ty (T-ftP ccatId X [A] (unbox [A]=))
+  [P] ← ⟦ P ⟧Ty (T-ftP X [A] (unbox [A]=))
   [P]= ← assume (ft [P] ≡ _)
   [d] ← ⟦ d ⟧Tm [A]
   [d]ₛ ← assume (is-section [d])
