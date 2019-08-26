@@ -44,6 +44,12 @@ ap-irr-pr1Str refl refl refl refl = refl
 ap-irr-pr2Str : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} X A A= B B= u uₛ u₁ ≡ pr2Str X' A' A=' B' B=' u' uₛ' u₁'
 ap-irr-pr2Str refl refl refl refl = refl
 
+ap-irr-emptyelimStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _} → emptyelimStr {n = n} Γ A A= u uₛ u₁ ≡ emptyelimStr Γ' A' A'= u' u'ₛ u'₁
+ap-irr-emptyelimStr refl refl refl = refl
+
+ap-irr-unitelimStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {dtt dtt' : _} (dtt-eq : dtt ≡ dtt') {dttₛ : _} {dtt'ₛ : _} {dtt₁ : _} {dtt'₁ : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _} → unitelimStr {n = n} Γ A A= dtt dttₛ dtt₁ u uₛ u₁ ≡ unitelimStr Γ' A' A'= dtt' dtt'ₛ dtt'₁ u' u'ₛ u'₁
+ap-irr-unitelimStr refl refl refl refl = refl
+
 -- ap-irr-sucStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → sucStr {n = n} Γ v vₛ v₁ ≡ sucStr Γ' v' vₛ' v₁'
 -- ap-irr-sucStr refl refl = refl
 
@@ -88,6 +94,8 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
   [B] ← ⟦ B ⟧Ty [A]
   [B]= ← assume (ft [B] ≡ [A])
   return (SigStr X [A] (unbox [A]=) [B] (unbox [B]=))
+⟦ empty ⟧Ty X = return (EmptyStr X)
+⟦ unit ⟧Ty X = return (UnitStr X)
 ⟦ nat ⟧Ty X = return (NatStr X)
 ⟦ id A u v ⟧Ty X = do
   [A] ← ⟦ A ⟧Ty X
@@ -170,6 +178,26 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
   [u]ₛ ← assume (is-section [u])
   [u]₁ ← assume (∂₁ [u] ≡ SigStr X [A] (unbox [A]=) [B] (unbox [B]=))
   return (pr2Str X [A] (unbox [A]=) [B] (unbox [B]=) [u] (unbox [u]ₛ) (unbox [u]₁))
+⟦ empty i ⟧Tm X = return (emptyStr i X)
+⟦ emptyelim A u ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty (EmptyStr X)
+  [A]= ← assume (ft [A] ≡ EmptyStr X)
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ EmptyStr X)
+  return (emptyelimStr X [A] (unbox [A]=) [u] (unbox [u]ₛ) (unbox [u]₁))
+⟦ unit i ⟧Tm X = return (unitStr i X)
+⟦ tt ⟧Tm X = return (ttStr X)
+⟦ unitelim A dtt u ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty (UnitStr X)
+  [A]= ← assume (ft [A] ≡ UnitStr X)
+  [dtt] ← ⟦ dtt ⟧Tm X
+  [dtt]ₛ ← assume (is-section [dtt])
+  [dtt]₁ ← assume (∂₁ [dtt] ≡ star (ttStr X) [A] (unbox [A]=) ttStr₁)
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ UnitStr X)
+  return (unitelimStr X [A] (unbox [A]=) [dtt] (unbox [dtt]ₛ) (unbox [dtt]₁) [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ nat i ⟧Tm X = return (natStr i X)
 ⟦ zero ⟧Tm X = return (zeroStr X)
 ⟦ suc u ⟧Tm X = do
@@ -182,7 +210,7 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
   [P]= ← assume (ft [P] ≡ NatStr X)
   [dO]  ← ⟦ dO ⟧Tm X
   [dO]ₛ ← assume (is-section [dO])
-  [dO]₁ ← assume (∂₁ [dO] ≡ star (zeroStr X) [P] _ _)
+  [dO]₁ ← assume (∂₁ [dO] ≡ star (zeroStr X) [P] (unbox [P]=) zeroStr₁)
   [dS]  ← ⟦ dS ⟧Tm [P]
   [dS]ₛ ← assume (is-section [dS])
   [dS]₁ ← assume (∂₁ [dS] ≡ T-dS₁ X [P] (unbox [P]=))
@@ -258,6 +286,11 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
 ⟦⟧Tmₛ (pair A B u v) = pairStrₛ
 ⟦⟧Tmₛ (pr1 A B u) = pr1Strₛ
 ⟦⟧Tmₛ (pr2 A B u) = pr2Strₛ
+⟦⟧Tmₛ (empty i) = emptyStrₛ
+⟦⟧Tmₛ (emptyelim A u) = emptyelimStrₛ
+⟦⟧Tmₛ (unit i) = unitStrₛ
+⟦⟧Tmₛ tt = ttStrₛ
+⟦⟧Tmₛ (unitelim A dtt u) = unitelimStrₛ
 ⟦⟧Tmₛ (nat i) = natStrₛ
 ⟦⟧Tmₛ zero = zeroStrₛ
 ⟦⟧Tmₛ (suc u) = sucStrₛ
@@ -271,6 +304,8 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
 ⟦⟧Ty-ft (el i v) = ElStr=
 ⟦⟧Ty-ft (pi A B)  = PiStr=
 ⟦⟧Ty-ft (sig A B) = SigStr=
+⟦⟧Ty-ft empty = EmptyStr=
+⟦⟧Ty-ft unit = UnitStr=
 ⟦⟧Ty-ft nat = NatStr=
 ⟦⟧Ty-ft (id A u v) = IdStr=
 
@@ -284,6 +319,11 @@ ap-irr-jjStr refl refl refl refl refl refl refl = refl
 ⟦⟧Tm₀ (pair A B u v) = pairStr₀
 ⟦⟧Tm₀ (pr1 A B u) = pr1Str₀
 ⟦⟧Tm₀ (pr2 A B u) = pr2Str₀
+⟦⟧Tm₀ (empty i) = emptyStr₀
+⟦⟧Tm₀ (emptyelim A u) = emptyelimStr₀
+⟦⟧Tm₀ (unit i) = unitStr₀
+⟦⟧Tm₀ tt = ttStr₀
+⟦⟧Tm₀ (unitelim A dtt u) = unitelimStr₀
 ⟦⟧Tm₀ (nat i) = natStr₀
 ⟦⟧Tm₀ zero = zeroStr₀
 ⟦⟧Tm₀ (suc u) = sucStr₀

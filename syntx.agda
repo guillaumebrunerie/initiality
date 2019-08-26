@@ -14,9 +14,9 @@ Ctx+= : {Γ Γ' : Ctx n} {A A' : TyExpr n} → Γ ≡ Γ' → A ≡ A' → Ctx._
 Ctx+= refl refl = refl
 
 
-data Mor (n : ℕ) : ℕ → Set where
-  ◇ : Mor n 0
-  _,_ : {m : ℕ} (δ : Mor n m) (u : TmExpr n) → Mor n (suc m)
+data Mor (n : ℕ) : ℕ → Set where 
+ ◇ : Mor n 0
+ _,_ : {m : ℕ} (δ : Mor n m) (u : TmExpr n) → Mor n (suc m)
 
 Mor+= : {δ δ' : Mor n m} {u u' : TmExpr n} → δ ≡ δ' → u ≡ u' → Mor._,_ δ u ≡ (δ' , u')
 Mor+= refl refl = refl
@@ -170,6 +170,8 @@ weakenCommutesTy' m k l (uu i) p = reflR
 weakenCommutesTy' m k l (el i v) p = ΣSS= (apR-el-Ty reflR (sndΣSSℕR (weakenCommutesTm' m k l v p)))
 weakenCommutesTy' m k l (pi A B) p = ΣSS= (apR-pi-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
 weakenCommutesTy' m k l (sig A B) p = ΣSS= (apR-sig-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
+weakenCommutesTy' m k l empty p = reflR
+weakenCommutesTy' m k l unit p = reflR
 weakenCommutesTy' m k l (nat) p = reflR
 weakenCommutesTy' m k l (id A u v) p = ΣSS= (apR-id-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)) (sndΣSSℕR (weakenCommutesTm' m k l v p)))
 
@@ -182,6 +184,11 @@ weakenCommutesTm' m k l (sig i a b) p = ΣSS= (apR-sig-Tm reflR (sndΣSSℕR (we
 weakenCommutesTm' m k l (pair A B a b) p = ΣSS= (apR-pair-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' m k l (b) p)))
 weakenCommutesTm' m k l (pr1 A B u) p = ΣSS= (apR-pr1-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
 weakenCommutesTm' m k l (pr2 A B u) p = ΣSS= (apR-pr2-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
+weakenCommutesTm' m k l (empty i) p = reflR
+weakenCommutesTm' m k l (emptyelim A u) p = ΣSS= (apR-emptyelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) A (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l u p)))
+weakenCommutesTm' m k l (unit i) p = reflR
+weakenCommutesTm' m k l (unitelim A dtt u) p = ΣSS= (apR-unitelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) A (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l dtt p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)))
+weakenCommutesTm' m k l tt p = reflR
 weakenCommutesTm' m k l (nat i) p = reflR
 weakenCommutesTm' m k l (zero) p = reflR 
 weakenCommutesTm' m k l (suc x) p = ΣSS= (apR-suc-Tm (sndΣSSℕR (weakenCommutesTm' m k l (x) p)))

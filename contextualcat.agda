@@ -398,6 +398,34 @@ record CCatwithSig (ccat : CCat) : Set₁ where
              → star g (SigStr Γ A A= B B=) SigStr= g₁ ≡ SigStr Δ (star g A A= g₁) (ft-star ∙ g₀) (star+ g B B= A= g₁) (ft-star ∙ qq₀)
   SigStrNat g₀ {g₁ = g₁} = SigStrNat' _ _ g₀ _ _ _ _ _ g₁
 
+record CCatwithEmpty (ccat : CCat) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+
+  field
+    EmptyStr : (Γ : Ob n) → Ob (suc n)
+    EmptyStr= : {Γ : Ob n} → ft (EmptyStr Γ) ≡ Γ
+    EmptyStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) {g₁ : ∂₁ g ≡ Γ}
+                 → star g (EmptyStr Γ) EmptyStr= g₁ ≡ EmptyStr Δ
+
+  EmptyStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
+              → star g (EmptyStr Γ) EmptyStr= g₁ ≡ EmptyStr Δ
+  EmptyStrNat g₀ = EmptyStrNat' _ _ g₀ _
+ 
+record CCatwithUnit (ccat : CCat) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+
+  field
+    UnitStr : (Γ : Ob n) → Ob (suc n)
+    UnitStr= : {Γ : Ob n} → ft (UnitStr Γ) ≡ Γ
+    UnitStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) {g₁ : ∂₁ g ≡ Γ}
+                 → star g (UnitStr Γ) UnitStr= g₁ ≡ UnitStr Δ
+
+  UnitStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
+              → star g (UnitStr Γ) UnitStr= g₁ ≡ UnitStr Δ
+  UnitStrNat g₀ = UnitStrNat' _ _ g₀ _
+   
 record CCatwithNat (ccat : CCat) : Set₁ where
   no-eta-equality
   open CCat+ ccat renaming (Mor to MorC)
@@ -713,6 +741,127 @@ record CCatwithpr2 (ccat : CCat) (ccatsig : CCatwithSig ccat) (ccatpr1 : CCatwit
                                                                            (starTm g u u₀ g₁) ssₛ (starTm₁ g SigStr= u uₛ u₁ g₁ ∙ SigStrNat g₀)
   pr2StrNat g₀ = pr2StrNat' _ _ g₀ _ _ _ _ _ _ _ _ _
 
+
+record CCatwithempty (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+  open CCatwithUU ccatuu
+
+  field
+    emptyStr : (i : ℕ) (Γ : Ob n) → MorC n (suc n)
+    emptyStrₛ : {i : ℕ} {Γ : Ob n} → is-section (emptyStr i Γ)
+    emptyStr₁ : {i : ℕ} {Γ : Ob n} → ∂₁ (emptyStr i Γ) ≡ UUStr i Γ
+
+  emptyStr₀ : {i : ℕ} {Γ : Ob n} → ∂₀ (emptyStr i Γ) ≡ Γ
+  emptyStr₀ {_} = is-section₀ emptyStrₛ emptyStr₁ ∙ UUStr=
+
+  field
+    emptyStrNat' : {i : ℕ} (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (g₁ : ∂₁ g ≡ Γ)
+                 → starTm g (emptyStr i Γ) emptyStr₀ g₁ ≡ emptyStr i Δ
+
+  emptyStrNat : {i : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
+              → starTm g (emptyStr i Γ) emptyStr₀ g₁ ≡ emptyStr i Δ
+  emptyStrNat g₀ = emptyStrNat' _ _ g₀ _ _
+
+
+record CCatwithemptyelim (ccat : CCat) (ccatempty : CCatwithEmpty ccat) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+  open CCatwithEmpty ccatempty
+
+  field
+    emptyelimStr  : (Γ : Ob n) (A : Ob (suc (suc n))) (A= : ft A ≡ EmptyStr Γ) (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ EmptyStr Γ) → MorC n (suc n)
+    emptyelimStrₛ : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ EmptyStr Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ EmptyStr Γ} → is-section (emptyelimStr Γ A A= u uₛ u₁)
+    emptyelimStr₁ : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ EmptyStr Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ EmptyStr Γ} → ∂₁ (emptyelimStr Γ A A= u uₛ u₁) ≡ star u A A= u₁
+
+  emptyelimStr₀ : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ EmptyStr Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ EmptyStr Γ} → ∂₀ (emptyelimStr Γ A A= u uₛ u₁) ≡ Γ
+  emptyelimStr₀ {_} {_} {_} {_} {_} {uₛ} {u₁} = is-section₀ emptyelimStrₛ emptyelimStr₁ ∙ ft-star ∙ is-section₀ uₛ u₁ ∙ EmptyStr=
+
+  field
+    emptyelimStrNat' : (g : MorC m n) (Δ : Ob m) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob n) (A : Ob (suc (suc n))) (A= : ft A ≡ EmptyStr Γ) (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ EmptyStr Γ) (g₁ : ∂₁ g ≡ Γ)
+                     → starTm g (emptyelimStr Γ A A= u uₛ u₁) emptyelimStr₀ g₁ ≡ emptyelimStr Δ (star+ g A A= EmptyStr= g₁) (ft-star ∙ qq₀ ∙ EmptyStrNat g₀) (starTm g u (is-section₀ uₛ u₁ ∙ EmptyStr=) g₁) ssₛ (starTm₁ g EmptyStr= u uₛ u₁ g₁ ∙ EmptyStrNat g₀)
+
+  emptyelimStrNat : {g : MorC m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ EmptyStr Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ EmptyStr Γ} {g₁ : ∂₁ g ≡ Γ}
+                   → starTm g (emptyelimStr Γ A A= u uₛ u₁) emptyelimStr₀ g₁ ≡ emptyelimStr Δ (star+ g A A= EmptyStr= g₁) (ft-star ∙ qq₀ ∙ EmptyStrNat g₀) (starTm g u (is-section₀ uₛ u₁ ∙ EmptyStr=) g₁) ssₛ (starTm₁ g EmptyStr= u uₛ u₁ g₁ ∙ EmptyStrNat g₀)
+  emptyelimStrNat g₀ = emptyelimStrNat' _ _ g₀ _ _ _ _ _ _ _
+
+record CCatwithunit (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+  open CCatwithUU ccatuu
+
+  field
+    unitStr  : (i : ℕ) (Γ : Ob n) → MorC n (suc n)
+    unitStrₛ : {i : ℕ} {Γ : Ob n} → is-section (unitStr i Γ)
+    unitStr₁ : {i : ℕ} {Γ : Ob n} → ∂₁ (unitStr i Γ) ≡ UUStr i Γ
+
+  unitStr₀ : {i : ℕ} {Γ : Ob n} → ∂₀ (unitStr i Γ) ≡ Γ
+  unitStr₀ {_} = is-section₀ unitStrₛ unitStr₁ ∙ UUStr=
+
+  field
+    unitStrNat' : {i : ℕ} (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (g₁ : ∂₁ g ≡ Γ)
+                 → starTm g (unitStr i Γ) unitStr₀ g₁ ≡ unitStr i Δ
+
+  unitStrNat : {i : ℕ} {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
+              → starTm g (unitStr i Γ) unitStr₀ g₁ ≡ unitStr i Δ
+  unitStrNat g₀ = unitStrNat' _ _ g₀ _ _
+
+record CCatwithtt (ccat : CCat) (ccatUnit : CCatwithUnit ccat) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+  open CCatwithUnit ccatUnit
+
+  field
+    ttStr  : (Γ : Ob n) → MorC n (suc n)
+    ttStrₛ : {Γ : Ob n} → is-section (ttStr Γ)
+    ttStr₁ : {Γ : Ob n} → ∂₁ (ttStr Γ) ≡ UnitStr Γ
+
+
+  ttStr₀ : {Γ : Ob n} → ∂₀ (ttStr Γ) ≡ Γ
+  ttStr₀ {_} = is-section₀ ttStrₛ ttStr₁ ∙ UnitStr=
+
+  field
+    ttStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (g₁ : ∂₁ g ≡ Γ)
+             → starTm g (ttStr Γ) ttStr₀ g₁ ≡ ttStr Δ
+
+  ttStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {g₁ : ∂₁ g ≡ Γ}
+             → starTm g (ttStr Γ) ttStr₀ g₁ ≡ ttStr Δ
+  ttStrNat g₀ = ttStrNat' _ _ g₀ _ _
+
+record CCatwithunitelim (ccat : CCat) (ccatUnit : CCatwithUnit ccat) (ccattt : CCatwithtt ccat ccatUnit) : Set₁ where
+  no-eta-equality
+  open CCat+ ccat renaming (Mor to MorC)
+  open CCatwithUnit ccatUnit
+  open CCatwithtt ccattt
+
+  field
+    unitelimStr  : (Γ : Ob n) (A : Ob (suc (suc n))) (A= : ft A ≡ UnitStr Γ)
+                   (dtt : MorC n (suc n)) (dttₛ : is-section dtt) (dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁)
+                   (u : MorC n (suc n)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ UnitStr Γ)
+                   → MorC n (suc n)
+    unitelimStrₛ : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ UnitStr Γ}
+                   {dtt : MorC n (suc n)} {dttₛ : is-section dtt} {dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁}
+                   {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ UnitStr Γ}
+                   → is-section (unitelimStr Γ A A= dtt dttₛ dtt₁ u uₛ u₁)
+    unitelimStr₁ : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ UnitStr Γ}
+                   {dtt : MorC n (suc n)} {dttₛ : is-section dtt} {dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁}
+                   {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ UnitStr Γ}
+                   → ∂₁ (unitelimStr Γ A A= dtt dttₛ dtt₁ u uₛ u₁) ≡ star u A A= u₁
+
+  unitelimStr₀ : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ UnitStr Γ}
+                 {dtt : MorC n (suc n)} {dttₛ : is-section dtt} {dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁}
+                 {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ UnitStr Γ}
+                 → ∂₀ (unitelimStr Γ A A= dtt dttₛ dtt₁ u uₛ u₁) ≡ Γ
+  unitelimStr₀ {_} {_} {_} {_} {_} {_} {_} {_} {uₛ} {u₁} = is-section₀ unitelimStrₛ unitelimStr₁ ∙ ft-star ∙ is-section₀ uₛ u₁ ∙ UnitStr=
+
+  field
+    unitelimStrNat' : (g : MorC n m) (Δ : Ob n) (g₀ : ∂₀ g ≡ Δ) (Γ : Ob m) (A : Ob (suc (suc m))) (A= : ft A ≡ UnitStr Γ) (dtt : MorC m (suc m)) (dttₛ : is-section dtt) (dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁) (u : MorC m (suc m)) (uₛ : is-section u) (u₁ : ∂₁ u ≡ UnitStr Γ) (g₁ : ∂₁ g ≡ Γ)
+                    → starTm g (unitelimStr Γ A A= dtt dttₛ dtt₁ u uₛ u₁) unitelimStr₀ g₁ ≡ unitelimStr Δ (star+ g A A= UnitStr= g₁) (ft-star ∙ qq₀ ∙ UnitStrNat g₀) (starTm g dtt (is-section₀ dttₛ dtt₁ ∙ ft-star ∙ ttStr₀) g₁) ssₛ (starTm₁ g (ft-star ∙ ttStr₀) dtt dttₛ dtt₁ g₁ ∙ starstar UnitStr= ttStrₛ ∙ ap-irr-star (ttStrNat g₀) refl) (starTm g u (is-section₀ uₛ u₁ ∙ UnitStr=) g₁) ssₛ (starTm₁ g UnitStr= u uₛ u₁ g₁ ∙ UnitStrNat g₀)
+
+  unitelimStrNat : {g : MorC n m} {Δ : Ob n} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob m} {A : Ob (suc (suc m))} {A= : ft A ≡ UnitStr Γ} {dtt : MorC m (suc m)} {dttₛ : is-section dtt} {dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁} {u : MorC m (suc m)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ UnitStr Γ} {g₁ : ∂₁ g ≡ Γ}
+                 → starTm g (unitelimStr Γ A A= dtt dttₛ dtt₁ u uₛ u₁) unitelimStr₀ g₁ ≡ unitelimStr Δ (star+ g A A= UnitStr= g₁) (ft-star ∙ qq₀ ∙ UnitStrNat g₀) (starTm g dtt (is-section₀ dttₛ dtt₁ ∙ ft-star ∙ ttStr₀) g₁) ssₛ (starTm₁ g (ft-star ∙ ttStr₀) dtt dttₛ dtt₁ g₁ ∙ starstar UnitStr= ttStrₛ ∙ ap-irr-star (ttStrNat g₀) refl) (starTm g u (is-section₀ uₛ u₁ ∙ UnitStr=) g₁) ssₛ (starTm₁ g UnitStr= u uₛ u₁ g₁ ∙ UnitStrNat g₀)
+  unitelimStrNat g₀ = unitelimStrNat' _ _ g₀ _ _ _ _ _ _ _ _ _ _
+  
 
 record CCatwithnat (ccat : CCat) (ccatuu : CCatwithUU ccat) : Set₁ where
   no-eta-equality
@@ -1064,6 +1213,8 @@ record StructuredCCat : Set₁ where
     ccatEl : CCatwithEl ccat ccatUU
     ccatPi : CCatwithPi ccat
     ccatSig : CCatwithSig ccat
+    ccatEmpty : CCatwithEmpty ccat
+    ccatUnit : CCatwithUnit ccat
     ccatNat : CCatwithNat ccat
     ccatId : CCatwithId ccat
     
@@ -1075,6 +1226,11 @@ record StructuredCCat : Set₁ where
     ccatpair : CCatwithpair ccat ccatSig
     ccatpr1 : CCatwithpr1 ccat ccatSig 
     ccatpr2 : CCatwithpr2 ccat ccatSig ccatpr1
+    ccatempty : CCatwithempty ccat ccatUU
+    ccatemptyelim : CCatwithemptyelim ccat ccatEmpty
+    ccatunit : CCatwithunit ccat ccatUU
+    ccattt : CCatwithtt ccat ccatUnit
+    ccatunitelim : CCatwithunitelim ccat ccatUnit ccattt
     ccatnat : CCatwithnat ccat ccatUU
     ccatzero : CCatwithzero ccat ccatNat
     ccatsuc : CCatwithsuc ccat ccatNat 
@@ -1088,6 +1244,8 @@ record StructuredCCat : Set₁ where
   open CCatwithEl ccatEl public
   open CCatwithPi ccatPi public
   open CCatwithSig ccatSig public
+  open CCatwithEmpty ccatEmpty public
+  open CCatwithUnit ccatUnit public
   open CCatwithNat ccatNat public
   open CCatwithId ccatId public
   open CCatwithuu ccatuu public
@@ -1098,6 +1256,11 @@ record StructuredCCat : Set₁ where
   open CCatwithpair ccatpair public
   open CCatwithpr1 ccatpr1 public
   open CCatwithpr2 ccatpr2 public
+  open CCatwithempty ccatempty public
+  open CCatwithemptyelim ccatemptyelim public
+  open CCatwithunit ccatunit public
+  open CCatwithtt ccattt public
+  open CCatwithunitelim ccatunitelim public
   open CCatwithnat ccatnat public
   open CCatwithzero ccatzero public
   open CCatwithsuc ccatsuc public
@@ -1113,16 +1276,18 @@ record StructuredCCat : Set₁ where
     betaSig1Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr1Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ a
     betaSig2Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr2Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ b
 
-    betaNatZeroStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
-                      {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
-                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=} →
-                        natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
+    betaUnitStr : {Γ : Ob n} {A : Ob (suc (suc n))} {A= : ft A ≡ UnitStr Γ} {dtt : MorC n (suc n)} {dttₛ : is-section dtt} {dtt₁ : ∂₁ dtt ≡ star (ttStr Γ) A A= ttStr₁}
+                → unitelimStr Γ A A= dtt dttₛ dtt₁ (ttStr Γ) ttStrₛ ttStr₁ ≡ dtt
 
-    betaNatSucStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+    betaNatZeroStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
                      {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
                      {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=}
-                     {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ} →
-                 natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ Tm-substdS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁
+                   → natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (zeroStr Γ) zeroStrₛ zeroStr₁ ≡ dO
+    betaNatSucStr : {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ}
+                    {dO : MorC n (suc n)} {dOₛ : is-section dO} {dO₁ : ∂₁ dO ≡ star (zeroStr Γ) P P= zeroStr₁}
+                    {dS : MorC (suc (suc n)) (suc (suc (suc n)))} {dSₛ : is-section dS} {dS₁ : ∂₁ dS ≡ T-dS₁ Γ P P=}
+                    {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ NatStr Γ}
+                  → natelimStr Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStr Γ u uₛ u₁) sucStrₛ sucStr₁ ≡ Tm-substdS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁
 
     betaIdStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc n))))} {P= : ft P ≡ T-ftP Γ A A=}
                 {d : MorC (suc n) (suc (suc n))} {dₛ : is-section d} {d₁ : ∂₁ d ≡ T-d₁ Γ A A= P P=}
@@ -1139,6 +1304,8 @@ record StructuredCCat : Set₁ where
             → ElStr i Γ (piStr i Γ a aₛ a₁ b bₛ b₁) piStrₛ piStr₁ ≡ PiStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=
     elsigStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {b : MorC (suc n) (suc (suc n))} {bₛ : is-section b} {b₁ : ∂₁ b ≡ UUStr i (ElStr i Γ a aₛ a₁)}
             → ElStr i Γ (sigStr i Γ a aₛ a₁ b bₛ b₁) sigStrₛ sigStr₁ ≡ SigStr Γ (ElStr i Γ a aₛ a₁) ElStr= (ElStr i (ElStr i Γ a aₛ a₁) b bₛ b₁) ElStr=
+    elemptyStr : {i : ℕ} {Γ : Ob n} → ElStr i Γ (emptyStr i Γ) emptyStrₛ emptyStr₁ ≡ EmptyStr Γ
+    elunitStr : {i : ℕ} {Γ : Ob n} → ElStr i Γ (unitStr i Γ) unitStrₛ unitStr₁ ≡ UnitStr Γ
     elnatStr : {i : ℕ} {Γ : Ob n} → ElStr i Γ (natStr i Γ) natStrₛ natStr₁ ≡ NatStr Γ
     elidStr : {i : ℕ} {Γ : Ob n} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ UUStr i Γ} {u : MorC n (suc n)} {uₛ : is-section u} {u₁ : ∂₁ u ≡ ElStr i Γ a aₛ a₁}
                       {v : MorC n (suc n)} {vₛ : is-section v} {v₁ : ∂₁ v ≡ ElStr i Γ a aₛ a₁} → ElStr i Γ (idStr i Γ a aₛ a₁ u uₛ u₁ v vₛ v₁) idStrₛ idStr₁ ≡ IdStr Γ (ElStr i Γ a aₛ a₁) ElStr= u uₛ u₁ v vₛ v₁

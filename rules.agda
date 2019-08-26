@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
-open import common
+open import common renaming (Unit to metaUnit)
 open import typetheory
 open import syntx
 open import reflection
@@ -143,6 +143,53 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ u == u' :> sig A B) → Derivable (Γ ⊢ pr2 A B u == pr2 A' B' u' :> substTy B (pr1 A B u))
 
 
+  -- Rules for Empty
+  Empty : {Γ : Ctx n}
+      → Derivable (Γ ⊢ empty)
+  EmptyCong : {Γ : Ctx n}
+      → Derivable (Γ ⊢ empty == empty)
+
+  -- Rules for empty
+  EmptyUU : {i : ℕ} {Γ : Ctx n}
+     → Derivable (Γ ⊢ empty i :> uu i)
+  EmptyUUCong : {i : ℕ} {Γ : Ctx n}
+     → Derivable (Γ ⊢ empty i == empty i :> uu i)
+  ElEmpty= : {i : ℕ} {Γ : Ctx n}
+     → Derivable (Γ ⊢ el i (empty i) == empty)
+
+  -- Rules for emptyelim
+  Emptyelim : {Γ : Ctx n} {A : TyExpr (suc n)} {u : TmExpr n}
+     → Derivable ((Γ , empty) ⊢ A) → Derivable (Γ ⊢ u :> empty) → Derivable (Γ ⊢ emptyelim A u :> substTy A u)
+  EmptyelimCong : {Γ : Ctx n} {A A' : TyExpr (suc n)} {u u' : TmExpr n}
+     → Derivable ((Γ , empty) ⊢ A == A') → Derivable (Γ ⊢ u == u' :> empty) → Derivable (Γ ⊢ emptyelim A u == emptyelim A' u' :> substTy A u)
+
+  -- Rules for Unit
+  Unit : {Γ : Ctx n}
+     → Derivable (Γ ⊢ unit)
+  UnitCong : {Γ : Ctx n}
+     → Derivable (Γ ⊢ unit == unit)
+
+  -- Rules for unit
+  UnitUU : {i : ℕ} {Γ : Ctx n}
+     → Derivable (Γ ⊢ unit i :> uu i)
+  UnitUUCong : {i : ℕ} {Γ : Ctx n}
+     → Derivable (Γ ⊢ unit i == unit i :> uu i)
+  ElUnit= : {i : ℕ} {Γ : Ctx n}
+     → Derivable (Γ ⊢ el i (unit i) == unit)
+
+  -- Rules for tt
+  TT : {Γ : Ctx n}
+     → Derivable (Γ ⊢ tt :> unit)
+  TTCong : {Γ : Ctx n}
+     → Derivable (Γ ⊢ tt == tt :> unit)
+
+  -- Rules for unitelim
+  Unitelim : {Γ : Ctx n} {A : TyExpr (suc n)} {dtt : TmExpr n} {u : TmExpr n}
+     → Derivable ((Γ , unit) ⊢ A) → Derivable (Γ ⊢ dtt :> substTy A tt) → Derivable (Γ ⊢ u :> unit) → Derivable (Γ ⊢ unitelim A dtt u :> substTy A u)
+  UnitelimCong : {Γ : Ctx n} {A A' : TyExpr (suc n)} {dtt dtt' : TmExpr n} {u u' : TmExpr n}
+     → Derivable ((Γ , unit) ⊢ A == A') → Derivable (Γ ⊢ dtt == dtt' :> substTy A tt) → Derivable (Γ ⊢ u == u' :> unit) → Derivable (Γ ⊢ unitelim A dtt u == unitelim A' dtt' u' :> substTy A u)
+    
+
   -- Rules for Nat
   Nat : {Γ : Ctx n}
     → Derivable (Γ ⊢ nat)
@@ -211,6 +258,8 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pr1 A B (pair A B a b) == a :> A)
   BetaSig2 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pr2 A B (pair A B a b) == b :> substTy B a)
+  BetaUnit : {Γ : Ctx n} {A : TyExpr (suc n)} {dtt : TmExpr n}
+    → Derivable ((Γ , unit) ⊢ A) → Derivable (Γ ⊢ dtt :> substTy A tt) → Derivable (Γ ⊢ unitelim A dtt tt == dtt :> substTy A tt)
   BetaNatZero : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))}
     → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last))))
     → Derivable (Γ ⊢ natelim P dO dS zero == dO :> substTy P zero)
@@ -232,19 +281,19 @@ data Derivable : Judgment → Prop where
 {- Derivability of contexts, context equality, context morphisms, and context morphism equality -}
 
 ⊢_ : Ctx n → Prop
-⊢ ◇ = Unit
+⊢ ◇ = metaUnit
 ⊢ (Γ , A) = (⊢ Γ) × Derivable (Γ ⊢ A)
 
 ⊢_==_ : Ctx n → Ctx n → Prop
-⊢ ◇ == ◇ = Unit
+⊢ ◇ == ◇ = metaUnit
 ⊢ (Γ , A) == (Γ' , A') = (⊢ Γ == Γ') × Derivable (Γ ⊢ A) × Derivable (Γ' ⊢ A') × Derivable (Γ ⊢ A == A') × Derivable (Γ' ⊢ A == A')
 
 _⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Prop
-Γ ⊢ ◇ ∷> ◇ = Unit
+Γ ⊢ ◇ ∷> ◇ = metaUnit
 Γ ⊢ (δ , u) ∷> (Δ , A) = (Γ ⊢ δ ∷> Δ) × Derivable (Γ ⊢ u :> A [ δ ]Ty) 
 
 _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
-Γ ⊢ ◇ == ◇ ∷> ◇ = Unit -- why not δ == ◇?
+Γ ⊢ ◇ == ◇ ∷> ◇ = metaUnit
 Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == u' :> A [ δ ]Ty)
 
 
@@ -311,6 +360,8 @@ TyRefl (Pi dA dB) = PiCong dA (TyRefl dA) (TyRefl dB)
 TyRefl UU = UUCong
 TyRefl (El dv) = ElCong (TmRefl dv)
 TyRefl (Sig dA dB) = SigCong dA (TyRefl dA) (TyRefl dB)
+TyRefl Empty = EmptyCong
+TyRefl Unit = UnitCong
 TyRefl Nat = NatCong
 TyRefl (Id dA da db) = IdCong (TyRefl dA) (TmRefl da) (TmRefl db)
 
@@ -325,6 +376,11 @@ TmRefl (SigUU da db) = SigUUCong da (TmRefl da) (TmRefl db)
 TmRefl (Pair dA dB du dv) = PairCong dA (TyRefl dA) (TyRefl dB) (TmRefl du) (TmRefl dv)
 TmRefl (Pr1 dA dB du) = Pr1Cong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
 TmRefl (Pr2 dA dB du) = Pr2Cong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
+TmRefl EmptyUU = EmptyUUCong
+TmRefl (Emptyelim dA du) = EmptyelimCong (TyRefl dA) (TmRefl du)
+TmRefl UnitUU = UnitUUCong
+TmRefl TT = TTCong
+TmRefl (Unitelim dA ddtt du) = UnitelimCong (TyRefl dA) (TmRefl ddtt) (TmRefl du)
 TmRefl NatUU = NatUUCong
 TmRefl Zero = ZeroCong
 TmRefl (Suc du) = SucCong (TmRefl du)
@@ -401,6 +457,8 @@ SubstTy {A = pi A B} (Pi dA dB) dδ = Pi (SubstTy dA dδ) (SubstTy dB (WeakMor+ 
 SubstTy {A = uu i} UU dδ = UU
 SubstTy {A = el i v} (El dA) dδ = El (SubstTm dA dδ)
 SubstTy {A = sig A B} (Sig dA dB) dδ = Sig (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ))
+SubstTy {A = empty} Empty dδ = Empty
+SubstTy {A = unit} Unit dΓ = Unit
 SubstTy {A = nat} Nat dδ = Nat
 SubstTy {A = id A u v} (Id dA du dv) dδ = Id (SubstTy dA dδ) (SubstTm du dδ) (SubstTm dv dδ)
 
@@ -415,6 +473,11 @@ SubstTm {u = sig i a b} (SigUU da db) dδ = SigUU (SubstTm da dδ) (SubstTm db (
 SubstTm {u = pair A B a b} {δ = δ} (Pair dA dB da db) dδ = Pair (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ)) (SubstTm da dδ) (congTmTy []Ty-substTy (SubstTm db dδ))
 SubstTm {u = pr1 A B u} (Pr1 dA dB du) dδ = Pr1 (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ)) (SubstTm du dδ)
 SubstTm {u = pr2 A B u} {δ = δ} (Pr2 dA dB du) dδ = congTmTy! []Ty-substTy (Pr2 (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ)) (SubstTm du dδ))
+SubstTm {u = empty i} EmptyUU dδ = EmptyUU
+SubstTm {u = emptyelim A u} (Emptyelim dA du) dδ = congTmTy! []Ty-substTy (Emptyelim (SubstTy dA (WeakMor+ Empty dδ)) (SubstTm du dδ))
+SubstTm {u = unit i} UnitUU dδ = UnitUU
+SubstTm {u = tt} TT dδ = TT
+SubstTm {u = unitelim A dtt u} (Unitelim dA ddtt du) dδ = congTmTy! []Ty-substTy (Unitelim (SubstTy dA (WeakMor+ Unit dδ)) (congTmTy []Ty-substTy (SubstTm ddtt dδ)) (SubstTm du dδ))
 SubstTm {u = nat i} NatUU dδ = NatUU
 SubstTm {u = zero} Zero dδ = Zero
 SubstTm {u = suc u} (Suc du) dδ = Suc (SubstTm du dδ)
@@ -451,6 +514,10 @@ SubstTyEq ElUU= dδ = ElUU=
 SubstTyEq (ElPi= da db) dδ = ElPi= (SubstTm da dδ) (SubstTm db (WeakMor+ (El da) dδ))
 SubstTyEq (SigCong dA dA= dB=) dδ = SigCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ))
 SubstTyEq (ElSig= da db) dδ = ElSig= (SubstTm da dδ) (SubstTm db (WeakMor+ (El da) dδ))
+SubstTyEq EmptyCong dδ = EmptyCong
+SubstTyEq ElEmpty= dδ = ElEmpty=
+SubstTyEq UnitCong dδ = UnitCong
+SubstTyEq ElUnit= dδ = ElUnit=
 SubstTyEq NatCong dδ = NatCong
 SubstTyEq ElNat= dδ = ElNat=
 SubstTyEq (IdCong dA= da= db=) dδ = IdCong (SubstTyEq dA= dδ) (SubstTmEq da= dδ) (SubstTmEq db= dδ)
@@ -470,6 +537,11 @@ SubstTmEq (SigUUCong da da= db=) dδ = SigUUCong (SubstTm da dδ) (SubstTmEq da=
 SubstTmEq (PairCong dA dA= dB= da= db=) dδ = PairCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq da= dδ) (congTmEqTy []Ty-substTy (SubstTmEq db= dδ))
 SubstTmEq (Pr1Cong dA dA= dB= du=) dδ = Pr1Cong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq du= dδ)
 SubstTmEq (Pr2Cong dA dA= dB= du=) dδ = congTmEqTy! []Ty-substTy (Pr2Cong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq du= dδ))
+SubstTmEq EmptyUUCong dδ = EmptyUUCong
+SubstTmEq (EmptyelimCong dA= du=) dδ = congTmEqTy! []Ty-substTy (EmptyelimCong (SubstTyEq dA= (WeakMor+ Empty dδ)) (SubstTmEq du= dδ))
+SubstTmEq UnitUUCong dδ = UnitUUCong
+SubstTmEq TTCong dδ = TTCong
+SubstTmEq (UnitelimCong dA= ddtt= du=) dδ = congTmEqTy! []Ty-substTy (UnitelimCong (SubstTyEq dA= (WeakMor+ Unit dδ)) (congTmEqTy []Ty-substTy (SubstTmEq ddtt= dδ)) (SubstTmEq du= dδ))
 SubstTmEq NatUUCong dδ = NatUUCong
 SubstTmEq ZeroCong dδ = ZeroCong
 SubstTmEq (SucCong du=) dδ = SucCong (SubstTmEq du= dδ)
@@ -505,6 +577,7 @@ SubstTmEq (BetaNatZero dP ddO ddS) dδ =
               (BetaNatZero (SubstTy dP (WeakMor+ Nat dδ))
                            (congTmTy []Ty-substTy (SubstTm ddO dδ))
                            (congTmTy ([]Ty-substTy ∙ ap-substTy []Ty-weakenTy1-weakenTy1 refl) (SubstTm ddS (WeakMor+ dP (WeakMor+ Nat dδ)))))
+SubstTmEq (BetaUnit dA ddtt) dδ = congTmEq! refl refl []Ty-substTy (BetaUnit (SubstTy dA (WeakMor+ Unit dδ)) (congTmTy []Ty-substTy (SubstTm ddtt dδ)))
 SubstTmEq (BetaNatSuc {dS = dS} dP ddO ddS du) dδ =
   congTmEq! refl ([]Tm-substTm2 dS) []Ty-substTy
             (BetaNatSuc (SubstTy dP (WeakMor+ Nat dδ))
@@ -538,6 +611,8 @@ SubstTyMorEq (Pi dA dB) dδ dδ= = PiCong (SubstTy dA dδ) (SubstTyMorEq dA dδ 
 SubstTyMorEq UU dδ dδ= = UUCong
 SubstTyMorEq (El dv) dδ dδ= = ElCong (SubstTmMorEq dv dδ dδ=)
 SubstTyMorEq (Sig dA dB) dδ dδ= = SigCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=))
+SubstTyMorEq Empty dδ dδ= = EmptyCong
+SubstTyMorEq Unit dδ dδ= = UnitCong
 SubstTyMorEq Nat dδ dδ= = NatCong
 SubstTyMorEq (Id dA da db) dδ dδ= = IdCong (SubstTyMorEq dA dδ dδ=) (SubstTmMorEq da dδ dδ=) (SubstTmMorEq db dδ dδ=)
 
@@ -553,6 +628,13 @@ SubstTmMorEq (SigUU da db) dδ dδ= = SigUUCong (SubstTm da dδ) (SubstTmMorEq d
 SubstTmMorEq (Pair dA dB da db) dδ dδ= = PairCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=)) (SubstTmMorEq da dδ dδ=) (congTmEqTy []Ty-substTy (SubstTmMorEq db  dδ dδ=))
 SubstTmMorEq (Pr1 dA dB du) dδ dδ= = Pr1Cong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=)) (SubstTmMorEq du dδ dδ=)
 SubstTmMorEq (Pr2 dA dB du) dδ dδ= = congTmEqTy! []Ty-substTy (Pr2Cong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=)) (SubstTmMorEq du dδ dδ=))
+
+SubstTmMorEq EmptyUU dδ dδ= = EmptyUUCong
+SubstTmMorEq (Emptyelim dA du) dδ dδ= = congTmEqTy! []Ty-substTy (EmptyelimCong (SubstTyMorEq dA (WeakMor+ Empty dδ) (WeakMor+Eq Empty dδ dδ=)) (SubstTmMorEq du dδ dδ=))
+SubstTmMorEq UnitUU dδ dδ= = UnitUUCong
+SubstTmMorEq TT dδ dδ= = TTCong
+SubstTmMorEq (Unitelim dA ddtt du) dδ dδ= = congTmEqTy! []Ty-substTy (UnitelimCong (SubstTyMorEq dA (WeakMor+ Unit dδ) (WeakMor+Eq Unit dδ dδ=)) (congTmEqTy []Ty-substTy (SubstTmMorEq ddtt dδ dδ=)) (SubstTmMorEq du dδ dδ=))
+
 SubstTmMorEq NatUU dδ dδ= = NatUUCong
 SubstTmMorEq Zero dδ dδ= = ZeroCong
 SubstTmMorEq (Suc du) dδ dδ= = SucCong (SubstTmMorEq du dδ dδ=)
@@ -588,6 +670,8 @@ WeakTy (Pi dA dB) = Pi (WeakTy dA) (WeakTy dB)
 WeakTy UU = UU
 WeakTy (El dv) = El (WeakTm dv)
 WeakTy (Sig dA dB) = Sig (WeakTy dA) (WeakTy dB)
+WeakTy Empty = Empty
+WeakTy Unit = Unit
 WeakTy Nat = Nat
 WeakTy (Id dA da db) = Id (WeakTy dA) (WeakTm da) (WeakTm db)
 
@@ -601,9 +685,15 @@ WeakTm (App dA dB df da) = congTmTy! weakenTy-substTy (App (WeakTy dA) (WeakTy d
 WeakTm UUUU = UUUU
 WeakTm (PiUU da db) = PiUU (WeakTm da) (WeakTm db)
 WeakTm (SigUU da db) = SigUU (WeakTm da) (WeakTm db)
-WeakTm (Pair dA dB da db) = Pair (WeakTy dA) (WeakTy dB) (WeakTm da) (congTm (! (weakenCommutesSubstTy _ _ _)) refl (WeakTm db))
+WeakTm (Pair dA dB da db) = Pair (WeakTy dA) (WeakTy dB) (WeakTm da) (congTmTy weakenTy-substTy (WeakTm db))
 WeakTm (Pr1 dA dB du) = Pr1 (WeakTy dA) (WeakTy dB) (WeakTm du)
 WeakTm (Pr2 dA dB du) = congTmTy! weakenTy-substTy (Pr2 (WeakTy dA) (WeakTy dB) (WeakTm du))
+
+WeakTm EmptyUU = EmptyUU
+WeakTm (Emptyelim dA du) = congTmTy! weakenTy-substTy (Emptyelim (WeakTy dA) (WeakTm du))
+WeakTm UnitUU = UnitUU
+WeakTm TT = TT
+WeakTm (Unitelim dA ddtt du) = congTmTy! weakenTy-substTy (Unitelim (WeakTy dA) (congTmTy weakenTy-substTy (WeakTm ddtt)) (WeakTm du))
 WeakTm NatUU = NatUU
 WeakTm Zero = Zero
 WeakTm (Suc du) = Suc (WeakTm du)
@@ -633,6 +723,10 @@ WeakTyEq ElUU= = ElUU=
 WeakTyEq (ElPi= da db) = ElPi= (WeakTm da) (WeakTm db)
 WeakTyEq (SigCong dA dA= dB=) = SigCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=)
 WeakTyEq (ElSig= da db) = ElSig= (WeakTm da) (WeakTm db)
+WeakTyEq EmptyCong = EmptyCong
+WeakTyEq ElEmpty= = ElEmpty=
+WeakTyEq UnitCong = UnitCong
+WeakTyEq ElUnit= = ElUnit=
 WeakTyEq NatCong = NatCong
 WeakTyEq ElNat= = ElNat=
 WeakTyEq (IdCong dA= da= db=) = IdCong (WeakTyEq dA=) (WeakTmEq da=) (WeakTmEq db=)
@@ -653,6 +747,11 @@ WeakTmEq (SigUUCong da da= db=) = SigUUCong (WeakTm da) (WeakTmEq da=) (WeakTmEq
 WeakTmEq (PairCong dA dA= dB= da= db=) = PairCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq da=) (congTmEqTy weakenTy-substTy (WeakTmEq db=))
 WeakTmEq (Pr1Cong dA dA= dB= du=) = Pr1Cong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq du=)
 WeakTmEq (Pr2Cong dA dA= dB= du=) = congTmEqTy! weakenTy-substTy (Pr2Cong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq du=))
+WeakTmEq EmptyUUCong = EmptyUUCong
+WeakTmEq (EmptyelimCong dA= du=) = congTmEqTy! weakenTy-substTy (EmptyelimCong (WeakTyEq dA=) (WeakTmEq du=))
+WeakTmEq UnitUUCong = UnitUUCong
+WeakTmEq TTCong = TTCong
+WeakTmEq (UnitelimCong dA= ddtt= du=) = congTmEqTy! weakenTy-substTy (UnitelimCong (WeakTyEq dA=) (congTmEqTy weakenTy-substTy (WeakTmEq ddtt=)) (WeakTmEq du=))
 WeakTmEq NatUUCong = NatUUCong
 WeakTmEq ZeroCong = ZeroCong
 WeakTmEq (SucCong du=) = SucCong (WeakTmEq du=)
@@ -677,6 +776,7 @@ WeakTmEq (JJCong dA dA= dP= dd= da= db= dp=) =
 WeakTmEq {u = app A B (lam A B u) a} (BetaPi dA dB du da) = congTmEq! refl (weakenTm-substTm u) weakenTy-substTy (BetaPi (WeakTy dA) (WeakTy dB) (WeakTm du) (WeakTm da))
 WeakTmEq {u = pr1 A B (pair A B a b)} (BetaSig1 dA dB da db) = BetaSig1 (WeakTy dA) (WeakTy dB) (WeakTm da) (congTmTy weakenTy-substTy (WeakTm db))
 WeakTmEq {u = pr2 A B (pair A B a b)} (BetaSig2 dA dB da db) = congTmEqTy! weakenTy-substTy (BetaSig2 (WeakTy dA) (WeakTy dB) (WeakTm da) (congTmTy weakenTy-substTy (WeakTm db)))
+WeakTmEq {u = u} (BetaUnit dA ddtt) = congTmEqTy! weakenTy-substTy (BetaUnit (WeakTy dA) (congTmTy weakenTy-substTy (WeakTm ddtt)))
 WeakTmEq {u = u} (BetaNatZero dP ddO ddS) =
   congTmEqTy! weakenTy-substTy
               (BetaNatZero (WeakTy dP)
@@ -759,6 +859,8 @@ ConvTy {Γ = Γ} {Δ = Δ} {A = A} (Pi dA dB) dΓ= = Pi (ConvTy dA dΓ=) (ConvTy
 ConvTy UU dΓ= = UU
 ConvTy (El dv) dΓ= = El (ConvTm dv dΓ=)
 ConvTy (Sig dA dB) dΓ= = Sig (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=)))
+ConvTy Empty dΓ= = Empty
+ConvTy Unit dΓ= = Unit
 ConvTy Nat dΓ= = Nat
 ConvTy (Id dA da db) dΓ= = Id (ConvTy dA dΓ=) (ConvTm da dΓ=) (ConvTm db dΓ=)
 
@@ -771,6 +873,10 @@ ConvTyEq ElUU= dΓ= = ElUU=
 ConvTyEq (ElPi= da db) dΓ= = ElPi= (ConvTm da dΓ=) (ConvTm db (dΓ= , El da , ConvTy (El da) dΓ= , TyRefl (El da) , TyRefl (ConvTy (El da) dΓ=)))
 ConvTyEq (SigCong dA dA= dB=) dΓ= = SigCong (ConvTy dA dΓ=) (ConvTyEq dA= dΓ=) (ConvTyEq dB= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=)))
 ConvTyEq (ElSig= da db) dΓ= = ElSig= (ConvTm da dΓ=) (ConvTm db ((dΓ= , El da , ConvTy (El da) dΓ= , TyRefl (El da) , TyRefl (ConvTy (El da) dΓ=))))
+ConvTyEq EmptyCong dΓ= = EmptyCong
+ConvTyEq ElEmpty= dΓ= = ElEmpty=
+ConvTyEq UnitCong dΓ= = UnitCong
+ConvTyEq ElUnit= dΓ= = ElUnit=
 ConvTyEq NatCong dΓ= = NatCong
 ConvTyEq ElNat= dΓ= = ElNat=
 ConvTyEq (IdCong dA= da= db=) dΓ= = IdCong (ConvTyEq dA= dΓ=)  (ConvTmEq da= dΓ=) (ConvTmEq db= dΓ=)
@@ -788,6 +894,11 @@ ConvTm (SigUU da db) dΓ= = SigUU (ConvTm da dΓ=) (ConvTm db (dΓ= , El da , Co
 ConvTm (Pair dA dB da db) dΓ= = Pair (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm da dΓ=) (ConvTm db dΓ=)
 ConvTm (Pr1 dA dB du) dΓ= = Pr1 (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm du dΓ=)
 ConvTm (Pr2 dA dB du) dΓ= = Pr2 (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm du dΓ=)
+ConvTm EmptyUU dΓ= = EmptyUU
+ConvTm (Emptyelim dA du) dΓ= = Emptyelim (ConvTy dA (dΓ= , Empty , Empty , EmptyCong , EmptyCong)) (ConvTm du dΓ=)
+ConvTm UnitUU dΓ= = UnitUU
+ConvTm TT dΓ= = TT
+ConvTm (Unitelim dA ddtt du) dΓ= = Unitelim (ConvTy dA (dΓ= , Unit , Unit , UnitCong , UnitCong)) (ConvTm ddtt dΓ=) (ConvTm du dΓ=)
 ConvTm NatUU dΓ= = NatUU
 ConvTm Zero dΓ= = Zero
 ConvTm (Suc du) dΓ= = Suc (ConvTm du dΓ=)
@@ -809,6 +920,11 @@ ConvTmEq (SigUUCong da da= db=) dΓ= = SigUUCong (ConvTm da dΓ=) (ConvTmEq da= 
 ConvTmEq (PairCong dA dA= dB= da= db=) dΓ= = PairCong (ConvTy dA dΓ=) (ConvTyEq dA= dΓ=) (ConvTyEq dB= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTmEq da= dΓ=) (ConvTmEq db= dΓ=)
 ConvTmEq (Pr1Cong dA dA= dB= du=) dΓ= = Pr1Cong (ConvTy dA dΓ=) (ConvTyEq dA= dΓ=) (ConvTyEq dB= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTmEq du= dΓ=)
 ConvTmEq (Pr2Cong dA dA= dB= du=) dΓ= = Pr2Cong (ConvTy dA dΓ=) (ConvTyEq dA= dΓ=) (ConvTyEq dB= (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTmEq du= dΓ=)
+ConvTmEq EmptyUUCong dΓ= = EmptyUUCong
+ConvTmEq (EmptyelimCong dA= du=) dΓ= = EmptyelimCong (ConvTyEq dA= (dΓ= , Empty , Empty , EmptyCong , EmptyCong)) (ConvTmEq du= dΓ=)
+ConvTmEq UnitUUCong dΓ= = UnitUUCong
+ConvTmEq TTCong dΓ= = TTCong
+ConvTmEq (UnitelimCong dA= ddtt= du=) dΓ= = UnitelimCong (ConvTyEq dA= (dΓ= , Unit , Unit , UnitCong , UnitCong)) (ConvTmEq ddtt= dΓ=) (ConvTmEq du= dΓ=)
 ConvTmEq NatUUCong dΓ= = NatUUCong
 ConvTmEq ZeroCong dΓ= = ZeroCong
 ConvTmEq (SucCong du=) dΓ= = SucCong (ConvTmEq du= dΓ=)
@@ -819,6 +935,7 @@ ConvTmEq (JJCong dA dA= dP= dd= da= db= dp=) dΓ= = JJCong (ConvTy dA dΓ=) (Con
 ConvTmEq (BetaPi dA dB du da) dΓ= = BetaPi (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm du (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm da dΓ=)
 ConvTmEq (BetaSig1 dA dB da db) dΓ= = BetaSig1 (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm da dΓ=) (ConvTm db dΓ=)
 ConvTmEq (BetaSig2 dA dB da db) dΓ= = BetaSig2 (ConvTy dA dΓ=) (ConvTy dB (dΓ= , dA , ConvTy dA dΓ= , TyRefl dA , TyRefl (ConvTy dA dΓ=))) (ConvTm da dΓ=) (ConvTm db dΓ=)
+ConvTmEq (BetaUnit dA ddtt) dΓ= = BetaUnit (ConvTy dA (dΓ= , Unit , Unit , UnitCong , UnitCong)) (ConvTm ddtt dΓ=)
 ConvTmEq (BetaNatZero dP ddO ddS) dΓ= = BetaNatZero (ConvTy dP (dΓ= , Nat , Nat , NatCong , NatCong)) (ConvTm ddO dΓ=) (ConvTm ddS ((dΓ= , Nat , Nat , NatCong , NatCong) , dP , ConvTy dP (dΓ= , Nat , Nat , NatCong , NatCong) , TyRefl dP , TyRefl (ConvTy dP (dΓ= , Nat , Nat , NatCong , NatCong))))
 ConvTmEq (BetaNatSuc dP ddO ddS du) dΓ= = BetaNatSuc (ConvTy dP (dΓ= , Nat , Nat , NatCong , NatCong)) (ConvTm ddO dΓ=) (ConvTm ddS ((dΓ= , Nat , Nat , NatCong , NatCong) , dP , ConvTy dP (dΓ= , Nat , Nat , NatCong , NatCong) , TyRefl dP , TyRefl (ConvTy dP (dΓ= , Nat , Nat , NatCong , NatCong)))) (ConvTm du dΓ=)
 ConvTmEq (BetaIdRefl dA dP dd da) dΓ= =
@@ -896,6 +1013,10 @@ TyEqTy1 dΓ UUCong = UU
 TyEqTy1 dΓ (ElCong dv=) = El (TmEqTm1 dΓ dv=) 
 TyEqTy1 dΓ (PiCong dA dA= dB=) = Pi dA (TyEqTy1 (dΓ , dA) dB=)
 TyEqTy1 dΓ (SigCong dA dA= dB=) = Sig dA (TyEqTy1 (dΓ , dA) dB=)
+TyEqTy1 dΓ EmptyCong = Empty
+TyEqTy1 dΓ ElEmpty= = El EmptyUU
+TyEqTy1 dΓ UnitCong = Unit
+TyEqTy1 dΓ ElUnit= = El UnitUU
 TyEqTy1 dΓ NatCong = Nat
 TyEqTy1 dΓ (IdCong dA= da= db=) = Id (TyEqTy1 dΓ dA=) (TmEqTm1 dΓ da=) (TmEqTm1 dΓ db=)
 TyEqTy1 dΓ ElUU= = El UUUU
@@ -911,6 +1032,10 @@ TyEqTy2 dΓ UUCong = UU
 TyEqTy2 dΓ (ElCong dv=) = El (TmEqTm2 dΓ dv=)
 TyEqTy2 dΓ (PiCong dA dA= dB=) = Pi (TyEqTy2 dΓ dA=) (ConvTy (TyEqTy2 (dΓ , (TyEqTy1 dΓ dA=)) dB=) ((CtxRefl dΓ) , dA , TyEqTy2 dΓ dA= , dA= , dA=))
 TyEqTy2 dΓ (SigCong dA dA= dB=) = Sig (TyEqTy2 dΓ dA=) (ConvTy (TyEqTy2 (dΓ , (TyEqTy1 dΓ dA=)) dB=) ((CtxRefl dΓ) , dA , TyEqTy2 dΓ dA= , dA= , dA=))
+TyEqTy2 dΓ EmptyCong = Empty
+TyEqTy2 dΓ ElEmpty= = Empty
+TyEqTy2 dΓ UnitCong = Unit
+TyEqTy2 dΓ ElUnit= = Unit
 TyEqTy2 dΓ NatCong = Nat
 TyEqTy2 dΓ (IdCong dA= da= db=) = Id (TyEqTy2 dΓ dA=) (Conv (TyEqTy1 dΓ dA=) (TmEqTm2 dΓ da=) dA=) (Conv (TyEqTy1 dΓ dA=) (TmEqTm2 dΓ db=) dA=)
 TyEqTy2 dΓ ElUU= = UU
@@ -932,6 +1057,11 @@ TmEqTm1 dΓ (SigUUCong da da= db=) = SigUU da (TmEqTm1 (dΓ , El da) db=)
 TmEqTm1 dΓ (PairCong dA dA= dB= da= db=) = Pair dA (TyEqTy1 (dΓ , dA) dB=) (TmEqTm1 dΓ da=) (TmEqTm1 dΓ db=)
 TmEqTm1 dΓ (Pr1Cong dA dA= dB= du=) = Pr1 dA (TyEqTy1  (dΓ , dA) dB=) (TmEqTm1 dΓ du=)
 TmEqTm1 dΓ (Pr2Cong dA dA= dB= du=) = Pr2 dA (TyEqTy1 (dΓ , dA) dB=) (TmEqTm1 dΓ du=)
+TmEqTm1 dΓ EmptyUUCong = EmptyUU
+TmEqTm1 dΓ (EmptyelimCong dA= du=) = Emptyelim (TyEqTy1 (dΓ , Empty) dA=) (TmEqTm1 dΓ du=)
+TmEqTm1 dΓ UnitUUCong = UnitUU
+TmEqTm1 dΓ TTCong = TT
+TmEqTm1 dΓ (UnitelimCong dA= ddtt= du=) = Unitelim (TyEqTy1 (dΓ , Unit) dA=) (TmEqTm1 dΓ ddtt=) (TmEqTm1 dΓ du=)
 TmEqTm1 dΓ NatUUCong = NatUU
 TmEqTm1 dΓ ZeroCong = Zero
 TmEqTm1 dΓ (SucCong du=) = Suc (TmEqTm1 dΓ du=)
@@ -942,6 +1072,7 @@ TmEqTm1 dΓ (JJCong dA dA= dP= dd= da= db= dp=) = JJ dA (TyEqTy1 (((dΓ , dA) , 
 TmEqTm1 dΓ (BetaPi dA dB du da) = App dA dB (Lam dA dB du) da
 TmEqTm1 dΓ (BetaSig1 dA dB da db) = Pr1 dA dB (Pair dA dB da db)
 TmEqTm1 dΓ (BetaSig2 {B = B} dA dB da db) = Conv (SubstTy dB (idMorDerivable dΓ , congTm! ([idMor]Ty _) refl (Pr1 dA dB (Pair dA dB da db)))) (Pr2 dA dB (Pair dA dB da db)) (SubstTyMorEq dB (idMorDerivable dΓ , congTm! ([idMor]Ty _) refl (Pr1 dA dB (Pair dA dB da db))) (MorRefl (idMorDerivable dΓ) , congTmEqTy! ([idMor]Ty _) (BetaSig1 dA dB da db)))
+TmEqTm1 dΓ (BetaUnit dA ddtt) = Unitelim dA ddtt TT
 TmEqTm1 dΓ (BetaNatZero dP ddO ddS) = Natelim dP ddO ddS Zero
 TmEqTm1 dΓ (BetaNatSuc dP ddO ddS du) = Natelim dP ddO ddS (Suc du)
 TmEqTm1 dΓ (BetaIdRefl dA dP dd da) = JJ dA dP dd da da (Refl dA da)
@@ -1014,6 +1145,13 @@ TmEqTm2 dΓ (Pr2Cong dA dA= dB= du=) =
                                                                             (TySymm dA=)))
                       (TySymm dB=)
                       (MorRefl (idMorDerivable dΓ) , TmSymm (congTmEqTy! ([idMor]Ty _) (Pr1Cong dA dA= dB= du=))))
+TmEqTm2 dΓ EmptyUUCong = EmptyUU
+TmEqTm2 dΓ (EmptyelimCong dA= du=) = Conv (SubstTy (TyEqTy2 (dΓ , Empty) dA=) (idMorDerivable dΓ , TmEqTm2 dΓ du=)) (Emptyelim (TyEqTy2 (dΓ , Empty) dA=) (TmEqTm2 dΓ du=)) (SubstTyFullEq (TyEqTy1 (dΓ , Empty) dA=) (idMorDerivable dΓ , TmEqTm2 dΓ du=) (TySymm dA=) (MorRefl (idMorDerivable dΓ) , TmSymm du=))
+TmEqTm2 dΓ UnitUUCong = UnitUU
+TmEqTm2 dΓ TTCong = TT
+TmEqTm2 dΓ (UnitelimCong dA= ddtt= du=) = Conv (SubstTy (TyEqTy2 (dΓ , Unit) dA=)
+                                               (idMorDerivable dΓ , TmEqTm2 dΓ du=))
+                                               (Unitelim (TyEqTy2 (dΓ , Unit) dA=) (Conv (SubstTy (TyEqTy1 (dΓ , Unit) dA=) (idMorDerivable dΓ , TT)) (TmEqTm2 dΓ ddtt=) (SubstTyEq dA= (idMorDerivable dΓ , TT))) (TmEqTm2 dΓ du=)) (SubstTyFullEq (TyEqTy1 (dΓ , Unit) dA=) (idMorDerivable dΓ , TmEqTm2 dΓ du=) (TySymm dA=) (MorRefl (idMorDerivable dΓ) , TmSymm du=))
 TmEqTm2 dΓ NatUUCong = NatUU
 TmEqTm2 dΓ ZeroCong = Zero
 TmEqTm2 dΓ (SucCong du=) = Suc (TmEqTm2 dΓ du=)
@@ -1074,6 +1212,7 @@ TmEqTm2 dΓ (JJCong dA dA= dP= dd= da= db= dp=) =
 TmEqTm2 dΓ (BetaPi dA dB du da) = SubstTm du (idMorDerivable dΓ , congTm! ([idMor]Ty _) refl da)
 TmEqTm2 dΓ (BetaSig1 dA dB da db) = da
 TmEqTm2 dΓ (BetaSig2 dA dB da db) = db
+TmEqTm2 dΓ (BetaUnit dA ddtt) = ddtt
 TmEqTm2 dΓ (BetaNatZero dP ddO ddS) = ddO
 TmEqTm2 dΓ (BetaNatSuc dP ddO ddS du) =
   Conv (SubstTy (SubstTy (WeakTy (WeakTy dP)) (idMorDerivable ((dΓ , Nat) , dP) , Suc (VarPrev Nat (VarLast Nat)))) ((idMorDerivable dΓ , du) , Natelim dP ddO ddS du))

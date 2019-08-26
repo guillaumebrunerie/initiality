@@ -12,6 +12,8 @@ data TyExpr where
   el : (i : ℕ) (v : TmExpr n) → TyExpr n
   pi : (A : TyExpr n) (B : TyExpr (suc n)) → TyExpr n
   sig : (A : TyExpr n) (B : TyExpr (suc n)) → TyExpr n
+  empty : TyExpr n
+  unit : TyExpr n
   nat : TyExpr n
   id : (A : TyExpr n) (u v : TmExpr n) → TyExpr n
 
@@ -28,6 +30,13 @@ data TmExpr where
   pair : (A : TyExpr n) (B : TyExpr (suc n)) (a : TmExpr n) (b : TmExpr n) → TmExpr n
   pr1 : (A : TyExpr n) (B : TyExpr (suc n)) (u : TmExpr n) → TmExpr n
   pr2 : (A : TyExpr n) (B : TyExpr (suc n)) (u : TmExpr n) → TmExpr n
+
+  empty : (i : ℕ) → TmExpr n
+  emptyelim : (A : TyExpr (suc n)) (u : TmExpr n) → TmExpr n
+  
+  unit : (i : ℕ) → TmExpr n
+  tt : TmExpr n
+  unitelim : (A : TyExpr (suc n)) (dtt : TmExpr n) (u : TmExpr n) → TmExpr n
 
   nat : (i : ℕ) → TmExpr n
   zero : TmExpr n
