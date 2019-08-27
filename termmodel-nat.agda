@@ -127,10 +127,10 @@ natelimStrS-// : (Γ : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj P) ≡ N
 natelimStrS-// Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ =
   dmorTm Γ (substTy (getTy P) (getTm u)) (SubstTy (dTy P P=) (idMor+ (der Γ) (dTm refl u uₛ u₁)))
            (natelim (getTy P) (getTm dO) (getTm dS) (getTm u))
-             (Natelim (dTy P P=)
-                      (dTm refl dO dOₛ dO₁)
-                      ddS
-                      (dTm refl u uₛ u₁))
+           (Natelim (dTy P P=)
+                    (dTm refl dO dOₛ dO₁)
+                    ddS
+                    (dTm refl u uₛ u₁))
          where  ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
                 ddS = congTmTy! fixSubstTy (dTm {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (! (eq (box (CtxTy=Ctx P P=)))) dS dSₛ dS₁)
 

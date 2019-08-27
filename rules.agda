@@ -597,7 +597,7 @@ SubstTmEq (BetaIdRefl {A = A} {d = d} dA dP dd da) dδ =  -- Using WeakMor+ in t
                         (congTmTy ([]Ty-subst3Ty ∙ ap-subst3Ty []Ty-weakenTy3 refl refl (ap-refl-Tm []Ty-weakenTy refl)) (SubstTm dd (WeakMor+ dA dδ)))
                         (SubstTm da dδ))
 SubstTmEq (EtaPi {f = f} dA dB df) dδ =
-  congTmEq! refl (ap-lam-Tm refl refl (ap-app-Tm []Ty-weakenTy []Ty-weakenTy1 ([]-weakenTm f) refl)) refl
+  congTmEq! refl (ap-lam-Tm refl refl (ap-app-Tm []Ty-weakenTy []Ty-weakenTy1 ([]Tm-weakenTm f) refl)) refl
             (EtaPi (SubstTy dA dδ)
                    (SubstTy dB (WeakMor+ dA dδ))
                    (SubstTm df dδ))

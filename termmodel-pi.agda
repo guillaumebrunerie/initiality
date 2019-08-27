@@ -65,7 +65,6 @@ piStr₁S : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) 
 piStr₁S i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → refl)))
 
 piStrSynCCat : CCatwithpi synCCat UUStrSynCCat ElStrSynCCat
-
 CCatwithpi.piStr piStrSynCCat = piStrS
 CCatwithpi.piStrₛ piStrSynCCat {Γ = Γ} {a = a} {b = b} = piStrₛS _ Γ a _ _ b _ _
 CCatwithpi.piStr₁ piStrSynCCat {Γ = Γ} {a = a} {b = b} = piStr₁S _ Γ a _ _ b _ _
