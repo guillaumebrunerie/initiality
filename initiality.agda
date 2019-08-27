@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
-open import common
+open import common hiding (Unit)
 open import typetheory
 open import syntx hiding (Mor)
 open import rules
@@ -185,6 +185,12 @@ SigStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= →
                 (lemmaTy A A=)
                 (lemmaTy B (combine A= B B=)))))
 
+EmptyStr→S : (Γ : ObS n) → Ob→S (EmptyStrS Γ) ≡ EmptyStr sC (Ob→S Γ)
+EmptyStr→S = //-elimP (λ _ → refl)
+
+UnitStr→S : (Γ : ObS n) → Ob→S (UnitStrS Γ) ≡ UnitStr sC (Ob→S Γ)
+UnitStr→S = //-elimP (λ _ → refl)
+
 NatStr→S : (Γ : ObS n) → Ob→S (NatStrS Γ) ≡ NatStr sC (Ob→S Γ)
 NatStr→S = //-elimP (λ _ → refl)
 
@@ -271,6 +277,29 @@ pr2Str→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-
                   (lemmaTy B (combine A= B B=))
                   (lemmaTm u uₛ u₁ refl)))))
 
+emptyStr→S : (i : ℕ) (Γ : ObS n)
+           → Mor→ f₀ (emptyStrS i Γ) ≡ emptyStr sC i (Ob→ f₀ Γ)
+emptyStr→S i = //-elimP (λ Γ → lemma2 _ (emptyStrₛS i (proj Γ)))
+
+emptyelimStr→S : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ EmptyStrS Γ) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ EmptyStrS Γ)
+               → {w1 : _} {w2 : _} {w3 : _}
+               → Mor→ f₀ (emptyelimStrS Γ A A= u uₛ u₁) ≡ emptyelimStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) w1 (Mor→ f₀ u) w2 w3
+emptyelimStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ u uₛ u₁ → lemma2 _ (emptyelimStrₛS (proj Γ) (proj A) A= (proj u) uₛ u₁) ∙ ap-irr-emptyelimStr refl (lemmaTy A A=) (lemmaTm u uₛ u₁ refl))))
+
+unitStr→S : (i : ℕ) (Γ : ObS n)
+          → Mor→ f₀ (unitStrS i Γ) ≡ unitStr sC i (Ob→ f₀ Γ)
+unitStr→S i = //-elimP (λ Γ → lemma2 _ (unitStrₛS i (proj Γ)))
+
+ttStr→S : (Γ : ObS n)
+        → Mor→ f₀ (ttStrS Γ) ≡ ttStr sC (Ob→ f₀ Γ)
+ttStr→S = //-elimP (λ Γ → lemma2 _ (ttStrₛS (proj Γ)))
+
+unitelimStr→S : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ UnitStrS Γ) (dtt : MorS n (suc n)) (dttₛ : S.is-section dtt) (dtt₁ : S.∂₁ dtt ≡ S.star (ttStrS Γ) A A= (ttStr₁S Γ)) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ UnitStrS Γ)
+               → {w1 : _} {w2 : _} {w3 : _} {w4 : _} {w5 : _}
+               → Mor→ f₀ (unitelimStrS Γ A A= dtt dttₛ dtt₁ u uₛ u₁) ≡ unitelimStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) w1 (Mor→ f₀ dtt) w2 w3 (Mor→ f₀ u) w4 w5
+unitelimStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → lemma2 _ (unitelimStrₛS (proj Γ) (proj A) A= (proj dtt) dttₛ dtt₁ (proj u) uₛ u₁)
+                                                                                                     ∙ ap-irr-unitelimStr refl (lemmaTy A A=) (lemmaTm dtt dttₛ dtt₁ refl) (lemmaTm u uₛ u₁ refl) ))))
+
 natStr→S : (i : ℕ) (Γ : ObS n)
         → Mor→ f₀ (natStrS i Γ) ≡ natStr sC i (Ob→ f₀ Γ)
 natStr→S i = //-elimP (λ Γ → lemma2 _ (natStrₛS i (proj Γ)))
@@ -325,10 +354,10 @@ reflStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ u uₛ u₁
   ∙ ap-irr-reflStr sC refl
                    (lemmaTy A A=)
                    (lemmaTm u uₛ u₁ A=))))
-
--- jjStr→S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc n)))) (P= : ftS P ≡ T-ftP ? Γ A A=) (d : MorS n (suc n)) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ T-d₁ ? Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : ∂₁S p ≡ IdStr ? Γ A A= a aₛ a₁ b bₛ b₁) {w1 : _} {w2 : _} {w3 : _} {w4 : _} {w5 : _} {w6 : _} {w7 : _} {w8 : _} {w9 : _} {w10 : _} → Mor→ f₀ (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ jjStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) w1 (Ob→ f₀ P) w2 (Mor→ f₀ d) w3 w4 (Mor→ f₀ a) w5 w6 (Mor→ f₀ b) w7 w8 (Mor→ f₀ p) w9 w10
--- jjStr→s = ?
-
+{-
+jjStr→S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc n)))) (P= : ftS P ≡ T-ftP ? Γ A A=) (d : MorS n (suc n)) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ T-d₁ ? Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : ∂₁S p ≡ IdStr ? Γ A A= a aₛ a₁ b bₛ b₁) {w1 : _} {w2 : _} {w3 : _} {w4 : _} {w5 : _} {w6 : _} {w7 : _} {w8 : _} {w9 : _} {w10 : _} → Mor→ f₀ (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁) ≡ jjStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) w1 (Ob→ f₀ P) w2 (Mor→ f₀ d) w3 w4 (Mor→ f₀ a) w5 w6 (Mor→ f₀ b) w7 w8 (Mor→ f₀ p) w9 w10
+jjStr→S = #TODO#
+-}
 
 existence : StructuredCCatMor strSynCCat sC
 ccat→ existence = f₀
@@ -337,6 +366,8 @@ UUStr→ existence = UUStr→S
 ElStr→ existence = ElStr→S
 PiStr→ existence = PiStr→S
 SigStr→ existence = SigStr→S
+EmptyStr→ existence = EmptyStr→S
+UnitStr→ existence = UnitStr→S
 NatStr→ existence = NatStr→S
 IdStr→ existence Γ A A= a aₛ a₁ b bₛ b₁ = IdStr→S Γ A A= a aₛ a₁ b bₛ b₁
 
@@ -348,6 +379,11 @@ sigStr→ existence i Γ a aₛ a₁ b bₛ b₁ = sigStr→S i Γ a aₛ a₁ b
 pairStr→ existence Γ A A= B B= a aₛ a₁ b bₛ b₁ = pairStr→S Γ A A= B B= a aₛ a₁ b bₛ b₁
 pr1Str→ existence Γ A A= B B= u uₛ u₁ = pr1Str→S Γ A A= B B= u uₛ u₁
 pr2Str→ existence Γ A A= B B= u uₛ u₁ = pr2Str→S Γ A A= B B= u uₛ u₁
+emptyStr→ existence Γ = emptyStr→S Γ
+emptyelimStr→ existence Γ A A= u uₛ u₁ = emptyelimStr→S Γ A A= u uₛ u₁
+unitStr→ existence Γ = unitStr→S Γ
+ttStr→ existence Γ = ttStr→S Γ
+unitelimStr→ existence Γ A A= dtt dttₛ dtt₁ u uₛ u₁ = unitelimStr→S Γ A A= dtt dttₛ dtt₁ u uₛ u₁
 natStr→ existence i Γ = natStr→S i Γ
 zeroStr→ existence Γ = zeroStr→S Γ
 sucStr→ existence Γ u uₛ u₁ = sucStr→S Γ u uₛ u₁
@@ -441,6 +477,8 @@ sizeTy' (uu i) = []
 sizeTy' (el i v) = sizeTm v ∷ []
 sizeTy' (pi A B) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ []
 sizeTy' (sig A B) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ []
+sizeTy' empty = []
+sizeTy' unit = []
 sizeTy' nat = []
 sizeTy' (id A u v) = sizeTy A ∷ sizeTm u ∷ sizeTm v ∷ []
 
@@ -456,6 +494,13 @@ sizeTm' (sig i a b) = sizeTm a ∷ (sizeTy (el i a) + sizeTm b) ∷ []
 sizeTm' (pair A B a b) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ sizeTm a ∷ sizeTm b ∷ []
 sizeTm' (pr1 A B u) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ sizeTm u ∷ []
 sizeTm' (pr2 A B u) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ sizeTm u ∷ []
+
+sizeTm' (empty i) = []
+sizeTm' {n = n} (emptyelim A u) = (sizeTy {n = n} empty + sizeTy A) ∷ sizeTm u ∷ []
+
+sizeTm' (unit i) = []
+sizeTm' tt = []
+sizeTm' {n = n} (unitelim A dtt u) = (sizeTy {n = n} unit + sizeTy A) ∷ sizeTm dtt ∷ sizeTm u ∷ []
 
 sizeTm' (nat i) = []
 sizeTm' zero = []
@@ -482,6 +527,8 @@ sizeTy-pos (uu i) = suc-pos _
 sizeTy-pos (el i v) = suc-pos _
 sizeTy-pos (pi A B) = suc-pos _
 sizeTy-pos (sig A B) = suc-pos _
+sizeTy-pos empty = suc-pos _
+sizeTy-pos unit = suc-pos _
 sizeTy-pos nat = suc-pos _
 sizeTy-pos (id A u v) = suc-pos _
 
@@ -538,6 +585,14 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     NatStr→ sf (proj (Γ , dΓ))
     ∙ ap (NatStr sC) (uniqueness-Ob-// (Γ , dΓ) (IH <-ctx))
     ∙ ! (NatStr→ sg (proj (Γ , dΓ)))
+  uniqueness-Ob-// ((Γ , empty) , (dΓ , Empty)) (acc IH) =
+    EmptyStr→ sf (proj (Γ , dΓ))
+    ∙ ap (EmptyStr sC) (uniqueness-Ob-// (Γ , dΓ) (IH <-ctx))
+    ∙ ! (EmptyStr→ sg (proj (Γ , dΓ)))
+  uniqueness-Ob-// ((Γ , unit) , (dΓ , Unit)) (acc IH) =
+    UnitStr→ sf (proj (Γ , dΓ))
+    ∙ ap (UnitStr sC) (uniqueness-Ob-// (Γ , dΓ) (IH <-ctx))
+    ∙ ! (UnitStr→ sg (proj (Γ , dΓ)))
   uniqueness-Ob-// ((Γ , id A u v) , (dΓ , Id dA du dv)) (acc IH) =
     IdStr→ sf (proj (Γ , dΓ)) (proj ((Γ , A) , (dΓ , dA))) refl (proj (TmToMor dΓ dA du)) (TmToMorₛ dΓ dA du) refl (proj (TmToMor dΓ dA dv)) (TmToMorₛ dΓ dA dv) refl
     ∙ ap-irr-IdStr sC
@@ -626,6 +681,33 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                     (uniqueness-Tm-// dΓ (Sig dA dB) du (IH (<-+-it 2)))
     ∙ ! (pr2Str→ sg (proj (Γ , dΓ)) (proj ((Γ , A) , (dΓ , dA))) refl (proj (((Γ , A) , B) , ((dΓ , dA) , dB))) refl (proj (TmToMor dΓ (Sig dA dB) du)) (TmToMorₛ dΓ (Sig dA dB) du) refl)
 
+  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = empty i} EmptyUU (acc IH) =
+    emptyStr→ sf i (proj (Γ , dΓ))
+    ∙ ap (emptyStr sC i) (uniqueness-Ob-// _ (IH <-ctx))
+    ∙ ! (emptyStr→ sg i (proj (Γ , dΓ)))
+  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = emptyelim A u} (Emptyelim dA du) (acc IH) =
+    emptyelimStr→ sf (proj (Γ , dΓ)) (proj (((Γ , empty) , A) , ((dΓ , Empty) , dA))) refl (proj (TmToMor dΓ Empty du)) (TmToMorₛ dΓ Empty du) refl
+    ∙ ap-irr-emptyelimStr (uniqueness-Ob-// _ (IH <-ctx))
+                          (uniqueness-Ob-// _ (IH (<-+-it' 0 (+suc+-lemma _ _ _))))
+                          (uniqueness-Tm-// dΓ Empty du (IH (<-+-it 1)))
+    ∙ ! (emptyelimStr→ sg (proj (Γ , dΓ)) (proj (((Γ , empty) , A) , ((dΓ , Empty) , dA))) refl (proj (TmToMor dΓ Empty du)) (TmToMorₛ dΓ Empty du) refl)
+  
+  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = unit i} UnitUU (acc IH) =
+    unitStr→ sf i (proj (Γ , dΓ))
+    ∙ ap (unitStr sC i) (uniqueness-Ob-// _ (IH <-ctx))
+    ∙ ! (unitStr→ sg i (proj (Γ , dΓ)))
+  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = tt} TT (acc IH) =
+    ttStr→ sf (proj (Γ , dΓ))
+    ∙ ap (ttStr sC) (uniqueness-Ob-// _ (IH <-ctx))
+    ∙ ! (ttStr→ sg (proj (Γ , dΓ)))
+  uniqueness-Tm-// {Γ = Γ} dΓ _ {u = unitelim A dtt u} (Unitelim dA ddtt du) (acc IH) =
+    unitelimStr→ sf (proj (Γ , dΓ)) (proj (((Γ , unit) , A) , ((dΓ , Unit) , dA))) refl (proj (TmToMor dΓ (SubstTy dA (idMor+ dΓ TT)) ddtt)) (TmToMorₛ dΓ (SubstTy dA (idMor+ dΓ TT)) ddtt) refl (proj (TmToMor dΓ Unit du)) (TmToMorₛ dΓ Unit du) refl
+    ∙ ap-irr-unitelimStr (uniqueness-Ob-// _ (IH <-ctx))
+                         (uniqueness-Ob-// _ (IH (<-+-it' 0 (+suc+-lemma _ _ _))))
+                         (uniqueness-Tm-// dΓ (SubstTy dA (idMor+ dΓ TT)) ddtt (IH (<-+-it 1)))
+                         (uniqueness-Tm-// dΓ Unit du (IH (<-+-it 2)))
+    ∙ ! (unitelimStr→ sg (proj (Γ , dΓ)) (proj (((Γ , unit) , A) , ((dΓ , Unit) , dA))) refl (proj (TmToMor dΓ (SubstTy dA (idMor+ dΓ TT)) ddtt)) (TmToMorₛ dΓ (SubstTy dA (idMor+ dΓ TT)) ddtt) refl (proj (TmToMor dΓ Unit du)) (TmToMorₛ dΓ Unit du) refl)
+    
   uniqueness-Tm-// {Γ = Γ} dΓ _ {u = nat i} NatUU (acc IH) =
     natStr→ sf i (proj (Γ , dΓ))
     ∙ ap (natStr sC i) (uniqueness-Ob-// _ (IH <-ctx))
@@ -647,7 +729,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                     (proj (TmToMor dΓ Nat du)) (TmToMorₛ dΓ Nat du) refl
     ∙ ap-irr-natelimStr (uniqueness-Ob-// _ (IH <-ctx))
                         (uniqueness-Ob-// _ (IH (<-+-it' 0 (+suc+-lemma _ _ _))))
-                        (uniqueness-Tm-// dΓ (SubstTy dP (idMorDerivable dΓ , Zero)) ddO (IH (<-+-it 1)))
+                        (uniqueness-Tm-// dΓ (SubstTy dP (idMor+ dΓ Zero)) ddO (IH (<-+-it 1)))
                         (uniqueness-Tm-// ((dΓ , Nat) , dP) ddS₁ ddS (IH (<-+-it' 2 (+suc+-lemma2 _ _ _ _))))
                         (uniqueness-Tm-// dΓ Nat du (IH (<-+-it 3)))
     ∙ ! (natelimStr→ sg+ (proj (Γ , dΓ)) (proj (((Γ , nat) , P) , ((dΓ , Nat) , dP))) refl

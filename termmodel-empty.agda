@@ -21,7 +21,6 @@ EmptyStrS-// Γ = (ctx Γ , empty) , (der Γ , Empty)
 EmptyStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → proj {R = ObEquiv} (EmptyStrS-// Γ) ≡ proj (EmptyStrS-// Γ')
 EmptyStrS-eq rΓ = eq (box (unOb≃ rΓ ,, EmptyCong))
 
-
 EmptyStrS : (Γ : ObS n) → ObS (suc n)
 EmptyStrS = //-elim-Ctx (λ Γ → proj (EmptyStrS-// Γ))
                         (λ rΓ → proj= (EmptyStrS-eq rΓ))

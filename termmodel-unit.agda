@@ -21,7 +21,6 @@ UnitStrS-// Γ = (ctx Γ , unit) , (der Γ , Unit)
 UnitStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → proj {R = ObEquiv} (UnitStrS-// Γ) ≡ proj (UnitStrS-// Γ')
 UnitStrS-eq rΓ = eq (box (unOb≃ rΓ ,, UnitCong))
 
-
 UnitStrS : (Γ : ObS n) → ObS (suc n)
 UnitStrS = //-elim-Ctx (λ Γ → proj (UnitStrS-// Γ))
                         (λ rΓ → proj= (UnitStrS-eq rΓ))
