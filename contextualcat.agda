@@ -1073,39 +1073,40 @@ record CCatwithrefl {ccat : CCat} (ccatid : CCatwithId ccat) : Set₁ where
 
 
 
-  T-d₁ : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc n))))) (P= : ft P ≡ T-ftP Γ A A=) → _
+  T-d₁ : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc n))))) (P= : ft P ≡ T-ftP Γ A A=) → Ob (suc (suc n))
   T-d₁ Γ A A= P P= = star (reflStr A wA eq1 (varC last A) (varCₛ last A) varCL₁)
                           (star+ (varC last A)
                                  (star++ (varC last A) wP eq2 eq3 eq4 varCL₁)
                           eq5 eq6 eq7)
                           eq8 eq9
     where
-      eq1 = ft-star ∙ pp₀
-      eq2 = ft-star ∙ qq₀
-      eq3 = ft-star ∙ qq₀
-      eq4 = ft-star ∙ qq₀
-      eq5 = ft-star ∙ qq₀
-      eq6 = ft-star ∙ qq₀
-      eq7 = varCL₁ ∙ ! star-varCL-star-qqpp
-      eq8 = ft-star ∙ qq₀
-      eq9 = reflStr₁ ∙ ! (ap-irr-star refl (! star-comp ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! ss-qq) refl {q' = ft-star ∙ pp₀} ∙ qq-id) refl {q' = T-ftP=} ∙ star-id) ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁} ∙
+      abstract
+        eq1 = ft-star ∙ pp₀
+        eq2 = ft-star ∙ qq₀
+        eq3 = ft-star ∙ qq₀
+        eq4 = ft-star ∙ qq₀
+        eq5 = ft-star ∙ qq₀
+        eq6 = ft-star ∙ qq₀
+        eq7 = varCL₁ ∙ ! star-varCL-star-qqpp
+        eq8 = ft-star ∙ qq₀
+        eq9 = reflStr₁ ∙ ! (ap-irr-star refl (! star-comp ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! ss-qq) refl {q' = ft-star ∙ pp₀} ∙ qq-id) refl {q' = T-ftP=} ∙ star-id) ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁} ∙
                            ap-irr-IdStr refl (! star-comp ∙ ap-irr-star (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁ ) refl {q' = ft-star ∙ pp₀}∙ star-id)
                                              (star-varCL'' ∙ ap ss (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁))
                                              (star-varCL' ∙ ss-of-section _ (varCₛ last _)))
-      eq10 = ft-star ∙ pp₀
-      eq11 = ft-star ∙ pp₀
-      eq12 = ft-star ∙ pp₀
-
+        eq10 = ft-star ∙ pp₀
+       -- eq11 = ft-star ∙ pp₀
+        eq12 = ft-star ∙ pp₀
+ 
       wA = star (pp A) A A= (pp₁ ∙ A=)
       wwA = star+ (pp A) wA eq10 A= (pp₁ ∙ A=)
       -- widA = star++ (pp A) (T-ftP Γ A A=) T-ftP= eq11 A= (pp₁ ∙ A=)
       wP = star+++ (pp A) P {X' = T-ftP Γ A A=} P= {X'' = wA} T-ftP= {X''' = A} eq12 {X'''' = Γ} A= (pp₁ ∙ A=)
 
-  ap-irr-T-d₁ : {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A ≡ A') {ftA : ft A ≡ Γ} {ftA' : ft A' ≡ Γ'} {P P' : Ob (suc (suc (suc (suc n))))} (P= : P ≡ P') {ftP : ft P ≡ T-ftP Γ A ftA} {ftP' : ft P' ≡ T-ftP Γ' A' ftA'} → T-d₁ Γ A ftA P ftP ≡ T-d₁ Γ' A' ftA' P' ftP'
-  ap-irr-T-d₁ refl refl refl = refl
-
-
   abstract
+  
+    ap-irr-T-d₁ : {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A ≡ A') {ftA : ft A ≡ Γ} {ftA' : ft A' ≡ Γ'} {P P' : Ob (suc (suc (suc (suc n))))} (P= : P ≡ P') {ftP : ft P ≡ T-ftP Γ A ftA} {ftP' : ft P' ≡ T-ftP Γ' A' ftA'} → T-d₁ Γ A ftA P ftP ≡ T-d₁ Γ' A' ftA' P' ftP'
+    ap-irr-T-d₁ refl refl refl = refl
+    
     T-d₁= : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {P : Ob (suc (suc (suc (suc n))))} {P= : ft P ≡ T-ftP Γ A A=} → ft (T-d₁ Γ A A= P P=) ≡ A
     T-d₁= = ft-star ∙ reflStr₀
 

@@ -741,8 +741,11 @@ substTy-substTy {A = A} {u} {v} = []Ty-assoc _ _ _ ∙ ap (λ z → A [ (z , _) 
 weakenTy-to-[]Ty : {A : TyExpr n} → weakenTy A ≡ A [ weakenMor (idMor n) ]Ty
 weakenTy-to-[]Ty = ap weakenTy (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _
 
-weakenTy+-to-[]Ty : {A : TyExpr (suc n)} → weakenTy' (prev last) A ≡ A [ weakenMor (weakenMor (idMor n)) , var last ]Ty
+weakenTy+-to-[]Ty : {A : TyExpr (suc n)} → weakenTy' (prev last) A ≡ A [ weakenMor+ (weakenMor (idMor n)) ]Ty
 weakenTy+-to-[]Ty = ap (weakenTy' (prev last)) (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _ ∙ ap (λ z → _ [ z , var last ]Ty) (! (weakenMorCommutes _ _))
+
+weakenTy+++-to-[]Ty : {A : TyExpr (suc (suc (suc n)))} → weakenTy' (prev (prev (prev last))) A ≡ A [ weakenMor+ (weakenMor+ (weakenMor+ (weakenMor (idMor n)))) ]Ty
+weakenTy+++-to-[]Ty = ap (weakenTy' (prev (prev (prev last)))) (! ([idMor]Ty _)) ∙ weaken[]Ty _ _ _ ∙ ap (λ z → _ [ ((z , var (prev (prev last))) , var (prev last)) , var last ]Ty) (! (weakenMorCommutes _ _) ∙ ap weakenMor (! (weakenMorCommutes _ _) ∙ ap weakenMor (! (weakenMorCommutes _ _))))
 
 weakenTm-to-[]Tm : {u : TmExpr n} → weakenTm u ≡ u [ weakenMor (idMor n) ]Tm
 weakenTm-to-[]Tm {u = u} = ap weakenTm (! ([idMor]Tm _)) ∙ weaken[]Tm u _ _

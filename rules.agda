@@ -1279,3 +1279,6 @@ dΓ= ,, dA= =
   in
   (dΓ= , TyEqTy1 dΓ dA= , ConvTy (TyEqTy2 dΓ dA=) dΓ= , dA= , ConvTyEq dA= dΓ=)
 
+TmTran' : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n} → ⊢ Γ
+        → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
+TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
