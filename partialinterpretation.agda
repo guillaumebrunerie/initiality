@@ -70,6 +70,9 @@ ap-irr-jjStr : {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A �
                {p p' : MorC n (suc n)} (p= : p ≡ p') {pₛ : is-section p} {p'ₛ : is-section p'} {p₁ : ∂₁ p ≡ IdStr Γ A ftA a aₛ a₁ b bₛ b₁} {p'₁ : ∂₁ p' ≡ IdStr Γ' A' ftA' a' a'ₛ a'₁ b' b'ₛ b'₁} → jjStr Γ A ftA P ftP d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ ≡ jjStr Γ' A' ftA' P' ftP' d' d'ₛ d'₁ a' a'ₛ a'₁ b' b'ₛ b'₁ p' p'ₛ p'₁
 ap-irr-jjStr refl refl refl refl refl refl refl = refl
 
+ap-irr-T-ftP : {Γ Γ' : Ob n} (Γ-eq : Γ ≡ Γ') {A A' : Ob (suc n)} (A-eq : A ≡ A') {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'}  → T-ftP Γ A A= ≡ T-ftP Γ' A' A'=
+ap-irr-T-ftP refl refl = refl
+
 
 {- Partial interpretation of types and terms -}
 

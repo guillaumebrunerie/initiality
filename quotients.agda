@@ -172,3 +172,5 @@ module _ {A : Set} {R : EquivRel A} where
                               
     reflect : {a b : A} → proj {R = R} a ≡ proj b → a ≃ b
     reflect {b = b} p = reflect' (proj b) p
+
+  
