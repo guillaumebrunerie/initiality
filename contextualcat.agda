@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --no-auto-inline --allow-unsolved-metas #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline --no-fast-reduce #-}
 
 open import common
 

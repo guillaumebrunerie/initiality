@@ -108,6 +108,21 @@ infix 4 _≡_
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
+{-
+--hack
+postulate
+  ‗ : {P : Prop} → P
+
+𝄪 : {P : Prop} → P → P
+𝄪 p = ‗
+
+conc : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
+conc refl refl = refl
+
+_∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
+p ∙ q = 𝄪 (conc p q)
+-}
+
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
 

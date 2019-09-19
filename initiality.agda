@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --no-auto-inline --no-fast-reduce #-}
 
 open import common hiding (Unit)
 open import typetheory
@@ -432,9 +432,18 @@ get (suc k) (n ∷ ns) = get k ns
 <-pos' (suc n) m eq = suc-pres-< (<-pos' n m eq)
 
 abstract
+
   +-it : List ℕ → ℕ
   +-it [] = zero
   +-it (n ∷ ns) = (+-it ns) + n
+
+  +-it=[] : +-it [] ≡ zero
+  +-it=[] = refl
+
+  +-it=∷ : (n : ℕ) (ns : List ℕ) → +-it (n ∷ ns) ≡ (+-it ns) + n
+  +-it=∷ n ns = refl
+
+abstract
 
   <-+-lemma2 : (n m k m+k : ℕ) → n < m → m + k ≡ m+k → n < m+k
   <-+-lemma2 _ m k .(m + k) <-refl refl = <-+ k (+-comm k _)
@@ -457,7 +466,7 @@ abstract
   <-ctx {suc Γ} {l} = suc-pres-< (<-ctx {l = l})
 
 <-+-it' : (k : ℕ) {l : List ℕ} {Γ : ℕ} {x : ℕ} → (Γ + get k l ≡ x) → x < (Γ + suc (+-it l))
-<-+-it' k refl = <-+-it k
+<-+-it' k {l = l} refl = <-+-it k {l = l}
 
 +suc+-lemma : (Γ a b : ℕ) → Γ + suc (a + b) ≡ Γ + suc a + b
 +suc+-lemma Γ _ _ = ! (+-assoc Γ _ _)
@@ -529,7 +538,53 @@ sizeTm' {n = n} (natelim P dO dS u) = (sizeTy {n = n} nat + sizeTy P) ∷ sizeTm
 
 sizeTm' (id i a u v) = sizeTm a ∷ sizeTm u ∷ sizeTm v ∷ []
 sizeTm' (refl A u) = sizeTy A ∷ sizeTm u ∷ []
-sizeTm' (jj A P d a b p) = sizeTy A ∷ (sizeTy A + sizeTy A + suc (sizeTy A) + sizeTy P) ∷ (sizeTy A + sizeTm d) ∷ sizeTm a ∷ sizeTm b ∷ sizeTm p ∷ []
+sizeTm' (jj A P d a b p) = sizeTy A ∷ (sizeTy A + sizeTy A + suc (suc (suc (sizeTy A))) + sizeTy P) ∷ (sizeTy A + sizeTm d) ∷ sizeTm a ∷ sizeTm b ∷ sizeTm p ∷ []
+
+ap2 : {A B C : Set} (f : A → B → C) {a a' : A} {b b' : B} → a ≡ a' → b ≡ b' → f a b ≡ f a' b'
+ap2 f refl refl = refl
+
+ap3 : {A B C D : Set} (f : A → B → C → D) {a a' : A} {b b' : B} {c c' : C} → a ≡ a' → b ≡ b' → c ≡ c' → f a b c ≡ f a' b' c'
+ap3 f refl refl refl = refl
+
+ap4 : {A B C D E : Set} (f : A → B → C → D → E) {a a' : A} {b b' : B} {c c' : C} {d d' : D} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → f a b c d ≡  f a' b' c' d'
+ap4 f refl refl refl refl = refl
+
+ap6 : {A B C D E F G : Set} (f : A → B → C → D → E → F → G) {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f' f'' : F} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → e ≡ e' → f' ≡ f'' → f a b c d e f' ≡  f a' b' c' d' e' f''
+ap6 f refl refl refl refl refl refl = refl
+
+sizeweakenTy=' : (k : Fin (suc n)) (A : TyExpr n) → sizeTy A ≡ sizeTy (weakenTy' k A)
+sizeweakenTm=' : (k : Fin (suc n)) (u : TmExpr n) → sizeTm u ≡ sizeTm (weakenTm' k u)
+sizeweakenTy=' k (uu i) = refl
+sizeweakenTy=' k (el i v) = ap (λ z → suc (+-it (z ∷ []))) (sizeweakenTm=' k v)
+sizeweakenTy=' k (pi A B) = ap2 (λ y z → suc (+-it (y ∷ z ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B))
+sizeweakenTy=' k (sig A B) = ap2 (λ y z → suc (+-it (y ∷ z ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B))
+sizeweakenTy=' k empty = refl
+sizeweakenTy=' k unit = refl
+sizeweakenTy=' k nat = refl
+sizeweakenTy=' k (id A u v) = ap3 (λ x y z → suc (+-it (x ∷ y ∷ z ∷ []))) (sizeweakenTy=' k A) (sizeweakenTm=' k u) (sizeweakenTm=' k v)
+
+sizeweakenTm=' k (var x) = refl
+sizeweakenTm=' k (uu i) = refl
+sizeweakenTm=' k (pi i a b) = ap2 (λ y z → suc (+-it (y ∷ z ∷ []))) (sizeweakenTm=' k a) (ap2 (λ y z → (suc (+-it (y ∷ []))) + z) (sizeweakenTm=' k a) (sizeweakenTm=' (prev k) b) )
+sizeweakenTm=' k (lam A B u) = ap3 (λ x y z → suc (+-it (x ∷ y ∷ z ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B)) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTm=' (prev k) u))
+sizeweakenTm=' k (app A B f a) = ap4 (λ x y z w → suc (+-it (x ∷ y ∷ z ∷ w ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B)) (sizeweakenTm=' k f) (sizeweakenTm=' k a)
+sizeweakenTm=' k (sig i a b) = ap2 (λ y z → suc (+-it (y ∷ z ∷ []))) (sizeweakenTm=' k a) (ap2 (λ y z → (suc (+-it (y ∷ []))) + z) (sizeweakenTm=' k a) (sizeweakenTm=' (prev k) b) )
+sizeweakenTm=' k (pair A B u v) = ap4 (λ x y z w → suc (+-it (x ∷ y ∷ z ∷ w ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B)) (sizeweakenTm=' k u) (sizeweakenTm=' k v)
+sizeweakenTm=' k (pr1 A B u) = ap3 (λ x y z → suc (+-it (x ∷ y ∷ z ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B)) (sizeweakenTm=' k u)
+sizeweakenTm=' k (pr2 A B u) =  ap3 (λ x y z → suc (+-it (x ∷ y ∷ z ∷ []))) (sizeweakenTy=' k A) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTy=' (prev k) B)) (sizeweakenTm=' k u)
+sizeweakenTm=' k (empty i) = refl
+sizeweakenTm=' k (emptyelim A u) = ap2 (λ y z → suc (+-it (y ∷ z ∷ []))) (ap (λ z → suc (+-it []) + z) (sizeweakenTy=' (prev k) A)) (sizeweakenTm=' k u) 
+sizeweakenTm=' k (unit i) = refl
+sizeweakenTm=' k tt = refl
+sizeweakenTm=' k (unitelim A dtt u) = ap3 (λ x y z → suc (+-it (x ∷ y ∷ z ∷ []))) (ap (λ z → suc (+-it [] + z)) (sizeweakenTy=' (prev k) A)) (sizeweakenTm=' k dtt) (sizeweakenTm=' k u)
+sizeweakenTm=' k (nat i) = refl
+sizeweakenTm=' k zero = refl
+sizeweakenTm=' k (suc u) = ap (λ z → suc (+-it (z ∷ []))) (sizeweakenTm=' k u)
+sizeweakenTm=' k (natelim P d0 dS u) = ap4 (λ x y z w → suc (+-it (x ∷ y ∷ z ∷ w ∷ []))) (ap (λ z → (suc (+-it [] + z))) (sizeweakenTy=' (prev k) P)) (sizeweakenTm=' k d0) (ap2 (λ y z → suc (+-it []) + y + z) (sizeweakenTy=' (prev k) P) (sizeweakenTm=' (prev (prev k)) dS) ) (sizeweakenTm=' k u)
+sizeweakenTm=' k (id i a u v) = ap3 (λ x y z → suc (+-it (x ∷ y ∷ z ∷ []))) (sizeweakenTm=' k a) (sizeweakenTm=' k u) (sizeweakenTm=' k v)
+sizeweakenTm=' k (refl A u) = ap2 (λ y z → suc (+-it (y ∷ z ∷ []))) (sizeweakenTy=' k A) (sizeweakenTm=' k u) 
+sizeweakenTm=' k (jj A P d p a b) = ap6 (λ x y z w v u → suc (+-it (x ∷ y ∷ z ∷ w ∷ v ∷ u ∷ []))) (sizeweakenTy=' k A) (ap4 (λ x y z w → x + y + z + w) (sizeweakenTy=' k A) (sizeweakenTy=' k A) (ap (λ z → suc (suc (suc z))) (sizeweakenTy=' k A)) (sizeweakenTy=' (prev (prev (prev k))) P)) (ap2 (λ y z → y + z) (sizeweakenTy=' k A) (sizeweakenTm=' (prev k) d) ) (sizeweakenTm=' k p) (sizeweakenTm=' k a) (sizeweakenTm=' k b)
+
 
 sizeCtx : Ctx n → ℕ
 sizeCtx ◇ = 0
@@ -566,6 +621,7 @@ split-eq (dmor (Γ , dΓ) ((Δ , C) , (dΔ , dC)) (δ , u) (dδ , du)) = refl
 split-comp : (δ : DMor n (suc m)) → compS-// (split-right δ) (split-left δ) _ refl (ap proj (split-eq δ)) ≡ δ
 split-comp (dmor (Γ , dΓ) ((Δ , C) , (dΔ , dC)) (δ , u) (dδ , du)) =
   ap-irr (λ x z → dmor (Γ , dΓ) ((Δ , C) , (dΔ , dC)) x z) (ap (λ x → x , u) (weakenMorInsert _ _ _ ∙ [idMor]Mor δ))
+
 
 module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
@@ -773,41 +829,27 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Tm-// {Γ = Γ} dΓ _ {u = jj A P d a b p} (JJ dA dP dd da db dp) (acc IH) =
     jjStr→ sf+ (proj (Γ , dΓ))
                 (proj ((Γ , A) , (dΓ , dA))) refl
-                (proj ((((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) , P) , ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP)))) {!!}
-                (proj (TmToMor (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd)) (TmToMorₛ (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd) {!!}
+                (proj ((((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) , P) , ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP)))) (eq (box ((CtxRefl (dΓ , dA) ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy dA))) ,, congTyEq refl (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weaken[]Ty _ _  _ ∙ ! (weakenTyInsert _ _ _) ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl) (TyRefl (Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA)))))))
+                (proj (TmToMor (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd)) (TmToMorₛ (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd) #TODO#
                 (proj (TmToMor dΓ dA da)) (TmToMorₛ dΓ dA da) refl
                 (proj (TmToMor dΓ dA db)) (TmToMorₛ dΓ dA db) refl
                 (proj (TmToMor dΓ (Id dA da db) dp)) (TmToMorₛ dΓ (Id dA da db) dp) refl
                 ∙ ap-irr-jjStr (uniqueness-Ob-// _ (IH <-ctx))
                                (uniqueness-Ob-// _ (IH (<-+-it 0)))
-                               (uniqueness-Ob-// _ (IH (<-+-it' 1 {!!})))
+                               (uniqueness-Ob-// _ (IH (<-+-it' 1 (+suc+-lemma3 (sizeCtx Γ) (+-it (sizeTy' A)) (sizeTy A) (suc (suc (suc (sizeTy A)))) (sizeTy P) ∙ ap2 (λ y z → sizeCtx Γ + sizeTy A + y + z + sizeTy P) (sizeweakenTy=' last _) (ap suc (ap (λ z → suc (suc z)) (sizeweakenTy=' last _ ∙ sizeweakenTy=' last _) ∙ ! (+-it=∷ _ _ ∙ ap (λ z → z + sizeTy (weakenTy (weakenTy A))) (+-it=∷ _ _ ∙ ap2 (λ y z → y + suc z) (+-it=∷ _ _ ∙ ap2 (λ y z → y + suc z) +-it=[] +-it=[]) +-it=[]))))))))
                                (uniqueness-Tm-// (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd (IH (<-+-it' 2 (+suc+-lemma _ _ _))))
                                (uniqueness-Tm-// dΓ dA da (IH (<-+-it 3)))
                                (uniqueness-Tm-// dΓ dA db (IH (<-+-it 4)))
                                (uniqueness-Tm-// dΓ (Id dA da db) dp (IH (<-+-it 5)))
                 ∙ ! (jjStr→ sg+ (proj (Γ , dΓ))
                 (proj ((Γ , A) , (dΓ , dA))) refl
-                (proj ((((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) , P) , ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP)))) {!!}
-                (proj (TmToMor (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd)) (TmToMorₛ (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd) {!!}
+                (proj ((((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) , P) , ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP)))) (eq (box ((CtxRefl (dΓ , dA) ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy dA))) ,, congTyEq refl (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weaken[]Ty _ _  _ ∙ ! (weakenTyInsert _ _ _) ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl) (TyRefl (Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA)))))))
+                (proj (TmToMor (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd)) (TmToMorₛ (dΓ , dA) (Subst3Ty (dΓ , dA) (WeakTy dP) (VarLast dA) (congTmTy (weakenTy-to-[]Ty ∙ ! (weakenTyInsert' _ _ _ _ ∙ weakenTyInsert _ _ _)) (VarLast dA)) (congTmTy (ap-id-Ty (! (weakenTyInsert' _ _ _ _  ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) (Refl (WeakTy dA) (VarLast dA)))) dd) #TODO#
                 (proj (TmToMor dΓ dA da)) (TmToMorₛ dΓ dA da) refl
                 (proj (TmToMor dΓ dA db)) (TmToMorₛ dΓ dA db) refl
                 (proj (TmToMor dΓ (Id dA da db) dp)) (TmToMorₛ dΓ (Id dA da db) dp) refl)
      
-    {-jjStr→ sf+ (proj (Γ , dΓ))
-                (proj ?) ?
-                (proj ?) ?
-                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-                (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-     ∙ ap-irr-jjStr ? ? ? ? ? ? ? ∙
-     ! (jjStr→ sg+ (proj (Γ , dΓ))
-                   (proj ?) ?
-                   (proj ?) ?
-                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?
-                   (proj (TmToMor ? ? ?)) (TmToMorₛ ? ? ?) ?)-}
+   
 
   uniqueness-Ob : (X : ObS n) → Ob→ f X ≡ Ob→ g X
   uniqueness-Ob = //-elimP (λ Γ → uniqueness-Ob-// Γ (WO-Nat _))
