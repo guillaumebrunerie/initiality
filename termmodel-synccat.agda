@@ -433,11 +433,9 @@ uncurrifyTm+ C ((x , u) , uₛu₁) = C x u (fst uₛu₁) (snd uₛu₁)
            → PathOver (λ x → (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ A x) → C x u uₛ u₁) p lhs rhs
 //-elimP-Tm {p = reflR} proj* = PathOver-CstPi (//-elimP (λ u → PathOver-CstPropPi (λ uₛ → PathOver-PropPi (λ u₁ u₁' → PathOver-in (PathOver-out (proj* u uₛ u₁ u₁'))))))
 
-proj= : ∀ {l l'} {A : Set l} {B : Set l'} {a a' : A} {p : a ≡R a'} {u v : B}
-      → u ≡ v → PathOver (λ _ → B) p u v
-proj= {p = reflR} refl = reflo
-
-
+proj= : {C D : Set} {Γ Γ' : C} {BΓ BΓ' : D} {R : EquivRel D} {rΓ : Γ ≡R Γ'} (rBΓ : (R EquivRel.≃ BΓ) BΓ') → PathOver (λ _ → D // R) rΓ (proj BΓ) (proj BΓ')
+proj= rBΓ = PathOver-Cst (eq rBΓ)
+ 
 -- This function does the pattern matching on g₀ needed for the naturalities
 JforNat : {A : Set} {∂₀g : A} {T : (Δ : A) (g₀ : ∂₀g ≡ Δ) → Prop}
         → (T ∂₀g refl)
@@ -449,11 +447,34 @@ JforNat d _ refl = d
 dmorTm : (Γ : DCtx n) (A : TyExpr n) (dA : Derivable (ctx Γ ⊢ A)) (u : TmExpr n) (du : Derivable (ctx Γ ⊢ u :> A)) → DMor n (suc n)
 dmorTm Γ A dA u du = dmor Γ ((ctx Γ , A) , (der Γ , dA)) (idMor _ , u) (idMor+ (der Γ) du)
 
-dmorTm= : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ')
-         → {A A' : TyExpr n} (dA : _) (dA' : _) (dA= : Derivable (ctx Γ ⊢ A == A'))
-         → {u u' : TmExpr n} (du : _) (du' : _) (du= : Derivable (ctx Γ ⊢ u == u' :> A))
-         → proj {R = MorEquiv} (dmorTm Γ A dA u du) ≡ proj (dmorTm Γ' A' dA' u' du')
-dmorTm= {Γ = Γ} rΓ _ _ dA= _ _ du= = eq (box (unOb≃ rΓ) (unOb≃ rΓ ,, dA=) (idMor+= (der Γ) du=))
+dmorTm=' : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ')
+        → {A A' : TyExpr n} (dA : _) (dA' : _) (dA= : Derivable (ctx Γ ⊢ A == A'))
+        → {u u' : TmExpr n} (du : _) (du' : _) (du= : Derivable (ctx Γ ⊢ u == u' :> A))
+        → dmorTm Γ A dA u du ≃ dmorTm Γ' A' dA' u' du'
+dmorTm=' {Γ = Γ} rΓ _ _ dA= _ _ du= = box (unOb≃ rΓ) (unOb≃ rΓ ,, dA=) (idMor+= (der Γ) du=)
 
-dmorTmₛ : {Γ : DCtx n} {A : TyExpr n} (dA : Derivable (ctx Γ ⊢ A)) {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → S.is-section (proj {R = MorEquiv} (dmorTm Γ A dA u du))
-dmorTmₛ {Γ = Γ} dA du = S.is-section→ (eq (box (CtxRefl (der Γ)) (CtxRefl (der Γ)) (congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ [idMor]Mor (idMor _))) refl (MorRefl (idMorDerivable (der Γ))))))
+dmorTm= : {δ δ' : DMor n (suc n)} (δₛ : S.is-section (proj δ)) (δ'ₛ : S.is-section (proj δ'))  (let Γ = lhs δ) (let Γ' = lhs δ') (rΓ : Γ ≃ Γ')
+           (let A = getTy (rhs δ)) (let A' = getTy (rhs δ')) (let dA = getdTy (rhs δ)) (let dA' = getdTy (rhs δ')) (dA= : Derivable (ctx Γ ⊢ A == A'))
+           (let u = getTm δ) (let u' = getTm δ') (let du = getdTm δ) (let du' = getdTm δ') (du= : Derivable (ctx Γ ⊢ u == u' :> A))
+           → δ ≃ δ'
+dmorTm=  {δ = δ} {δ' = δ'} δₛ δ'ₛ rΓ dA= du= = box (unOb≃ rΓ)
+                                               rhsδ=rhsδ'
+                                               (MorTran (der (lhs δ)) (der (rhs δ)) (morTm=idMorTm' δₛ)
+                                                        (MorTran (der (lhs δ)) (der (rhs δ)) (ConvMorEq (idMor+= (der (lhs δ)) du=) (CtxRefl (der (lhs δ)))
+                                                                 (CtxSymm (CtxTran (CtxSymm (CtxTy=Ctx' (rhs δ)))
+                                                                                   (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δₛ refl))) ,, TyRefl (getdTy (rhs δ))))))
+                                                                 (MorSymm (der (lhs δ)) (der (rhs δ))
+                                                                          (ConvMorEq (morTm=idMorTm' δ'ₛ) (CtxSymm (unOb≃ rΓ))
+                                                                                                         (CtxSymm rhsδ=rhsδ')))))
+                                         where rhsδ=rhsδ' : ⊢ ctx (rhs δ) == ctx (rhs δ')
+                                               rhsδ=rhsδ' = (CtxTran (CtxTran (CtxSymm (CtxTy=Ctx' (rhs δ)))
+                                                                     (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δₛ refl))) ,, TyRefl (getdTy (rhs δ))))
+                                                            (CtxTran (unOb≃ rΓ ,, dA=)
+                                                                     (CtxTran (CtxSymm (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δ'ₛ refl))) ,, TyRefl (getdTy (rhs δ'))))
+                                                                              (CtxTy=Ctx' (rhs δ')))))
+
+dmorTmₛ' : {Γ : DCtx n} {A : TyExpr n} (dA : Derivable (ctx Γ ⊢ A)) {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → S.is-section (proj {R = MorEquiv} (dmorTm Γ A dA u du))
+dmorTmₛ' {Γ = Γ} dA du = S.is-section→ (eq (box (CtxRefl (der Γ)) (CtxRefl (der Γ)) (congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ [idMor]Mor (idMor _))) refl (MorRefl (idMorDerivable (der Γ))))))
+
+dmorTmₛ : {δ : DMor n (suc n)} (let Γ = lhs δ) (let Δ = getCtx (rhs δ)) (let morδ = getMor δ) → ctx Γ ≡ Δ → morδ ≡ idMor _ → S.is-section (proj δ)
+dmorTmₛ {δ = δ@(dmor (_ , _) ((_ , _) , (_ , _)) (_ , u) _)} p q = S.is-section→ (DMor= refl (! p) (ap (λ z → weakenMor (idMor _)  [ z ]Mor) (Mor+= q refl) ∙ weakenMorInsert _ _ u ∙ idMor[]Mor _))

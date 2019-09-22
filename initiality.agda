@@ -443,8 +443,6 @@ abstract
   +-it=∷ : (n : ℕ) (ns : List ℕ) → +-it (n ∷ ns) ≡ (+-it ns) + n
   +-it=∷ n ns = refl
 
-abstract
-
   <-+-lemma2 : (n m k m+k : ℕ) → n < m → m + k ≡ m+k → n < m+k
   <-+-lemma2 _ m k .(m + k) <-refl refl = <-+ k (+-comm k _)
   <-+-lemma2 n m k .(m + k) (<-suc ineq) refl = <-+-lemma2 n _ (suc k) _ ineq (! (+-suc _ k))
@@ -540,18 +538,6 @@ sizeTm' (id i a u v) = sizeTm a ∷ sizeTm u ∷ sizeTm v ∷ []
 sizeTm' (refl A u) = sizeTy A ∷ sizeTm u ∷ []
 sizeTm' (jj A P d a b p) = sizeTy A ∷ (sizeTy A + sizeTy A + suc (suc (suc (sizeTy A))) + sizeTy P) ∷ (sizeTy A + sizeTm d) ∷ sizeTm a ∷ sizeTm b ∷ sizeTm p ∷ []
 
-ap2 : {A B C : Set} (f : A → B → C) {a a' : A} {b b' : B} → a ≡ a' → b ≡ b' → f a b ≡ f a' b'
-ap2 f refl refl = refl
-
-ap3 : {A B C D : Set} (f : A → B → C → D) {a a' : A} {b b' : B} {c c' : C} → a ≡ a' → b ≡ b' → c ≡ c' → f a b c ≡ f a' b' c'
-ap3 f refl refl refl = refl
-
-ap4 : {A B C D E : Set} (f : A → B → C → D → E) {a a' : A} {b b' : B} {c c' : C} {d d' : D} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → f a b c d ≡  f a' b' c' d'
-ap4 f refl refl refl refl = refl
-
-ap6 : {A B C D E F G : Set} (f : A → B → C → D → E → F → G) {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f' f'' : F} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → e ≡ e' → f' ≡ f'' → f a b c d e f' ≡  f a' b' c' d' e' f''
-ap6 f refl refl refl refl refl refl = refl
-
 sizeweakenTy=' : (k : Fin (suc n)) (A : TyExpr n) → sizeTy A ≡ sizeTy (weakenTy' k A)
 sizeweakenTm=' : (k : Fin (suc n)) (u : TmExpr n) → sizeTm u ≡ sizeTm (weakenTm' k u)
 sizeweakenTy=' k (uu i) = refl
@@ -641,7 +627,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Tm-// : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) {u : TmExpr n} (du : Derivable (Γ ⊢ u :> A)) (IH : Acc (sizeCtx Γ + sizeTm u)) → Mor→ f (proj (TmToMor dΓ dA du)) ≡ Mor→ g (proj (TmToMor dΓ dA du))
 
   uniqueness-Ob-// (◇ , tt) (acc IH) = pt→ f ∙ ! (pt→ g)
-  uniqueness-Ob-// ((Γ , uu i) , (dΓ , UU)) (acc IH) =
+  uniqueness-Ob-// ((Γ , uu i) , (dΓ , UU)) (acc IH) = 
     UUStr→ sf i (proj (Γ , dΓ))
     ∙ ap (UUStr sC i) (uniqueness-Ob-// (Γ , dΓ) (IH <-ctx))
     ∙ ! (UUStr→ sg i (proj (Γ , dΓ)))
@@ -849,8 +835,6 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                 (proj (TmToMor dΓ dA db)) (TmToMorₛ dΓ dA db) refl
                 (proj (TmToMor dΓ (Id dA da db) dp)) (TmToMorₛ dΓ (Id dA da db) dp) refl)
      
-   
-
   uniqueness-Ob : (X : ObS n) → Ob→ f X ≡ Ob→ g X
   uniqueness-Ob = //-elimP (λ Γ → uniqueness-Ob-// Γ (WO-Nat _))
 

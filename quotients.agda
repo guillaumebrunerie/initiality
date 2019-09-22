@@ -70,9 +70,9 @@ abstract
   PathOver-Box : ∀ {l l'} {A : Set l} (B : A → Prop l') {a a' : A} (p : a ≡R a') (u : Box (B a)) (u' : Box (B a')) → PathOver (λ x → Box (B x)) p u u'
   PathOver-Box B reflR u u' = reflo
   
-  PathOver-Cst : ∀ {l l'} {A : Set l} (B : Set l') {a a' : A} (p : a ≡R a') {u v : B}
+  PathOver-Cst : ∀ {l l'} {A : Set l} {B : Set l'} {a a' : A} {p : a ≡R a'} {u v : B}
                → u ≡ v → PathOver (λ _ → B) p u v
-  PathOver-Cst B reflR refl = reflo
+  PathOver-Cst {p = reflR} refl = reflo
   
   PathOver-Prop→ : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} {C : A → Set l''}
                    {a a' : A} {p : a ≡R a'} {u : B a → C a} {u' : B a' → C a'}
@@ -127,7 +127,7 @@ module _ {A : Set} {R : EquivRel A} where
   
   -- Non-dependent elimination
   //-rec : ∀ {l} {B : Set l} (proj* : A → B) (eq* : {a b : A} (r : a ≃ b) → proj* a ≡ proj* b) → A // R → B
-  //-rec proj* eq* = //-elim proj* (λ r → PathOver-Cst _ (eqR r) (eq* r))
+  //-rec proj* eq* = //-elim proj* (λ r → PathOver-Cst (eq* r))
   
   -- Dependent elimination into a Prop
   //-elimP : ∀ {l} {B : A // R → Prop l} (proj* : (a : A) → B (proj a)) → (x : A // R) → B x

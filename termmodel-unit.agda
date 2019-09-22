@@ -18,8 +18,8 @@ open CCat hiding (Mor) renaming (id to idC)
 UnitStrS-// : (Γ : DCtx n) → DCtx (suc n)
 UnitStrS-// Γ = (ctx Γ , unit) , (der Γ , Unit)
 
-UnitStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → proj {R = ObEquiv} (UnitStrS-// Γ) ≡ proj (UnitStrS-// Γ')
-UnitStrS-eq rΓ = eq (box (unOb≃ rΓ ,, UnitCong))
+UnitStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → UnitStrS-// Γ ≃ UnitStrS-// Γ'
+UnitStrS-eq rΓ = box (unOb≃ rΓ ,, UnitCong)
 
 UnitStrS : (Γ : ObS n) → ObS (suc n)
 UnitStrS = //-elim-Ctx (λ Γ → proj (UnitStrS-// Γ))
@@ -39,15 +39,15 @@ CCatwithUnit.UnitStrNat' UnitStrSynCCat = //-elimP (λ g → JforNat (//-elimP (
 unitStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
 unitStrS-// i Γ = dmorTm Γ (uu i) UU (unit i) UnitUU
 
-unitStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → proj {R = MorEquiv} (unitStrS-// i Γ) ≡ proj (unitStrS-// i Γ')
-unitStrS-eq i rΓ = dmorTm= rΓ UU UU UUCong UnitUU UnitUU UnitUUCong
+unitStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → unitStrS-// i Γ ≃ unitStrS-// i Γ'
+unitStrS-eq i rΓ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ UUCong UnitUUCong
 
 unitStrS : (i : ℕ) (Γ : ObS n) → MorS n (suc n)
 unitStrS i = //-elim-Ctx (λ Γ → proj (unitStrS-// i Γ))
                           (λ rΓ → proj= (unitStrS-eq i rΓ))
 
 unitStrₛS : (i : ℕ) (Γ : ObS n) → S.is-section (unitStrS i Γ)
-unitStrₛS  i = //-elimP-Ctx (λ Γ → dmorTmₛ UU UnitUU)
+unitStrₛS  i = //-elimP-Ctx (λ Γ → dmorTmₛ refl refl)
 
 unitStr₁S : (i : ℕ) (Γ : ObS n) → S.∂₁ (unitStrS i Γ) ≡ UUStrS i Γ
 unitStr₁S i = //-elimP-Ctx (λ Γ → refl)
@@ -63,14 +63,14 @@ CCatwithunit.unitStrNat' unitStrSynCCat = //-elimP (λ g → JforNat (//-elimP-C
 ttStrS-// : (Γ : DCtx n) → DMor n (suc n)
 ttStrS-// Γ = dmorTm Γ unit Unit tt TT
 
-ttStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → proj {R = MorEquiv} (ttStrS-// Γ) ≡ proj (ttStrS-// Γ')
-ttStrS-eq rΓ = dmorTm= rΓ Unit Unit UnitCong TT TT TTCong
+ttStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → ttStrS-// Γ ≃ ttStrS-// Γ'
+ttStrS-eq rΓ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ UnitCong TTCong
 
 ttStrS : (Γ : ObS n) → MorS n (suc n)
 ttStrS = //-elim-Ctx (λ Γ → proj (ttStrS-// Γ)) (λ rΓ → proj= (ttStrS-eq rΓ))
 
 ttStrₛS : (Γ : ObS n) → S.is-section (ttStrS Γ)
-ttStrₛS = //-elimP (λ Γ → dmorTmₛ Unit TT)
+ttStrₛS = //-elimP (λ Γ → dmorTmₛ refl refl)
 
 ttStr₁S : (Γ : ObS n) → S.∂₁ (ttStrS Γ) ≡ UnitStrS Γ
 ttStr₁S = //-elimP-Ctx (λ Γ → refl)
@@ -87,8 +87,8 @@ CCatwithtt.ttStrNat' ttStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ 
 unitelimStrS-// : (Γ : DCtx n) (A : DCtx (suc (suc n))) (A= : ftS (proj A) ≡ UnitStrS (proj Γ)) (dtt : DMor n (suc n)) (dttₛ : S.is-section (proj dtt)) (dtt₁ : S.∂₁ (proj dtt) ≡ S.star (ttStrS (proj Γ)) (proj A) A= (ttStr₁S (proj Γ))) (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : S.∂₁ (proj u) ≡ UnitStrS (proj Γ)) → DMor n (suc n)
 unitelimStrS-// Γ A A= dtt dttₛ dtt₁ u uₛ u₁ = dmorTm Γ (substTy (getTy A) (getTm u)) (SubstTy (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁))) (unitelim (getTy A) (getTm dtt) (getTm u)) (Unitelim (dTy A A=) (dTm refl dtt dttₛ dtt₁) (dTm refl u uₛ u₁))
 
-unitelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc (suc n))} (rA : A ≃ A') (A= : ftS (proj A) ≡ UnitStrS (proj Γ)) (A'= : ftS (proj A') ≡ UnitStrS (proj Γ')) {dtt dtt' : DMor n (suc n)} (rdtt : dtt ≃ dtt') (dttₛ : S.is-section (proj dtt)) (dtt'ₛ : S.is-section (proj dtt')) (dtt₁ : S.∂₁ (proj dtt) ≡ S.star (ttStrS (proj Γ)) (proj A) A= (ttStr₁S (proj Γ))) (dtt'₁ : S.∂₁ (proj dtt') ≡ S.star (ttStrS (proj Γ')) (proj A') A'= (ttStr₁S (proj Γ'))) {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : S.∂₁ (proj u) ≡ UnitStrS (proj Γ)) (u'₁ : S.∂₁ (proj u') ≡ UnitStrS (proj Γ')) → proj {R = MorEquiv} (unitelimStrS-// Γ A A= dtt dttₛ dtt₁ u uₛ u₁) ≡ proj (unitelimStrS-// Γ' A' A'= dtt' dtt'ₛ dtt'₁ u' u'ₛ u'₁)
-unitelimStrS-eq {Γ = Γ} {Γ'} rΓ rA A= A'= rdtt dttₛ dtt'ₛ dtt₁ dtt'₁ ru uₛ u'ₛ u₁ u'₁ = eq (box (unOb≃ rΓ) (unOb≃ rΓ ,, SubstTyMorEq2 (der Γ) (der Γ , Unit) (dTy= rA A=) (idMor+= (der Γ) (dTm= (box (unOb≃ rΓ ,, UnitCong)) refl ru uₛ u'ₛ u₁ u'₁))) (idMor+= (der Γ) (UnitelimCong (dTy= rA A=) (dTm= (box (unOb≃ rΓ ,, SubstTyEq (dTy= rA A=) (idMor+ (der Γ) TT))) refl rdtt dttₛ dtt'ₛ dtt₁ dtt'₁) (dTm= (box (unOb≃ rΓ ,, UnitCong)) refl ru uₛ u'ₛ u₁ u'₁)))) 
+unitelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc (suc n))} (rA : A ≃ A') (A= : ftS (proj A) ≡ UnitStrS (proj Γ)) (A'= : ftS (proj A') ≡ UnitStrS (proj Γ')) {dtt dtt' : DMor n (suc n)} (rdtt : dtt ≃ dtt') (dttₛ : S.is-section (proj dtt)) (dtt'ₛ : S.is-section (proj dtt')) (dtt₁ : S.∂₁ (proj dtt) ≡ S.star (ttStrS (proj Γ)) (proj A) A= (ttStr₁S (proj Γ))) (dtt'₁ : S.∂₁ (proj dtt') ≡ S.star (ttStrS (proj Γ')) (proj A') A'= (ttStr₁S (proj Γ'))) {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : S.∂₁ (proj u) ≡ UnitStrS (proj Γ)) (u'₁ : S.∂₁ (proj u') ≡ UnitStrS (proj Γ')) → unitelimStrS-// Γ A A= dtt dttₛ dtt₁ u uₛ u₁ ≃ unitelimStrS-// Γ' A' A'= dtt' dtt'ₛ dtt'₁ u' u'ₛ u'₁
+unitelimStrS-eq {Γ = Γ} {Γ'} rΓ rA A= A'= rdtt dttₛ dtt'ₛ dtt₁ dtt'₁ ru uₛ u'ₛ u₁ u'₁ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ (SubstTyMorEq2 (der Γ) (der Γ , Unit) (dTy= rA A=) (idMor+= (der Γ) (dTm= (box (unOb≃ rΓ ,, UnitCong)) refl ru uₛ u'ₛ u₁ u'₁))) (UnitelimCong (dTy= rA A=) (dTm= (box (unOb≃ rΓ ,, SubstTyEq (dTy= rA A=) (idMor+ (der Γ) TT))) refl rdtt dttₛ dtt'ₛ dtt₁ dtt'₁) (dTm= (box (unOb≃ rΓ ,, UnitCong)) refl ru uₛ u'ₛ u₁ u'₁))
 
 unitelimStrS : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ UnitStrS Γ) (dtt : MorS n (suc n)) (dttₛ : S.is-section dtt) (dtt₁ : S.∂₁ dtt ≡ S.star (ttStrS Γ) A A= (ttStr₁S Γ)) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ UnitStrS Γ) → MorS n (suc n)
 unitelimStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Tm (λ dtt dttₛ dtt₁ → (//-elim-Tm (λ u uₛ u₁ → proj (unitelimStrS-// Γ A A= dtt dttₛ dtt₁ u uₛ u₁))
@@ -98,7 +98,7 @@ unitelimStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Tm (λ dtt
                            (λ rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Tm (λ dtt dttₛ dtt₁ dtt₁' → (//-elimP-Tm (λ u uₛ u₁ u₁' → proj= (unitelimStrS-eq rΓ (ref A) A= A=' (ref dtt) dttₛ dttₛ dtt₁ dtt₁' (ref u) uₛ uₛ u₁ u₁'))))))
 
 unitelimStrₛS : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ UnitStrS Γ) (dtt : MorS n (suc n)) (dttₛ : S.is-section dtt) (dtt₁ : S.∂₁ dtt ≡ S.star (ttStrS Γ) A A= (ttStr₁S Γ)) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ UnitStrS Γ) → S.is-section (unitelimStrS Γ A A= dtt dttₛ dtt₁ u uₛ u₁)
-unitelimStrₛS = //-elimP-Ctx (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → dmorTmₛ (SubstTy (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁))) (Unitelim (dTy A A=) (dTm refl dtt dttₛ dtt₁) (dTm refl u uₛ u₁))))))
+unitelimStrₛS = //-elimP-Ctx (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → dmorTmₛ refl refl))))
 
 unitelimStr₁S : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ UnitStrS Γ) (dtt : MorS n (suc n)) (dttₛ : S.is-section dtt) (dtt₁ : S.∂₁ dtt ≡ S.star (ttStrS Γ) A A= (ttStr₁S Γ)) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ UnitStrS Γ) → S.∂₁ (unitelimStrS Γ A A= dtt dttₛ dtt₁ u uₛ u₁) ≡ S.star u A A= u₁
 unitelimStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → eq (box (CtxSymm (reflectOb (S.is-section₀ uₛ u₁)) ,, SubstTyMorEq (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁)) (MorSymm (der Γ) (der Γ , Unit) (morTm=idMorTm refl u uₛ u₁))))))))

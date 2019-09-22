@@ -1,5 +1,5 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
-
+ 
 open import common
 open import typetheory
 open import syntx
@@ -17,8 +17,8 @@ open CCat hiding (Mor) renaming (id to idC)
 UUStrS-// : (i : ℕ) → DCtx n → DCtx (suc n)
 UUStrS-// i Γ = ((ctx Γ , uu i) , (der Γ , UU))
 
-UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → Γ ≃ Γ' → proj {R = ObEquiv} (UUStrS-// i Γ) ≡ proj (UUStrS-// i Γ')
-UUStrS-eq dΓ= = eq (box (unOb≃ dΓ= ,, UUCong))
+UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → Γ ≃ Γ' → UUStrS-// i Γ ≃ UUStrS-// i Γ'
+UUStrS-eq dΓ= = box (unOb≃ dΓ= ,, UUCong)
 
 UUStrS : (i : ℕ) → ObS n → ObS (suc n)
 UUStrS i = //-elim-Ctx (λ Γ → proj (UUStrS-// i Γ)) (λ rΓ → proj= (UUStrS-eq rΓ))
@@ -37,9 +37,8 @@ CCatwithUU.UUStrNat' UUStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ 
 ElStrS-// : (i : ℕ) (Γ : DCtx n) (v : DMor n (suc n)) (vₛ : S.is-section (proj v)) (v₁ : ∂₁S (proj v) ≡ UUStrS i (proj Γ)) → DCtx (suc n)
 ElStrS-// i Γ v vₛ v₁ = ((ctx Γ , el i (getTm v)) , (der Γ , El (dTm refl v vₛ v₁)))
 
-ElStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {v v' : DMor n (suc n)} (rv : v ≃ v') (vₛ : _) (v'ₛ : _) (v₁ : _) (v'₁ : _) → proj {R = ObEquiv} (ElStrS-// i Γ v vₛ v₁) ≡ proj {R = ObEquiv} (ElStrS-// i Γ' v' v'ₛ v'₁)
-ElStrS-eq rΓ rv vₛ v'ₛ v₁ v'₁ =
-  eq (box (unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, TyRefl UU)) refl rv vₛ v'ₛ v₁ v'₁)))
+ElStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {v v' : DMor n (suc n)} (rv : v ≃ v') (vₛ : _) (v'ₛ : _) (v₁ : _) (v'₁ : _) → ElStrS-// i Γ v vₛ v₁ ≃ ElStrS-// i Γ' v' v'ₛ v'₁
+ElStrS-eq rΓ rv vₛ v'ₛ v₁ v'₁ = box (unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, TyRefl UU)) refl rv vₛ v'ₛ v₁ v'₁))
 
 ElStrS : (i : ℕ) (Γ : ObS n) (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ UUStrS i Γ) → ObS (suc n)
 ElStrS i = //-elim-Ctx (λ Γ → //-elim-Tm (λ v vₛ v₁ → proj (ElStrS-// i Γ v vₛ v₁))
@@ -59,15 +58,15 @@ CCatwithEl.ElStrNat' ElStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ 
 
 uuStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
 uuStrS-// i Γ = dmorTm Γ (uu (suc i)) UU (uu i) UUUU
-
-uuStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → proj {R = MorEquiv} (uuStrS-// i Γ) ≡ proj (uuStrS-// i Γ')
-uuStrS-eq i rΓ = dmorTm= rΓ UU UU UUCong UUUU UUUU UUUUCong
+  
+uuStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → uuStrS-// i Γ ≃ uuStrS-// i Γ'
+uuStrS-eq i rΓ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ UUCong UUUUCong
 
 uuStrS : (i : ℕ) (Γ : ObS n) → MorS n (suc n)
 uuStrS i = //-elim-Ctx (λ Γ → proj (uuStrS-// i Γ)) (λ rΓ → proj= (uuStrS-eq i rΓ))
 
 uuStrₛS : (i : ℕ) (Γ : ObS n) → S.is-section (uuStrS i Γ)
-uuStrₛS i = //-elimP (λ Γ → dmorTmₛ UU UUUU)
+uuStrₛS i = //-elimP (λ Γ → dmorTmₛ refl refl)
 
 uuStr₁S : (i : ℕ) (Γ : ObS n) → ∂₁S (uuStrS i Γ) ≡ UUStrS (suc i) Γ
 uuStr₁S i = //-elimP (λ Γ → refl)

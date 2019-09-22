@@ -108,6 +108,17 @@ infix 4 _≡_
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
+ap2 : {A B C : Set} (f : A → B → C) {a a' : A} {b b' : B} → a ≡ a' → b ≡ b' → f a b ≡ f a' b'
+ap2 f refl refl = refl
+
+ap3 : {A B C D : Set} (f : A → B → C → D) {a a' : A} {b b' : B} {c c' : C} → a ≡ a' → b ≡ b' → c ≡ c' → f a b c ≡ f a' b' c'
+ap3 f refl refl refl = refl
+
+ap4 : {A B C D E : Set} (f : A → B → C → D → E) {a a' : A} {b b' : B} {c c' : C} {d d' : D} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → f a b c d ≡  f a' b' c' d'
+ap4 f refl refl refl refl = refl
+
+ap6 : {A B C D E F G : Set} (f : A → B → C → D → E → F → G) {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f' f'' : F} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → e ≡ e' → f' ≡ f'' → f a b c d e f' ≡  f a' b' c' d' e' f''
+ap6 f refl refl refl refl refl refl = refl
 {-
 --hack
 postulate

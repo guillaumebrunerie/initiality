@@ -599,9 +599,9 @@ weakenCommutesSubstTm k u a = ap (λ z → substTm (weakenTm' (prev k) z) _) (! 
                               ! (weaken[]Tm u (idMor _ , _) _)
 
 weakenSubstTy : (A : TyExpr n) (t : TmExpr n) → substTy (weakenTy A) t ≡ A
-weakenSubstTm : (u : TmExpr n) (t : TmExpr n) → substTm (weakenTm u) t ≡ u
-
 weakenSubstTy A u = weakenTyInsert A (idMor _) u ∙ ([idMor]Ty _)
+
+weakenSubstTm : (u : TmExpr n) (t : TmExpr n) → substTm (weakenTm u) t ≡ u
 weakenSubstTm u t = weakenTmInsert u (idMor _) t ∙ ([idMor]Tm _)
 
 {- Total substitution commutes with partial substitution -}
