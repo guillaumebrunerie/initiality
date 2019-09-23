@@ -60,13 +60,13 @@ uuStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
 uuStrS-// i Γ = dmorTm Γ (uu (suc i)) UU (uu i) UUUU
   
 uuStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → uuStrS-// i Γ ≃ uuStrS-// i Γ'
-uuStrS-eq i rΓ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ UUCong UUUUCong
+uuStrS-eq i rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong UUUUCong
 
 uuStrS : (i : ℕ) (Γ : ObS n) → MorS n (suc n)
 uuStrS i = //-elim-Ctx (λ Γ → proj (uuStrS-// i Γ)) (λ rΓ → proj= (uuStrS-eq i rΓ))
 
 uuStrₛS : (i : ℕ) (Γ : ObS n) → S.is-section (uuStrS i Γ)
-uuStrₛS i = //-elimP (λ Γ → dmorTmₛ refl refl)
+uuStrₛS i = //-elimP (λ Γ → dmorTmₛ)
 
 uuStr₁S : (i : ℕ) (Γ : ObS n) → ∂₁S (uuStrS i Γ) ≡ UUStrS (suc i) Γ
 uuStr₁S i = //-elimP (λ Γ → refl)

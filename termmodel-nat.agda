@@ -42,13 +42,13 @@ natStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
 natStrS-// i Γ = dmorTm Γ (uu i) UU (nat i) NatUU
  
 natStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → natStrS-// i Γ ≃ natStrS-// i Γ'
-natStrS-eq i {Γ = Γ} {Γ'} rΓ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ UUCong NatUUCong
+natStrS-eq i rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong NatUUCong
 
 natStrS : (i : ℕ) (Γ : ObS n) → MorS n (suc n)
 natStrS i = //-elim-Ctx (λ Γ → proj (natStrS-// i Γ)) (λ rΓ → proj= (natStrS-eq i rΓ))
 
 natStrₛS : (i : ℕ) (Γ : ObS n) → S.is-section (natStrS i Γ)
-natStrₛS i = //-elimP (λ Γ → dmorTmₛ refl refl)
+natStrₛS i = //-elimP (λ Γ → dmorTmₛ)
 
 natStr₁S : (i : ℕ) (Γ : ObS n) → ∂₁S (natStrS i Γ) ≡ UUStrS i Γ
 natStr₁S i = //-elimP (λ Γ → refl)
@@ -66,13 +66,13 @@ zeroStrS-// : (Γ : DCtx n) → DMor n (suc n)
 zeroStrS-// Γ = dmorTm Γ nat Nat zero Zero
 
 zeroStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → zeroStrS-// Γ ≃ zeroStrS-// Γ'
-zeroStrS-eq rΓ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ NatCong ZeroCong
+zeroStrS-eq rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ NatCong ZeroCong
 
 zeroStrS : (Γ : ObS n) → MorS n (suc n)
 zeroStrS = //-elim-Ctx (λ Γ → proj (zeroStrS-// Γ)) (λ rΓ → proj= (zeroStrS-eq rΓ))
 
 zeroStrₛS : (Γ : ObS n) → S.is-section (zeroStrS Γ)
-zeroStrₛS = //-elimP (λ Γ → dmorTmₛ refl refl)
+zeroStrₛS = //-elimP (λ Γ → dmorTmₛ)
 
 zeroStr₁S : (Γ : ObS n) → ∂₁S (zeroStrS Γ) ≡ NatStrS Γ
 zeroStr₁S = //-elimP (λ Γ → refl)
@@ -90,7 +90,7 @@ sucStrS-// : (Γ : DCtx n) (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (
 sucStrS-// Γ u uₛ u₁ = dmorTm Γ nat Nat (suc (getTm u)) (Suc (dTm refl u uₛ u₁))
 
 sucStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : _) (u'ₛ : _) (u₁ : _) (u'₁ : _) → sucStrS-// Γ u uₛ u₁ ≃ sucStrS-// Γ' u' u'ₛ u'₁
-sucStrS-eq rΓ ru uₛ u'ₛ u₁ u'₁ = dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ NatCong (SucCong (dTm= (box (unOb≃ rΓ ,, TyRefl Nat)) refl ru uₛ u'ₛ u₁ u'₁))
+sucStrS-eq rΓ ru uₛ u'ₛ u₁ u'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ NatCong (SucCong (dTm= (box (unOb≃ rΓ ,, TyRefl Nat)) refl ru uₛ u'ₛ u₁ u'₁))
 
 sucStrS : (Γ : ObS n) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) → MorS n (suc n)
 sucStrS = //-elim-Ctx (λ Γ → //-elim-Tm (λ u uₛ u₁ → proj (sucStrS-// Γ u uₛ u₁))
@@ -98,7 +98,7 @@ sucStrS = //-elim-Ctx (λ Γ → //-elim-Tm (λ u uₛ u₁ → proj (sucStrS-//
                       (λ rΓ → //-elimP-Tm (λ u uₛ u₁ u₁' → proj= (sucStrS-eq rΓ (ref u) uₛ uₛ u₁ u₁')))
 
 sucStrₛS : (Γ : ObS n) (u : MorS n (suc n)) {uₛ : S.is-section u} {u₁ : ∂₁S u ≡ NatStrS Γ} → S.is-section (sucStrS Γ u uₛ u₁)
-sucStrₛS = //-elimP (λ Γ → //-elimP (λ u {uₛ} {u₁} → dmorTmₛ refl refl))
+sucStrₛS = //-elimP (λ Γ → //-elimP (λ u {uₛ} {u₁} → dmorTmₛ))
 
 sucStr₁S : (Γ : ObS n) (u : MorS n (suc n)) {uₛ : S.is-section u} {u₁ : ∂₁S u ≡ NatStrS Γ} → ∂₁S (sucStrS Γ u uₛ u₁) ≡ NatStrS Γ
 sucStr₁S = //-elimP (λ Γ → //-elimP (λ u → refl))
@@ -140,12 +140,11 @@ natelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {P P' : DCtx (suc (suc n))
                    (dS'₁ : ∂₁S (proj dS') ≡ sucS.T-dS₁ (proj Γ') (proj P') P'=)
                    {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : ∂₁S (proj u) ≡ NatStrS (proj Γ)) (u'₁ : ∂₁S (proj u') ≡ NatStrS (proj Γ')) → natelimStrS-// Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≃ natelimStrS-// Γ' P' P'= dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
 natelimStrS-eq {Γ = Γ} {Γ'} rΓ {P} {P'} rP P= P'= {dO} {dO'} rdO dOₛ dO'ₛ dO₁ dO'₁ {dS} {dS'} rdS dSₛ dS'ₛ dS₁ dS'₁ {u} {u'} ru uₛ u'ₛ u₁ u'₁ =
-               dmorTm= (dmorTmₛ refl refl) (dmorTmₛ refl refl) rΓ 
-                       (SubstTyMorEq2 (der Γ) (der Γ , Nat) (dTy= rP P=) (idMor+= (der Γ) (dTm= (box (unOb≃ rΓ ,, NatCong)) refl ru uₛ u'ₛ u₁ u'₁)))
-                       (NatelimCong (dTy P P=) (dTy= rP P=)
-                                    (dTm= (box (unOb≃ rΓ ,, SubstTyMorEq2 (der Γ) (der Γ , Nat) (dTy= rP P=) (idMor+= (der Γ) ZeroCong))) refl rdO dOₛ dO'ₛ dO₁ dO'₁)
-                                    ddS=
-                                    (dTm= (box (unOb≃ rΓ ,, NatCong)) refl ru uₛ u'ₛ u₁ u'₁))
+               dmorTm= dmorTmₛ dmorTmₛ rΓ (SubstTyMorEq2 (der Γ) (der Γ , Nat) (dTy= rP P=) (idMor+= (der Γ) (dTm= (box (unOb≃ rΓ ,, NatCong)) refl ru uₛ u'ₛ u₁ u'₁)))
+                                          (NatelimCong (dTy P P=) (dTy= rP P=)
+                                                       (dTm= (box (unOb≃ rΓ ,, SubstTyMorEq2 (der Γ) (der Γ , Nat) (dTy= rP P=) (idMor+= (der Γ) ZeroCong))) refl rdO dOₛ dO'ₛ dO₁ dO'₁)
+                                                       ddS=
+                                                       (dTm= (box (unOb≃ rΓ ,, NatCong)) refl ru uₛ u'ₛ u₁ u'₁))
                           where ddS= : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS == getTm dS' :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
                                 ddS= = congTmEqTy! fixSubstTy (dTm= {Γ = (((_ , _) , _) , ((der Γ , Nat) , dTy P P=))} (box (unOb≃ rP ,, SubstTyEq (SubstTyEq (SubstTyEq (dTy= rP P=) (WeakMor+ Nat (WeakMor (idMorDerivable (der Γ))))) (WeakMor+ Nat (WeakMor (WeakMor (idMorDerivable (der Γ))) , VarPrev Nat (VarLast Nat)))) (ConvMor (idMor+ ((der Γ , Nat) , dTy P P=) (Suc (VarPrev Nat (VarLast Nat)))) (CtxTy=Ctx P P=) (CtxRefl (((der Γ , Nat) , dTy P P=) , Nat))))) (eq (box (CtxSymm (CtxTy=Ctx P P=)))) rdS dSₛ dS'ₛ dS₁ dS'₁)
                   
@@ -168,7 +167,7 @@ abstract
                (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : ∂₁S dS ≡ sucS.T-dS₁ Γ P P=)
                (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) → S.is-section (natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁)
  natelimStrₛS =
-   //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ → dmorTmₛ refl refl)))))
+   //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ → dmorTmₛ)))))
 
  natelimStr₁S : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
                (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : ∂₁S dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))

@@ -10,7 +10,6 @@ open import Agda.Builtin.Bool public
 data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
   reflR : a ≡R a
 
-
 _R∙_ : ∀ {l} {A : Set l} {a b c : A} →  a ≡R b → b ≡R c → a ≡R c
 _R∙_ reflR reflR = reflR
 
@@ -96,8 +95,10 @@ characΣSS= reflR = (reflR , reflR)
 {- Prop-valued equality -}
 
 data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
-  refl : x ≡ x
+  instance refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_ #-}
+
+
 
 infix 4 _≡_
 
@@ -119,6 +120,7 @@ ap4 f refl refl refl refl = refl
 
 ap6 : {A B C D E F G : Set} (f : A → B → C → D → E → F → G) {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f' f'' : F} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → e ≡ e' → f' ≡ f'' → f a b c d e f' ≡  f a' b' c' d' e' f''
 ap6 f refl refl refl refl refl refl = refl
+
 {-
 --hack
 postulate

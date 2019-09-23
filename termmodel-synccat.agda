@@ -476,5 +476,5 @@ dmorTm=  {δ = δ} {δ' = δ'} δₛ δ'ₛ rΓ dA= du= = box (unOb≃ rΓ)
 dmorTmₛ' : {Γ : DCtx n} {A : TyExpr n} (dA : Derivable (ctx Γ ⊢ A)) {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → S.is-section (proj {R = MorEquiv} (dmorTm Γ A dA u du))
 dmorTmₛ' {Γ = Γ} dA du = S.is-section→ (eq (box (CtxRefl (der Γ)) (CtxRefl (der Γ)) (congMorEq refl refl (! (weakenMorInsert _ _ _ ∙ [idMor]Mor (idMor _))) refl (MorRefl (idMorDerivable (der Γ))))))
 
-dmorTmₛ : {δ : DMor n (suc n)} (let Γ = lhs δ) (let Δ = getCtx (rhs δ)) (let morδ = getMor δ) → ctx Γ ≡ Δ → morδ ≡ idMor _ → S.is-section (proj δ)
-dmorTmₛ {δ = δ@(dmor (_ , _) ((_ , _) , (_ , _)) (_ , u) _)} p q = S.is-section→ (DMor= refl (! p) (ap (λ z → weakenMor (idMor _)  [ z ]Mor) (Mor+= q refl) ∙ weakenMorInsert _ _ u ∙ idMor[]Mor _))
+dmorTmₛ : {δ : DMor n (suc n)} (let Γ = lhs δ) (let Δ = getCtx (rhs δ)) (let morδ = getMor δ) {{p : ctx Γ ≡ Δ}} {{q :  morδ ≡ idMor _}} → S.is-section (proj δ)
+dmorTmₛ {δ = δ@(dmor (_ , _) ((_ , _) , (_ , _)) (_ , u) _)} {{p}} {{q}} = S.is-section→ (DMor= refl (! p) (ap (λ z → weakenMor (idMor _)  [ z ]Mor) (Mor+= q refl) ∙ weakenMorInsert _ _ u ∙ idMor[]Mor _))
