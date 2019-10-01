@@ -327,16 +327,8 @@ module CCat+ (C : CCat) where
                                   qq₁ ≡ C
     star-qqvarCL-star-qqqqpp {B= = B=} {C= = C=} = ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! (ss-qq {f₁ = id₁})) refl ∙ qq-id {p = B=}) refl ∙ star-id {p = C=}
 
-  -- thing : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ}
-  --       → starTm (qq (varC last A)
-  --                    (star (qq (pp A) A A= (pp₁ ∙ A=)) (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) qq₁)
-  --                    (ft-star ∙ qq₀)
-  --                    varCL₁)
-  --                (varC (prev last) (star (qq (pp A) A A= (pp₁ ∙ A=)) (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) qq₁))
-  --                (ss₀ ∙ pp₀ ∙ refl)
-  --                qq₁
-  --         ≡ varC (prev last) (star (pp A) A A= (pp₁ ∙ A=))
-  -- thing = {!!}
+  weakenObj : {Γ : Ob n} {A : Ob (suc n)} (A= : ft A ≡ Γ) → Ob (suc (suc n))
+  weakenObj {Γ = Γ} {A} A= = star (pp A) A A= (pp₁ ∙ A=)
 
 {- Contextual categories with structure corresponding to the type theory we are interested in -}
 
@@ -459,13 +451,11 @@ record CCatwithId (ccat : CCat) : Set₁ where
     ap-irr-IdStr : {Γ Γ' : Ob n} (rΓ : Γ ≡ Γ') {A A' : Ob (suc n)} (rA : A ≡ A') {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'} {u u' : MorC n (suc n)} (ru : u ≡ u') {uₛ : is-section u} {u'ₛ : is-section u'} {u₁ : ∂₁ u ≡ A} {u'₁ : ∂₁ u' ≡ A'} {v v' : MorC n (suc n)} (rv : v ≡ v') {vₛ : is-section v} {v'ₛ : is-section v'} {v₁ : ∂₁ v ≡ A} {v'₁ : ∂₁ v' ≡ A'} → IdStr Γ A A= u uₛ u₁ v vₛ v₁ ≡ IdStr Γ' A' A'= u' u'ₛ u'₁ v' v'ₛ v'₁
     ap-irr-IdStr refl refl refl refl = refl
 
+
   T-ftP : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) → Ob (suc (suc (suc n)))
-  T-ftP  Γ A A= = IdStr wA wwA (ft-star ∙ pp₀)
-                        (varC (prev last) wA) (varCₛ (prev last) wA) (varC+₁ last (ft-star ∙ pp₀) varCL₁)
-                        (varC last wA) (varCₛ last wA) varCL₁
-                  where
-                    wA = star (pp A) A A= (pp₁ ∙ A=)
-                    wwA = star (pp wA) wA (ft-star ∙ pp₀) (pp₁ ∙ ft-star ∙ pp₀)
+  T-ftP  Γ A A= = IdStr (weakenObj A=) (weakenObj (ft-star ∙ pp₀)) (ft-star ∙ pp₀)
+                        (varC (prev last) (weakenObj A=)) (varCₛ (prev last) (weakenObj A=)) (varC+₁ last (ft-star ∙ pp₀) varCL₁)
+                        (varC last (weakenObj A=)) (varCₛ last (weakenObj A=)) varCL₁
 
   abstract
     T-ftP= : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} → ft (T-ftP Γ A A=) ≡ star (pp A) A A= (pp₁ ∙ A=)
@@ -1093,13 +1083,11 @@ record CCatwithrefl {ccat : CCat} (ccatid : CCatwithId ccat) : Set₁ where
                            ap-irr-IdStr refl (! star-comp ∙ ap-irr-star (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁ ) refl {q' = ft-star ∙ pp₀}∙ star-id)
                                              (star-varCL'' ∙ ap ss (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁))
                                              (star-varCL' ∙ ss-of-section _ (varCₛ last _)))
-        eq10 = ft-star ∙ pp₀
-       -- eq11 = ft-star ∙ pp₀
+        eq10 = ft-star ∙ pp₀       
         eq12 = ft-star ∙ pp₀
  
       wA = star (pp A) A A= (pp₁ ∙ A=)
-      wwA = star+ (pp A) wA eq10 A= (pp₁ ∙ A=)
-      -- widA = star++ (pp A) (T-ftP Γ A A=) T-ftP= eq11 A= (pp₁ ∙ A=)
+      wwA = star+ (pp A) wA eq10 A= (pp₁ ∙ A=)      
       wP = star+++ (pp A) P {X' = T-ftP Γ A A=} P= {X'' = wA} T-ftP= {X''' = A} eq12 {X'''' = Γ} A= (pp₁ ∙ A=)
 
   abstract
