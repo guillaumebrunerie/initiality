@@ -299,6 +299,12 @@ _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
 
 {- Congruence with respect to the type in derivability of term expressions -}
 
+congCtx : {Γ Γ' : Ctx n} → Γ ≡ Γ' → ⊢ Γ → ⊢ Γ'
+congCtx refl dΓ = dΓ
+
+congCtxEq : {Γ Γ' Δ Δ' : Ctx n} → Γ ≡ Γ' → Δ ≡ Δ' → ⊢ Γ == Δ → ⊢ Γ' == Δ'
+congCtxEq refl refl dΓ= = dΓ=
+
 congTy : {Γ : Ctx n} {A A' : TyExpr n} → A ≡ A' → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A')
 congTy refl dA = dA
 
@@ -1280,5 +1286,9 @@ dΓ= ,, dA= =
   (dΓ= , TyEqTy1 dΓ dA= , ConvTy (TyEqTy2 dΓ dA=) dΓ= , dA= , ConvTyEq dA= dΓ=)
 
 TmTran' : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n} → ⊢ Γ
-        → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
+        → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
 TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
+
+TyTran' : {Γ : Ctx n} {A B C : TyExpr n} → ⊢ Γ
+        → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
+TyTran' dΓ dA= dB= = TyTran (TyEqTy1 dΓ dB=) dA= dB=
