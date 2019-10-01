@@ -15,7 +15,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- UU -}
 
 UUStrS-// : (i : ℕ) → DCtx n → DCtx (suc n)
-UUStrS-// i Γ = ((ctx Γ , uu i) , (der Γ , UU))
+UUStrS-// i Γ = ((ctx Γ , uu i) ,' (der Γ , UU))
 
 UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → Γ ≃ Γ' → UUStrS-// i Γ ≃ UUStrS-// i Γ'
 UUStrS-eq dΓ= = box (unOb≃ dΓ= ,, UUCong)

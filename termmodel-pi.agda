@@ -25,7 +25,7 @@ PiStrS-eq rΓ {A = A} rA A= A'= {B = B} rB B= B'= = box (unOb≃ rΓ ,, PiCong (
 
 PiStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) → ObS (suc n)
 PiStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → proj (PiStrS-// Γ A A= B B=))
-                                                            (λ rB B= B=' → proj= (PiStrS-eq (ref Γ) (ref A) A= A= rB B= B=')))
+                                                            (λ rB B= B'= → proj= (PiStrS-eq (ref Γ) (ref A) A= A= rB B= B'=)))
                                        (λ rA A= A'= → //-elimP-Ty (λ B B= B=' → proj= (PiStrS-eq (ref Γ) rA A= A'= (ref B) B= B='))))
                      (λ rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Ty (λ B B= B=' → proj= (PiStrS-eq rΓ (ref A) A= A=' (ref B) B= B='))))
 
@@ -47,8 +47,8 @@ piStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {a a' : DMor n (suc n
           → piStrS-// i Γ a aₛ a₁ b bₛ b₁ ≃ piStrS-// i Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
 piStrS-eq i rΓ ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁ =
   dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong (PiUUCong (dTm refl _ aₛ a₁)
-                                                                      (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)
-                                                                      (dTm= (box ((unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)) ,, UUCong)) refl rb bₛ b'ₛ b₁ b'₁))
+                                              (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)
+                                              (dTm= (box ((unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)) ,, UUCong)) refl rb bₛ b'ₛ b₁ b'₁))
 
 
 piStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁)) → MorS n (suc n)
