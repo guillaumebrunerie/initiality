@@ -813,7 +813,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                         (uniqueness-Tm-// dΓ du (IH (<-+-it 1)))
     ∙ ! (reflStr→ sg _ _ refl _ dmorTmₛ refl)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = jj A P d a b p} (JJ dA dP dd da db dp) (acc IH) =
-    jjStr→ sf+ _ (proj ((Γ , A) , (dΓ , dA))) refl _ refl 
+    jjStr→ sf+ (proj (_ , dΓ))
+    (proj (_ , (dΓ , dA))) refl (proj (_ , congCtx (Ctx+= (Ctx+= (Ctx+= refl weakenTy-to-[]Ty) (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weakenTy-to-[]Ty) refl refl)) refl) ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP))) refl 
                _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
     ∙ ap-irr-jjStr (uniqueness-Ob-// (_ , dΓ) (IH <-ctx))
                    (uniqueness-Ob-// (_ , (dΓ , dA)) (IH (<-+-it 0)))
@@ -823,7 +824,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                    (uniqueness-Tm-// dΓ db (IH (<-+-it 4)))
                    (uniqueness-Tm-// dΓ dp (IH (<-+-it 5)))
                    
-    ∙ ! (jjStr→ sg+ _ (proj ((Γ , A) , (dΓ , dA))) refl _ refl
+    ∙ ! (jjStr→ sg+ _ (proj (_ , (dΓ , dA))) refl (proj (_ , congCtx (Ctx+= (Ctx+= (Ctx+= refl weakenTy-to-[]Ty) (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weakenTy-to-[]Ty) refl refl)) refl) ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP))) refl
                 _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl)
      
   uniqueness-Ob : (X : ObS n) → Ob→ f X ≡ Ob→ g X
