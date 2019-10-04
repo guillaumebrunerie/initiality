@@ -184,9 +184,9 @@ record StructuredCCatMor+ (sC sD : StructuredCCat) : Set where
 
   field
     jjStr→ : (Γ : Ob C n) (A : Ob C (suc n)) (A= : ft C A ≡ Γ) (P : Ob C (suc (suc (suc (suc n)))))
-             (P= : ft C P ≡ T-ftP sC Γ A A=)
+             (P= : ft C P ≡ CCatwithId.T-ftP (ccatId sC) Γ A A=)
              (d : Mor C (suc n) (suc (suc n))) (dₛ : is-section C d)
-             (d₁ : ∂₁ C d ≡ T-d₁ sC Γ A A= P P=)
+             (d₁ : ∂₁ C d ≡ CCatwithrefl.T-d₁ (ccatrefl sC) Γ A A= P P=)
              (a : Mor C n (suc n)) (aₛ : is-section C a) (a₁ : ∂₁ C a ≡ A)
              (b : Mor C n (suc n)) (bₛ : is-section C b) (b₁ : ∂₁ C b ≡ A)
              (p : Mor C n (suc n)) (pₛ : is-section C p) (p₁ : ∂₁ C p ≡ IdStr sC Γ A A= a aₛ a₁ b bₛ b₁)
