@@ -1292,3 +1292,28 @@ TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
 TyTran' : {Γ : Ctx n} {A B C : TyExpr n} → ⊢ Γ
         → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
 TyTran' dΓ dA= dB= = TyTran (TyEqTy1 dΓ dB=) dA= dB=
+
+DerTmTy : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
+DerTmTy dΓ (VarLast dA) = WeakTy dA 
+DerTmTy (dΓ , dB) (VarPrev dA dk) = WeakTy (DerTmTy dΓ dk)
+DerTmTy dΓ (Conv dA du dA=) = TyEqTy2 dΓ dA=
+DerTmTy dΓ (Lam dA dB du) = Pi dA dB
+DerTmTy dΓ (App dA dB df da) = SubstTy dB ((idMorDerivable dΓ) , congTm (! ([idMor]Ty _)) refl da)
+DerTmTy dΓ UUUU = UU
+DerTmTy dΓ (PiUU da db) = UU
+DerTmTy dΓ (SigUU da db) = UU
+DerTmTy dΓ (Pair dA dB da db) = Sig dA dB
+DerTmTy dΓ (Pr1 dA dB du) = dA
+DerTmTy dΓ (Pr2 dA dB du) = SubstTy dB (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl (Pr1 dA dB du))
+DerTmTy dΓ NatUU = UU
+DerTmTy dΓ Zero = Nat
+DerTmTy dΓ (Suc du) = Nat
+DerTmTy dΓ (IdUU da du dv) = UU
+DerTmTy dΓ (Refl dA da) = Id dA da da
+DerTmTy dΓ EmptyUU = UU
+DerTmTy dΓ (Emptyelim dA du) = SubstTy dA (idMorDerivable dΓ , du)
+DerTmTy dΓ UnitUU = UU
+DerTmTy dΓ TT = Unit
+DerTmTy dΓ (Unitelim dA dtt du) = SubstTy dA (idMorDerivable dΓ , du)
+DerTmTy dΓ (Natelim dP dO dS du) = SubstTy dP (idMorDerivable dΓ , du)
+DerTmTy dΓ (JJ dA dP dd da db dp) = Subst3Ty dΓ dP da (congTmTy (! (weakenSubstTy _ _ )) db) (congTmTy (ap-id-Ty (! (weakenTyInsert _ _ _ ∙ weakenTyInsert _ _ _ ∙ [idMor]Ty _)) refl refl) dp)
