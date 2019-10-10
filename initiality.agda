@@ -814,11 +814,12 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (reflStr→ sg _ _ refl _ dmorTmₛ refl)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = jj A P d a b p} (JJ dA dP dd da db dp) (acc IH) =
     jjStr→ sf+ (proj (_ , dΓ))
-    (proj (_ , (dΓ , dA))) refl (proj (_ , congCtx (Ctx+= (Ctx+= (Ctx+= refl weakenTy-to-[]Ty) (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weakenTy-to-[]Ty) refl refl)) refl) ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP))) refl 
+    (proj (_ , (dΓ , dA))) refl (proj (_ , congCtx (Ctx+= (Ctx+= (Ctx+= refl weakenTy-to-[]Ty) (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weakenTy-to-[]Ty) refl refl)) refl) ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP)))
+    refl 
                _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
     ∙ ap-irr-jjStr (uniqueness-Ob-// (_ , dΓ) (IH <-ctx))
-                   (uniqueness-Ob-// (_ , (dΓ , dA)) (IH (<-+-it 0)))
-                   (uniqueness-Ob-// (_ , congCtx (Ctx+= (Ctx+= (Ctx+= refl weakenTy-to-[]Ty) (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weakenTy-to-[]Ty) refl refl)) refl) ((((dΓ , dA) , WeakTy dA) , Id (WeakTy (WeakTy dA)) (VarPrev (WeakTy dA) (VarLast dA)) (VarLast (WeakTy dA))) , dP)) (IH (<-+-it' 1 (+suc+-lemma3 (sizeCtx Γ) (+-it (sizeTy' A)) (sizeTy A) (suc (suc (suc (sizeTy A)))) (sizeTy P) ∙ ap2 (λ y z → sizeCtx Γ + sizeTy A + y + z + sizeTy P) size[weaken]Ty= (ap suc (ap (λ z → suc (suc z)) (size[weaken]Ty= ∙ size[weaken]Ty=) ∙  ! (+-it=∷ _ _ ∙ ap (λ z → z + sizeTy ((A [ weakenMor (idMor _) ]Ty) [ weakenMor (idMor _) ]Ty)) (+-it=∷ _ _ ∙ ap2 (λ y z → y + suc z) (+-it=∷ _ _ ∙ ap2 (λ y z → y + suc z) +-it=[] +-it=[]) +-it=[]))))))))
+                   (uniqueness-Ob-// _ (IH (<-+-it 0)))
+                   (uniqueness-Ob-// _ (IH (<-+-it' 1 (+suc+-lemma3 (sizeCtx Γ) (+-it (sizeTy' A)) (sizeTy A) (suc (suc (suc (sizeTy A)))) (sizeTy P) ∙ ap2 (λ y z → sizeCtx Γ + sizeTy A + y + z + sizeTy P) size[weaken]Ty= (ap suc (ap (λ z → suc (suc z)) (size[weaken]Ty= ∙ size[weaken]Ty=) ∙  ! (+-it=∷ _ _ ∙ ap (λ z → z + sizeTy ((A [ weakenMor (idMor _) ]Ty) [ weakenMor (idMor _) ]Ty)) (+-it=∷ _ _ ∙ ap2 (λ y z → y + suc z) (+-it=∷ _ _ ∙ ap2 (λ y z → y + suc z) +-it=[] +-it=[]) +-it=[]))))))))
                    (uniqueness-Tm-// (dΓ , dA) (congTmTy fixTyJJ dd) (IH (<-+-it' 2 (+suc+-lemma _ _ _))))
                    (uniqueness-Tm-// dΓ da (IH (<-+-it 3)))
                    (uniqueness-Tm-// dΓ db (IH (<-+-it 4)))
