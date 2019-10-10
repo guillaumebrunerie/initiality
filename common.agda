@@ -121,22 +121,6 @@ ap4 f refl refl refl refl = refl
 ap6 : {A B C D E F G : Set} (f : A → B → C → D → E → F → G) {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f' f'' : F} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → e ≡ e' → f' ≡ f'' → f a b c d e f' ≡  f a' b' c' d' e' f''
 ap6 f refl refl refl refl refl refl = refl
 
-
---hack
-postulate
-  ‗ : {P : Prop} → P
-
-kill : {P : Prop} → P → P
-kill p = ‗
-
-{-
-conc : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
-conc refl refl = refl
-
-_∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
-p ∙ q = 𝄪 (conc p q)
--}
-
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
 
