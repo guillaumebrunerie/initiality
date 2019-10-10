@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
-open import common
+open import common 
 open import typetheory 
 open import syntx  
 open import rules
@@ -28,6 +28,14 @@ record DMor (n m : ℕ) : Set where
     mor : Mor n m
     morDer : ctx lhs ⊢ mor ∷> ctx rhs
 open DMor public
+
+
+--hack
+postulate
+  ‗ : ∀ {l} {P : Prop l} → P
+
+kill : ∀ {l} {P : Prop l} → P → P
+kill p = ‗
 
 _,'_ : (Γ : Ctx n) → ⊢ Γ → DCtx n
 _,'_ Γ dΓ = Γ , kill dΓ
@@ -78,7 +86,6 @@ instance
 
 reflectOb : {Γ Γ' : DCtx n} → proj {R = ObEquiv} Γ ≡ proj Γ' → ⊢ ctx Γ == ctx Γ'
 reflectOb p = unOb≃ (reflect p)
-
 
 DCtx= : {Γ Γ' : Ctx n} {w₁ : _} {w₂ : _} → Γ ≡ Γ' → proj {R = ObEquiv} (Γ , w₁) ≡ proj (Γ' , w₂)
 DCtx= refl = refl
