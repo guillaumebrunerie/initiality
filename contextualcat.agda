@@ -64,13 +64,13 @@ module CCat+ (C : CCat) where
   open CCat C public
   abstract
     ap-irr-comp : {g g' : Mor m k} (g= : g ≡ g') {f f' : Mor n m} (f= : f ≡ f') {X X' : Ob m} {g₀ : ∂₀ g ≡ X} {g₀' : ∂₀ g' ≡ X'} {f₁ : ∂₁ f ≡ X} {f₁' : ∂₁ f' ≡ X'} → comp g f g₀ f₁ ≡ comp g' f' g₀' f₁'
-    ap-irr-comp refl refl {g₀ = g₀} {g₀'} = ap-irr2 (λ X y z → comp _ _ {X = X} y z) (! g₀ ∙ g₀')
+    ap-irr-comp refl refl {g₀ = g₀} {g₀'} {f₁} {f₁'} = ap-irr2 (λ X y z → comp _ _ {X = X} y z) (! g₀ ∙ g₀') {c = f₁} {c' = f₁'}
   
     ap-irr-qq : {f f' : Mor m n} (f= : f ≡ f') {X X' : Ob (suc n)} (X= : X ≡ X') {Y Y' : Ob n} {q : ft X ≡ Y} {q' : ft X' ≡ Y'} {f₁ : ∂₁ f ≡ Y} {f₁' : ∂₁ f' ≡ Y'} → qq f X q f₁ ≡ qq f' X' q' f₁'
-    ap-irr-qq refl refl {q = q} {q'} = ap-irr2 (λ Y y z → qq _ _ {Y = Y} y z) (! q ∙ q')
+    ap-irr-qq refl refl {q = q} {q'} {f₁} {f₁'} = ap-irr2 (λ Y y z → qq _ _ {Y = Y} y z) (! q ∙ q') {c = f₁} {c' = f₁'}
 
     ap-irr-star : {f f' : Mor m n} (f= : f ≡ f') {X X' : Ob (suc n)} (X= : X ≡ X') {Y Y' : Ob n} {q : ft X ≡ Y} {q' : ft X' ≡ Y'} {f₁ : ∂₁ f ≡ Y} {f₁' : ∂₁ f' ≡ Y'} → star f X q f₁ ≡ star f' X' q' f₁'
-    ap-irr-star refl refl {q = q} {q'} = ap-irr2 (λ Y y z → star _ _ {Y = Y} y z) (! q ∙ q')
+    ap-irr-star refl refl {q = q} {q'} {f₁} {f₁'} = ap-irr2 (λ Y y z → star _ _ {Y = Y} y z) (! q ∙ q') {c = f₁} {c' = f₁'}
 
   {- Sections of [pp] -}
 
