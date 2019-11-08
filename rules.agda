@@ -356,6 +356,9 @@ congMor refl refl refl dδ = dδ
 congMorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' θ θ' : Mor n m} → Γ ≡ Γ' → Δ ≡ Δ' → δ ≡ δ' → θ ≡ θ' → Γ ⊢ δ == θ ∷> Δ → Γ' ⊢ δ' == θ' ∷> Δ'
 congMorEq refl refl refl refl dδ= = dδ=
 
+congMorEqCtxEq : {Γ Γ' : Ctx n} {Δ : Ctx m} {δ θ : Mor n m} → Γ ≡ Γ' → Γ ⊢ δ == θ ∷> Δ → Γ' ⊢ δ == θ ∷> Δ
+congMorEqCtxEq refl dδ= = dδ=
+
 
 {- Reflexivity rules -}
 
@@ -412,10 +415,6 @@ CtxRefl {Γ = Γ , A} (dΓ , dA) = (CtxRefl dΓ , dA , dA , TyRefl dA , TyRefl d
 MorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ ∷> Δ)
 MorRefl {Δ = ◇} {δ = ◇} dδ = tt
 MorRefl {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorRefl dδ , TmRefl du
-
-congMorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → δ ≡ δ' → Γ ⊢ δ ∷> Δ → Γ ⊢ δ == δ' ∷> Δ
-congMorRefl refl dδ = MorRefl dδ
-
 
 {- Substitution and weakening are admissible -}
 
@@ -1277,6 +1276,15 @@ SubstTyMorEq2 dΓ dΔ dA= dδ= =
       dA' = TyEqTy2 dΔ dA=
   in
   SubstTyFullEq dA' dδ dA= dδ=
+
+SubstTyMorEq' : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m}
+              → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A) → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A [ δ' ]Ty)
+SubstTyMorEq' dΓ dΔ dA dδ= = SubstTyMorEq dA (MorEqMor1 dΓ dΔ dδ=) dδ=
+
+
+WeakMor+Eq' : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A) → Γ ⊢ δ == δ' ∷> Δ → (Γ , A [ δ ]Ty) ⊢ weakenMor+ δ == weakenMor+ δ' ∷> (Δ , A)
+WeakMor+Eq' dΓ dΔ dA dδ= = WeakMor+Eq dA (MorEqMor1 dΓ dΔ dδ=) dδ=
+
 
 
 _,,_ : {Γ Γ' : Ctx n} {A A' : TyExpr n} → ⊢ Γ == Γ' → Derivable (Γ ⊢ A == A') → ⊢ (Γ , A) == (Γ' , A')
