@@ -249,8 +249,4 @@ jjStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (
          (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS = //-elim-Ctx (λ Γ → jjStrS6 Γ)
                      (λ rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Ty (λ P P= P=' → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq rΓ (ref A) A= A=' (ref P) P= P=' (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))))))
-
-abstract 
-  jjStrₛS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP Γ A A=) (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ Γ A A= P P=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A) (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → S.is-section (jjStrS Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁)
-  jjStrₛS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → //-elimP (λ p pₛ p₁ → dmorTmₛ)))))))
   
