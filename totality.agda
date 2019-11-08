@@ -1008,8 +1008,8 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       δᵈ = cong⟦⟧Mor {δ = δ} (! (⟦⟧Ty-ft B)) δᵈ'
       uᵈ = ⟦⟧Tmᵈ Γᵈ du
       δ₁ = ⟦⟧Mor₁ δ
-      u₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = ⟦tsubst⟧Tyᵈ B Bᵈ δ δᵈ'} du ∙ ! (⟦tsubst⟧Ty= B Bᵈ δ δᵈ') ∙ ap-irr-star (ap-irr (λ x z → ⟦ δ ⟧Mor _ x $ z) (! (⟦⟧Ty-ft B))) refl
-  
+      u₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = ⟦tsubst⟧Tyᵈ B Bᵈ δ δᵈ'} du ∙ ! (⟦tsubst⟧Ty= B Bᵈ δ δᵈ') ∙ ap-irr-star (ap-irr {B = λ X → isDefined (⟦ δ ⟧Mor _ X)} (λ x z → ⟦ δ ⟧Mor _ x $ z) (! (⟦⟧Ty-ft B))) refl
+
 ⟦⟧Tm₁ Γᵈ (VarLast {A = A} dA) = varCL₁ ∙ ⟦weakenTy⟧= A (fst (snd Γᵈ)) (⟦⟧Ty-ft A)
 ⟦⟧Tm₁ Γᵈ {u = var (prev k)} (VarPrev {B = B} {A = A} dA dk) = varC+₁ k (⟦⟧Ty-ft B) (⟦⟧Tm₁ (fst Γᵈ) dk) ∙ ⟦weakenTy⟧= A (⟦⟧Tyᵈ (fst Γᵈ) dA) (⟦⟧Ty-ft B)
 ⟦⟧Tm₁ Γᵈ (Conv dA du dA=) = ⟦⟧Tm₁ Γᵈ du ∙ ⟦⟧TyEq Γᵈ dA= {Aᵈ = ⟦⟧Tyᵈ Γᵈ dA}
