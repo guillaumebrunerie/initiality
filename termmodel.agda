@@ -17,6 +17,7 @@ open import termmodel-empty public
 open import termmodel-unit public
 open import termmodel-nat public
 open import termmodel-id public
+open import termmodel-id2 public
 
 open CCat hiding (Mor) renaming (id to idC)
 

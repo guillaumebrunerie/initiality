@@ -52,7 +52,7 @@ you get that Γ = Δ and Γ' = Δ' rather than simply ctx Γ = ctx Δ and ctx Γ
 -}
 
 data _Ob≃_ (Γ Γ' : DCtx n) : Prop where
-  box : ⊢ ctx Γ == ctx Γ' → Γ Ob≃ Γ'
+     box : ⊢ ctx Γ == ctx Γ' → Γ Ob≃ Γ'
 
 unOb≃ : {Γ Γ' : DCtx n} → Γ Ob≃ Γ' → ⊢ ctx Γ == ctx Γ'
 unOb≃ (box x) = x
@@ -155,3 +155,6 @@ getLHS= {Δ = (Δ , B) , (dΔ , dB)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , 
 
 getRHS= : {Γ : Ctx m} {Δ : Ctx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ δ == δ' ∷> Δ → Derivable (Γ ⊢ getRHS δ == getRHS δ' :> (getTy' Δ [ getLHS δ ]Ty))
 getRHS= {Δ = (Δ , B)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = du=
+
+ConvTyDCtxEq : {Γ Δ : Ctx n} {B B' : TyExpr n} → ⊢ Γ == Δ → Derivable (Γ ⊢ B) → B ≡ B' → ⊢ (Γ , B) == (Δ , B')
+ConvTyDCtxEq dΓ= dB refl = dΓ= ,, TyRefl dB
