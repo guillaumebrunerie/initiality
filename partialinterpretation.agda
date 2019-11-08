@@ -1,18 +1,14 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
-open import common hiding (_>>=_; return)
+open import common 
 open import typetheory
 open import syntx
 open import contextualcat
 
 module _ (sC : StructuredCCat) where
 
-_>>=_ = common._>>=_ {M = Partial}
-return = common.return {M = Partial}
-
 open StructuredCCat sC
 open CCat+ ccat renaming (Mor to MorC; id to idC)
-
 
 ap-irr-ElStr : {n : ℕ} {i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → ElStr {n = n} i Γ v vₛ v₁ ≡ ElStr i Γ' v' vₛ' v₁'
 ap-irr-ElStr refl refl = refl
