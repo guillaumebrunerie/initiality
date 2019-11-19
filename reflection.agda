@@ -124,7 +124,7 @@ applyToFresh f hint s = do
 
 listify : List (Name ×R Name) → Term
 listify [] = con (quote []) []
-listify ((s , t) ∷ l) = con (quote _∷_) (earg (con (quote ΣSS._,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
+listify ((s , t) ∷ l) = con (quote _∷_) (earg (def (quote _ΣSS,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
 
 iterateExpr : Name → (Name → Name → TC ⊤) → TC ⊤
 iterateExpr s f = do

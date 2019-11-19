@@ -62,6 +62,9 @@ record ΣSS {l} {l'} (A : Set l) (B : A → Set l') : Set (l ⊔ l') where
     snd : B fst
 open ΣSS public
 
+_ΣSS,_ : ∀ {l} {l'} {A : Set l} {B : A → Set l'} (a : A) → B a → ΣSS A B
+_ΣSS,_ a b = a , b
+
 infixr 4 _,_
 
 
@@ -83,11 +86,11 @@ UnitR-contr starU = reflR
 data EmptyR : Set where
   
 
-characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → ΣSS._,_ {B = B} n b ≡R (n' , b') → ΣSS (n ≡R n') (λ p → transportR {B = B} b p ≡R b')
+characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → _≡R_ {A = ΣSS ℕ B} (n , b) (n' , b') → ΣSS (n ≡R n') (λ p → transportR {B = B} b p ≡R b')
 characΣSS= reflR = (reflR , reflR)
 
 
-ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' →  ΣSS._,_ {B = B} n b ≡R (n , b')
+ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' → _≡R_ {A = ΣSS ℕ B} (n , b) (n , b')
 ΣSS= reflR = reflR
 
 
@@ -103,7 +106,7 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
 infix 4 _≡_
 
 
-Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → (a ΣS., b) ≡R (a' , b')
+Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → _≡R_ {A = ΣS _ _} (a , b) (a' , b')
 Σ= reflR = reflR
 
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
@@ -408,5 +411,5 @@ axiomK-nat : (n : ℕ) (p : n ≡R n) → p ≡R reflR
 axiomK-nat n p = nat-is-set n n p reflR
 
 --This allows one to proof the following about sigma types where the first component is n:ℕ
-sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
+sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → _≡R_ {A = ΣSS ℕ B} (n , b) (n , b') → b ≡R b'
 sndΣSSℕR {B = B} {n} {b} {b'} p = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 

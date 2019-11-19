@@ -12,7 +12,7 @@ record CCat : Set₁ where
     Ob : ℕ → Set
     -- morphisms
     Mor : ℕ → ℕ → Set
-    -- domain and codomain(prev (prev (prev k)))
+    -- domain and codomain
     ∂₀ : Mor n m → Ob n
     ∂₁ : Mor n m → Ob m
     -- identity morphism

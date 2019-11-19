@@ -101,7 +101,7 @@ abstract
   
   PathOver-PropPi : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} {C : (a : A) → B a → Set l''}
                     {a a' : A} {p : a ≡R a'} {u : (b : B a) → C a b} {u' : (b' : B a') → C a' b'}
-                    → ((y : B a) (y' : B a') → PathOver (uncurrify C) (Σ= p) (u y) (u' y'))
+                    → ((y : B a) (y' : B a') → PathOver (uncurrify C) (Σ= {b = y} {b' = y'} p) (u y) (u' y'))
                     → PathOver (λ x → ((y : B x) → C x y)) p u u'
   PathOver-PropPi {p = reflR} f = PathOver-refl-to (funextP (λ x → PathOver-refl-from (f x x)))
   

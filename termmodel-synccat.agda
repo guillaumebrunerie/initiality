@@ -19,19 +19,20 @@ ObS n = DCtx n // ObEquiv
 MorS : ℕ → ℕ → Set
 MorS n m = DMor n m // MorEquiv
 
+
 ∂₀S-// : DMor n m → DCtx n
 ∂₀S-// δ = ctx (lhs δ) ,' der (lhs δ)
-
  
 ∂₀S : {n m : ℕ} → MorS n m → ObS n
 ∂₀S = //-rec (λ δ → proj (∂₀S-// δ)) (λ r → eq (box (unMor≃-lhs r)))
 
+
 ∂₁S-// : DMor n m → DCtx m
 ∂₁S-// δ = ctx (rhs δ) ,' der (rhs δ)
 
-
 ∂₁S : {n m : ℕ} → MorS n m → ObS m
 ∂₁S = //-rec (λ δ → proj (∂₁S-// δ)) (λ r → eq (box (unMor≃-rhs r)))
+
 
 idS-// : (n : ℕ) → DCtx n → DMor n n
 idS-// n Γ = dmor Γ Γ (idMor n) (idMorDerivable (der Γ))
@@ -425,7 +426,7 @@ uncurrifyTy+ C ((x , A) , A=) = C x A A=
 
 //-elim-Ty : ∀ {l} {Γ : ObS n} {C : (A : ObS (suc n)) (A= : ftS A ≡ Γ) → Set l}
            → (proj* : (A : DCtx (suc n)) (A= : ftS (proj A) ≡ Γ) → C (proj A) A=)
-           → (eq* : {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ Γ) (A'= : ftS (proj A') ≡ Γ) → PathOver (uncurrifyTy C) (Σ= (eqR rA)) (proj* A A=) (proj* A' A'=))
+           → (eq* : {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ Γ) (A'= : ftS (proj A') ≡ Γ) → PathOver (uncurrifyTy C) (Σ= {b = A=} {b' = A'=} (eqR rA)) (proj* A A=) (proj* A' A'=))
            → (A : ObS (suc n)) (A= : ftS A ≡ Γ) → C A A=
 //-elim-Ty proj* eq* = //-elim proj* (kill (λ a= → PathOver-PropPi (λ A= A'= → eq* a= A= A'=)))
 
@@ -433,7 +434,7 @@ uncurrifyTy+ C ((x , A) , A=) = C x A A=
            → {x x' : X} {p : x ≡R x'}
            → {lhs : (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → C x A A=}
            → {rhs : (A : ObS (suc n)) (A= : ftS A ≡ Γ x') → C x' A A=}
-           → (proj* : (A : DCtx (suc n)) (A= : _) (A=' : _) → PathOver (uncurrifyTy+ C) (Σ= (apR (λ z → z , proj A) p)) (lhs (proj A) A=) (rhs (proj A) A='))
+           → (proj* : (A : DCtx (suc n)) (A= : _) (A=' : _) → PathOver (uncurrifyTy+ C) (Σ= {b = A=} {b' = A='} (apR (λ z → z , proj A) p)) (lhs (proj A) A=) (rhs (proj A) A='))
            → PathOver (λ x → (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → C x A A=) p lhs rhs
 //-elimP-Ty {p = reflR} proj* = PathOver-CstPi (//-elimP (λ A → PathOver-PropPi (λ A= A=' → PathOver-in (PathOver-out (proj* A A= A=')))))
 
