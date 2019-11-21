@@ -191,13 +191,46 @@ abstract
                                                                      (CtxTy=Ctx A A=)))
                                                    (eq (box (CtxSymm (CtxTy=Ctx A A=)))) rd dₛ d'ₛ d₁ d'₁)
 
+abstract
+  reflectd₁ : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=)
+           (d : DMor (suc n) (suc (suc n))) (d₁ : ∂₁S (proj d) ≡ reflS.T-d₁ (proj Γ) (proj A) A= (proj P) P=) →
+             ⊢ ctx (rhs d) ==
+                (ctx A ,
+                 ((((getTy' (ctx P) [
+                     ((weakenMor' last
+                       (weakenMor' last (weakenMor' last (weakenMor' last (idMor n))))
+                       , var (prev (prev last)))
+                      , var (prev last))
+                     , var last
+                     ]Ty)
+                    [
+                    (((weakenMor' last (weakenMor' last (weakenMor' last (idMor n))) ,
+                       var (prev (prev last)))
+                      , var (prev (prev last)))
+                     , var (prev last))
+                    , var last
+                    ]Ty)
+                   [
+                   ((weakenMor' last (weakenMor' last (idMor n)) , var (prev last)) ,
+                    var (prev last))
+                   , var last
+                   ]Ty)
+                  [
+                  (weakenMor' last (idMor n) , var last) ,
+                  refl (getTy' (ctx A) [ weakenMor' last (idMor n) ]Ty) (var last)
+                  ]Ty))
+  reflectd₁ Γ A A= P P= d d₁ = reflectOb d₁
+
 jjStrS1 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=)
           (d : DMor (suc n) (suc (suc n))) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ reflS.T-d₁ (proj Γ) (proj A) A= (proj P) P=)
           (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : S.∂₁ (proj a) ≡ proj A)
           (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : S.∂₁ (proj b) ≡ proj A)
           (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS (proj Γ) (proj A) A= (proj a) aₛ a₁ (proj b) bₛ b₁) → MorS n (suc n)
-jjStrS1 Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ = //-elim-Tm (λ p pₛ p₁ → proj (jjStrS-// Γ A A= P P= d dₛ (reflectOb d₁) a aₛ a₁ b bₛ b₁ p pₛ p₁))
-                                                         (λ rp pₛ p'ₛ p₁ p'₁ → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁) (ref a) aₛ aₛ a₁ a₁ (ref b) bₛ bₛ b₁ b₁ rp pₛ p'ₛ p₁ p'₁))
+jjStrS1 Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ =
+  //-elim-Tm (λ p pₛ p₁ → proj (jjStrS-// Γ A A= P P= d dₛ rd₁ a aₛ a₁ b bₛ b₁ p pₛ p₁))
+             (λ rp pₛ p'ₛ p₁ p'₁ → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= (ref d) dₛ dₛ rd₁ rd₁ (ref a) aₛ aₛ a₁ a₁ (ref b) bₛ bₛ b₁ b₁ rp pₛ p'ₛ p₁ p'₁))
+  where
+    rd₁ = reflectd₁ Γ A A= P P= d d₁
 
 
 jjStrS2 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=)
@@ -206,7 +239,10 @@ jjStrS2 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : 
           (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ proj A)
           (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS (proj Γ) (proj A) A= (proj a) aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS2 Γ A A= P P= d dₛ d₁ a aₛ a₁ = //-elim-Tm (λ b bₛ b₁ → jjStrS1 Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁)
-                                                 (λ rb bₛ b'ₛ b₁ b'₁ → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁) (ref a) aₛ aₛ a₁ a₁ rb bₛ b'ₛ b₁ b'₁ (ref p) pₛ pₛ p₁ p₁')))
+                                                 (λ rb bₛ b'ₛ b₁ b'₁ → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= (ref d) dₛ dₛ rd₁ rd₁ (ref a) aₛ aₛ a₁ a₁ rb bₛ b'ₛ b₁ b'₁ (ref p) pₛ pₛ p₁ p₁')))
+  where
+    rd₁ = reflectd₁ Γ A A= P P= d d₁
+
 
 jjStrS3 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=)
           (d : DMor (suc n) (suc (suc n))) (dₛ : S.is-section (proj d)) (d₁ : ∂₁S (proj d) ≡ reflS.T-d₁ (proj Γ) (proj A) A= (proj P) P=)
@@ -214,7 +250,9 @@ jjStrS3 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : 
           (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ proj A)
           (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS (proj Γ) (proj A) A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS3 Γ A A= P P= d dₛ d₁ = //-elim-Tm (λ a aₛ a₁ → jjStrS2 Γ A A= P P= d dₛ d₁ a aₛ a₁)
-                                         (λ ra aₛ a'ₛ a₁ a'₁ → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁) ra aₛ a'ₛ a₁ a'₁ (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))        
+                                         (λ ra aₛ a'ₛ a₁ a'₁ → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= (ref d) dₛ dₛ rd₁ rd₁ ra aₛ a'ₛ a₁ a'₁ (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))
+  where
+    rd₁ = reflectd₁ Γ A A= P P= d d₁
 
 
 jjStrS4 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : DCtx (suc (suc (suc (suc n))))) (P= : ftS (proj P) ≡ idS.T-ftP (proj Γ) (proj A) A=)
@@ -223,7 +261,7 @@ jjStrS4 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : 
           (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ proj A)
           (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS (proj Γ) (proj A) A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS4 Γ A A= P P= = //-elim-Tm (λ d dₛ d₁ → jjStrS3 Γ A A= P P= d dₛ d₁)
-                                 (λ rd dₛ d'ₛ d₁ d'₁ → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= rd dₛ d'ₛ (reflectOb d₁) (reflectOb d'₁) (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁')))))                
+                                 (λ {d} {d'} rd dₛ d'ₛ d₁ d'₁ → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= (ref P) P= P= rd dₛ d'ₛ (reflectd₁ Γ A A= P P= d d₁) (reflectd₁ Γ A A= P P= d' d'₁) (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁')))))
 
 jjStrS5 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP (proj Γ) (proj A) A=)
           (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ (proj Γ) (proj A) A= P P=)
@@ -232,7 +270,7 @@ jjStrS5 : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (P : 
           (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS (proj Γ) (proj A) A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 
 jjStrS5 Γ A A= = //-elim-Ty (λ P P= → jjStrS4 Γ A A= P P=)
-                            (λ rP P= P'= → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= rP P= P'= (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))))
+                            (λ {P} {P'} rP P= P'= → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) (ref A) A= A= rP P= P'= (ref d) dₛ dₛ (reflectd₁ Γ A A= P P= d d₁) (reflectd₁ Γ A A= P' P'= d d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))))
                             
 jjStrS6 : (Γ : DCtx n) (A : ObS (suc n)) (A= : ftS A ≡ proj Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP (proj Γ) A A=)
           (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ (proj Γ) A A= P P=)
@@ -240,7 +278,7 @@ jjStrS6 : (Γ : DCtx n) (A : ObS (suc n)) (A= : ftS A ≡ proj Γ) (P : ObS (suc
           (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A)
           (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS (proj Γ) A A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS6 Γ = //-elim-Ty (λ A A= → jjStrS5 Γ A A=)
-                       (λ rA A= A'= → //-elimP-Ty (λ P P= P=' → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) rA A= A'= (ref P) P= P=' (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁')))))))      
+                       (λ {A} {A'} rA A= A'= → //-elimP-Ty (λ P P= P=' → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq (ref Γ) rA A= A'= (ref P) P= P=' (ref d) dₛ dₛ (reflectd₁ Γ A A= P P= d d₁) (reflectd₁ Γ A' A'= P P=' d d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁')))))))
 
 jjStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (suc (suc n))))) (P= : ftS P ≡ idS.T-ftP Γ A A=)
          (d : MorS (suc n) (suc (suc n))) (dₛ : S.is-section d) (d₁ : ∂₁S d ≡ reflS.T-d₁ Γ A A= P P=)
@@ -248,5 +286,5 @@ jjStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (suc (
          (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ A)
          (p : MorS n (suc n)) (pₛ : S.is-section p) (p₁ : S.∂₁ p ≡ IdStrS Γ A A= a aₛ a₁ b bₛ b₁) → MorS n (suc n)
 jjStrS = //-elim-Ctx (λ Γ → jjStrS6 Γ)
-                     (λ rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Ty (λ P P= P=' → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq rΓ (ref A) A= A=' (ref P) P= P=' (ref d) dₛ dₛ (reflectOb d₁) (reflectOb d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))))))
+                     (λ {Γ} {Γ'} rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Ty (λ P P= P=' → //-elimP-Tm (λ d dₛ d₁ d₁' → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → //-elimP-Tm (λ p pₛ p₁ p₁' → proj= (jjStrS-eq rΓ (ref A) A= A=' (ref P) P= P=' (ref d) dₛ dₛ (reflectd₁ Γ A A= P P= d d₁) (reflectd₁ Γ' A A=' P P=' d d₁') (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁' (ref p) pₛ pₛ p₁ p₁'))))))))
   
