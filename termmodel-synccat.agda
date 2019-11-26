@@ -411,7 +411,7 @@ infixr 42 _×S_
            → (proj* : (Γ : DCtx n) → C (proj Γ))
            → (eq* : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → PathOver C (eqR rΓ) (proj* Γ) (proj* Γ'))
            → (Γ : ObS n) → C Γ
-//-elim-Ctx proj* eq* = //-elim proj* (kill eq*)
+//-elim-Ctx proj* eq* = //-elim proj* eq*
 
 //-elimP-Ctx : ∀ {l} {C : (Γ : ObS n) → Prop l}
             → (proj* : (Γ : DCtx n) → C (proj (ctx Γ , der Γ)))
@@ -428,7 +428,7 @@ uncurrifyTy+ C ((x , A) , A=) = C x A A=
            → (proj* : (A : DCtx (suc n)) (A= : ftS (proj A) ≡ Γ) → C (proj A) A=)
            → (eq* : {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ Γ) (A'= : ftS (proj A') ≡ Γ) → PathOver (uncurrifyTy C) (Σ= {b = A=} {b' = A'=} (eqR rA)) (proj* A A=) (proj* A' A'=))
            → (A : ObS (suc n)) (A= : ftS A ≡ Γ) → C A A=
-//-elim-Ty proj* eq* = //-elim proj* (kill (λ a= → PathOver-PropPi (λ A= A'= → eq* a= A= A'=)))
+//-elim-Ty proj* eq* = //-elim proj* (λ a= → PathOver-PropPi (λ A= A'= → eq* a= A= A'=))
 
 //-elimP-Ty : ∀ {l} {X : Set} {Γ : X → ObS n} {C : (x : X) (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → Set l}
            → {x x' : X} {p : x ≡R x'}
@@ -448,7 +448,7 @@ uncurrifyTm+ C ((x , u) , uₛu₁) = C x u (fst uₛu₁) (snd uₛu₁)
            → (proj* : (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : S.∂₁ (proj u) ≡ A) → C (proj u) uₛ u₁)
            → (eq* : {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : _) (u'ₛ : _) (u₁ :  S.∂₁ (proj u) ≡ A) (u'₁ : S.∂₁ (proj u') ≡ A ) → PathOver (uncurrifyTm C) (Σ= {b = uₛ , u₁} {b' = u'ₛ , u'₁} (eqR ru)) (proj* u uₛ u₁) (proj* u' u'ₛ u'₁))
            → (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → C u uₛ u₁
-//-elim-Tm {n = n} {C = C} proj* eq* = //-elim proj* (kill (λ ru → PathOver-PropPi (λ uₛ uₛ' → PathOver-PropPi (λ u₁ u₁' → PathOver-in (PathOver-= (lemma (eqR ru)) (PathOver-out (eq* ru uₛ uₛ' u₁ u₁')))))))  where
+//-elim-Tm {n = n} {C = C} proj* eq* = //-elim proj* (λ ru → PathOver-PropPi (λ uₛ uₛ' → PathOver-PropPi (λ u₁ u₁' → PathOver-in (PathOver-= (lemma (eqR ru)) (PathOver-out (eq* ru uₛ uₛ' u₁ u₁'))))))  where
   lemma : {u u' : MorS n (suc n)} (p : u ≡R u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _}
         → apR (uncurrifyTm C) (Σ= {b = uₛ , u₁} {b' = u'ₛ , u'₁} p) ≡R apR (uncurrify (λ a z → C (fst a) (snd a) z)) (Σ= {b = u₁} {b' = u'₁} (Σ= {b = uₛ} {b' = u'ₛ} p))
   lemma reflR = reflR
