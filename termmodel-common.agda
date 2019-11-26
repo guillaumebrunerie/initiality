@@ -30,13 +30,6 @@ record DMor (n m : ℕ) : Set where
 open DMor public
 
 
---hack
-postulate
-  ‗ : ∀ {l} {P : Prop l} → P
-
-kill : ∀ {l} {P : Prop l} → P → P
-kill p = ‗
-
 _,'_ : (Γ : Ctx n) → ⊢ Γ → DCtx n
 _,'_ Γ dΓ = Γ , kill dΓ
 

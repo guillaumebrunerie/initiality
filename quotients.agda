@@ -2,6 +2,13 @@
 
 open import common
 
+--hack
+postulate
+  ‗ : ∀ {l} {P : Prop l} → P
+
+kill : ∀ {l} {P : Prop l} → P → P
+kill p = ‗
+
 {- PathOver -}
 
 -- This is the proof-irrelevant PathOver, over a relevant equality. Using irrelevant equality for
@@ -40,19 +47,23 @@ module _ {A : Set} {R : EquivRel A} where
 
     {- Dependent elimination rule -}
 
-    //-elim : ∀ {l} {B : A // R → Set l} (proj* : (a : A) → B (proj a)) (eq* : {a b : A} (r : a ≃ b) → PathOver B (eqR r) (proj* a) (proj* b))
+    //-elim' : ∀ {l} {B : A // R → Set l} (proj* : (a : A) → B (proj a)) (eq* : {a b : A} (r : a ≃ b) → PathOver B (eqR r) (proj* a) (proj* b))
             → (x : A // R) → B x
 
     {- Reduction rule -}
 
     //-beta : ∀ {l} {B : A // R → Set l} {proj* : (a : A) → B (proj a)} {eq* : {a b : A} (r : a ≃ b) → PathOver B (eqR r) (proj* a) (proj* b)} {a : A}
-            → //-elim proj* eq* (proj a) ↦ proj* a
+            → //-elim' proj* eq* (proj a) ↦ proj* a
     {-# REWRITE //-beta #-}
     
   abstract
     eq : {a b : A} (r : a ≃ b) → proj a ≡ proj b
     eq r = squash≡ (eqR r)
 
+
+  //-elim : ∀ {l} {B : A // R → Set l} (proj* : (a : A) → B (proj a)) (eq* : {a b : A} (r : a ≃ b) → PathOver B (eqR r) (proj* a) (proj* b))
+            → (x : A // R) → B x
+  //-elim proj* eq* = //-elim' proj* (kill eq*)
 
 {- Lemmas about PathOver -}
 

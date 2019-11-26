@@ -11,8 +11,6 @@ open import termmodel-common
 open import termmodel-synccat
 open import termmodel-uuel
 
-open CCat hiding (Mor) renaming (id to idC)
-
 
 {- Id -}
 
@@ -98,11 +96,11 @@ CCatwithrefl.reflStr reflStrSynCCat = reflStrS
 CCatwithrefl.reflStrₛ reflStrSynCCat {Γ = Γ} {A = A} {a = a} = reflStrₛS Γ A _ a _ _
 CCatwithrefl.reflStr₁ reflStrSynCCat {Γ = Γ} {A = A} {a = a} = reflStr₁S Γ A _ a _ _
 CCatwithrefl.reflStrNat' reflStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ a aₛ a₁ g₁ → up-to-rhsTyEq (ap (_[_]Ty (id (getTy A) (getTm a) (getTm a))) (idMor[]Mor (mor g))))))))
- 
 
 module reflS = CCatwithrefl reflStrSynCCat
 
-{- JJ (TODO) -}
+
+{- JJ -}
 
 fixTyJJ : {A : TyExpr n} {P : TyExpr (suc (suc (suc n)))} → subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last)) ≡ (((P [ weakenMor+ (weakenMor+ (weakenMor+ (weakenMor (idMor n)))) ]Ty) [ weakenMor+ (weakenMor+ (idMor (suc n) , var last)) ]Ty) [ weakenMor+ (idMor (suc n) , var last) ]Ty) [ idMor (suc n) , refl (A [ weakenMor (idMor n) ]Ty) (var last) ]Ty
 fixTyJJ = ap-[]Ty weakenTy+++-to-[]Ty (Mor+= (Mor+= (Mor+= (Mor+= (! (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ idMor[]Mor _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor _)) refl) refl) refl) (ap-refl-Tm weakenTy-to-[]Ty refl)) ∙ ! ([]Ty-assoc _ _ _ ∙ []Ty-assoc _ _ _ )
@@ -197,27 +195,27 @@ abstract
              ⊢ ctx (rhs d) ==
                 (ctx A ,
                  ((((getTy' (ctx P) [
-                     ((weakenMor' last
-                       (weakenMor' last (weakenMor' last (weakenMor' last (idMor n))))
+                     ((weakenMor
+                       (weakenMor (weakenMor (weakenMor (idMor n))))
                        , var (prev (prev last)))
                       , var (prev last))
                      , var last
                      ]Ty)
                     [
-                    (((weakenMor' last (weakenMor' last (weakenMor' last (idMor n))) ,
+                    (((weakenMor (weakenMor (weakenMor (idMor n))) ,
                        var (prev (prev last)))
                       , var (prev (prev last)))
                      , var (prev last))
                     , var last
                     ]Ty)
                    [
-                   ((weakenMor' last (weakenMor' last (idMor n)) , var (prev last)) ,
+                   ((weakenMor (weakenMor (idMor n)) , var (prev last)) ,
                     var (prev last))
                    , var last
                    ]Ty)
                   [
-                  (weakenMor' last (idMor n) , var last) ,
-                  refl (getTy' (ctx A) [ weakenMor' last (idMor n) ]Ty) (var last)
+                  (weakenMor (idMor n) , var last) ,
+                  refl (getTy' (ctx A) [ weakenMor (idMor n) ]Ty) (var last)
                   ]Ty))
   reflectd₁ Γ A A= P P= d d₁ = reflectOb d₁
 
