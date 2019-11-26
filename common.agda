@@ -249,11 +249,6 @@ data _<_ : ℕ → ℕ → Prop where
  <-suc : n < m → n < suc m
 
 
-
-data Acc (n : ℕ) : Prop where
-  acc : ({k : ℕ} → (k < n) → Acc k) → Acc n
-
-
 suc-ref-< : suc k < suc n → k < n
 suc-ref-< {k} {suc k} <-refl = <-refl
 suc-ref-< {k} {zero} (<-suc ())
@@ -295,16 +290,6 @@ lastsig = (zero , suc-pos _)
 
 prevsig : (k : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
 prevsig (n , le) = (suc n , suc-pres-< le)
-
-
-WO-Nat : (n : ℕ) → Acc n
-WO-lemma : (n k : ℕ) → (k < n) → Acc k
-
-WO-Nat n = acc (λ e → WO-lemma n _ e)
-
-WO-lemma zero k ()
-WO-lemma (suc n) .n <-refl = WO-Nat n
-WO-lemma (suc n) k (<-suc e) = WO-lemma n k e
 
 {- Lemmas about addition -}
 

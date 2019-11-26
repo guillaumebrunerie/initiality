@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K --no-fast-reduce #-}
+{-# OPTIONS --rewriting --prop --without-K #-}
 
 open import common
 open import typetheory
