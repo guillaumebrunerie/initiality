@@ -13,9 +13,9 @@ open CCat hiding (Mor) renaming (id to idC)
 
 record DCtx (n : ℕ) : Set where
   no-eta-equality
-  constructor _,_
+  constructor dctx'
   field
-    ctx : Ctx n
+    {ctx} : Ctx n
     der : ⊢ ctx
 open DCtx public
 
@@ -23,19 +23,18 @@ record DMor (n m : ℕ) : Set where
   no-eta-equality
   constructor dmor'
   field
-    lhs : DCtx n
-    rhs : DCtx m
-    mor : Mor n m
+    lhs : DCtx n    
+    rhs : DCtx m    
+    {mor} : Mor n m
     morDer : ctx lhs ⊢ mor ∷> ctx rhs
 open DMor public
 
+dctx : {ctx : Ctx n} → ⊢ ctx → DCtx n
+dctx dΓ = dctx' (kill dΓ)
 
-_,'_ : (Γ : Ctx n) → ⊢ Γ → DCtx n
-_,'_ Γ dΓ = Γ , kill dΓ
-
-dmor : (Γ : DCtx n) (Δ : DCtx m) (δ : Mor n m) → ctx Γ ⊢ δ ∷> ctx Δ → DMor n m
-dmor Γ Δ δ dδ = dmor' (ctx Γ ,' der Γ) (ctx Δ ,' der Δ) δ (kill dδ)
-
+dmor : (lhs : DCtx n) (rhs : DCtx m) {mor : Mor n m} → ctx lhs ⊢ mor ∷> ctx rhs → DMor n m
+dmor lhs rhs morDer = dmor' (dctx (der lhs)) (dctx (der rhs)) (kill morDer)
+ 
 {-
 Defining _Ob≃_ as a datatype as follows rather than being equal to ⊢ ctx Γ == ctx Γ'
 allows us to have more arguments implicit.
@@ -52,7 +51,7 @@ unOb≃ (box x) = x
 
 
 data _Mor≃_ (δ δ' : DMor n m) : Prop where
-  box : ⊢ ctx (lhs δ) == ctx (lhs δ') → ⊢ ctx (rhs δ) == ctx (rhs δ') → ctx (lhs δ) ⊢ mor δ == mor δ' ∷> ctx (rhs δ) → δ Mor≃ δ'
+  box : ⊢ ctx (lhs δ) == ctx (lhs δ') → ⊢ ctx (rhs δ) == ctx (rhs δ') → ctx (lhs δ) ⊢ mor δ == mor δ' ∷> ctx (rhs δ) → δ Mor≃ δ'  
 
 unMor≃-lhs : {δ δ' : DMor n m} → δ Mor≃ δ' → ⊢ ctx (lhs δ) == ctx (lhs δ')
 unMor≃-lhs (box x _ _) = x
@@ -77,14 +76,15 @@ instance
   EquivRel.sym MorEquiv (box Γ= Δ= δ=) = box (CtxSymm Γ=) (CtxSymm Δ=) (ConvMorEq (MorSymm (CtxEqCtx1 Γ=) (CtxEqCtx1 Δ=) δ=) Γ= Δ=)
   EquivRel.tra MorEquiv (box Γ= Δ= δ=) (box Γ'= Δ'= δ'=) = box (CtxTran Γ= Γ'=) (CtxTran Δ= Δ'=) (MorTran (CtxEqCtx1 Γ=) (CtxEqCtx1 Δ=) δ= (ConvMorEq δ'= (CtxSymm Γ=) (CtxSymm Δ=)))
 
+
+DCtx= : {Γ Γ' : DCtx n} → ctx Γ ≡ ctx Γ' → proj {R = ObEquiv} Γ ≡ proj Γ'
+DCtx= {Γ = dctx' dΓ} {Γ' = dctx' dΓ'} refl = refl
+ 
+DMor= : {δ δ' : DMor m n} → ctx (lhs δ) ≡ ctx (lhs δ') → ctx (rhs δ) ≡ ctx (rhs δ') → mor δ ≡ mor δ' → proj {R = MorEquiv} δ ≡ proj δ'
+DMor= {δ = dmor' (dctx' dΓ) (dctx' dΔ) _} {δ' = dmor' (dctx' dΓ') (dctx' dΔ') _} refl refl refl = refl
+
 reflectOb : {Γ Γ' : DCtx n} → proj {R = ObEquiv} Γ ≡ proj Γ' → ⊢ ctx Γ == ctx Γ'
 reflectOb p = unOb≃ (reflect p)
-
-DCtx= : {Γ Γ' : Ctx n} {w₁ : _} {w₂ : _} → Γ ≡ Γ' → proj {R = ObEquiv} (Γ , w₁) ≡ proj (Γ' , w₂)
-DCtx= refl = refl
-
-DMor= : {Γ Γ' : Ctx m} {w₁ : _} {w₂ : _} {Δ Δ' : Ctx n} {w₃ : _} {w₄ : _} {δ δ' : Mor m n} {w₅ : _} {w₆ : _} → Γ ≡ Γ' → Δ ≡ Δ' → δ ≡ δ' → proj {R = MorEquiv} (dmor' (Γ , w₁) (Δ , w₃) δ w₅) ≡ proj (dmor' (Γ' , w₂) (Δ' , w₄) δ' w₆)
-DMor= refl refl refl = refl
 
 idMor+ : {Γ : Ctx n} {A : TyExpr n} {a : TmExpr n} → ⊢ Γ → Derivable (Γ ⊢ a :> A) → Γ ⊢ (idMor n , a) ∷> (Γ , A)
 idMor+ dΓ da = (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl da)
@@ -97,7 +97,7 @@ getCtx : (Γ : Ctx (suc n)) → Ctx n
 getCtx ((Γ , _)) = Γ
 
 getdCtx : (Γ : DCtx (suc n)) → ⊢ getCtx (ctx Γ)
-getdCtx ((_ , _) , (dΓ , _)) = dΓ
+getdCtx (dctx' {ctx = (_ , _)} (dΓ , _)) = dΓ
 
 getTy' : Ctx (suc n) → TyExpr n
 getTy' (Δ , B) = B
@@ -106,7 +106,7 @@ getTy : (X : DCtx (suc n)) → TyExpr n
 getTy Δ = getTy' (ctx Δ)
 
 getdTy : (Γ : DCtx (suc n)) → Derivable (getCtx (ctx Γ) ⊢ getTy Γ)
-getdTy ((_ , _) , (_ , dA)) = dA
+getdTy (dctx' {ctx = (_ , _)}(_ , dA)) = dA
 
 getTm : (u : DMor m (suc n)) → TmExpr m
 getTm u = getRHS (mor u)
@@ -114,37 +114,37 @@ getTm u = getRHS (mor u)
 getMor : (a : DMor m (suc n)) → Mor m n
 getMor a = getLHS (mor a)
 
-getdTm : (a : DMor m (suc n)) → Derivable (ctx (lhs a) ⊢ getTm a :> (getTy (rhs a) [ getMor a ]Ty))
-getdTm (dmor' _ ((_ , _) , _) (_ , _) (_ , da)) = da
+getdTm : (a : DMor m (suc n)) → Derivable (ctx (lhs a) ⊢ getTm a :> getTy (rhs a) [ getMor a ]Ty)
+getdTm (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (_ , da)) = da
 
-getdMor : (a : DMor m (suc n)) → ctx (lhs a) ⊢ getMor a ∷> getCtx (ctx (rhs a))
-getdMor (dmor' _ ((_ , _) , _) (_ , _) (dδ , _)) = dδ
+getdMor : (a : DMor m (suc n)) → ctx (lhs a) ⊢ getMor a ∷> (getCtx (ctx (rhs a)))
+getdMor (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (dδ , _)) = dδ
 
 
 
-CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (getCtx (ctx A) , getdCtx A) ≡ proj Γ) → ⊢ ctx Γ , getTy A == ctx A
-CtxTy=Ctx {Γ = Γ} A@((_ , _) , (_ , _)) A= = CtxSymm (reflectOb A=) ,, TyRefl (ConvTy (getdTy A) (reflectOb A=))
+CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx (getdCtx A)) ≡ proj Γ) → ⊢ ctx Γ , getTy A == ctx A
+CtxTy=Ctx {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (reflectOb A=) ,, TyRefl (ConvTy (getdTy A) (reflectOb A=))
 
-CtxTy=Ctx'' : {Γ : DCtx n} (A : DCtx (suc n)) (A= : (getCtx (ctx A) , getdCtx A) ≃ Γ) → ⊢ ctx Γ , getTy A == ctx A
-CtxTy=Ctx'' {Γ = Γ} A@((_ , _) , (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=)) 
+CtxTy=Ctx'' : {Γ : DCtx n} (A : DCtx (suc n)) (A= : (dctx (getdCtx A)) ≃ Γ) → ⊢ ctx Γ , getTy A == ctx A
+CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=)) 
 
 CtxTy=Ctx' : (Γ : DCtx (suc n)) → ⊢ (getCtx (ctx Γ) , getTy Γ) == ctx Γ
-CtxTy=Ctx' ((_ , _) , dΓ@(_ , _)) = CtxRefl dΓ
+CtxTy=Ctx' (dctx' {ctx = (_ , _)} dΓ) = CtxRefl dΓ
 
 Mor=LHSRHS : (δ : DMor m (suc n)) → ctx (lhs δ) ⊢ mor δ == getLHS (mor δ) , getRHS (mor δ) ∷> ctx (rhs δ)
-Mor=LHSRHS (dmor' _ ((_ , _) , (_ , _)) (_ , _) (dδ , du)) = MorRefl (dδ , du)
+Mor=LHSRHS (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (dδ , du)) = MorRefl (dδ , du)
 
 getCtx= : {Γ Γ' : Ctx (suc n)} (rΓ : ⊢ Γ == Γ') → ⊢ getCtx Γ == getCtx Γ'
 getCtx= {Γ = (Γ , A)} {(Γ' , A')} (dΓ= , _ , _ , _ , _) = dΓ=
 
 getTy= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') → Derivable (getCtx (ctx Γ)  ⊢ getTy Γ == getTy Γ')
-getTy= {Γ = (Γ , A) , (dΓ , A)} {(Γ' , A') , (dΓ' , dA')} (box (_ , _ , _ , dA= , _)) = dA=
+getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (_ , _ , _ , dA= , _)) = dA=
 
 dLHS : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ : Mor m (suc n)} → Γ ⊢ δ ∷> ctx Δ → Γ ⊢ getLHS δ ∷> getCtx (ctx Δ)
-dLHS {Δ = (Δ , B) , (dΔ , dB)} {δ = δ , u} (dδ , du) = dδ
+dLHS {Δ = dctx' {ctx = (_ , _)} (dΔ , dB)} {δ = δ , u} (dδ , du) = dδ
 
 getLHS= : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ δ == δ' ∷> ctx Δ → Γ ⊢ getLHS δ == getLHS δ' ∷> getCtx (ctx Δ)
-getLHS= {Δ = (Δ , B) , (dΔ , dB)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = dδ=
+getLHS= {Δ = dctx' {ctx = (_ , _)} (dΔ , dB)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = dδ=
 
 getRHS= : {Γ : Ctx m} {Δ : Ctx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ δ == δ' ∷> Δ → Derivable (Γ ⊢ getRHS δ == getRHS δ' :> (getTy' Δ [ getLHS δ ]Ty))
 getRHS= {Δ = (Δ , B)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = du=
