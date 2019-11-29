@@ -107,14 +107,14 @@ abstract
                      {a a' : A} {p : a ≡R a'} {u : (b : B) → C a b} {u' : (b : B) → C a' b}
                      → ((y : B) → PathOver (λ x → C x y) p (u y) (u' y))
                      → PathOver (λ x → ((y : B) → C x y)) p u u'
-  PathOver-CstPropPi {p = reflR} f = PathOver-refl-to (funextP (λ y → PathOver-refl-from (f y)))
+  PathOver-CstPropPi {C = C} {a = a} {p = reflR} f = PathOver-refl-to (funextP {B = C a}(λ y → PathOver-refl-from (f y))) 
   
   
   PathOver-PropPi : ∀ {l l' l''} {A : Set l} {B : A → Prop l'} {C : (a : A) → B a → Set l''}
                     {a a' : A} {p : a ≡R a'} {u : (b : B a) → C a b} {u' : (b' : B a') → C a' b'}
                     → ((y : B a) (y' : B a') → PathOver (uncurrify C) (Σ= {b = y} {b' = y'} p) (u y) (u' y'))
                     → PathOver (λ x → ((y : B x) → C x y)) p u u'
-  PathOver-PropPi {p = reflR} f = PathOver-refl-to (funextP (λ x → PathOver-refl-from (f x x)))
+  PathOver-PropPi {C = C} {a = a} {p = reflR} f = PathOver-refl-to (funextP {B = C a} (λ x → PathOver-refl-from (f x x)))
   
   PathOver-out : ∀ {l l'} {A : Set l} {B : A → Set l'} {a a' : A} {p : a ≡R a'} {u : B a} {u' : B a'}
                → PathOver B p u u' → PathOver (λ X → X) (apR B p) u u'
@@ -163,7 +163,7 @@ module _ {A : Set} {R : EquivRel A} where
   
   -- Dependent elimination in a dependent type of the form x.((y : B x) → C x y) with B a Prop
   //-elim-PiP3 : ∀ {l l'} {B : A // R → Prop l} {C : (x : A // R) → B x → Set l'} (proj* : (a : A) (b : B (proj a)) → C (proj a) b) (eq* : {a a' : A} (r : a ≃ a') (y : B (proj a)) (y' : B (proj a')) → PathOver (uncurrify C) (Σ= (eqR r)) (proj* a y) (proj* a' y')) → (x : A // R) → (y : B x) → C x y
-  //-elim-PiP3 proj* eq* = //-elim proj* (λ r → PathOver-PropPi (eq* r))
+  //-elim-PiP3 {C = C} proj* eq* = //-elim proj* (λ r → PathOver-PropPi {C = C} (eq* r))
   
 {- Effectiveness of quotients, this uses propositional extensionality -}
 

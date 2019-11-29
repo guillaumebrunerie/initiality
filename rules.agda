@@ -1269,9 +1269,9 @@ SubstMorFullEq {Θ = Θ , C} {θ , w} {θ' , w'} dΓ dΔ (dΘ , dC) (dθ= , dw=)
   (SubstMorFullEq dΓ dΔ dΘ dθ= dδ= , congTmEqTy ([]Ty-assoc _ _ _) (SubstTmFullEq (Conv (SubstTy dC (MorEqMor2 dΔ dΘ dθ=)) (TmEqTm2 dΔ (ConvEq (SubstTy dC (MorEqMor1 dΔ dΘ dθ=)) dw= (SubstTyMorEq dC (MorEqMor1 dΔ dΘ dθ=) dθ=))) (SubstTyMorEq dC (MorEqMor2 dΔ dΘ dθ=) (MorSymm dΔ dΘ dθ=))) (MorEqMor1 dΓ dΔ dδ=) dw= dδ=))
 
 
-SubstTyMorEq2 : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m}
+SubstTyFullEq' : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m}
               → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A == A') → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
-SubstTyMorEq2 dΓ dΔ dA= dδ= =
+SubstTyFullEq' dΓ dΔ dA= dδ= =
   let dδ = MorEqMor1 dΓ dΔ dδ=
       dA' = TyEqTy2 dΔ dA=
   in
@@ -1280,6 +1280,10 @@ SubstTyMorEq2 dΓ dΔ dA= dδ= =
 SubstTyMorEq' : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m}
               → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A) → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A [ δ' ]Ty)
 SubstTyMorEq' dΓ dΔ dA dδ= = SubstTyMorEq dA (MorEqMor1 dΓ dΔ dδ=) dδ=
+
+SubstTmMorEq' : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ u :> A)
+             → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u [ δ' ]Tm :> A [ δ ]Ty)
+SubstTmMorEq' dΓ dΔ dA dδ= = SubstTmMorEq dA (MorEqMor1 dΓ dΔ dδ=) dδ=
 
 
 WeakMor+Eq' : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A) → Γ ⊢ δ == δ' ∷> Δ → (Γ , A [ δ ]Ty) ⊢ weakenMor+ δ == weakenMor+ δ' ∷> (Δ , A)

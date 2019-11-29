@@ -761,3 +761,9 @@ weakenMor-to-[]Mor {δ = δ} = ap weakenMor (! ([idMor]Mor _)) ∙ weaken[]Mor �
 
 ap-[]Ty : {A A' : TyExpr n} {δ δ' : Mor m n} → A ≡ A' → δ ≡ δ' → A [ δ ]Ty ≡ A' [ δ' ]Ty
 ap-[]Ty refl refl = refl
+
+ap-[]Tm : {u u' : TmExpr n} {δ δ' : Mor m n} → u ≡ u' → δ ≡ δ' → u [ δ ]Tm ≡ u' [ δ' ]Tm
+ap-[]Tm refl refl = refl
+
+ap-[]Mor : {θ θ' : Mor n k} {δ δ' : Mor m n} → θ ≡ θ' → δ ≡ δ' → θ [ δ ]Mor ≡ θ' [ δ' ]Mor
+ap-[]Mor refl refl = refl
