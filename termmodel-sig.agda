@@ -16,7 +16,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Sig -}
 
 SigStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → DCtx (suc n)
-SigStrS-// Γ A A= B B= = (ctx Γ , sig (getTy A) (getTy B)) , (der Γ , Sig (dTy A A=) (dTy+ A= B B=))
+SigStrS-// Γ A A= B B= = dctx {ctx = _ , _} (der Γ , Sig (dTy A A=) (dTy+ A= B B=))
 
 SigStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _)
           → SigStrS-// Γ A A= B B= ≃ SigStrS-// Γ' A' A'= B' B'=
@@ -46,8 +46,8 @@ sigStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {a a' : DMor n (suc 
           → sigStrS-// i Γ a aₛ a₁ b bₛ b₁ ≃ sigStrS-// i Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
 sigStrS-eq i rΓ ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁ =
   dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong (SigUUCong (dTm refl _ aₛ a₁)
-                                               (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)
-                                               (dTm= (box ((unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)) ,, UUCong)) refl rb bₛ b'ₛ b₁ b'₁))
+                                               (dTm= refl ra aₛ a'ₛ a₁ a'₁)
+                                               (dTm= refl rb bₛ b'ₛ b₁ b'₁))
 
 
 sigStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁)) → MorS n (suc n)
@@ -82,7 +82,7 @@ pairStrS-// Γ A A= B B= a aₛ a₁ b bₛ b₁ = dmorTm Γ (sig (getTy A) (get
 pairStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : S.ft (proj A) ≡ proj Γ) (A'= : S.ft (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : S.ft (proj B) ≡ proj A) (B'= : S.ft (proj B') ≡ proj A') {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : S.is-section (proj a)) (a'ₛ : S.is-section (proj a')) (a₁ : S.∂₁ (proj a) ≡ proj A) (a'₁ : S.∂₁ (proj a') ≡ proj A') {b b' : DMor n (suc n)} (rb : b ≃ b') (bₛ : S.is-section (proj b)) (b'ₛ : S.is-section (proj b')) (b₁ : S.∂₁ (proj b) ≡ S.star (proj a) (proj B) B= a₁) (b'₁ : S.∂₁ (proj b') ≡ S.star (proj a') (proj B') B'= a'₁) → pairStrS-// Γ A A= B B= a aₛ a₁ b bₛ b₁ ≃ pairStrS-// Γ' A' A'= B' B'= a' a'ₛ a'₁ b' b'ₛ b'₁
 pairStrS-eq rΓ {A} {A'} rA A= A'= {B} {B'} rB B= B'= {a} {a'} ra aₛ a'ₛ a₁ a'₁ {b} {b'} rb bₛ b'ₛ b₁ b'₁ =
             dmorTm= dmorTmₛ dmorTmₛ rΓ (SigCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))
-                                       (PairCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= rA A= ra aₛ a'ₛ a₁ a'₁) (dTmSubst= A= rB B= B'= ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁))
+                                       (PairCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= A= ra aₛ a'ₛ a₁ a'₁) (dTmSubst= A= rB B= B'= ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁))
 
 pairStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ S.star a B B= a₁) → MorS n (suc n)
 pairStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → //-elim-Tm (λ a aₛ a₁ → //-elim-Tm (λ b bₛ b₁ → proj (pairStrS-// Γ A A= B B= a aₛ a₁ b bₛ b₁))
@@ -114,7 +114,7 @@ pr1StrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (getTy A) (dTy A A=) (pr1 (getTy
 
 pr1StrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : S.ft (proj A) ≡ proj Γ) (A'= : S.ft (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : S.ft (proj B) ≡ (proj A)) (B'= : S.ft (proj B') ≡ proj A') {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : ∂₁S (proj u) ≡ SigStrS (proj Γ) (proj A) A= (proj B) B=) (u'₁ : ∂₁S (proj u') ≡ SigStrS (proj Γ') (proj A') A'= (proj B') B'=) → pr1StrS-// Γ A A= B B= u uₛ u₁ ≃ pr1StrS-// Γ' A' A'= B' B'= u' u'ₛ u'₁
 pr1StrS-eq {Γ = Γ} {Γ'} rΓ {A} {A'} rA A= A'= {B} {B'} rB B= B'= {u} {u'} ru uₛ u'ₛ u₁ u'₁ =
-              dmorTm= dmorTmₛ dmorTmₛ rΓ  (dTy= rA A=) (Pr1Cong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= (box (unOb≃ rΓ ,, SigCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))) refl ru uₛ u'ₛ u₁ u'₁))
+              dmorTm= dmorTmₛ dmorTmₛ rΓ  (dTy= rA A=) (Pr1Cong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= refl ru uₛ u'ₛ u₁ u'₁))
 
 
 pr1StrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ SigStrS Γ A A= B B=) → MorS n (suc n)
@@ -149,8 +149,8 @@ pr2StrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (substTy (getTy B) (pr1 (getTy A
 
 pr2StrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : S.ft (proj A) ≡ proj Γ) (A'= : S.ft (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : S.ft (proj B) ≡ (proj A)) (B'= : S.ft (proj B') ≡ proj A') {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : ∂₁S (proj u) ≡ SigStrS (proj Γ) (proj A) A= (proj B) B=) (u'₁ : ∂₁S (proj u') ≡ SigStrS (proj Γ') (proj A') A'= (proj B') B'=) → pr2StrS-// Γ A A= B B= u uₛ u₁ ≃ pr2StrS-// Γ' A' A'= B' B'= u' u'ₛ u'₁
 pr2StrS-eq {Γ = Γ} {Γ'} rΓ {A} {A'} rA A= A'= {B} {B'} rB B= B'= {u} {u'} ru uₛ u'ₛ u₁ u'₁ =
-              dmorTm= dmorTmₛ dmorTmₛ rΓ  (SubstTyMorEq2 (der Γ) ((der Γ) , (dTy A A=)) (dTy+= A= rB B=) (idMor+= (der Γ) (Pr1Cong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= (box (unOb≃ rΓ ,, SigCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))) refl ru uₛ u'ₛ u₁ u'₁))))
-                                          (Pr2Cong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= (box (unOb≃ rΓ ,, SigCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))) refl ru uₛ u'ₛ u₁ u'₁))
+              dmorTm= dmorTmₛ dmorTmₛ rΓ  (SubstTyFullEq' (der Γ) ((der Γ) , (dTy A A=)) (dTy+= A= rB B=) (idMor+= (der Γ) (Pr1Cong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= refl ru uₛ u'ₛ u₁ u'₁))))
+                                          (Pr2Cong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= refl ru uₛ u'ₛ u₁ u'₁))
 
 
 pr2StrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ SigStrS Γ A A= B B=) → MorS n (suc n)

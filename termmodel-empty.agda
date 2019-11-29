@@ -16,7 +16,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Empty -}
 
 EmptyStrS-// : (Γ : DCtx n) → DCtx (suc n)
-EmptyStrS-// Γ = (ctx Γ , empty) , (der Γ , Empty)
+EmptyStrS-// Γ = dctx {ctx = _ , _} (der Γ , Empty)
 
 EmptyStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → EmptyStrS-// Γ ≃ EmptyStrS-// Γ'
 EmptyStrS-eq rΓ = box (unOb≃ rΓ ,, EmptyCong)
@@ -64,7 +64,11 @@ emptyelimStrS-// : (Γ : DCtx n) (A : DCtx (suc (suc n))) (A= : ftS (proj A) ≡
 emptyelimStrS-// Γ A A= u uₛ u₁ = dmorTm Γ (substTy (getTy A) (getTm u)) (SubstTy (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁))) (emptyelim (getTy A) (getTm u)) (Emptyelim (dTy A A=) (dTm refl u uₛ u₁))
 
 emptyelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc (suc n))} (rA : A ≃ A') (A= : ftS (proj A) ≡ EmptyStrS (proj Γ)) (A'= : ftS (proj A') ≡ EmptyStrS (proj Γ')) {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : S.∂₁ (proj u) ≡ EmptyStrS (proj Γ)) (u'₁ : S.∂₁ (proj u') ≡ EmptyStrS (proj Γ')) → emptyelimStrS-// Γ A A= u uₛ u₁ ≃ emptyelimStrS-// Γ' A' A'= u' u'ₛ u'₁
-emptyelimStrS-eq {Γ = Γ} {Γ'} rΓ {A} {A'} rA A= A'= ru uₛ u'ₛ u₁ u'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ (SubstTyMorEq2 (der Γ) (der Γ , Empty) (dTy= rA A=) (idMor+= (der Γ) (dTm= (box (unOb≃ rΓ ,, EmptyCong)) refl ru uₛ u'ₛ u₁ u'₁))) (EmptyelimCong (dTy= rA A=) (dTm= (box (unOb≃ rΓ ,, EmptyCong)) refl ru uₛ u'ₛ u₁ u'₁))
+emptyelimStrS-eq {Γ = Γ} {Γ'} rΓ {A} {A'} rA A= A'= ru uₛ u'ₛ u₁ u'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ
+                                                                               (SubstTyFullEq' (der Γ) (der Γ , Empty)
+                                                                                               (dTy= rA A=)
+                                                                                               (idMor+= (der Γ) (dTm= refl ru uₛ u'ₛ u₁ u'₁)))
+                                                                               (EmptyelimCong (dTy= rA A=) (dTm= refl ru uₛ u'ₛ u₁ u'₁))
 
 emptyelimStrS : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ EmptyStrS Γ) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ EmptyStrS Γ) → MorS n (suc n)
 emptyelimStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Tm (λ u uₛ u₁ → proj (emptyelimStrS-// Γ A A= u uₛ u₁))

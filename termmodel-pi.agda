@@ -17,7 +17,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Pi -}
 
 PiStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → DCtx (suc n)
-PiStrS-// Γ A A= B B= = (ctx Γ , pi (getTy A) (getTy B)) , (der Γ , Pi (dTy A A=) (dTy+ A= B B=))
+PiStrS-// Γ A A= B B= = dctx {ctx = _ , _} (der Γ , Pi (dTy A A=) (dTy+ A= B B=))
 
 PiStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _)
           → PiStrS-// Γ A A= B B= ≃ PiStrS-// Γ' A' A'= B' B'=
@@ -35,7 +35,7 @@ PiStr=S = //-elimP-Ctx (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → re
 PiStrSynCCat : CCatwithPi synCCat
 CCatwithPi.PiStr PiStrSynCCat = PiStrS 
 CCatwithPi.PiStr= PiStrSynCCat = PiStr=S _ _ _ _ _
-CCatwithPi.PiStrNat' PiStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= g₁ → refl)))))
+CCatwithPi.PiStrNat' PiStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= g₁ → up-to-CtxTyEq (reflectOb g₀) refl))))))
 
 
 {- pi -}
@@ -47,15 +47,15 @@ piStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {a a' : DMor n (suc n
           → piStrS-// i Γ a aₛ a₁ b bₛ b₁ ≃ piStrS-// i Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
 piStrS-eq i rΓ ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁ =
   dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong (PiUUCong (dTm refl _ aₛ a₁)
-                                              (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)
-                                              (dTm= (box ((unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, UUCong)) refl ra aₛ a'ₛ a₁ a'₁)) ,, UUCong)) refl rb bₛ b'ₛ b₁ b'₁))
+                                              (dTm= refl ra aₛ a'ₛ a₁ a'₁)
+                                              (dTm= refl rb bₛ b'ₛ b₁ b'₁))
 
 
 piStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁)) → MorS n (suc n)
-piStrS i = //-elim-Ctx (λ Γ → //-elim-Tm (λ a aₛ a₁ → //-elim-Tm (λ b bₛ b₁ → proj (piStrS-// i Γ a aₛ a₁ b bₛ b₁))
-                                                                 (λ rb bₛ b'ₛ b₁ b'₁ → proj= (piStrS-eq i (ref Γ) (ref a) aₛ aₛ a₁ a₁ rb bₛ b'ₛ b₁ b'₁)))
-                                         (λ ra aₛ a'ₛ a₁ a'₁ → //-elimP-Tm (λ b bₛ b₁ b₁' → proj= (piStrS-eq i (ref Γ) ra aₛ a'ₛ a₁ a'₁ (ref b) bₛ bₛ b₁ b₁'))))
-                       (λ rΓ → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → proj= (piStrS-eq i rΓ (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁'))))
+piStrS i = //-elim-Ctx (λ Γ → //-elim-Tm (λ a aₛ a₁ → //-elim-Tm (λ b bₛ b₁ → proj {R = MorEquiv} (piStrS-// i Γ a aₛ a₁ b bₛ b₁))
+                                                                 (λ rb bₛ b'ₛ b₁ b'₁ → proj= {R = MorEquiv} (piStrS-eq i (ref Γ) (ref a) aₛ aₛ a₁ a₁ rb bₛ b'ₛ b₁ b'₁)))
+                                         (λ ra aₛ a'ₛ a₁ a'₁ → //-elimP-Tm (λ b bₛ b₁ b₁' → proj= {R = MorEquiv} (piStrS-eq i (ref Γ) ra aₛ a'ₛ a₁ a'₁ (ref b) bₛ bₛ b₁ b₁'))))
+                       (λ rΓ → //-elimP-Tm (λ a aₛ a₁ a₁' → //-elimP-Tm (λ b bₛ b₁ b₁' → proj= {R = MorEquiv} (piStrS-eq i rΓ (ref a) aₛ aₛ a₁ a₁' (ref b) bₛ bₛ b₁ b₁'))))
 
 piStrₛS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁)) → S.is-section (piStrS i Γ a aₛ a₁ b bₛ b₁)
 piStrₛS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → dmorTmₛ)))
@@ -78,7 +78,7 @@ lamStrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (pi (getTy A) (getTy B)) (Pi (dT
 lamStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _) {u u' : DMor (suc n) (suc (suc n))} (ru : u ≃ u') (uₛ : _) (u'ₛ : _) (u₁ : _) (u'₁ : _) → lamStrS-// Γ A A= B B= u uₛ u₁ ≃ lamStrS-// Γ' A' A'= B' B'= u' u'ₛ u'₁
 lamStrS-eq rΓ {A = A} rA A= A'= rB B= B'= ru uₛ u'ₛ u₁ u'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ
                                                                      (PiCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))
-                                                                     (LamCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm+= A= rB B= ru uₛ u'ₛ u₁ u'₁))
+                                                                     (LamCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm+= A= B= ru uₛ u'ₛ u₁ u'₁))
 
 lamStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) (u : MorS (suc n) (suc (suc n))) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ B) → MorS n (suc n)
 lamStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → //-elim-Tm (λ u uₛ u₁ → proj (lamStrS-// Γ A A= B B= u uₛ u₁))
@@ -109,8 +109,8 @@ appStrS-// Γ A A= B B= f fₛ f₁ a aₛ a₁ = dmorTm Γ (substTy (getTy B) (
 appStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ proj Γ) (A'= : ftS (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : ftS (proj B) ≡ proj A) (B'= : ftS (proj B') ≡ proj A') {f f' : DMor n (suc n)} (rf : f ≃ f') (fₛ : S.is-section (proj f)) (f'ₛ : S.is-section (proj f')) (f₁ : ∂₁S (proj f) ≡ PiStrS (proj Γ) (proj A) A= (proj B) B=) (f₁' : ∂₁S (proj f') ≡ PiStrS (proj Γ') (proj A') A'= (proj B') B'=) {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : S.is-section (proj a)) (a'ₛ : S.is-section (proj a')) (a₁ : ∂₁S (proj a) ≡ proj A) (a'₁ : ∂₁S (proj a') ≡ proj A')
           → appStrS-// Γ A A= B B= f fₛ f₁ a aₛ a₁ ≃ appStrS-// Γ' A' A'= B' B'= f' f'ₛ f₁' a' a'ₛ a'₁
 appStrS-eq {Γ = Γ} rΓ {A} rA A= A'= {B} {B'} rB B= B'= rf fₛ f'ₛ f₁ f'₁ ra aₛ a'ₛ a₁ a'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ
-                                                                                                   (SubstTyMorEq2 (der Γ) (der Γ , dTy A A=) (dTy+= A= rB B=) (idMor+= (der Γ) (dTm= rA A= ra aₛ a'ₛ a₁ a'₁)))
-                                                                                                   (AppCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= (box (unOb≃ rΓ ,, PiCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))) refl rf fₛ f'ₛ f₁ f'₁) (dTm= rA A= ra aₛ a'ₛ a₁ a'₁))
+                                                                                                   (SubstTyFullEq' (der Γ) (der Γ , dTy A A=) (dTy+= A= rB B=) (idMor+= (der Γ) (dTm= A= ra aₛ a'ₛ a₁ a'₁)))
+                                                                                                   (AppCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=) (dTm= refl rf fₛ f'ₛ f₁ f'₁) (dTm= A= ra aₛ a'ₛ a₁ a'₁))
 
 
 appStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) (f : MorS n (suc n)) (fₛ : S.is-section f) (f₁ : ∂₁S f ≡ PiStrS Γ A A= B B=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A)
@@ -150,7 +150,7 @@ betaPiStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (
             → appStrS Γ A A= B B= (lamStrS Γ A A= B B= u uₛ u₁) (lamStrₛS Γ A A= B B= u uₛ u₁) (lamStr₁S Γ A A= B B= u uₛ u₁) a aₛ a₁ ≡ S.starTm a u (S.is-section₀ uₛ u₁ ∙ B=) a₁
 betaPiStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → eq (box
              (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)))
-             (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)) ,, SubstTyMorEq2 (der Γ) (der Γ , dTy A A=)
+             (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)) ,, SubstTyFullEq' (der Γ) (der Γ , dTy A A=)
                                                                                                   (dTy+= A= (sym (reflect u₁)) B=)
                                                                                                   (MorTran (der Γ) (der Γ , dTy A A=)
                                                                                                            (MorSymm (der Γ) (der Γ , (dTy A A=)) (morTm=idMorTm A= a aₛ a₁))

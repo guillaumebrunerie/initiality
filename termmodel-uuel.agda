@@ -15,7 +15,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- UU -}
 
 UUStrS-// : (i : ℕ) → DCtx n → DCtx (suc n)
-UUStrS-// i Γ = ((ctx Γ , uu i) ,' (der Γ , UU))
+UUStrS-// i Γ = dctx {ctx = _ , uu i}(der Γ , UU)
 
 UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → Γ ≃ Γ' → UUStrS-// i Γ ≃ UUStrS-// i Γ'
 UUStrS-eq dΓ= = box (unOb≃ dΓ= ,, UUCong)
@@ -35,10 +35,10 @@ CCatwithUU.UUStrNat' UUStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ 
 {- El -}
 
 ElStrS-// : (i : ℕ) (Γ : DCtx n) (v : DMor n (suc n)) (vₛ : S.is-section (proj v)) (v₁ : ∂₁S (proj v) ≡ UUStrS i (proj Γ)) → DCtx (suc n)
-ElStrS-// i Γ v vₛ v₁ = ((ctx Γ , el i (getTm v)) , (der Γ , El (dTm refl v vₛ v₁)))
+ElStrS-// i Γ v vₛ v₁ = dctx {ctx = _ , _}(der Γ , El (dTm refl v vₛ v₁))
 
 ElStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {v v' : DMor n (suc n)} (rv : v ≃ v') (vₛ : _) (v'ₛ : _) (v₁ : _) (v'₁ : _) → ElStrS-// i Γ v vₛ v₁ ≃ ElStrS-// i Γ' v' v'ₛ v'₁
-ElStrS-eq rΓ rv vₛ v'ₛ v₁ v'₁ = box (unOb≃ rΓ ,, ElCong (dTm= (box (unOb≃ rΓ ,, TyRefl UU)) refl rv vₛ v'ₛ v₁ v'₁))
+ElStrS-eq rΓ rv vₛ v'ₛ v₁ v'₁ = box (unOb≃ rΓ ,, ElCong (dTm= refl rv vₛ v'ₛ v₁ v'₁))
 
 ElStrS : (i : ℕ) (Γ : ObS n) (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ UUStrS i Γ) → ObS (suc n)
 ElStrS i = //-elim-Ctx (λ Γ → //-elim-Tm (λ v vₛ v₁ → proj (ElStrS-// i Γ v vₛ v₁))
@@ -51,7 +51,7 @@ ElStr=S i = //-elimP-Ctx (λ Γ → //-elimP (λ v vₛ v₁ → refl))
 ElStrSynCCat : CCatwithEl synCCat UUStrSynCCat
 CCatwithEl.ElStr ElStrSynCCat i Γ v vₛ v₁ = ElStrS i Γ v vₛ v₁
 CCatwithEl.ElStr= ElStrSynCCat = ElStr=S _ _ _ _ _
-CCatwithEl.ElStrNat' ElStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ → //-elimP (λ v vₛ v₁ g₁ → refl))))
+CCatwithEl.ElStrNat' ElStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → //-elimP (λ Γ → //-elimP (λ v vₛ v₁ g₁ → up-to-CtxTyEq (reflectOb g₀) refl))))
 
 
 {- uu -}
@@ -75,10 +75,11 @@ uuStrSynCCat : CCatwithuu synCCat UUStrSynCCat
 CCatwithuu.uuStr uuStrSynCCat = uuStrS
 CCatwithuu.uuStrₛ uuStrSynCCat {Γ = Γ} = uuStrₛS _ Γ
 CCatwithuu.uuStr₁ uuStrSynCCat {Γ = Γ} = uuStr₁S _ Γ
-CCatwithuu.uuStrNat' uuStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ Γ g₁ → refl)))
+CCatwithuu.uuStrNat' uuStrSynCCat = //-elimP (λ g → //-elimP(λ Δ g₀ → (//-elimP (λ Γ g₁ → up-to-rhsTyEq' (reflectOb g₀) refl))))
 
 
 {- ElUU= -}
 
 eluuStrS : (i : ℕ) (Γ : ObS n) → ElStrS (suc i) Γ (uuStrS i Γ) (uuStrₛS i Γ) (uuStr₁S i Γ) ≡ UUStrS i Γ
 eluuStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) ,, ElUU=)))
+
