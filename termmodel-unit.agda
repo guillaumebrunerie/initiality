@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common hiding (Unit)
 open import typetheory

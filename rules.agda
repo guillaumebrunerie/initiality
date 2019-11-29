@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common renaming (Unit to metaUnit)
 open import typetheory
@@ -22,7 +22,7 @@ data Derivable : Judgment → Prop where
   VarLast : {Γ : Ctx n} {A : TyExpr n}
     → Derivable (Γ ⊢ A)
     → Derivable ((Γ , A) ⊢ var last :> weakenTy A)
-  VarPrev : {Γ : Ctx n} {B : TyExpr n} {k : Fin n} {A : TyExpr n}
+  VarPrev : {Γ : Ctx n} {B : TyExpr n} {k : VarPos n} {A : TyExpr n}
     → Derivable (Γ ⊢ A)
     → Derivable (Γ ⊢ var k :> A)
     → Derivable ((Γ , B) ⊢ var (prev k) :> weakenTy A)
@@ -31,7 +31,7 @@ data Derivable : Judgment → Prop where
   VarLastCong : {Γ : Ctx n} {A : TyExpr n}
     → Derivable (Γ ⊢ A)
     → Derivable ((Γ , A) ⊢ var last == var last :> weakenTy A)
-  VarPrevCong : {Γ : Ctx n} {B : TyExpr n} {k k' : Fin n} {A : TyExpr n}
+  VarPrevCong : {Γ : Ctx n} {B : TyExpr n} {k k' : VarPos n} {A : TyExpr n}
     → Derivable (Γ ⊢ A)
     → Derivable (Γ ⊢ var k == var k' :> A)
     → Derivable ((Γ , B) ⊢ var (prev k) == var (prev k') :> weakenTy A)
@@ -431,13 +431,13 @@ SubstTyMorEq : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → D
 SubstTmMorEq : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u :> A) → (Γ ⊢ δ ∷> Δ) 
        → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u [ δ' ]Tm :> A [ δ ]Ty)
 
-WeakTy : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {A : TyExpr n}
+WeakTy : {k : WeakPos n} {Γ : Ctx n} {T : TyExpr (n -WeakPos k)} {A : TyExpr n}
      → Derivable (Γ ⊢ A) → Derivable (weakenCtx k Γ T ⊢ weakenTy' k A)
-WeakTm : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {u : TmExpr n} {A : TyExpr n}
+WeakTm : {k : WeakPos n} {Γ : Ctx n} {T : TyExpr (n -WeakPos k)} {u : TmExpr n} {A : TyExpr n}
      → Derivable (Γ ⊢ u :> A) → Derivable (weakenCtx k Γ T ⊢ weakenTm' k u :> weakenTy' k A)
-WeakTyEq : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {A A' : TyExpr n}
+WeakTyEq : {k : WeakPos n} {Γ : Ctx n} {T : TyExpr (n -WeakPos k)} {A A' : TyExpr n}
      → Derivable (Γ ⊢ A == A') → Derivable (weakenCtx k Γ T ⊢ weakenTy' k A == weakenTy' k A')
-WeakTmEq : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {u u' : TmExpr n} {A : TyExpr n}
+WeakTmEq : {k : WeakPos n} {Γ : Ctx n} {T : TyExpr (n -WeakPos k)} {u u' : TmExpr n} {A : TyExpr n}
      → Derivable (Γ ⊢ u == u' :> A) → Derivable (weakenCtx k Γ T ⊢ weakenTm' k u == weakenTm' k u' :> weakenTy' k A)
 
 WeakMor : {Γ : Ctx n} {Δ : Ctx m} {T : TyExpr n} {δ : Mor n m} → Γ ⊢ δ ∷> Δ → (Γ , T) ⊢ weakenMor δ ∷> Δ
@@ -800,7 +800,7 @@ WeakTmEq (BetaIdRefl {d = d} dA dP dd da) =
                         (congTmTy (weakenTy-subst3Ty ∙ ap-subst3Ty weakenTy-weakenTy3 refl refl (ap-refl-Tm weakenTy-weakenTy refl)) (WeakTm dd))
                         (WeakTm da))
 WeakTmEq (EtaPi {f = f} dA dB df) =
-  congTmEq! refl (ap-lam-Tm refl refl (ap-app-Tm weakenTy-weakenTy weakenTy-weakenTy1 (! (weakenTmCommutes _ f)) refl)) refl
+  congTmEq! refl (ap-lam-Tm refl refl (ap-app-Tm weakenTy-weakenTy weakenTy-weakenTy1 (! (weakenTmCommutes0 _ f)) refl)) refl
             (EtaPi (WeakTy dA)
                    (WeakTy dB)
                    (WeakTm df))

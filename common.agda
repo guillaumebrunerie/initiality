@@ -1,40 +1,17 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
- 
+{-# OPTIONS --rewriting --prop #-}
+
 open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
 
-{- Relevant equality (used only in a few places, when we need to transport along it) -}
-
-data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
-  reflR : a ≡R a
-
-_R∙_ : ∀ {l} {A : Set l} {a b c : A} →  a ≡R b → b ≡R c → a ≡R c
-_R∙_ reflR reflR = reflR
-
-infixr 4 _R∙_
-
-!R : {A : Set} {a a' : A} → a ≡R a' → a' ≡R a
-!R reflR = reflR
-
-apR : ∀ {l l'} {A : Set l} {B : Set l'} (f : A → B) {a a' : A} → a ≡R a' → f a ≡R f a'
-apR f reflR = reflR
-
-
-transportR : {B : ℕ → Set} {n n' : ℕ} (b : B n) → n ≡R n' → B n'
-transportR b reflR = b
-
-transportR-apR : {B : ℕ → Set} {n n' : ℕ} (b : B (suc n)) → (p : n ≡R n') → transportR {B = B} b (apR suc p) ≡R transportR b p 
-transportR-apR b reflR = reflR
-
-
-
 {- Rewriting -}
 
 abstract
   _↦_ : ∀ {l} {A : Set l} → A → A → Set l
-  a ↦ b = a ≡R b
+  a ↦ b = Id a b where
+    data Id (a : _) : _ → Set _ where
+      refl : Id a a
 {-# BUILTIN REWRITE _↦_ #-}
 
 
@@ -77,24 +54,6 @@ record Unit : Prop where
   constructor tt
 
 
-data UnitR : Set where
-  starU : UnitR
-
-UnitR-contr : (a : UnitR) → starU ≡R a
-UnitR-contr starU = reflR
-
-data EmptyR : Set where
-  
-
-characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → _≡R_ {A = ΣSS ℕ B} (n , b) (n' , b') → ΣSS (n ≡R n') (λ p → transportR {B = B} b p ≡R b')
-characΣSS= reflR = (reflR , reflR)
-
-
-ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' → _≡R_ {A = ΣSS ℕ B} (n , b) (n , b')
-ΣSS= reflR = reflR
-
-
-
 {- Prop-valued equality -}
 
 data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
@@ -106,10 +65,10 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
 infix 4 _≡_
 
 
-Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → _≡R_ {A = ΣS _ _} (a , b) (a' , b')
-Σ= reflR = reflR
+Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡ a' → _≡_ {A = ΣS _ _} (a , b) (a' , b')
+Σ= refl = refl
 
-ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
+ap : ∀ {l l'} {A : Set l} {B : Set l'} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
 
 ap2 : {A B C : Set} (f : A → B → C) {a a' : A} {b b' : B} → a ≡ a' → b ≡ b' → f a b ≡ f a' b'
@@ -132,9 +91,6 @@ infixr 4 _∙_
 ! : {A : Set} {a b : A} → a ≡ b → b ≡ a
 ! refl = refl
 
-squash≡ : {A : Set} {a b : A} → a ≡R b → a ≡ b
-squash≡ reflR = refl
-
 {- Lifting from Prop to Set -}
 
 record Box {l} (P : Prop l) : Set l where
@@ -143,35 +99,56 @@ record Box {l} (P : Prop l) : Set l where
     unbox : P
 open Box public
 
+{- Generalized variables -}
 
-{- Finite sets -}
+variable
+  {n n' m k l} : ℕ
 
-{- General remarks about the use of Fin
-There are two different use cases for finite numbers:
-- to specify a certain variable of a context
-- to specify a spot where we want to weaken in a context
-Assuming the context is of length [n], in the first case we will use [Fin n]
-(as there are n possible variables), but in the second case we will use
-[Fin (suc n)] (as there are n+1 possible places where we could weaken)
-In the second case we use [n -F' k] to compute the length of the prefix
-before the spot where we want to weaken, and in the first case we use [n -F k]
-to compute the length of the prefix including the variable.
-Given a variable at [k], then [prev k] is the spot weakening before that variable.
+{- Finite sets
+
+There are two different use cases for finite sets:
+- to specify a certain variable in a context of length [n] ([n] many choices)
+- to specify where we want to weaken a context of length [n] ([suc n] many choices)
+Instead of using [Fin n] and [Fin (suc n)], we define two different datatypes so that we
+don’t mix them up.
 -}
 
+data VarPos : ℕ → Set where
+  last : VarPos (suc n)
+  prev : VarPos n → VarPos (suc n)
 
-data Fin : ℕ → Set where
-  last : {n : ℕ} → Fin (suc n)
-  prev : {n : ℕ} → Fin n → Fin (suc n)
+-- Size of the context before (and including) that variable
+_-VarPos_ : (n : ℕ) → VarPos n → ℕ
+n -VarPos k = suc (n -VarPos' k) where
 
-_-F'_ : (n : ℕ) (k : Fin (suc n)) → ℕ
-n -F' last = n
-suc n -F' prev k = n -F' k
-
-_-F_ : (n : ℕ) (k : Fin n) → ℕ
-n -F k = suc (n -F' prev k)
+  -- Size of the context before (and excluding) that variable
+  _-VarPos'_ : (n : ℕ) → VarPos n → ℕ
+  (suc m) -VarPos' last = m
+  (suc m) -VarPos' prev k = m -VarPos' k
 
 
+data WeakPos : ℕ → Set where
+  last : WeakPos n
+  prev : WeakPos n → WeakPos (suc n)
+
+-- Size of the context before that position
+_-WeakPos_ : (n : ℕ) → WeakPos n → ℕ
+n -WeakPos last = n
+suc n -WeakPos prev k = n -WeakPos k
+
+data _≤WP_ : WeakPos n → WeakPos n → Prop where
+  last≤ : {k : WeakPos n} → k ≤WP last
+  prev≤ : {k k' : WeakPos n} → k ≤WP k' → prev k ≤WP prev k'
+
+-- Every position of length [n] is a position of length [suc n]
+injWeakPos : {n : ℕ} → WeakPos n → WeakPos (suc n)
+injWeakPos last = last
+injWeakPos (prev k) = prev (injWeakPos k)
+
+-- Position of the new variable in the weakened context
+WeakPosToVarPos : {n : ℕ} → WeakPos n → VarPos (suc n)
+WeakPosToVarPos last = last
+WeakPosToVarPos (prev k) = prev (WeakPosToVarPos k)
 
 {- Monads -}
 
@@ -235,166 +212,3 @@ postulate
 
   -- Propositional extensionality
   prop-ext : {A B : Prop} (f : A → B) (g : B → A) → A ≡ B
-
-
-{- Generalized variables -}
-
-variable
-  {n n' m k l} : ℕ
-
-{- Well-founded induction on ℕ and connection to Fin -}
-
-data _<_ : ℕ → ℕ → Prop where
- <-refl : n < suc n
- <-suc : n < m → n < suc m
-
-
-suc-ref-< : suc k < suc n → k < n
-suc-ref-< {k} {suc k} <-refl = <-refl
-suc-ref-< {k} {zero} (<-suc ())
-suc-ref-< {k} {suc n} (<-suc le) = <-suc (suc-ref-< le)
-
-suc-pres-< : k < n → suc k < suc n
-suc-pres-< {k} {suc k} <-refl = <-refl
-suc-pres-< {k} {suc n} (<-suc le) = <-suc (suc-pres-< le)
-
-
-<-= : k < m → m ≡R n → k < n
-<-= le reflR = le
-
-
-<-+ : (m : ℕ) → m + n ≡ k → n < suc k
-<-+ zero refl = <-refl
-<-+ (suc m) refl = <-suc (<-+ m refl)
-
-<-pos : (n m : ℕ) → 0 < m → n < (m + n)
-<-pos n zero ()
-<-pos n (suc m) e = <-+ m refl
-
-suc-pos : (n : ℕ) → 0 < suc n
-suc-pos zero = <-refl
-suc-pos (suc n) = <-suc (suc-pos n)
-
-Bounded-Fin : (k : ΣS ℕ (λ k → k < n)) → Fin n
-Bounded-Fin {n = zero} (k , ())
-Bounded-Fin {suc n} (zero , le) = last
-Bounded-Fin {suc n} (suc k , le) = prev (Bounded-Fin (k , suc-ref-< le)) 
-
-Fin-Bounded : Fin n → ΣS ℕ (λ k → k < n)
-Fin-Bounded last = 0 , suc-pos _
-Fin-Bounded (prev k) = (suc (fst (Fin-Bounded k)) , suc-pres-< (snd (Fin-Bounded k)))
-
-
-lastsig : ΣS ℕ (λ k → k < suc n)
-lastsig = (zero , suc-pos _)
-
-prevsig : (k : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
-prevsig (n , le) = (suc n , suc-pres-< le)
-
-{- Lemmas about addition -}
-
-+-zero : (n : ℕ) → n ≡ n + zero
-+-zero zero = refl
-+-zero (suc n) = ap suc (+-zero n)
-
-+-suc : (n m : ℕ) → suc (n + m) ≡ n + suc m
-+-suc zero m = refl
-+-suc (suc n) m = ap suc (+-suc n m)
-
-+-comm : (n m : ℕ) → n + m ≡ m + n
-+-comm zero m = +-zero m
-+-comm (suc n) m = ap suc (+-comm n m) ∙ +-suc m n
-
-+-assoc : (n m k : ℕ) → n + m + k ≡ n + (m + k)
-+-assoc zero m k = refl
-+-assoc (suc n) m k = ap suc (+-assoc n m k)
-
-{- Equational reasoning -}
-
-infix  2 _∎
-infixr 2 _≡⟨_⟩_
-
-_≡⟨_⟩_ : {A : Set} (x : A) {y z : A} → x ≡ y → y ≡ z → x ≡ z
-_ ≡⟨ p1 ⟩ p2 = p1 ∙ p2
-
-_∎ : ∀ {i} {A : Set i} (x : A) → x ≡ x
-_∎ _ = refl
-
-
-{- Some results about natural numbers using ≡R -}
-
-n+0 : (n : ℕ) → n ≡R (n + zero)
-n+0 0 = reflR
-n+0 (suc n) = apR suc (n+0 n)
-
-n+suc : (n m : ℕ) → suc (n + m) ≡R (n + suc m)
-n+suc 0 m = reflR
-n+suc (suc n) m = apR suc (n+suc n m)
-
-+-commR : (n m : ℕ) → (n + m) ≡R (m + n)
-+-commR zero m = n+0 m
-+-commR (suc n) m = apR suc (+-commR n m) R∙ n+suc m n
-
-suc-inj : _≡R_ {A = ℕ} (suc m) (suc n) → m ≡R n
-suc-inj reflR = reflR
-
-suc^ : (m : ℕ) → ℕ → ℕ
-suc^ zero n = n
-suc^ (suc m) n = suc (suc^ m n)
-
-suc^+ : suc^ m (suc n) ≡R suc (n + m)
-suc^+ {zero} {n} = apR suc (n+0 n)
-suc^+ {suc m} {n} = apR suc (suc^+ R∙ n+suc _ _)
-
-suc^-pres-< : k < n → suc^ m k < suc^ m n
-suc^-pres-< {k} {n} {zero} le = le
-suc^-pres-< {k} {n} {suc m} le = suc-pres-< (suc^-pres-< le)
-
-prev^sig : (m : ℕ) → (k : ΣS ℕ (λ k → k < suc n)) → ΣS ℕ (λ k → k < suc (n + m))
-prev^sig {n = n} m (k , le) = (suc^ m k , <-= (suc^-pres-< le) suc^+)
-
--- standaard code-decode proof that nat is a set
-code : ℕ → ℕ → Set
-code zero zero = UnitR
-code zero (suc n) = EmptyR
-code (suc m) zero = EmptyR
-code (suc m) (suc n) = code m n
-
-code-is-prop : (m n : ℕ) → (p q : code m n) → p ≡R q
-code-is-prop zero zero starU starU = reflR
-code-is-prop zero (suc n) () ()
-code-is-prop (suc m) zero () ()
-code-is-prop (suc m) (suc n) p q = code-is-prop m n p q
-
-r : (n : ℕ) → code n n
-r zero = starU
-r (suc n) = r n
-
-encode : (m n : ℕ) → m ≡R n → code m n
-encode m n p = transportR {B = code m} (r m) p
-
-decode : (m n : ℕ) → code m n → m ≡R n
-decode zero zero c = reflR
-decode zero (suc n) ()
-decode (suc m) zero () 
-decode (suc m) (suc n) c = apR suc (decode m n c)
-
-decode-encode : (m n : ℕ) → (p : m ≡R n) → decode m n (encode m n p) ≡R p
-decode-encode zero zero reflR = reflR
-decode-encode (suc m) (suc m) reflR = apR (apR suc) (decode-encode m m reflR)
-
-encode-decode : (m n : ℕ) → (c : code m n) → encode m n (decode m n c) ≡R c
-encode-decode zero zero c = UnitR-contr c
-encode-decode zero (suc n) () 
-encode-decode (suc m) zero ()
-encode-decode (suc m) (suc n) c = transportR-apR (r m) (decode m n c) R∙ encode-decode m n c
-
-nat-is-set : (m n : ℕ) → (p q : m ≡R n) → p ≡R q
-nat-is-set m n p q = !R (decode-encode m n p) R∙ apR (decode m n) (code-is-prop m n (encode m n p) (encode m n q)) R∙ decode-encode m n q
-
-axiomK-nat : (n : ℕ) (p : n ≡R n) → p ≡R reflR
-axiomK-nat n p = nat-is-set n n p reflR
-
---This allows one to proof the following about sigma types where the first component is n:ℕ
-sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → _≡R_ {A = ΣSS ℕ B} (n , b) (n , b') → b ≡R b'
-sndΣSSℕR {B = B} {n} {b} {b'} p = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 

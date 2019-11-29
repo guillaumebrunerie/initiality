@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common
 open import typetheory
@@ -39,22 +39,22 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
 
 {- Interpretation of weakening -}
 
-⟦weakenTy⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} (A : TyExpr n)
+⟦weakenTy⟧ᵈ' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} (A : TyExpr n)
              → isDefined (⟦ A ⟧Ty X)
              → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc n)} (Z= : star^ k X+ X X+= X= ≡ Z)
              → isDefined (⟦ weakenTy' k A ⟧Ty Z)
 
-⟦weakenTm⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} (u : TmExpr n)
+⟦weakenTm⟧ᵈ' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} (u : TmExpr n)
              → isDefined (⟦ u ⟧Tm X)
              → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc n)} (Z= : star^ k X+ X X+= X= ≡ Z)
              → isDefined (⟦ weakenTm' k u ⟧Tm Z)
 
-⟦weakenTy⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} (A : TyExpr n)
+⟦weakenTy⟧=' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} (A : TyExpr n)
              → (Aᵈ : isDefined (⟦ A ⟧Ty X))
              → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc n)} (Z= : star^ k X+ X X+= X= ≡ Z)
              → star (qq^ k X+= X=) (⟦ A ⟧Ty X $ Aᵈ) (⟦⟧Ty-ft A) qq^₁ ≡ ⟦ weakenTy' k A ⟧Ty Z $ ⟦weakenTy⟧ᵈ' k A Aᵈ X+= X= Z=
 
-⟦weakenTm⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} (u : TmExpr n)
+⟦weakenTm⟧=' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} (u : TmExpr n)
              → (uᵈ : isDefined (⟦ u ⟧Tm X))
              → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc n)} (Z= : star^ k X+ X X+= X= ≡ Z)
              → starTm (qq^ k X+= X=) (⟦ u ⟧Tm X $ uᵈ) (⟦⟧Tm₀ u) qq^₁ ≡ ⟦ weakenTm' k u ⟧Tm Z $ ⟦weakenTm⟧ᵈ' k u uᵈ X+= X= Z=
@@ -93,7 +93,7 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
 
 {- Type of a weakening -}
 
-⟦weakenTm⟧₁' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} (u : TmExpr n)
+⟦weakenTm⟧₁' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} (u : TmExpr n)
              → (uᵈ : isDefined (⟦ u ⟧Tm X))
              → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Y : Ob (suc n)} (Y= : star^ k X+ X X+= X= ≡ Y)
              → {Z : Ob (suc n)} (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Z)
@@ -135,31 +135,31 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
 
 {- Weakening at [prev k] -}
 
-⟦weakenTy+⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -F' k)} (A : TyExpr (suc n))
+⟦weakenTy+⟧ᵈ' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -WeakPos k)} (A : TyExpr (suc n))
               → (Aᵈ : isDefined (⟦ A ⟧Ty X'))
               → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc (suc n))} (X'= : ft X' ≡ X) (Y= : star (qq^ k X+= X=) X' X'= qq^₁ ≡ Z)
               → isDefined (⟦ weakenTy' (prev k) A ⟧Ty Z)
 ⟦weakenTy+⟧ᵈ' k A Aᵈ X+= X= refl Y= = ⟦weakenTy⟧ᵈ' (prev k) A Aᵈ X+= X= Y=
 
-⟦weakenTm+⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -F' k)} (u : TmExpr (suc n))
+⟦weakenTm+⟧ᵈ' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -WeakPos k)} (u : TmExpr (suc n))
               → (uᵈ : isDefined (⟦ u ⟧Tm X'))
               → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (qq^ k X+= X=) X' p qq^₁ ≡ Z)
               → isDefined (⟦ weakenTm' (prev k) u ⟧Tm Z)
 ⟦weakenTm+⟧ᵈ' k u uᵈ X+= X= refl Y= = ⟦weakenTm⟧ᵈ' (prev k) u uᵈ X+= X= Y=
 
-⟦weakenTy+⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -F' k)} (A : TyExpr (suc n))
+⟦weakenTy+⟧=' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -WeakPos k)} (A : TyExpr (suc n))
               → (Aᵈ : isDefined (⟦ A ⟧Ty X'))
               → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (qq^ k X+= X=) X' p qq^₁ ≡ Z)
               → star+ (qq^ k X+= X=) (⟦ A ⟧Ty X' $ Aᵈ) (⟦⟧Ty-ft A) p qq^₁ ≡ ⟦ weakenTy' (prev k) A ⟧Ty Z $ ⟦weakenTy+⟧ᵈ' k A Aᵈ X+= X= p Y=
 ⟦weakenTy+⟧=' k A Aᵈ X+= X= refl Y= = ap-irr-star (! qq^prev) refl ∙ ⟦weakenTy⟧=' (prev k) A Aᵈ X+= X= Y=
 
-⟦weakenTm+⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -F' k)} (u : TmExpr (suc n))
+⟦weakenTm+⟧=' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X' : Ob (suc n)} {X : Ob n} {Y : Ob (n -WeakPos k)} (u : TmExpr (suc n))
               → (uᵈ : isDefined (⟦ u ⟧Tm X'))
               → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc (suc n))} (p : ft X' ≡ X) (Y= : star (qq^ k X+= X=) X' p qq^₁ ≡ Z)
               → starTm+ (qq^ k X+= X=) p (⟦ u ⟧Tm X' $ uᵈ) (⟦⟧Tm₀ u) qq^₁ ≡ ⟦ weakenTm' (prev k) u ⟧Tm Z $ ⟦weakenTm+⟧ᵈ' k u uᵈ X+= X= p Y=
 ⟦weakenTm+⟧=' k u uᵈ X+= X= refl Y= = ap ss (ap-irr-comp refl (! qq^prev)) ∙ ⟦weakenTm⟧=' (prev k) u uᵈ X+= X= Y=
 
-⟦weakenTm+⟧₁' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob (suc (suc n))} {X' : Ob (suc n)} {X'' : Ob n} {Y : Ob (n -F' k)} (u : TmExpr (suc n))
+⟦weakenTm+⟧₁' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob (suc (suc n))} {X' : Ob (suc n)} {X'' : Ob n} {Y : Ob (n -WeakPos k)} (u : TmExpr (suc n))
               → (uᵈ : isDefined (⟦ u ⟧Tm X'))
               → (X+= : ft X+ ≡ Y) (X''= : ft^ k X'' ≡ Y) {Z : Ob (suc (suc n))}
               → (X= : ft X ≡ X')
@@ -171,19 +171,19 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
 
 {- Weakening at [prev (prev k)] -}
 
-⟦weakenTm++⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {X : Ob (suc (suc n))} {X' : Ob (suc n)} {X'' : Ob n} (u : TmExpr (suc (suc n)))
+⟦weakenTm++⟧ᵈ' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {X : Ob (suc (suc n))} {X' : Ob (suc n)} {X'' : Ob n} (u : TmExpr (suc (suc n)))
                → (uᵈ : isDefined (⟦ u ⟧Tm X))
                → (X+= : ft X+ ≡ Y) (X''= : ft^ k X'' ≡ Y) {Z : Ob (suc (suc (suc n)))} (X= : ft X ≡ X') (X'= : ft X' ≡ X'') (Y= : star+ (qq^ k X+= X''=) X X= X'= qq^₁ ≡ Z)
                → isDefined (⟦ weakenTm' (prev (prev k)) u ⟧Tm Z)
 ⟦weakenTm++⟧ᵈ' k u uᵈ X+= X''= refl refl Y= = ⟦weakenTm+⟧ᵈ' (prev k) u uᵈ X+= X''= refl (ap-irr-star qq^prev refl ∙ Y=)
 
-⟦weakenTm++⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {X : Ob (suc (suc n))} {X' : Ob (suc n)} {X'' : Ob n} (u : TmExpr (suc (suc n)))
+⟦weakenTm++⟧=' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {X : Ob (suc (suc n))} {X' : Ob (suc n)} {X'' : Ob n} (u : TmExpr (suc (suc n)))
                → (uᵈ : isDefined (⟦ u ⟧Tm X))
                → (X+= : ft X+ ≡ Y) (X''= : ft^ k X'' ≡ Y) {Z : Ob (suc (suc (suc n)))} (X= : ft X ≡ X') (X'= : ft X' ≡ X'') (Y= : star+ (qq^ k X+= X''=) X X= X'= qq^₁ ≡ Z)
                → starTm++ (qq^ k X+= X''=) X= X'= (⟦ u ⟧Tm X $ uᵈ) (⟦⟧Tm₀ u) qq^₁ ≡ ⟦ weakenTm' (prev (prev k)) u ⟧Tm Z $ ⟦weakenTm++⟧ᵈ' k u uᵈ X+= X''= X= X'= Y=
 ⟦weakenTm++⟧=' k u uᵈ X+= X''= refl refl Y= = ap ss (ap-irr-comp refl (ap-irr-qq (! qq^prev) refl)) ∙ ⟦weakenTm+⟧=' (prev k) u uᵈ X+= X''= refl (ap-irr-star qq^prev refl ∙ Y=)
 
-⟦weakenTm++⟧₁' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {X : Ob (suc (suc (suc n))) } {X' : Ob (suc (suc n))} {X'' : Ob (suc n)} {X''' : Ob n} (u : TmExpr (suc (suc n)))
+⟦weakenTm++⟧₁' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {X : Ob (suc (suc (suc n))) } {X' : Ob (suc (suc n))} {X'' : Ob (suc n)} {X''' : Ob n} (u : TmExpr (suc (suc n)))
                → (uᵈ : isDefined (⟦ u ⟧Tm X'))
                → (X+= : ft X+ ≡ Y) (X'''= : ft^ k X''' ≡ Y) {Z : Ob (suc (suc (suc n)))}
                → (X= : ft X ≡ X') (X'= : ft X' ≡ X'') (X''= : ft X'' ≡ X''')
@@ -194,13 +194,13 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
 
 {- Weakening at [prev (prev (prev k))] -}
 
-⟦weakenTy+++⟧ᵈ' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {X''' : Ob (suc (suc (suc n)))} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc (suc n))))
+⟦weakenTy+++⟧ᵈ' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {X''' : Ob (suc (suc (suc n)))} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc (suc n))))
                 → (Aᵈ : isDefined (⟦ A ⟧Ty X'''))
                 → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc (suc (suc (suc n))))} (X'''= : ft X''' ≡ X'') (X''= : ft X'' ≡ X') (X'= : ft X' ≡ X) (Z= : star++ (qq^ k X+= X=)  X''' X'''= X''= X'= qq^₁ ≡ Z)
                → isDefined (⟦ weakenTy' (prev (prev (prev k))) A ⟧Ty Z)
 ⟦weakenTy+++⟧ᵈ' k A Aᵈ X+= X= refl refl refl Z= = ⟦weakenTy⟧ᵈ' (prev (prev (prev k))) A Aᵈ X+= X= (ap-irr-star (qq^prev ∙ ap-irr-qq qq^prev refl) refl ∙ Z=)
 
-⟦weakenTy+++⟧=' : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {X''' : Ob (suc (suc (suc n)))} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc (suc n))))
+⟦weakenTy+++⟧=' : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {X''' : Ob (suc (suc (suc n)))} {X'' : Ob (suc (suc n))} {X' : Ob (suc n)} {X : Ob n} (A : TyExpr (suc (suc (suc n))))
                 → (Aᵈ : isDefined (⟦ A ⟧Ty X'''))
                 → (X+= : ft X+ ≡ Y) (X= : ft^ k X ≡ Y) {Z : Ob (suc (suc (suc (suc n))))} (X'''= : ft X''' ≡ X'') (X''= : ft X'' ≡ X') (X'= : ft X' ≡ X) (Z= : star++ (qq^ k X+= X=)  X''' X'''= X''= X'= qq^₁ ≡ Z)
                → star+++ (qq^ k X+= X=) (⟦ A ⟧Ty X''' $ Aᵈ) (⟦⟧Ty-ft A) X'''= X''= X'= qq^₁ ≡ ⟦ weakenTy' (prev (prev (prev k))) A ⟧Ty Z $ ⟦weakenTy+++⟧ᵈ' k A Aᵈ X+= X= X'''= X''= X'= Z=

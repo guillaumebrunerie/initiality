@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common
 
@@ -97,45 +97,40 @@ module CCat+ (C : CCat) where
   {- Iterated father and qq operations -}
 
   -- Take the prefix of the context up to spot [k]
-  ft^ : (k : Fin (suc n)) (X : Ob n) → Ob (n -F' k)
+  ft^ : (k : WeakPos n) (X : Ob n) → Ob (n -WeakPos k)
   ft^ {n} last X = X
-  ft^ {zero} (prev ()) X
   ft^ {suc n} (prev k) X = ft^ {n = n} k (ft X)
 
   -- Weaken [X] by adding [X+] at spot [k]
-  star^ : (k : Fin (suc n)) (X+ : Ob (suc (n -F' k))) (X : Ob n) {Y : Ob (n -F' k)} (p : ft X+ ≡ Y) (q : ft^ k X ≡ Y) → Ob (suc n)
-  qq^   : (k : Fin (suc n)) {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} (p : ft X+ ≡ Y) (q : ft^ k X ≡ Y) → Mor (suc n) n
-  qq^₁  : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} → ∂₁ (qq^ k p q) ≡ X
-  qq^₀  : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob n} {Y : Ob (n -F' k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} → ∂₀ (qq^ k p q) ≡ star^ k X+ X p q
+  star^ : (k : WeakPos n) (X+ : Ob (suc (n -WeakPos k))) (X : Ob n) {Y : Ob (n -WeakPos k)} (p : ft X+ ≡ Y) (q : ft^ k X ≡ Y) → Ob (suc n)
+  qq^   : (k : WeakPos n) {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} (p : ft X+ ≡ Y) (q : ft^ k X ≡ Y) → Mor (suc n) n
+  qq^₁  : {k : WeakPos n} {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} → ∂₁ (qq^ k p q) ≡ X
+  qq^₀  : {k : WeakPos n} {X+ : Ob (suc (n -WeakPos k))} {X : Ob n} {Y : Ob (n -WeakPos k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} → ∂₀ (qq^ k p q) ≡ star^ k X+ X p q
 
   star^ last X+ X p q = X+
-  star^ {n = zero} (prev ()) X+ X p q
   star^ {n = suc n} (prev k) X+ X p q = star (qq^ k p q) X refl qq^₁
 
   abstract
     qq^ last {X+ = X+} p q = pp X+
-    qq^ {n = zero} (prev ()) p q
     qq^ {n = suc n} (prev k) {X = X} p q = qq (qq^ k p q) X refl (qq^₁ {k = k} {p = p} {q = q})
 
     qq^₁ {n} {last} {p = p} {q} = pp₁ ∙ p ∙ ! q
-    qq^₁ {zero} {prev ()}
     qq^₁ {suc n} {prev k} = qq₁
 
     qq^₀ {_} {last} = pp₀
-    qq^₀ {zero} {prev ()}
     qq^₀ {suc n} {prev k} = qq₀
 
     qq^last : {X+ : Ob (suc n)} {X : Ob n} {p : ft X+ ≡ X} → qq^ last p refl ≡ pp X+
     qq^last = refl
 
-    qq^prev : {k : Fin (suc n)} {X+ : Ob (suc (n -F' k))} {X : Ob (suc n)} {Y : Ob (n -F' k)} {p : ft X+ ≡ Y} {q : ft^ (prev k) X ≡ Y} → qq^ (prev k) p q ≡ qq (qq^ k p q) X refl (qq^₁ {k = k} {p = p} {q = q})
+    qq^prev : {k : WeakPos n} {X+ : Ob (suc (n -WeakPos k))} {X : Ob (suc n)} {Y : Ob (n -WeakPos k)} {p : ft X+ ≡ Y} {q : ft^ (prev k) X ≡ Y} → qq^ (prev k) p q ≡ qq (qq^ k p q) X refl (qq^₁ {k = k} {p = p} {q = q})
     qq^prev = refl
 
   abstract
-    qq^=p : {k : Fin (suc n)} {X : Ob n} {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} {X' : Ob n} {q' : ft^ k X' ≡ Y} (X= : X ≡ X') → qq^ k p q ≡ qq^ k p q'
+    qq^=p : {k : WeakPos n} {X : Ob n} {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} {X' : Ob n} {q' : ft^ k X' ≡ Y} (X= : X ≡ X') → qq^ k p q ≡ qq^ k p q'
     qq^=p refl = refl
 
-    star^=p : {k : Fin (suc n)} {X : Ob n} {X+ : Ob (suc (n -F' k))} {Y : Ob (n -F' k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} {X' : Ob n} {q' : ft^ k X' ≡ Y} (X= : X ≡ X') → star^ k X+ X p q ≡ star^ k X+ X' p q'
+    star^=p : {k : WeakPos n} {X : Ob n} {X+ : Ob (suc (n -WeakPos k))} {Y : Ob (n -WeakPos k)} {p : ft X+ ≡ Y} {q : ft^ k X ≡ Y} {X' : Ob n} {q' : ft^ k X' ≡ Y} (X= : X ≡ X') → star^ k X+ X p q ≡ star^ k X+ X' p q'
     star^=p refl = refl
 
   {- Other helper functions -}
@@ -240,8 +235,8 @@ module CCat+ (C : CCat) where
     starstar++ {g = g} {D} {C} {D=} {B} {C=} {B= = B=} A= {g₁} {a} aₛ {a₁} = ! star-comp ∙ ap-irr-star (! qq-comp ∙ ap-irr-qq (! qq-comp ∙ ap-irr-qq (ss-qq ∙ ap-irr-comp (ap-irr-qq (! assoc ∙ ap-irr-comp (is-section= A= aₛ a₁) refl ∙ id-right g₁) refl) refl {g₀' = qq₀}) refl ∙ qq-comp) refl ∙ qq-comp) refl ∙ star-comp
 
 
-  pp^  : (k : Fin n) → Ob n → Mor n (n -F k)
-  pp^₀ : (k : Fin n) (X : Ob n) → ∂₀ (pp^ k X) ≡ X
+  pp^  : (k : VarPos n) → Ob n → Mor n (n -VarPos k)
+  pp^₀ : (k : VarPos n) (X : Ob n) → ∂₀ (pp^ k X) ≡ X
 
   pp^ last X = id X
   pp^ (prev last) X = pp X
@@ -251,27 +246,27 @@ module CCat+ (C : CCat) where
   pp^₀ (prev last) X = pp₀
   pp^₀ (prev k@(prev _)) X = comp₀ ∙ pp₀
 
-  pp^prev  : {k : Fin n} {X : Ob (suc n)} {Y : Ob n} (p : ft X ≡ Y) → pp^ (prev k) X ≡ comp (pp^ k Y) (pp X) (pp^₀ k Y) (pp₁ ∙ p)
+  pp^prev  : {k : VarPos n} {X : Ob (suc n)} {Y : Ob n} (p : ft X ≡ Y) → pp^ (prev k) X ≡ comp (pp^ k Y) (pp X) (pp^₀ k Y) (pp₁ ∙ p)
   pp^prev {k = last} refl = ! (id-right pp₁)
   pp^prev {k = prev k} refl = refl
 
   -- Take the prefix of the context up to (and including) variable [k]
-  ft^' : (k : Fin n) (X : Ob n) → Ob (n -F k)
+  ft^' : (k : VarPos n) (X : Ob n) → Ob (n -VarPos k)
   ft^' {n} last X = X
   ft^' {suc n} (prev k) X = ft^' {n = n} k (ft X)
 
-  pp^₁ : (k : Fin n) (X : Ob n) → ∂₁ (pp^ k X) ≡ ft^' k X
+  pp^₁ : (k : VarPos n) (X : Ob n) → ∂₁ (pp^ k X) ≡ ft^' k X
   pp^₁ last X = id₁
   pp^₁ (prev last) X = pp₁
   pp^₁ (prev (prev k)) X = comp₁ ∙ pp^₁ (prev k) (ft X)
 
-  varC : (k : Fin n) → Ob n → Mor n (suc n)
+  varC : (k : VarPos n) → Ob n → Mor n (suc n)
   varC k X = ss (pp^ k X)
 
-  varCₛ : (k : Fin n) (X : Ob n) → is-section (varC k X)
+  varCₛ : (k : VarPos n) (X : Ob n) → is-section (varC k X)
   varCₛ k X = ssₛ
 
-  varC₀ : {k : Fin n} {X : Ob n} → ∂₀ (varC k X) ≡ X
+  varC₀ : {k : VarPos n} {X : Ob n} → ∂₀ (varC k X) ≡ X
   varC₀ {k = k} {X} = ss₀ ∙ pp^₀ k X
 
   varCL₁ : {X : Ob (suc n)} {Y : Ob n} {X= : ft X ≡ Y} → ∂₁ (varC last X) ≡ star (pp X) X X= (pp₁ ∙ X=)
@@ -280,7 +275,7 @@ module CCat+ (C : CCat) where
   varCL-qq : {X : Ob (suc n)} {Y : Ob n} (X= : ft X ≡ Y) → comp (qq (pp X) X X= (pp₁ ∙ X=)) (varC last X) qq₀ varCL₁ ≡ id X
   varCL-qq X= = ! (ss-qq ∙ ap-irr-comp (ap-irr-qq (id-left pp₀) refl) refl)
 
-  varC+₁ : (k : Fin n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (var₁ : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (! (is-section₀ (varCₛ k Y) var₁) ∙ varC₀) (pp₁ ∙ Y=)
+  varC+₁ : (k : VarPos n) {X : Ob (suc n)} {Y : Ob n} (Y= : ft X ≡ Y) {Z : Ob (suc n)} (var₁ : ∂₁ (varC k Y) ≡ Z) → ∂₁ (varC (prev k) X) ≡ star (pp X) Z (! (is-section₀ (varCₛ k Y) var₁) ∙ varC₀) (pp₁ ∙ Y=)
   varC+₁ last refl refl = ss₁ pp₁ ∙ star-comp ∙ ap-irr-star refl (! varCL₁)
   varC+₁ (prev k) {X = X} {Y = Y} refl refl = ss₁ (comp₁ ∙ pp^₁ (prev k) Y) ∙ ap-irr-star (! assoc) refl ∙ star-comp ∙ (ap-irr-star refl (! (ss₁ (pp^₁ (prev k) Y))))
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common
 open import typetheory
@@ -444,7 +444,7 @@ infixr 42 _×S_
 
 //-elim-Ctx : ∀ {l} {C : (Γ : ObS n) → Set l}
            → (proj* : (Γ : DCtx n) → C (proj Γ))
-           → (eq* : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → PathOver C (eqR rΓ) (proj* Γ) (proj* Γ'))
+           → (eq* : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → PathOver C (eq rΓ) (proj* Γ) (proj* Γ'))
            → (Γ : ObS n) → C Γ
 //-elim-Ctx proj* eq* = //-elim proj* eq*
 
@@ -461,17 +461,17 @@ uncurrifyTy+ C ((x , A) , A=) = C x A A=
 
 //-elim-Ty : ∀ {l} {Γ : ObS n} {C : (A : ObS (suc n)) (A= : ftS A ≡ Γ) → Set l}
            → (proj* : (A : DCtx (suc n)) (A= : ftS (proj A) ≡ Γ) → C (proj A) A=)
-           → (eq* : {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ Γ) (A'= : ftS (proj A') ≡ Γ) → PathOver (uncurrifyTy C) (Σ= {b = A=} {b' = A'=} (eqR rA)) (proj* A A=) (proj* A' A'=))
+           → (eq* : {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ Γ) (A'= : ftS (proj A') ≡ Γ) → PathOver (uncurrifyTy C) (Σ= {b = A=} {b' = A'=} (eq rA)) (proj* A A=) (proj* A' A'=))
            → (A : ObS (suc n)) (A= : ftS A ≡ Γ) → C A A=
 //-elim-Ty proj* eq* = //-elim proj* (λ a= → PathOver-PropPi (λ A= A'= → eq* a= A= A'=))
 
 //-elimP-Ty : ∀ {l} {X : Set} {Γ : X → ObS n} {C : (x : X) (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → Set l}
-           → {x x' : X} {p : x ≡R x'}
+           → {x x' : X} {p : x ≡ x'}
            → {lhs : (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → C x A A=}
            → {rhs : (A : ObS (suc n)) (A= : ftS A ≡ Γ x') → C x' A A=}
-           → (proj* : (A : DCtx (suc n)) (A= : _) (A=' : _) → PathOver (uncurrifyTy+ C) (Σ= {b = A=} {b' = A='} (apR (λ z → z , proj A) p)) (lhs (proj A) A=) (rhs (proj A) A='))
+           → (proj* : (A : DCtx (suc n)) (A= : _) (A=' : _) → PathOver (uncurrifyTy+ C) (Σ= {b = A=} {b' = A='} (ap (λ z → z , proj A) p)) (lhs (proj A) A=) (rhs (proj A) A='))
            → PathOver (λ x → (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → C x A A=) p lhs rhs
-//-elimP-Ty {C = C} {x = x} {p = reflR} proj* = PathOver-CstPi (//-elimP (λ A → PathOver-PropPi {C = λ a p → C a (proj A) p} (λ A= A=' → PathOver-in (PathOver-out (proj* A A= A=')))))
+//-elimP-Ty {p = refl} proj* = PathOver-CstPi (//-elimP (λ A → PathOver-PropPi (λ A= A=' → PathOver-in (PathOver-out (proj* A A= A=')))))
 
 uncurrifyTm : ∀ {l} {A : ObS (suc n)} (C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l) → ΣS (MorS n (suc n)) (λ u → (S.is-section u) × (S.∂₁ u ≡ A)) → Set l
 uncurrifyTm C (u , uₛu₁) = C u (fst uₛu₁) (snd uₛu₁)
@@ -481,22 +481,19 @@ uncurrifyTm+ C ((x , u) , uₛu₁) = C x u (fst uₛu₁) (snd uₛu₁)
 
 //-elim-Tm : ∀ {l} {A : ObS (suc n)} {C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l}
            → (proj* : (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : S.∂₁ (proj u) ≡ A) → C (proj u) uₛ u₁)
-           → (eq* : {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : _) (u'ₛ : _) (u₁ :  S.∂₁ (proj u) ≡ A) (u'₁ : S.∂₁ (proj u') ≡ A ) → PathOver (uncurrifyTm C) (Σ= {b = uₛ , u₁} {b' = u'ₛ , u'₁} (eqR ru)) (proj* u uₛ u₁) (proj* u' u'ₛ u'₁))
+           → (eq* : {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : _) (u'ₛ : _) (u₁ :  S.∂₁ (proj u) ≡ A) (u'₁ : S.∂₁ (proj u') ≡ A ) → PathOver (uncurrifyTm C) (Σ= {b = uₛ , u₁} {b' = u'ₛ , u'₁} (eq ru)) (proj* u uₛ u₁) (proj* u' u'ₛ u'₁))
            → (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → C u uₛ u₁
-//-elim-Tm {n = n} {C = C} proj* eq* = //-elim proj* (λ ru → PathOver-PropPi (λ uₛ uₛ' → PathOver-PropPi (λ u₁ u₁' → PathOver-in (PathOver-= (lemma (eqR ru)) (PathOver-out (eq* ru uₛ uₛ' u₁ u₁'))))))  where
-  lemma : {u u' : MorS n (suc n)} (p : u ≡R u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _}
-        → apR (uncurrifyTm C) (Σ= {b = uₛ , u₁} {b' = u'ₛ , u'₁} p) ≡R apR (uncurrify (λ a z → C (fst a) (snd a) z)) (Σ= {b = u₁} {b' = u'₁} (Σ= {b = uₛ} {b' = u'ₛ} p))
-  lemma reflR = reflR
+//-elim-Tm {n = n} {C = C} proj* eq* = //-elim proj* (λ ru → PathOver-PropPi (λ uₛ uₛ' → PathOver-PropPi (λ u₁ u₁' → PathOver-in (PathOver-out (eq* ru uₛ uₛ' u₁ u₁')))))
 
 //-elimP-Tm : ∀ {l} {X : Set} {A : X → ObS (suc n)} {C : (x : X) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A x) → Set l}
-           → {x x' : X} {p : x ≡R x'}
+           → {x x' : X} {p : x ≡ x'}
            → {lhs : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ A x) → C x u uₛ u₁}
            → {rhs : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ A x') → C x' u uₛ u₁}
-           → (proj* : (u : DMor n (suc n)) (uₛ : _) (u₁ : _) (u₁' : _) → PathOver (uncurrifyTm+ C) (Σ= {b = uₛ , u₁} {b' = uₛ , u₁'} (apR (λ z → z , proj u) p)) (lhs (proj u) uₛ u₁) (rhs (proj u) uₛ u₁'))
+           → (proj* : (u : DMor n (suc n)) (uₛ : _) (u₁ : _) (u₁' : _) → PathOver (uncurrifyTm+ C) (Σ= {b = uₛ , u₁} {b' = uₛ , u₁'} (ap (λ z → z , proj u) p)) (lhs (proj u) uₛ u₁) (rhs (proj u) uₛ u₁'))
            → PathOver (λ x → (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ A x) → C x u uₛ u₁) p lhs rhs
-//-elimP-Tm {A = A} {C = C} {x = x} {p = reflR} proj* = PathOver-CstPi {C = λ x x₁ → (uₛ : S.is-section x₁) (u₁ : ∂₁S x₁ ≡ A x) → C x x₁ _ _} (//-elimP (λ u → PathOver-CstPropPi {C = λ x uₛ → (u₁ : ∂₁S (proj u) ≡ A x) → C x (proj u) uₛ u₁} (λ uₛ → PathOver-PropPi {C = λ x p → C x (proj u) uₛ p} (λ u₁ u₁' → PathOver-in (PathOver-out (proj* u uₛ u₁ u₁'))))))
+//-elimP-Tm {p = refl} proj* = PathOver-CstPi (//-elimP (λ u → PathOver-CstPropPi (λ uₛ → PathOver-PropPi (λ u₁ u₁' → PathOver-in (PathOver-out (proj* u uₛ u₁ u₁'))))))
 
-proj= : {C D : Set} {Γ Γ' : C} {BΓ BΓ' : D} {R : EquivRel D} {rΓ : Γ ≡R Γ'} (rBΓ : (R EquivRel.≃ BΓ) BΓ') → PathOver (λ _ → D // R) rΓ (proj BΓ) (proj BΓ')
+proj= : {C D : Set} {Γ Γ' : C} {BΓ BΓ' : D} {R : EquivRel D} {rΓ : Γ ≡ Γ'} (rBΓ : (R EquivRel.≃ BΓ) BΓ') → PathOver (λ _ → D // R) rΓ (proj BΓ) (proj BΓ')
 proj= rBΓ = PathOver-Cst (eq rBΓ)
  
 -- This function does the pattern matching on g₀ needed for the naturalities

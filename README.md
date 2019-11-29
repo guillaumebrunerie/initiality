@@ -7,7 +7,7 @@ complete proof for a type theory with only Pi-types and a base dependent type is
 are now working on extending the type theory to a type theory with Pi-types, Sigma-types, natural
 numbers, identity types, and an infinite hierarchy of universes.
 
-This project requires at least Agda 2.6.0. It will not work with earlier versions of Agda.
+This project requires a recent version of Agda (for instance commit b0dddd4 from 19 November 2019 works).
 
 Some design decisions
 ---------------------

@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common
 
@@ -18,7 +18,7 @@ data TyExpr where
   id : (A : TyExpr n) (u v : TmExpr n) → TyExpr n
 
 data TmExpr where
-  var : (x : Fin n) → TmExpr n
+  var : (x : VarPos n) → TmExpr n
 
   uu : (i : ℕ) → TmExpr n
 

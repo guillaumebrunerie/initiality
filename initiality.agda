@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common hiding (Unit)
 open import typetheory
@@ -476,7 +476,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (ap (Mor→ g) (eq (box (CtxRefl (dΓ , dA)) (CtxRefl (dΓ , dA) ,, congTyRefl (WeakTy dA) (! (ap weakenTy ([idMor]Ty _)) ∙ weaken[]Ty A (idMor _) last))
                               (MorRefl (idMorDerivable (dΓ , dA) , (congTm (! ([idMor]Ty (weakenTy A))) refl (VarLast dA)))))))
 
-  uniqueness-Tm-//-VarPrev : {Γ : Ctx n} (dΓ : ⊢ Γ) {A B : TyExpr n} (dA : Derivable (Γ ⊢ A)) (dB : Derivable (Γ ⊢ B)) {B' : TyExpr (suc n)} (pB : weakenTy B ≡ B') {x : Fin n} (dx : Derivable (Γ ⊢ var x :> B))
+  uniqueness-Tm-//-VarPrev : {Γ : Ctx n} (dΓ : ⊢ Γ) {A B : TyExpr n} (dA : Derivable (Γ ⊢ A)) (dB : Derivable (Γ ⊢ B)) {B' : TyExpr (suc n)} (pB : weakenTy B ≡ B') {x : VarPos n} (dx : Derivable (Γ ⊢ var x :> B))
                            → (uΓ : Ob→ f (proj (dctx {ctx = _ , _} (dΓ , dA))) ≡ Ob→ g (proj (dctx {ctx = _ , _} (dΓ , dA))))
                            → (ux : Mor→ f (proj (dmorTm (dctx dΓ) B dB (var x) dx)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) B dB (var x) dx)))
                            → Mor→ f (proj (dmorTm (dctx (dΓ , dA)) B' (congTy pB (WeakTy dB)) (var (prev x)) (congTmTy pB (VarPrev dB dx))))
