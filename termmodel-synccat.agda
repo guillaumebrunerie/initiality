@@ -313,10 +313,10 @@ dTy' (dctx' {ctx = (_ , _ )} (_ , dA)) dA= = ConvTy dA dA=
 
 
 dTy= : {Γ : DCtx n} {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ proj Γ) → Derivable (ctx Γ ⊢ getTy A == getTy A')
-dTy= {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (_ , _ , _ , dA= , _)) A= = ConvTyEq dA= (reflectOb A=)
+dTy= {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (der== _ _ _ dA= _)) A= = ConvTyEq dA= (reflectOb A=)
 
 dTy=≃ : {Γ : DCtx n} {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : (ftS-// A) ≃ Γ) → Derivable (ctx Γ ⊢ getTy A == getTy A')
-dTy=≃ {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (_ , _ , _ , dA= , _)) (box A=) = ConvTyEq dA= A=
+dTy=≃ {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (der== _ _ _ dA= _)) (box A=) = ConvTyEq dA= A=
 
 
 combine : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → ftS (proj B) ≡ proj (dctx (der Γ , dTy A A=))
@@ -332,7 +332,7 @@ dTy+= : {Γ : DCtx n} {A  : DCtx (suc n)} {B B' : DCtx (suc (suc n))} (A= : ftS 
 dTy+= {B = B} A= rB B= = dTy= rB (combine A= B B=)
 
 lemmathing : {Γ Δ : DCtx (suc n)} → Γ ≃ Δ → Derivable (ctx (ftS-// Δ) ⊢ getTy Γ == getTy Δ)
-lemmathing {Γ = dctx' {ctx = Γ , A} (dΓ , dA)} {Δ = dctx' {ctx = Δ , B} (dΔ , dB)} (box (_ , _ , _ , _ , dA=)) = dA=
+lemmathing {Γ = dctx' {ctx = Γ , A} (dΓ , dA)} {Δ = dctx' {ctx = Δ , B} (dΔ , dB)} (box (der== dΓ= _ _ dA= _)) = ConvTyEq dA= dΓ=
 
 
 dMor : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : ∂₁S (proj a) ≡ proj A) → ctx Γ ⊢ mor a ∷> (ctx Γ , getTy A)

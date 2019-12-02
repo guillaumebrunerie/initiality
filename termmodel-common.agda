@@ -135,10 +135,10 @@ Mor=LHSRHS : (δ : DMor m (suc n)) → ctx (lhs δ) ⊢ mor δ == getLHS (mor δ
 Mor=LHSRHS (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (dδ , du)) = MorRefl (dδ , du)
 
 getCtx= : {Γ Γ' : Ctx (suc n)} (rΓ : ⊢ Γ == Γ') → ⊢ getCtx Γ == getCtx Γ'
-getCtx= {Γ = (Γ , A)} {(Γ' , A')} (dΓ= , _ , _ , _ , _) = dΓ=
+getCtx= {Γ = (Γ , A)} {(Γ' , A')} (der== dΓ= _ _ _ _) = dΓ=
 
 getTy= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') → Derivable (getCtx (ctx Γ)  ⊢ getTy Γ == getTy Γ')
-getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (_ , _ , _ , dA= , _)) = dA=
+getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (der== _ _ _ dA= _)) = dA=
 
 dLHS : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ : Mor m (suc n)} → Γ ⊢ δ ∷> ctx Δ → Γ ⊢ getLHS δ ∷> getCtx (ctx Δ)
 dLHS {Δ = dctx' {ctx = (_ , _)} (dΔ , dB)} {δ = δ , u} (dδ , du) = dδ
