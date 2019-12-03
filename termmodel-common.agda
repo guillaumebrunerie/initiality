@@ -34,7 +34,7 @@ dctx dΓ = dctx' (kill dΓ)
 
 dmor : (lhs : DCtx n) (rhs : DCtx m) {mor : Mor n m} → ctx lhs ⊢ mor ∷> ctx rhs → DMor n m
 dmor lhs rhs morDer = dmor' (dctx (der lhs)) (dctx (der rhs)) (kill morDer)
- 
+
 {-
 Defining _Ob≃_ as a datatype as follows rather than being equal to ⊢ ctx Γ == ctx Γ'
 allows us to have more arguments implicit.
@@ -122,11 +122,11 @@ getdMor (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (dδ , _)) = dδ
 
 
 
-CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx (getdCtx A)) ≡ proj Γ) → ⊢ ctx Γ , getTy A == ctx A
+CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx' (getdCtx A)) ≡ proj Γ) → ⊢ ctx Γ , getTy A == ctx A
 CtxTy=Ctx {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (reflectOb A=) ,, TyRefl (ConvTy (getdTy A) (reflectOb A=))
 
 CtxTy=Ctx'' : {Γ : DCtx n} (A : DCtx (suc n)) (A= : (dctx (getdCtx A)) ≃ Γ) → ⊢ ctx Γ , getTy A == ctx A
-CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=))
+CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=)) 
 
 CtxTy=Ctx' : (Γ : DCtx (suc n)) → ⊢ (getCtx (ctx Γ) , getTy Γ) == ctx Γ
 CtxTy=Ctx' (dctx' {ctx = (_ , _)} dΓ) = CtxRefl dΓ

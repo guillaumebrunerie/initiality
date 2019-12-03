@@ -17,7 +17,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Pi -}
 
 PiStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → DCtx (suc n)
-PiStrS-// Γ A A= B B= = dctx {ctx = _ , _} (der Γ , Pi (dTy A A=) (dTy+ A= B B=))
+PiStrS-// Γ A A= B B= = dctx (der Γ , Pi (dTy A A=) (dTy+ A= B B=))
 
 PiStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _)
           → PiStrS-// Γ A A= B B= ≃ PiStrS-// Γ' A' A'= B' B'=

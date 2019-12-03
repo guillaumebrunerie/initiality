@@ -16,7 +16,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Sig -}
 
 SigStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → DCtx (suc n)
-SigStrS-// Γ A A= B B= = dctx {ctx = _ , _} (der Γ , Sig (dTy A A=) (dTy+ A= B B=))
+SigStrS-// Γ A A= B B= = dctx (der Γ , Sig (dTy A A=) (dTy+ A= B B=))
 
 SigStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _)
           → SigStrS-// Γ A A= B B= ≃ SigStrS-// Γ' A' A'= B' B'=

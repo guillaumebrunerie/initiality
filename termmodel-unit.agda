@@ -16,7 +16,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Unit -}
 
 UnitStrS-// : (Γ : DCtx n) → DCtx (suc n)
-UnitStrS-// Γ = dctx {ctx = _ , _} (der Γ , Unit)
+UnitStrS-// Γ = dctx (der Γ , Unit)
 
 UnitStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → UnitStrS-// Γ ≃ UnitStrS-// Γ'
 UnitStrS-eq rΓ = box (unOb≃ rΓ ,, UnitCong)

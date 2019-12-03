@@ -16,7 +16,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Nat -}
 
 NatStrS-// : DCtx n → DCtx (suc n)
-NatStrS-// Γ = dctx {ctx = _ , _}(der Γ , Nat)
+NatStrS-// Γ = dctx (der Γ , Nat)
 
 NatStrS-eq : {Γ Γ' : DCtx n} → Γ ≃ Γ' → NatStrS-// Γ ≃ NatStrS-// Γ'
 NatStrS-eq dΓ= = box (unOb≃ dΓ= ,, NatCong)

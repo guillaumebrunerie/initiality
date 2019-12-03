@@ -15,7 +15,7 @@ open import termmodel-uuel
 {- Id -}
 
 IdStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : ∂₁S (proj a) ≡ proj A) (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : ∂₁S (proj b) ≡ proj A) → DCtx (suc n)
-IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁ = dctx {ctx = _ , _} (der Γ , Id (dTy A A=) (dTm A= a aₛ a₁) (dTm A= b bₛ b₁))
+IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁ = dctx (der Γ , Id (dTy A A=) (dTm A= a aₛ a₁) (dTm A= b bₛ b₁))
 
 
 IdStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : _) (a'ₛ : _) (a₁ : _) (a'₁ : _) {b b' : DMor n (suc n)} (rb : b ≃ b') (bₛ : _) (b'ₛ : _) (b₁ : _) (b'₁ : _) → IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁ ≃ IdStrS-// Γ' A' A'= a' a'ₛ a'₁ b' b'ₛ b'₁

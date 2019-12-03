@@ -94,7 +94,7 @@ cong⟦⟧Mor2 refl refl δᵈ = δᵈ
 ⟦⟧dMorᵈ : (f : DMor m n) {Γ : DCtx m} (Δ : DCtx n) (f₀ : lhs f ≃ Γ) (f₁ : ⊢ ctx (rhs f) == ctx Δ) → isDefined (⟦ mor f ⟧Mor (Ob/ Γ) (Ob/ Δ))
 ⟦⟧dMorᵈ f _ f₀ f₁ = cong⟦⟧Mor2 {δ = mor f} (⟦⟧CtxEq (unOb≃ f₀)) (⟦⟧CtxEq f₁) (⟦⟧Morᵈ (⟦⟧Ctxᵈ (der (lhs f))) (⟦⟧Ctxᵈ (der (rhs f))) (morDer f))
 
-lemmaX : {Γ : DCtx n} (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) → proj {R = ObEquiv} (dctx (der A)) ≡ proj (dctx {ctx = _ , _} (der Γ , dTy A A=))
+lemmaX : {Γ : DCtx n} (A : DCtx (suc n)) (A= : ftS (proj A) ≡ proj Γ) → proj {R = ObEquiv} (dctx (der A)) ≡ proj (dctx (der Γ , dTy A A=))
 lemmaX (dctx' {ctx = _ , _} (dΓA , dA)) A= = eq (box (reflectOb A= ,, TyRefl dA))
 
 star/ : (f : DMor m n) (X : DCtx (suc n)) (Y : DCtx n) (q : ftS (proj X) ≡ proj Y) (f₁ : ∂₁S (proj f) ≡ proj Y) → star (Mor→S (proj f)) (Ob→S (proj X)) (ft/ X ∙ ap Ob→S q) (∂₁/ f ∙ ap Ob→S f₁) ≡ Ob→S (S.star (proj f) (proj X) q f₁)
@@ -463,17 +463,17 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
   uniqueness-Ty-//-Weak : {Γ : Ctx n} (dΓ : ⊢ Γ) {A B : TyExpr n} (dA : Derivable (Γ ⊢ A)) (dB : Derivable (Γ ⊢ B))
                           (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ)))
-                          (uA : Ob→ f (proj (dctx {ctx = _ , _} (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA))))
+                          (uA : Ob→ f (proj (dctx (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA))))
                           (uB : Ob→ f (proj (dctx (dΓ , dB))) ≡ Ob→ g (proj (dctx (dΓ , dB))))
                           → Ob→ f (proj (dctx ((dΓ , dB) , SubstTy dA (WeakMor (idMorDerivable dΓ)))))
                           ≡ Ob→ g (proj (dctx ((dΓ , dB) , SubstTy dA (WeakMor (idMorDerivable dΓ)))))
   uniqueness-Ty-//-Weak dΓ dA dB uΓ uA uB =
-    star→ f {f = proj (dmor (dctx (dΓ , dB)) (dctx dΓ) (WeakMor (idMorDerivable dΓ)))} {X = proj (dctx {ctx = _ , _} (dΓ , dA))} {q = refl} {f₁ = refl}
+    star→ f {f = proj (dmor (dctx (dΓ , dB)) (dctx dΓ) (WeakMor (idMorDerivable dΓ)))} {X = proj (dctx (dΓ , dA))} {q = refl} {f₁ = refl}
     ∙ ap-irr-star (pp→ f {X = proj (dctx (dΓ , dB))} ∙ ap pp uB ∙ ! (pp→ g {X = proj (dctx (dΓ , dB))})) uA
-    ∙ ! (star→ g {f = proj (dmor (dctx (dΓ , dB)) (dctx dΓ) (WeakMor (idMorDerivable dΓ)))} {X = proj (dctx {ctx = _ , _} (dΓ , dA))} {q = refl} {f₁ = refl})
+    ∙ ! (star→ g {f = proj (dmor (dctx (dΓ , dB)) (dctx dΓ) (WeakMor (idMorDerivable dΓ)))} {X = proj (dctx (dΓ , dA))} {q = refl} {f₁ = refl})
 
   uniqueness-Tm-//-VarLast : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) {A' : TyExpr (suc n)} (pA : weakenTy A ≡ A')
-                           → (uΓA : Ob→ f (proj (dctx {ctx = _ , _} (dΓ , dA))) ≡ Ob→ g (proj (dctx {ctx = _ , _} (dΓ , dA))))
+                           → (uΓA : Ob→ f (proj (dctx (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA))))
                            → Mor→ f (proj (dmorTm (dctx (dΓ , dA)) A' (congTy pA (WeakTy dA)) (var last) (congTmTy pA (VarLast dA))))
                            ≡ Mor→ g (proj (dmorTm (dctx (dΓ , dA)) A' (congTy pA (WeakTy dA)) (var last) (congTmTy pA (VarLast dA))))
   uniqueness-Tm-//-VarLast {Γ = Γ} dΓ {A = A} dA refl uΓA =
@@ -486,7 +486,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                               (MorRefl (idMorDerivable (dΓ , dA) , (congTm (! ([idMor]Ty (weakenTy A))) refl (VarLast dA)))))))
 
   uniqueness-Tm-//-VarPrev : {Γ : Ctx n} (dΓ : ⊢ Γ) {A B : TyExpr n} (dA : Derivable (Γ ⊢ A)) (dB : Derivable (Γ ⊢ B)) {B' : TyExpr (suc n)} (pB : weakenTy B ≡ B') {x : VarPos n} (dx : Derivable (Γ ⊢ var x :> B))
-                           → (uΓ : Ob→ f (proj (dctx {ctx = _ , _} (dΓ , dA))) ≡ Ob→ g (proj (dctx {ctx = _ , _} (dΓ , dA))))
+                           → (uΓ : Ob→ f (proj (dctx (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA))))
                            → (ux : Mor→ f (proj (dmorTm (dctx dΓ) B dB (var x) dx)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) B dB (var x) dx)))
                            → Mor→ f (proj (dmorTm (dctx (dΓ , dA)) B' (congTy pB (WeakTy dB)) (var (prev x)) (congTmTy pB (VarPrev dB dx))))
                            ≡ Mor→ g (proj (dmorTm (dctx (dΓ , dA)) B' (congTy pB (WeakTy dB)) (var (prev x)) (congTmTy pB (VarPrev dB dx))))
@@ -510,7 +510,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   -- The actual lemmas that we prove by mutual induction
 
   uniqueness-Ob-// : (Γ : DCtx n) → Ob→ f (proj Γ) ≡ Ob→ g (proj Γ)
-  uniqueness-Ty-// : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ))) → Ob→ f (proj (dctx {ctx = _ , _} (dΓ , dA))) ≡ Ob→ g (proj (dctx {ctx = _ , _} (dΓ , dA)))
+  uniqueness-Ty-// : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} (dA : Derivable (Γ ⊢ A)) (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ))) → Ob→ f (proj (dctx (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA)))
   uniqueness-Tm-// : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} {u : TmExpr n} (du : Derivable (Γ ⊢ u :> A)) (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ)))
                    → Mor→ f (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ du) _ du)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ du) _ du))
 
@@ -692,7 +692,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     let dvl = congTmTy weakenTy-to-[]Ty (VarLast dwA) in
     let did = Id dwwA dvpl dvl in
     let dP' = congTyCtx (Ctx+= (Ctx+= refl weakenTy-to-[]Ty) (ap-id-Ty (ap weakenTy weakenTy-to-[]Ty ∙ weakenTy-to-[]Ty) refl refl)) dP in
-    jjStr→ sf+ (proj (dctx dΓ)) (proj (dctx {ctx = _ , _} (dΓ , dA))) refl
+    jjStr→ sf+ (proj (dctx dΓ)) (proj (dctx (dΓ , dA))) refl
                                 (proj (dctx {ctx = ((((_ , _) , _) , _) , _)} ((((dΓ , dA) , dwA) , did) , dP'))) refl
                                 _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
     ∙ ap-irr-jjStr uΓ
@@ -707,7 +707,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                    (uniqueness-Tm-// dΓ da uΓ)
                    (uniqueness-Tm-// dΓ db uΓ)
                    (uniqueness-Tm-// dΓ dp uΓ)
-    ∙ ! (jjStr→ sg+ _ (proj (dctx {ctx = _ , _} (dΓ , dA))) refl
+    ∙ ! (jjStr→ sg+ _ (proj (dctx (dΓ , dA))) refl
                       (proj (dctx {ctx = ((((_ , _) , _) , _) , _)} ((((dΓ , dA) , dwA) , did) , dP'))) refl
                       _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl)
 

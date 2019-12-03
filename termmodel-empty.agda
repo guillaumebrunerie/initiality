@@ -16,7 +16,7 @@ open CCat hiding (Mor) renaming (id to idC)
 {- Empty -}
 
 EmptyStrS-// : (Γ : DCtx n) → DCtx (suc n)
-EmptyStrS-// Γ = dctx {ctx = _ , _} (der Γ , Empty)
+EmptyStrS-// Γ = dctx (der Γ , Empty)
 
 EmptyStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → EmptyStrS-// Γ ≃ EmptyStrS-// Γ'
 EmptyStrS-eq rΓ = box (unOb≃ rΓ ,, EmptyCong)

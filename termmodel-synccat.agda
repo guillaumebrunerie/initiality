@@ -33,7 +33,6 @@ MorS n m = DMor n m // MorEquiv
 ∂₁S : {n m : ℕ} → MorS n m → ObS m
 ∂₁S = //-rec (λ δ → proj (∂₁S-// δ)) (λ r → eq (box (unMor≃-rhs r)))
 
-
 idS-// : (n : ℕ) → DCtx n → DMor n n
 idS-// n Γ = dmor Γ Γ (idMorDerivable (der Γ))
 
@@ -134,7 +133,7 @@ assocS : (h : MorS k l) (g : MorS m k) (f : MorS n m) (X : ObS m) (f₁ : ∂₁
 assocS = //-elimP (λ h → //-elimP (λ g → //-elimP (λ f → //-elimP (λ X f₁ g₀ → //-elimP (λ Y → assocS-// h g f X f₁ g₀ Y)))))
 
 starS-// : (f : DMor m n) (X : DCtx (suc n)) (Y : DCtx n) (q : ftS (proj X) ≡ proj Y) (f₁ : ∂₁S (proj f) ≡ (proj Y)) → DCtx (suc m)
-starS-// f X Y q f₁ = dctx {ctx = _ , _} (der (lhs f) , (SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q)))))
+starS-// f X Y q f₁ = dctx (der (lhs f) , (SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q)))))
 
 starS-eq : (f g : DMor m n) (r : f ≃ g) (X X' : DCtx (suc n)) (rX : X ≃ X') (Y Y' : DCtx n) (rY : Y ≃ Y') (q : ftS (proj X) ≡ proj Y) (q' : ftS (proj X') ≡ proj Y') (f₁ : ∂₁S (proj f) ≡ proj Y) (g₁ : ∂₁S (proj g) ≡ proj Y') → proj {R = ObEquiv} (starS-// f X Y q f₁) ≡ proj (starS-// g X' Y' q' g₁)
 starS-eq f g r X X' rX Y Y' rY q q' f₁ g₁ = eq (box (unMor≃-lhs r ,, SubstTyFullEq (ConvTy (getdTy X') (reflectOb (q' ∙ ! (f₁ ∙ eq rY)))) (morDer f) (ConvTyEq (getTy= rX) (reflectOb (q ∙ ! f₁))) (unMor≃-mor r)))
