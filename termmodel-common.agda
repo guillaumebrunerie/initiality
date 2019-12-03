@@ -126,7 +126,7 @@ CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx (get
 CtxTy=Ctx {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (reflectOb A=) ,, TyRefl (ConvTy (getdTy A) (reflectOb A=))
 
 CtxTy=Ctx'' : {Γ : DCtx n} (A : DCtx (suc n)) (A= : (dctx (getdCtx A)) ≃ Γ) → ⊢ ctx Γ , getTy A == ctx A
-CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=)) 
+CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=))
 
 CtxTy=Ctx' : (Γ : DCtx (suc n)) → ⊢ (getCtx (ctx Γ) , getTy Γ) == ctx Γ
 CtxTy=Ctx' (dctx' {ctx = (_ , _)} dΓ) = CtxRefl dΓ
@@ -135,10 +135,10 @@ Mor=LHSRHS : (δ : DMor m (suc n)) → ctx (lhs δ) ⊢ mor δ == getLHS (mor δ
 Mor=LHSRHS (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (dδ , du)) = MorRefl (dδ , du)
 
 getCtx= : {Γ Γ' : Ctx (suc n)} (rΓ : ⊢ Γ == Γ') → ⊢ getCtx Γ == getCtx Γ'
-getCtx= {Γ = (Γ , A)} {(Γ' , A')} (der== dΓ= _ _ _ _) = dΓ=
+getCtx= {Γ = (Γ , A)} {(Γ' , A')} (dΓ= , _) = dΓ=
 
 getTy= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') → Derivable (getCtx (ctx Γ)  ⊢ getTy Γ == getTy Γ')
-getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (der== _ _ _ dA= _)) = dA=
+getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (dΓ= , dA=)) = ConvTyEq dA= (CtxSymm dΓ=)
 
 dLHS : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ : Mor m (suc n)} → Γ ⊢ δ ∷> ctx Δ → Γ ⊢ getLHS δ ∷> getCtx (ctx Δ)
 dLHS {Δ = dctx' {ctx = (_ , _)} (dΔ , dB)} {δ = δ , u} (dδ , du) = dδ

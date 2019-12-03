@@ -1851,23 +1851,23 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 {- Totality of the interpretation function on derivable contexts -}
 
 ⟦⟧Ctxᵈ : {Γ : Ctx n} (dΓ : ⊢ Γ) → isDefined (⟦ Γ ⟧Ctx)
-⟦⟧Ctxᵈ {Γ = ◇} tt = tt
-⟦⟧Ctxᵈ {Γ = Γ , A} (dΓ , dA) = let Γᵈ = ⟦⟧Ctxᵈ dΓ in (Γᵈ , ⟦⟧Tyᵈ Γᵈ dA , tt)
+⟦⟧Ctxᵈ tt = tt
+⟦⟧Ctxᵈ (dΓ , dA) = let Γᵈ = ⟦⟧Ctxᵈ dΓ in (Γᵈ , ⟦⟧Tyᵈ Γᵈ dA , tt)
 
 {- Interpretation of context equalities -}
 
 ⟦⟧CtxEq : {Γ Γ' : Ctx n} (dΓ= : ⊢ Γ == Γ') {Γᵈ : isDefined (⟦ Γ ⟧Ctx)} {Γ'ᵈ : isDefined (⟦ Γ' ⟧Ctx)}
         → ⟦ Γ ⟧Ctx $ Γᵈ ≡ ⟦ Γ' ⟧Ctx $ Γ'ᵈ
-⟦⟧CtxEq {Γ = ◇} {◇} _ = refl
-⟦⟧CtxEq {Γ = Γ , A} {Γ' , A'} (dΓ= , _ , _ , dA= , _) {Γᵈ = Γᵈ , Aᵈ , tt}
-  = ⟦⟧TyEq+ Γᵈ dA= (⟦⟧CtxEq dΓ=)
+⟦⟧CtxEq tt = refl
+⟦⟧CtxEq (dΓ= , dA=) {Γᵈ = Γᵈ , Aᵈ , tt}
+  = ⟦⟧TyEq+ Γᵈ (ConvTyEq dA= (CtxSymm dΓ=)) (⟦⟧CtxEq dΓ=)
 
 {- Interpretation of morphism equalities -}
 
-⟦⟧MorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' : Mor n m} (Γᵈ : isDefined (⟦ Γ ⟧Ctx)) (let X = ⟦ Γ ⟧Ctx $ Γᵈ) {Y : Ob m} (dδ= : Γ ⊢ δ == δ' ∷> Δ) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} {δ'ᵈ : isDefined (⟦ δ' ⟧Mor X Y)}
+⟦⟧MorEq : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} (Γᵈ : isDefined (⟦ Γ ⟧Ctx)) (let X = ⟦ Γ ⟧Ctx $ Γᵈ) {Y : Ob m} (dδ= : Γ ⊢ δ == δ' ∷> Δ) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} {δ'ᵈ : isDefined (⟦ δ' ⟧Mor X Y)}
         → ⟦ δ ⟧Mor X Y $ δᵈ ≡ ⟦ δ' ⟧Mor X Y $ δ'ᵈ
-⟦⟧MorEq {Δ = ◇} {δ = ◇} {◇} Γᵈ tt = refl
-⟦⟧MorEq {Γ' = Γ'} {Δ = Δ , B} {δ = δ , u} {δ' , u'} Γᵈ (dδ= , du=) = ap-irr-comp (ap-irr-qq (⟦⟧MorEq {Γ' = Γ'} {Δ' = Δ} Γᵈ dδ=) refl) (⟦⟧TmEq Γᵈ du=)
+⟦⟧MorEq Γᵈ tt = refl
+⟦⟧MorEq Γᵈ (dδ= , du=) = ap-irr-comp (ap-irr-qq (⟦⟧MorEq Γᵈ dδ=) refl) (⟦⟧TmEq Γᵈ du=)
 
 {- Interpretation of morphism substitution -}
 

@@ -43,7 +43,7 @@ Mor/ δ = ⟦ mor δ ⟧Mor (Ob/ (lhs δ)) (Ob/ (rhs δ)) $ ⟦⟧Morᵈ (⟦⟧
 
 Mor/-eq : {δ δ' : DMor n m} → δ ≃ δ' → Mor/ δ ≡ Mor/ δ'
 Mor/-eq {δ = δ} {δ'} rδ =
-  ⟦⟧MorEq {Γ' = ctx (lhs δ')} {Δ' = ctx (rhs δ')} (⟦⟧Ctxᵈ (der (lhs δ))) (unMor≃-mor rδ) {δ'ᵈ = ⟦⟧Morᵈ (⟦⟧Ctxᵈ (der (lhs δ))) (⟦⟧Ctxᵈ (der (rhs δ))) (MorEqMor2 (der (lhs δ)) (der (rhs δ)) (unMor≃-mor rδ))}
+  ⟦⟧MorEq (⟦⟧Ctxᵈ (der (lhs δ))) (unMor≃-mor rδ) {δ'ᵈ = ⟦⟧Morᵈ (⟦⟧Ctxᵈ (der (lhs δ))) (⟦⟧Ctxᵈ (der (rhs δ))) (MorEqMor2 (der (lhs δ)) (der (rhs δ)) (unMor≃-mor rδ))}
   ∙ ap2-irr (λ x y z → ⟦_⟧Mor (mor δ') x y $ z) (⟦⟧CtxEq (unMor≃-lhs rδ)) (⟦⟧CtxEq (unMor≃-rhs rδ))
 
 Mor→S : MorS n m → Mor n m
@@ -154,9 +154,9 @@ lemmaTm uu@(dmor' (dctx' {ctx = Γu} dΓu) (dctx' {ctx = Γu' , Au} (dΓu' , dAu
       du = ConvTm du' (CtxSymm dΓu=')
 
       u₀ : ⟦ Γu' ⟧Ctx $ ⟦⟧Ctxᵈ dΓu' ≡ ⟦ Γ' ⟧Ctx $ ⟦⟧Ctxᵈ dΓ'
-      u₀ = ⟦⟧CtxEq (CtxTran (fst (reflectOb u₁)) (reflectOb p))
+      u₀ = ⟦⟧CtxEq (CtxTran (reflectOb (ap ftS u₁)) (reflectOb p))
   in
-  ap-irr (λ x z → ⟦ u ⟧Tm x $ z) (! u₀) ∙ ! (id-right {f = ⟦ u ⟧Tm (⟦ Γu' ⟧Ctx $ ⟦⟧Ctxᵈ dΓu') $ ⟦⟧Tmᵈ (⟦⟧Ctxᵈ dΓu') du} (⟦⟧Tm₁ (⟦⟧Ctxᵈ dΓu') {Aᵈ = ⟦⟧Tyᵈ (⟦⟧Ctxᵈ dΓu') dAu} du)) ∙ ap-irr-comp (! (qq-id {p = ⟦⟧Ty-ft Au ∙ ⟦⟧CtxEq dΓu='}) ∙ ap-irr-qq ((! (⟦⟧MorEq {Γ' = Γu} {Δ' = Γu'} (⟦⟧Ctxᵈ dΓu) δu= ∙ ⟦idMor⟧= (⟦⟧Ty-ft Au ∙ ⟦⟧CtxEq dΓu=')))) refl) (ap-irr (λ x z → ⟦ u ⟧Tm x $ z) (⟦⟧CtxEq dΓu='))
+  ap-irr (λ x z → ⟦ u ⟧Tm x $ z) (! u₀) ∙ ! (id-right {f = ⟦ u ⟧Tm (⟦ Γu' ⟧Ctx $ ⟦⟧Ctxᵈ dΓu') $ ⟦⟧Tmᵈ (⟦⟧Ctxᵈ dΓu') du} (⟦⟧Tm₁ (⟦⟧Ctxᵈ dΓu') {Aᵈ = ⟦⟧Tyᵈ (⟦⟧Ctxᵈ dΓu') dAu} du)) ∙ ap-irr-comp (! (qq-id {p = ⟦⟧Ty-ft Au ∙ ⟦⟧CtxEq dΓu='}) ∙ ap-irr-qq ((! (⟦⟧MorEq (⟦⟧Ctxᵈ dΓu) δu= ∙ ⟦idMor⟧= (⟦⟧Ty-ft Au ∙ ⟦⟧CtxEq dΓu=')))) refl) (ap-irr (λ x z → ⟦ u ⟧Tm x $ z) (⟦⟧CtxEq dΓu='))
 
 lemmaMorᵈ : (u : DMor n (suc n)) {X : Ob n} (u₀ : Ob→S (∂₀S (proj u)) ≡ X) → isDefined (⟦ getTm u ⟧Tm X)
 lemmaMorᵈ uu@(dmor' (dctx' {ctx = Γu} dΓu) (dctx' {ctx = Γu' , Au} (dΓu' , dAu)) {mor = (δu , u)} (dδu , du~)) refl = ⟦⟧Tmᵈ (⟦⟧Ctxᵈ dΓu) du~
@@ -415,13 +415,22 @@ jjStr→ existence+ Γ A A= P P= d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁
 
 {- Uniqueness of the morphism -}
 
+getLastTy : {Δ : Ctx n} {C : TyExpr n} → ⊢ (Δ , C) → Derivable (Δ ⊢ C)
+getLastTy (_ , dC) = dC
+
+getFirstTms : {Γ : Ctx n} {Δ : Ctx m} {C : TyExpr m} {δ : syntx.Mor n m} {u : TmExpr n} → Γ ⊢ (δ , u) ∷> (Δ , C) → Γ ⊢ δ ∷> Δ
+getFirstTms (dδ , _) = dδ
+
+getLastTm : {Γ : Ctx n} {Δ : Ctx m} {C : TyExpr m} {δ : syntx.Mor n m} {u : TmExpr n} → Γ ⊢ (δ , u) ∷> (Δ , C) → Derivable (Γ ⊢ u :> C [ δ ]Ty)
+getLastTm (_ , du) = du
+
 split-left : DMor n (suc m) → DMor n (suc n)
-split-left (dmor' (dctx' dΓ) (dctx' {ctx = _ , C} (dΔ , dC)) {mor = (δ , u)} (dδ , du)) =
-  dmor (dctx dΓ) (dctx {ctx = _ , _} (dΓ , SubstTy dC dδ)) {mor = _ , _} ((idMorDerivable dΓ) , congTm (! ([idMor]Ty _)) refl du)
+split-left (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} dΔC) {mor = _ , _} dδu) =
+  dmor (dctx dΓ) (dctx {ctx = _ , _} (dΓ , SubstTy (getLastTy dΔC) (getFirstTms dδu))) {mor = _ , _} (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl (getLastTm dδu))
 
 split-right : DMor n (suc m) → DMor (suc n) (suc m)
-split-right (dmor' (dctx' dΓ) (dctx' {ctx = _ , C} (dΔ , dC)) {mor = (δ , u)} (dδ , du)) =
-  dmor (dctx {ctx = _ , _} (dΓ , SubstTy dC dδ)) (dctx {ctx = _ , _} (dΔ , dC)) {mor = _ , _} (WeakMor dδ , (congTm (weaken[]Ty C δ last) refl (VarLast (SubstTy dC dδ))))
+split-right (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} dΔC) {mor = _ , _} dδu) =
+  dmor (dctx {ctx = _ , _} (dΓ , SubstTy (getLastTy dΔC) (getFirstTms dδu))) (dctx {ctx = _ , _} dΔC) {mor = _ , _} (WeakMor (getFirstTms dδu) , (congTm (weaken[]Ty _ _ last) refl (VarLast (SubstTy (getLastTy dΔC) (getFirstTms dδu)))))
 
 split-eq : (δ : DMor n (suc m)) → ⊢ ctx (rhs (split-left δ)) == ctx (lhs (split-right δ))
 split-eq (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} (dΔ , dC)) {mor = _ , _} (dδ , du)) = CtxRefl (dΓ , SubstTy dC dδ)
