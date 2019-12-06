@@ -133,7 +133,7 @@ natelimStrS-// Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ =
                     ddS
                     (dTm refl u uₛ u₁))
          where  ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
-                ddS = congTmTy! fixSubstTy (dTm≃  {A = dctx (der P , congTy fixSubstTy (SubstTy (WeakTy (WeakTy (dTy P P=))) (ConvMor (idMor+ ((der Γ , Nat) , dTy P P=) (Suc (VarPrev Nat (VarLast Nat)))) (CtxTy=Ctx P P=) (CtxRefl (((der Γ , Nat) , dTy P P=) , Nat)))))} (Ctx≃ft+Ty (reflect P=)) dS dSₛ (reflect dS₁))
+                ddS = congTmTy! fixSubstTy (dTm≃ (Ctx≃ft+Ty (reflect P=)) dS dSₛ (reflect dS₁))
 
 abstract 
   natelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {P P' : DCtx (suc (suc n))} (rP : P ≃ P') (P= : ftS (proj P) ≡ NatStrS (proj Γ)) (P'= : ftS (proj P') ≡ NatStrS (proj Γ'))
@@ -211,7 +211,7 @@ natelimStrSynCCat : CCatwithnatelim synCCat NatStrSynCCat zeroStrSynCCat sucStrS
 CCatwithnatelim.natelimStr natelimStrSynCCat = natelimStrS
 CCatwithnatelim.natelimStrₛ natelimStrSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = natelimStrₛS Γ P _ dO _ _ dS _ _ u _ _
 CCatwithnatelim.natelimStr₁ natelimStrSynCCat {Γ = Γ} {P = P} {dO = dO} {dS = dS} {u = u} = natelimStr₁S Γ P _ dO _ _ dS _ _ u _ _
-CCatwithnatelim.natelimStrNat' natelimStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ g₁ → up-to-rhsTyEq' (reflectOb g₀) (ap (_[_]Ty (substTy (getTy P) (getTm u))) (idMor[]Mor (mor g)) ∙ []Ty-substTy))))))))
+CCatwithnatelim.natelimStrNat' natelimStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ g₁ → up-to-rhsTyEq' (reflectOb g₀) (ap-[]Ty refl (idMor[]Mor (mor g)) ∙ []Ty-substTy))))))))
 
 
 module natelimS = CCatwithnatelim natelimStrSynCCat
@@ -241,10 +241,10 @@ betaNatZeroStrS = //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dO�
 {- BetaNatSuc -}
 
 betaNatSucStrS : (Γ : ObS n) (P : ObS (suc (suc n))) (P= : ftS P ≡ NatStrS Γ)
-               (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : S.∂₁ dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))
-               (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : S.∂₁ dS ≡ sucS.T-dS₁ Γ P P=)
-               (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) →
-               natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStrS Γ u uₛ u₁) (sucStrₛS Γ u) (sucStr₁S Γ u) ≡ natelimS.Tm-substdS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ 
+                 (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : S.∂₁ dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))
+                 (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : S.∂₁ dS ≡ sucS.T-dS₁ Γ P P=)
+                 (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) →
+                 natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ (sucStrS Γ u uₛ u₁) (sucStrₛS Γ u) (sucStr₁S Γ u) ≡ natelimS.Tm-substdS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ 
 betaNatSucStrS = //-elimP (λ Γ → //-elimP (λ P P= → (//-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ →
                  let ddS : Derivable (((ctx Γ , nat) , getTy P) ⊢ getTm dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) (getTy P))) (suc (var (prev last))))
                      ddS = congTmTy! fixSubstTy (dTm≃ (Ctx≃ft+Ty (reflect P=)) dS dSₛ (reflect dS₁))

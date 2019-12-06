@@ -81,6 +81,12 @@ ap-irr-T-ftP refl refl = refl
   [v]ₛ ← assume (is-section [v])
   [v]₁ ← assume (∂₁ [v] ≡ UUStr i X)
   return (ElStr i X [v] (unbox [v]ₛ) (unbox [v]₁))
+⟦ sum A B ⟧Ty X = do
+  [A] ← ⟦ A ⟧Ty X
+  [A]= ← assume (ft [A] ≡ X)
+  [B] ← ⟦ B ⟧Ty X
+  [B]= ← assume (ft [B] ≡ X)
+  return (SumStr X [A] (unbox [A]=) [B] (unbox [B]=))
 ⟦ pi A B ⟧Ty X = do
   [A] ← ⟦ A ⟧Ty X
   [A]= ← assume (ft [A] ≡ X)
@@ -110,6 +116,49 @@ ap-irr-T-ftP refl refl = refl
 
 ⟦ var k ⟧Tm X = return (varC k X)
 ⟦ uu i ⟧Tm X = return (uuStr i X)
+⟦ sum i a b ⟧Tm X = do
+  [a] ← ⟦ a ⟧Tm X
+  [a]ₛ ← assume (is-section [a])
+  [a]₁ ← assume (∂₁ [a] ≡ UUStr i X)
+  [b] ← ⟦ b ⟧Tm X
+  [b]ₛ ← assume (is-section [b])
+  [b]₁ ← assume (∂₁ [b] ≡ UUStr i X)
+  return (sumStr i X [a] (unbox [a]ₛ) (unbox [a]₁) [b] (unbox [b]ₛ) (unbox [b]₁))
+⟦ inl A B a ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
+  [A]= ← assume (ft [A] ≡ X)
+  [B] ← ⟦ B ⟧Ty X
+  [B]= ← assume (ft [B] ≡ X)
+  [a] ← ⟦ a ⟧Tm X
+  [a]ₛ ← assume (is-section [a])
+  [a]₁ ← assume (∂₁ [a] ≡ [A])
+  return (inlStr X [A] (unbox [A]=) [B] (unbox [B]=) [a] (unbox [a]ₛ) (unbox [a]₁))
+⟦ inr A B b ⟧Tm X =  do
+  [A] ← ⟦ A ⟧Ty X
+  [A]= ← assume (ft [A] ≡ X)
+  [B] ← ⟦ B ⟧Ty X
+  [B]= ← assume (ft [B] ≡ X)
+  [b] ← ⟦ b ⟧Tm X
+  [b]ₛ ← assume (is-section [b])
+  [b]₁ ← assume (∂₁ [b] ≡ [B])
+  return (inrStr X [A] (unbox [A]=) [B] (unbox [B]=) [b] (unbox [b]ₛ) (unbox [b]₁))
+⟦ match A B C da db u ⟧Tm X = do
+  [A] ← ⟦ A ⟧Ty X
+  [A]= ← assume (ft [A] ≡ X)
+  [B] ← ⟦ B ⟧Ty X
+  [B]= ← assume (ft [B] ≡ X)
+  [C] ← ⟦ C ⟧Ty (SumStr X [A] (unbox [A]=) [B] (unbox [B]=))
+  [C]= ← assume (ft [C] ≡ SumStr X [A] (unbox [A]=) [B] (unbox [B]=))
+  [da] ← ⟦ da ⟧Tm [A]
+  [da]ₛ ← assume (is-section [da])
+  [da]₁ ← assume (∂₁ [da] ≡ T-da₁ X [A] (unbox [A]=) [B] (unbox [B]=) [C] (unbox [C]=))
+  [db] ← ⟦ db ⟧Tm [B]
+  [db]ₛ ← assume (is-section [db])
+  [db]₁ ← assume (∂₁ [db] ≡ T-db₁ X [A] (unbox [A]=) [B] (unbox [B]=) [C] (unbox [C]=))
+  [u] ← ⟦ u ⟧Tm X
+  [u]ₛ ← assume (is-section [u])
+  [u]₁ ← assume (∂₁ [u] ≡ SumStr X [A] (unbox [A]=) [B] (unbox [B]=))
+  return (matchStr X [A] (unbox [A]=) [B] (unbox [B]=) [C] (unbox [C]=) [da] (unbox [da]ₛ) (unbox [da]₁) [db] (unbox [db]ₛ) (unbox [db]₁) [u] (unbox [u]ₛ) (unbox [u]₁))
 ⟦ pi i a b ⟧Tm X = do
   [a] ← ⟦ a ⟧Tm X
   [a]ₛ ← assume (is-section [a])
@@ -278,6 +327,10 @@ ap-irr-T-ftP refl refl = refl
 ⟦⟧Tmₛ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → is-section (⟦ u ⟧Tm X $ uᵈ)
 ⟦⟧Tmₛ (var k) = varCₛ k _
 ⟦⟧Tmₛ (uu i) = uuStrₛ
+⟦⟧Tmₛ (sum i a b) = sumStrₛ
+⟦⟧Tmₛ (inl A B a) = inlStrₛ
+⟦⟧Tmₛ (inr A B b) = inrStrₛ
+⟦⟧Tmₛ (match A B C da db u) = matchStrₛ
 ⟦⟧Tmₛ (pi i a b) = piStrₛ
 ⟦⟧Tmₛ (lam A B u) = lamStrₛ
 ⟦⟧Tmₛ (app A B f a) = appStrₛ
@@ -301,6 +354,7 @@ ap-irr-T-ftP refl refl = refl
 ⟦⟧Ty-ft : {X : Ob n} (A : TyExpr n) {Aᵈ : isDefined (⟦ A ⟧Ty X)} → ft (⟦ A ⟧Ty X $ Aᵈ) ≡ X
 ⟦⟧Ty-ft (uu i) = UUStr=
 ⟦⟧Ty-ft (el i v) = ElStr=
+⟦⟧Ty-ft (sum A B) = SumStr=
 ⟦⟧Ty-ft (pi A B)  = PiStr=
 ⟦⟧Ty-ft (sig A B) = SigStr=
 ⟦⟧Ty-ft empty = EmptyStr=
@@ -311,6 +365,10 @@ ap-irr-T-ftP refl refl = refl
 ⟦⟧Tm₀ : {X : Ob n} (u : TmExpr n) {uᵈ : isDefined (⟦ u ⟧Tm X)} → ∂₀ (⟦ u ⟧Tm X $ uᵈ) ≡ X
 ⟦⟧Tm₀ (var k) = varC₀
 ⟦⟧Tm₀ (uu i) = uuStr₀
+⟦⟧Tm₀ (sum i a b) = sumStr₀
+⟦⟧Tm₀ (inl A B a) = inlStr₀
+⟦⟧Tm₀ (inr A B b) = inrStr₀
+⟦⟧Tm₀ (match A B C da db u) = matchStr₀
 ⟦⟧Tm₀ (pi i a b) = piStr₀
 ⟦⟧Tm₀ (lam A B u) = lamStr₀
 ⟦⟧Tm₀ (app A B f a) = appStr₀

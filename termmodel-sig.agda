@@ -24,7 +24,7 @@ SigStrS-eq rΓ {A = A} rA A= A'= rB B= B'= = box (unOb≃ rΓ ,, SigCong (dTy A 
 
 SigStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) → ObS (suc n)
 SigStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → proj (SigStrS-// Γ A A= B B=))
-                                                             (λ rB B= B=' → proj= (SigStrS-eq (ref Γ) (ref A) A= A= rB B= B=')))
+                                                             (λ rB B= B'= → proj= (SigStrS-eq (ref Γ) (ref A) A= A= rB B= B'=)))
                                         (λ rA A= A'= → //-elimP-Ty (λ B B= B=' → proj= (SigStrS-eq (ref Γ) rA A= A'= (ref B) B= B='))))
                       (λ rΓ → //-elimP-Ty (λ A A= A=' → //-elimP-Ty (λ B B= B=' → proj= (SigStrS-eq rΓ (ref A) A= A=' (ref B) B= B='))))
 
@@ -63,7 +63,6 @@ sigStr₁S : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a)
 sigStr₁S i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → refl)))
 
 sigStrSynCCat : CCatwithsig synCCat UUStrSynCCat ElStrSynCCat
-
 CCatwithsig.sigStr sigStrSynCCat = sigStrS
 CCatwithsig.sigStrₛ sigStrSynCCat {Γ = Γ} {a = a} {b = b} = sigStrₛS _ Γ a _ _ b _ _
 CCatwithsig.sigStr₁ sigStrSynCCat {Γ = Γ} {a = a} {b = b} = sigStr₁S _ Γ a _ _ b _ _

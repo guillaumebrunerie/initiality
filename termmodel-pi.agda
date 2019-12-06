@@ -162,6 +162,7 @@ betaPiStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-
                                       (SubstTmMorEq (dTm+ A= B= u uₛ u₁) (idMor+ (der Γ) (dTm A= a aₛ a₁)) (MorSymm (der Γ) (der Γ , dTy A A=) (morTm=idMorTm A= a aₛ a₁)))))))))))
 
 {- EtaPi -}
+
 etaPiStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (f : MorS n (suc n)) (fₛ : S.is-section f) (f₁ : ∂₁S f ≡ PiStrS Γ A A= B B=)
-          → f ≡ T-lhsEtaPi PiStrSynCCat lamStrSynCCat appStrSynCCat Γ A A= B B= f fₛ f₁
+          → f ≡ T-rhsEtaPi PiStrSynCCat lamStrSynCCat appStrSynCCat Γ A A= B B= f fₛ f₁
 etaPiStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ f fₛ f₁ → eq (box (reflectOb (S.is-section₀ fₛ f₁)) (reflectOb f₁) (ConvMorEq (MorTran (der Γ) (der Γ , Pi (dTy A A=) (dTy+ A= B B=)) (morTm=idMorTm refl f fₛ f₁) (idMor+= (der Γ) (congTmEq refl (ap-lam-Tm refl refl (ap-app-Tm weakenTy-to-[]Ty weakenTy+-to-[]Ty weakenTm-to-[]Tm refl)) refl (EtaPi (dTy A A=) (dTy+ A= B B=) (dTm refl f fₛ f₁))))) (reflectOb (! (S.is-section₀ fₛ f₁))) (reflectOb (! f₁))))))))

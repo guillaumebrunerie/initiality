@@ -74,7 +74,7 @@ jjStrSynCCat : CCatwithjj synCCat IdStrSynCCat reflStrSynCCat
 CCatwithjj.jjStr jjStrSynCCat = jjStrS
 CCatwithjj.jjStrₛ jjStrSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a} {b = b} {p = p} = jjStrₛS Γ A _ P _ d _ _ a _ _ b _ _ p _ _
 CCatwithjj.jjStr₁ jjStrSynCCat {Γ = Γ} {A = A} {P = P} {d = d} {a = a} {b = b} {p = p} = jjStr₁S Γ A _ P _ d _ _ a _ _ b _ _ p _ _
-CCatwithjj.jjStrNat' jjStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → //-elimP (λ p pₛ p₁ g₁ → up-to-rhsTyEq' (reflectOb g₀) (ap (_[_]Ty (subst3Ty (getTy P) (getTm a) (getTm b) (getTm p))) (idMor[]Mor (mor g)) ∙ []Ty-subst3Ty))))))))))) 
+CCatwithjj.jjStrNat' jjStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → (//-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → //-elimP (λ p pₛ p₁ g₁ → up-to-rhsTyEq' (reflectOb g₀) (ap-[]Ty refl (idMor[]Mor (mor g)) ∙ []Ty-subst3Ty))))))))))) 
                        
 {- ElId= -}
 
@@ -91,7 +91,6 @@ betaIdStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (P : ObS (suc (s
 betaIdStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-elimP (λ d dₛ d₁ → //-elimP (λ a aₛ a₁ →
                       let dd = congTmTy! fixTyJJ (dTm≃ (Ctx≃ft+Ty (reflect A=)) d dₛ (reflectd₁ Γ A A= P P= d d₁))
                       in up-to-rhsTyEq2' (CtxSymm (reflectOb (S.is-section₀ aₛ a₁ ∙ A=)))
-                                         (MorRefl (idMorDerivable (der Γ)))
                                          (congTyEq (ap-[]Ty ([idMor]Ty _ ∙ ! fixTyJJ) refl
                                                    ∙ []Ty-assoc _ _ _
                                                    ∙ ap-[]Ty refl (Mor+= (Mor+= (Mor+= (Mor+= (weakenMorInsert _ _ _ ∙ ([idMor]Mor _)) refl) refl) refl)
@@ -110,7 +109,7 @@ betaIdStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-
                                                                       ∙ ap-subst3Ty (weakenTyInsertLemma3 last _ _ _ ∙ weakenTyInsert' _ _ _ _ ∙ [idMor]Ty _)
                                                                                     refl refl
                                                                                     (ap-refl-Tm (weakenSubstTy _ _) refl))
-                                                                      (SubstTmMorEq dd (idMor+ (der Γ) (dTm A= a aₛ a₁)) (MorSymm (der Γ) (der Γ , dTy A A=) (morTm=idMorTm A= a aₛ a₁))))))))))
+                                                                      (SubstTmMorEq' (der Γ) (der Γ , dTy A A=) dd (MorSymm (der Γ) (der Γ , dTy A A=) (morTm=idMorTm A= a aₛ a₁))))))))))
 
 
 

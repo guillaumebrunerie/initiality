@@ -228,8 +228,13 @@ apify body l c tyC = def (lookup corresponding-ap c) (makeArgs body (l - 1) tyC)
 
 unquoteDecl ap-uu-Tm = generate-ap (quote TmExpr.uu) ap-uu-Tm
 unquoteDecl ap-var-Tm = generate-ap (quote TmExpr.var) ap-var-Tm
+unquoteDecl ap-sum-Ty = generate-ap (quote TyExpr.sum) ap-sum-Ty
 unquoteDecl ap-pi-Ty = generate-ap (quote TyExpr.pi) ap-pi-Ty
 unquoteDecl ap-sig-Ty = generate-ap (quote TyExpr.sig) ap-sig-Ty
+unquoteDecl ap-sum-Tm = generate-ap (quote TmExpr.sum) ap-sum-Tm
+unquoteDecl ap-inl-Tm = generate-ap (quote TmExpr.inl) ap-inl-Tm
+unquoteDecl ap-inr-Tm = generate-ap (quote TmExpr.inr) ap-inr-Tm
+unquoteDecl ap-match-Tm = generate-ap (quote TmExpr.match) ap-match-Tm
 unquoteDecl ap-pi-Tm = generate-ap (quote TmExpr.pi) ap-pi-Tm
 unquoteDecl ap-lam-Tm = generate-ap (quote TmExpr.lam) ap-lam-Tm
 unquoteDecl ap-app-Tm = generate-ap (quote TmExpr.app) ap-app-Tm
