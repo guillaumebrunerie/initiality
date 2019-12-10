@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop -v tc.unquote:10 #-}
+{-# OPTIONS --rewriting --prop #-}
  
 open import common
 open import typetheory

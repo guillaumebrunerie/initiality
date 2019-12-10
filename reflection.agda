@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop -v tc.unquote:10 #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import Agda.Builtin.Reflection public
 open import Agda.Builtin.String public renaming (primStringAppend to _++ₛ_)
