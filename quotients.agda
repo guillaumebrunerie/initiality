@@ -7,7 +7,7 @@ postulate
   ‗ : ∀ {l} {P : Prop l} → P
 
 kill : ∀ {l} {P : Prop l} → P → P
-kill p = ‗
+kill = λ p → ‗
 
 {- PathOver -}
 

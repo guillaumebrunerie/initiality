@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop #-}
 
-open import common hiding (Unit)
+open import common
 open import typetheory
 open import reflection hiding (proj)
 open import syntx hiding (Mor)

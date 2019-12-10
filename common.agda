@@ -4,6 +4,7 @@ open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
+open import Agda.Builtin.Unit public
 
 {- Rewriting -}
 
@@ -15,7 +16,7 @@ abstract
 {-# BUILTIN REWRITE _↦_ #-}
 
 
-{- Constructions for Prop -}
+{- Basic records -}
 
 record Σ (A : Prop) (B : A → Prop) : Prop where
   no-eta-equality
@@ -32,25 +33,27 @@ record ΣS {l} {l'} (A : Set l) (B : A → Prop l') : Set (l ⊔ l') where
     snd : B fst
 open ΣS public
 
-record ΣSS {l} {l'} (A : Set l) (B : A → Set l') : Set (l ⊔ l') where
+infixr 4 _,_
+
+record _∧_ (A B : Prop) : Prop where
   constructor _,_
   field
     fst : A
-    snd : B fst
-open ΣSS public
+    snd : B
+open _∧_ public
 
-_ΣSS,_ : ∀ {l} {l'} {A : Set l} {B : A → Set l'} (a : A) → B a → ΣSS A B
-_ΣSS,_ a b = a , b
+infixr 42 _∧_
 
-infixr 4 _,_
-
-
-_×_ : (A B : Prop) → Prop
-A × B = Σ A (λ _ → B)
+record _×_ (A B : Set) : Set where
+  constructor _,_
+  field
+    fst : A
+    snd : B
+open _∧_ public
 
 infixr 42 _×_
 
-record Unit : Prop where
+record True : Prop where
   constructor tt
 
 
@@ -60,8 +63,6 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
   instance refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_ #-}
 
-
-
 infix 4 _≡_
 
 
@@ -70,18 +71,6 @@ infix 4 _≡_
 
 ap : ∀ {l l'} {A : Set l} {B : Set l'} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
 ap f refl = refl
-
-ap2 : {A B C : Set} (f : A → B → C) {a a' : A} {b b' : B} → a ≡ a' → b ≡ b' → f a b ≡ f a' b'
-ap2 f refl refl = refl
-
-ap3 : {A B C D : Set} (f : A → B → C → D) {a a' : A} {b b' : B} {c c' : C} → a ≡ a' → b ≡ b' → c ≡ c' → f a b c ≡ f a' b' c'
-ap3 f refl refl refl = refl
-
-ap4 : {A B C D E : Set} (f : A → B → C → D → E) {a a' : A} {b b' : B} {c c' : C} {d d' : D} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → f a b c d ≡  f a' b' c' d'
-ap4 f refl refl refl refl = refl
-
-ap6 : {A B C D E F G : Set} (f : A → B → C → D → E → F → G) {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f' f'' : F} → a ≡ a' → b ≡ b' → c ≡ c' → d ≡ d' → e ≡ e' → f' ≡ f'' → f a b c d e f' ≡  f a' b' c' d' e' f''
-ap6 f refl refl refl refl refl refl = refl
 
 _∙_ : {A : Set} {a b c : A} → a ≡ b → b ≡ c → a ≡ c
 refl ∙ refl = refl
@@ -173,7 +162,7 @@ open Partial public
 
 instance
   PartialityMonad : Monad Partial
-  isDefined (return {{ PartialityMonad }} x) = Unit
+  isDefined (return {{ PartialityMonad }} x) = True
   return {{ PartialityMonad }} x Partial.$ tt = x
   isDefined (_>>=_ {{ PartialityMonad }} a f) = Σ (isDefined a) (λ x → isDefined (f (a $ x)))
   _>>=_ {{ PartialityMonad }} a f Partial.$ x = f (a $ fst x) $ snd x
