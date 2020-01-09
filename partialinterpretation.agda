@@ -10,8 +10,20 @@ module _ (sC : StructuredCCat) where
 open StructuredCCat sC
 open CCat+ ccat renaming (Mor to MorC; id to idC)
 
+ap-irr-UUStr : {n : ℕ} {i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') → UUStr {n = n} i Γ ≡ UUStr i Γ'
+ap-irr-UUStr refl = refl
+
 ap-irr-ElStr : {n : ℕ} {i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → ElStr {n = n} i Γ v vₛ v₁ ≡ ElStr i Γ' v' vₛ' v₁'
 ap-irr-ElStr refl refl = refl
+
+ap-irr-SumStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B'= : _} → SumStr {n = n} Γ A A= B B= ≡ SumStr Γ' A' A'= B' B'=
+ap-irr-SumStr refl refl refl = refl
+
+ap-irr-sumStr : {n i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {a'ₛ : _} {a₁ : _} {a'₁ : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {b'ₛ : _} {b₁ : _} {b'₁ : _} → sumStr {n = n} i Γ a aₛ a₁ b bₛ b₁ ≡ sumStr i Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
+ap-irr-sumStr refl refl refl = refl
+
+ap-irr-matchStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B'= : _} {C C' : _} (C-eq : C ≡ C') {C= : _} {C'= : _} {da da' : _} (da-eq : da ≡ da') {daₛ : _} {da'ₛ : _} {da₁ : _} {da'₁ : _} {db db' : _} (db-eq : db ≡ db') {dbₛ : _} {db'ₛ : _} {db₁ : _} {db'₁ : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _} → matchStr {n = n} Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ u uₛ u₁ ≡ matchStr Γ' A' A'= B' B'= C' C'= da' da'ₛ da'₁ db' db'ₛ db'₁ u' u'ₛ u'₁
+ap-irr-matchStr refl refl refl refl refl refl refl = refl
 
 ap-irr-PiStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} → PiStr {n = n} Γ A A= B B= ≡ PiStr Γ' A' A=' B' B='
 ap-irr-PiStr refl refl refl = refl

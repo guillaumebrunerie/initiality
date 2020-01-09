@@ -175,6 +175,9 @@ ElStr→S i = //-elimP (λ Γ → //-elimP (λ v vₛ v₁ →
   ap-irr-ElStr refl
                (lemmaTm v vₛ v₁ refl)))
 
+SumStr→S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc n)) (B= : ftS B ≡ Γ) → Ob→ f₀ (SumStrS Γ A A= B B=) ≡ SumStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=)
+SumStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → ap-irr-SumStr refl (lemmaTy A A=) (lemmaTy B B=))))
+
 PiStr→S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) → Ob→ f₀ (PiStrS Γ A A= B B=) ≡ PiStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=)
 PiStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= →
   ap-irr-PiStr refl
@@ -210,6 +213,47 @@ uuStr→S : (i : ℕ) (Γ : ObS n)
         → Mor→ f₀ (uuStrS i Γ) ≡ uuStr sC i (Ob→ f₀ Γ)
 uuStr→S i = //-elimP (λ Γ → lemma2 _ (uuStrₛS i (proj Γ)))
 
+sumStr→S : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i Γ)
+         → Mor→ f₀ (sumStrS i Γ a aₛ a₁ b bₛ b₁) ≡ sumStr sC i (Ob→ f₀ Γ) (Mor→ f₀ a) (Mor→ₛ f₀ aₛ) (Mor→₁ f₀ {u = a} a₁ ∙ UUStr→S i Γ) (Mor→ f₀ b) (Mor→ₛ f₀ bₛ) (Mor→₁ f₀ {u = b} b₁ ∙ UUStr→S i Γ)
+sumStr→S i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁
+           → lemma2 _ (sumStrₛS i (proj Γ) (proj a) aₛ a₁ (proj b) bₛ b₁)
+             ∙ ap-irr-sumStr refl (lemmaTm a aₛ a₁ refl) (lemmaTm b bₛ b₁ refl))))
+
+inlStr→S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc n)) (B= : ftS B ≡ Γ) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : S.∂₁ a ≡ A)
+         → Mor→ f₀ (inlStrS Γ A A= B B= a aₛ a₁) ≡ inlStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=) (Mor→ f₀ a) (Mor→ₛ f₀ aₛ) (Mor→₁ f₀ {u = a} a₁)
+inlStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ a aₛ a₁
+        → lemma2 _ (inlStrₛS (proj Γ) (proj A) A= (proj B) B= (proj a) aₛ a₁)
+          ∙ ap-irr-inlStr sC
+                          refl
+                          (lemmaTy A A=)
+                          (lemmaTy B B=)
+                          (lemmaTm a aₛ a₁ A=)))))
+
+inrStr→S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc n)) (B= : ftS B ≡ Γ) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : S.∂₁ b ≡ B)
+         → Mor→ f₀ (inrStrS Γ A A= B B= b bₛ b₁) ≡ inrStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=) (Mor→ f₀ b) (Mor→ₛ f₀ bₛ) (Mor→₁ f₀ {u = b} b₁)
+inrStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ b bₛ b₁
+        → lemma2 _ (inrStrₛS (proj Γ) (proj A) A= (proj B) B= (proj b) bₛ b₁)
+          ∙ ap-irr-inrStr sC
+                          refl
+                          (lemmaTy A A=)
+                          (lemmaTy B B=)
+                          (lemmaTm b bₛ b₁ B=)))))
+
+matchStr→S : (Γ : ObS n)
+             (A : ObS (suc n)) (A= : S.ft A ≡ Γ)               
+             (B : ObS (suc n)) (B= : S.ft B ≡ Γ)
+             (C : ObS (suc (suc n))) (C= : S.ft C ≡ SumStrS Γ A A= B B=)
+             (da : MorS (suc n) (suc (suc n))) (daₛ : S.is-section da)
+             (da₁ : ∂₁S da ≡ CCatwithinl.T-da₁ inlStrSynCCat Γ A A= B B= C C=)
+             (db : MorS (suc n) (suc (suc n))) (dbₛ : S.is-section db)
+             (db₁ : ∂₁S db ≡ CCatwithinr.T-db₁ inrStrSynCCat Γ A A= B B= C C=)
+             (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ SumStrS Γ A A= B B=)
+             {w₁ : _} {w₂ : _} {w₃ : _}
+           → Mor→ f₀ (matchStrS Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ u uₛ u₁) ≡ matchStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=) (Ob→ f₀ C) (ft→S C ∙ ap (Ob→ f₀) C= ∙ SumStr→S Γ A A= B B=) (Mor→ f₀ da) (Mor→ₛ f₀ daₛ) w₁ (Mor→ f₀ db) (Mor→ₛ f₀ dbₛ) w₂ (Mor→ f₀ u) (Mor→ₛ f₀ uₛ) w₃
+matchStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ C C= → //-elimP (λ da daₛ da₁ → //-elimP (λ db dbₛ db₁ → //-elimP (λ u uₛ u₁
+          → lemma2 _ (matchStrₛS (proj Γ) (proj A) A= (proj B) B= (proj C) C= (proj da) daₛ da₁ (proj db) dbₛ db₁ (proj u) uₛ u₁)
+          ∙ ap-irr-matchStr refl (lemmaTy A A=) (lemmaTy B B=) (lemmaTy C C=) (lemmaTm da daₛ da₁ (eq (Ctx≃ft+Ty (reflect A=)))) (lemmaTm db dbₛ db₁ (eq (Ctx≃ft+Ty (reflect B=)))) (lemmaTm u uₛ u₁ (SumStr=S (proj Γ) (proj A) A= (proj B) B=)))))))))
+          
 piStr→S : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁))
         → Mor→ f₀ (piStrS i Γ a aₛ a₁ b bₛ b₁) ≡ piStr sC i (Ob→ f₀ Γ) (Mor→ f₀ a) (Mor→ₛ f₀ aₛ) (Mor→₁ f₀ {u = a} a₁ ∙ UUStr→S i Γ) (Mor→ f₀ b) (Mor→ₛ f₀ bₛ) (Mor→₁ f₀ {u = b} b₁ ∙ UUStr→S i (ElStrS i Γ a aₛ a₁) ∙ ap (UUStr sC i) (ElStr→S i Γ a aₛ a₁))
 piStr→S i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ →
@@ -382,6 +426,7 @@ ccat→ existence = f₀
 
 UUStr→ existence = UUStr→S
 ElStr→ existence = ElStr→S
+SumStr→ existence = SumStr→S
 PiStr→ existence = PiStr→S
 SigStr→ existence = SigStr→S
 EmptyStr→ existence = EmptyStr→S
@@ -390,6 +435,10 @@ NatStr→ existence = NatStr→S
 IdStr→ existence Γ A A= a aₛ a₁ b bₛ b₁ = IdStr→S Γ A A= a aₛ a₁ b bₛ b₁
 
 uuStr→ existence = uuStr→S
+sumStr→ existence = sumStr→S
+inlStr→ existence Γ A A= B B= a aₛ a₁ = inlStr→S Γ A A= B B= a aₛ a₁
+inrStr→ existence Γ A _ B _ b bₛ b₁ = inrStr→S Γ A _ B _ b _ _
+matchStr→ existence Γ A _ B _ C _ da _ _ db _ _ u _ _ = matchStr→S Γ A _ B _ C _ da _ _ db _ _ u _ _
 piStr→ existence = piStr→S
 lamStr→ existence Γ A A= B B= u uₛ u₁ = lamStr→S Γ A A= B B= u uₛ u₁
 appStr→ existence Γ A A= B B= f fₛ f₁ a aₛ a₁ = appStr→S Γ A A= B B= f fₛ f₁ a aₛ a₁
@@ -526,6 +575,12 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ap-irr-ElStr uΓ
                    (uniqueness-Tm-// dΓ dv uΓ)
     ∙ ! (ElStr→ sg _ _ _ dmorTmₛ refl)
+  uniqueness-Ty-// dΓ (Sum dA dB) uΓ =
+    SumStr→ sf _ _ refl _ refl
+    ∙ ap-irr-SumStr uΓ
+                    (uniqueness-Ty-// dΓ dA uΓ)
+                    (uniqueness-Ty-// dΓ dB uΓ)
+    ∙ ! (SumStr→ sg _ _ refl _ refl)
   uniqueness-Ty-// dΓ (Pi dA dB) uΓ =
     PiStr→ sf _ _ refl _ refl
     ∙ ap-irr-PiStr uΓ
@@ -565,6 +620,39 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ap (uuStr sC i) uΓ
     ∙ ! (uuStr→ sg i _)
 
+  uniqueness-Tm-// {Γ = Γ} dΓ {u = sum i a b} (SumUU da db) uΓ =
+    sumStr→ sf i _ _ dmorTmₛ refl _ dmorTmₛ refl
+    ∙ ap-irr-sumStr uΓ
+                    (uniqueness-Tm-// dΓ da uΓ)
+                    (uniqueness-Tm-// dΓ db uΓ)
+    ∙ ! (sumStr→ sg i _ _ dmorTmₛ refl _ dmorTmₛ refl)
+  uniqueness-Tm-// {Γ = Γ} dΓ {u = inl A B a} (Inl dA dB da) uΓ =
+    inlStr→ sf _ _ refl _ refl _ dmorTmₛ refl
+    ∙ ap-irr-inlStr sC
+                    uΓ
+                    (uniqueness-Ty-// dΓ dA uΓ)
+                    (uniqueness-Ty-// dΓ dB uΓ)
+                    (uniqueness-Tm-// dΓ da uΓ)
+    ∙ ! (inlStr→ sg _ _ refl _ refl _ dmorTmₛ refl)
+  uniqueness-Tm-// {Γ = Γ} dΓ {u = inr A B b} (Inr dA dB db) uΓ =
+    inrStr→ sf _ _ refl _ refl _ dmorTmₛ refl
+    ∙ ap-irr-inrStr sC
+                    uΓ
+                    (uniqueness-Ty-// dΓ dA uΓ)
+                    (uniqueness-Ty-// dΓ dB uΓ)
+                    (uniqueness-Tm-// dΓ db uΓ)
+    ∙ ! (inrStr→ sg _ _ refl _ refl _ dmorTmₛ refl)
+  uniqueness-Tm-// {Γ = Γ} dΓ {u = match A B C da db u} (Match dA dB dC dda ddb du) uΓ =
+    matchStr→ sf _ _ refl _ refl _ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
+    ∙ ap-irr-matchStr uΓ
+                      (uniqueness-Ty-// dΓ dA uΓ)
+                      (uniqueness-Ty-// dΓ dB uΓ)
+                      (uniqueness-Ty-// (dΓ , Sum dA dB) dC (uniqueness-Ty-// dΓ (Sum dA dB) uΓ))
+                      (uniqueness-Tm-// (dΓ , dA) (congTmTy fixTyda dda) (uniqueness-Ty-// dΓ dA uΓ))
+                      (uniqueness-Tm-// (dΓ , dB) (congTmTy fixTydb ddb) (uniqueness-Ty-// dΓ dB uΓ))
+                      (uniqueness-Tm-// dΓ du uΓ)
+    ∙ ! (matchStr→ sg _ _ refl _ refl _ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl)
+    
   uniqueness-Tm-// {Γ = Γ} dΓ {u = pi i a b} (PiUU da db) uΓ =
     piStr→ sf i _ _ dmorTmₛ refl _ dmorTmₛ refl
     ∙ ap-irr-piStr uΓ

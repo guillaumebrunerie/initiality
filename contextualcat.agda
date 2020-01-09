@@ -310,7 +310,16 @@ module CCat+ (C : CCat) where
     ss-id₁ = ss₁ id₁ ∙ ap-irr-star (id-left pp₀) refl
 
     star-varCL-star-qqpp : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} → star (varC last A) (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀) varCL₁ ≡ B
-    star-varCL-star-qqpp {B= = B=} = ! (star-comp {g₀ = qq₀}) ∙ ap-irr-star (ap-irr-comp (! (id-left qq₀) ∙ ap-irr-comp (ap-irr-qq refl refl) (ap id (ap-irr-star refl refl) ∙ ! qq-id) ∙ ! (qq-comp {g₁ = pp₁})) refl ∙ ! (ss-qq {f₁ = id₁})) refl ∙ star-id {p = B=}
+    star-varCL-star-qqpp {B= = B=} = ! (ap-irr-star (ss-qq {f₁ = id₁}
+                                                      ∙ ap-irr-comp (qq-comp {g₁ = pp₁}
+                                                                    ∙ (ap-irr-comp (ap-irr-qq refl refl)
+                                                                                   (qq-id
+                                                                                   ∙ ap id (ap-irr-star refl refl)))
+                                                                    ∙ id-left qq₀)
+                                                                    refl)
+                                                      refl
+                                       ∙ star-comp {g₀ = qq₀})
+                                     ∙ star-id {p = B=}
 
     star-qqvarCL-star-qqqqpp : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {C : Ob (suc (suc (suc n)))} {C= : ft C ≡ B}
                            → star (qq (varC last A) (star (qq (pp A) A A= (pp₁ ∙ A=)) B B= qq₁) (ft-star ∙ qq₀) varCL₁)
@@ -588,9 +597,28 @@ record CCatwithinl (ccat : CCat) (ccatsum : CCatwithSum ccat) : Set₁ where
 
 
   T-da₁ : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (B : Ob (suc n)) (B= : ft B ≡ Γ) (C : Ob (suc (suc n))) (C= : ft C ≡ SumStr Γ A A= B B=) → Ob (suc (suc n))
-  T-da₁ Γ A A= B B= C C= = star (inlStr A (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀) (star (pp A) B B= (pp₁ ∙ A=)) (ft-star ∙ pp₀) (varC last A) (varCₛ last A) varCL₁)
-                                (star+ (pp A) C C= SumStr= (pp₁ ∙ A=)) (ft-star ∙ qq₀) (inlStr₁ ∙ ! (SumStrNat pp₀))
+  T-da₁ Γ A A= B B= C C= = star (inlStr A
+                                        (star (pp A) A A= (pp₁ ∙ A=)) (ft-star ∙ pp₀)
+                                        (star (pp A) B B= (pp₁ ∙ A=)) (ft-star ∙ pp₀)
+                                        (varC last A) (varCₛ last A) varCL₁)
+                                (star+ (pp A) C C= SumStr= (pp₁ ∙ A=))
+                                (ft-star ∙ qq₀)
+                                (inlStr₁ ∙ ! (SumStrNat pp₀))
   abstract
+    ap-irr-T-da₁ : {Γ Γ' : Ob n}
+                   (rΓ : Γ ≡ Γ')
+                   {A A' : Ob (suc n)}
+                   (rA : A ≡ A')
+                   {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'}
+                   {B B' : Ob (suc n)}
+                   (rB : B ≡ B')
+                   {B= : ft B ≡ Γ} {B'= : ft B' ≡ Γ'}
+                   {C C' : Ob (suc (suc n))}
+                   (rC : C ≡ C')
+                   {C= : ft C ≡ SumStr Γ A A= B B=} {C'= : ft C' ≡ SumStr Γ' A' A'= B' B'=}
+                 → T-da₁ Γ A A= B B= C C= ≡ T-da₁ Γ' A' A'= B' B'= C' C'=
+    ap-irr-T-da₁ refl refl refl refl = refl
+
     T-da₁= : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc n)} {B= : ft B ≡ Γ} {C : Ob (suc (suc n))} {C= : ft C ≡ SumStr Γ A A= B B=}
            → ft (T-da₁ Γ A A= B B= C C=) ≡ A
     T-da₁= = ft-star ∙ inlStr₀
@@ -653,7 +681,21 @@ record CCatwithinr (ccat : CCat) (ccatsum : CCatwithSum ccat) : Set₁ where
                                 (star+ (pp B) C C= SumStr= (pp₁ ∙ B=)) (ft-star ∙ qq₀) (inrStr₁ ∙ ! (SumStrNat pp₀))
 
 
-  abstract
+  abstract  
+    ap-irr-T-db₁ : {Γ Γ' : Ob n}
+                   (rΓ : Γ ≡ Γ')
+                   {A A' : Ob (suc n)}
+                   (rA : A ≡ A')
+                   {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'}
+                   {B B' : Ob (suc n)}
+                   (rB : B ≡ B')
+                   {B= : ft B ≡ Γ} {B'= : ft B' ≡ Γ'}
+                   {C C' : Ob (suc (suc n))}
+                   (rC : C ≡ C')
+                   {C= : ft C ≡ SumStr Γ A A= B B=} {C'= : ft C' ≡ SumStr Γ' A' A'= B' B'=}
+                 → T-db₁ Γ A A= B B= C C= ≡ T-db₁ Γ' A' A'= B' B'= C' C'=
+    ap-irr-T-db₁ refl refl refl refl = refl
+    
     T-db₁= : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc n)} {B= : ft B ≡ Γ} {C : Ob (suc (suc n))} {C= : ft C ≡ SumStr Γ A A= B B=}
            → ft (T-db₁ Γ A A= B B= C C=) ≡ B
     T-db₁= = ft-star ∙ inrStr₀
@@ -675,7 +717,10 @@ record CCatwithinr (ccat : CCat) (ccatsum : CCatwithSum ccat) : Set₁ where
     T-db₁Nat : {g : MorC m n} {Δ : Ob m} (g₀ : ∂₀ g ≡ Δ) {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc n)} {B= : ft B ≡ Γ} {C : Ob (suc (suc n))} {C= : ft C ≡ SumStr Γ A A= B B=} {g₁ : ∂₁ g ≡ Γ}
              → star+ g (T-db₁ Γ A A= B B= C C=) T-db₁= B= g₁ ≡ T-db₁ Δ (star g A A= g₁) (ft-star ∙ g₀) (star g B B= g₁) (ft-star ∙ g₀)
                                                                        (star+ g C C= SumStr= g₁) (ft-star ∙ qq₀ ∙ SumStrNat g₀)
-    T-db₁Nat {g = g} g₀ {Γ} {A = A} {B = B} {C = C} {g₁ = g₁} = starstar (ft-star ∙ pp₀) inrStrₛ ∙ ap-irr-star (inrStrNat qq₀ ∙ ap-irr-inrStr refl (star-pp g₀) (star-pp g₀) star-varCL) (star-qqpp' g₀ ∙ ap-irr-star (ap-irr-qq refl (SumStrNat g₀)) refl)
+    T-db₁Nat {g = g} g₀ {Γ} {A = A} {B = B} {C = C} {g₁ = g₁} =
+                starstar (ft-star ∙ pp₀) inrStrₛ
+                ∙ ap-irr-star (inrStrNat qq₀ ∙ ap-irr-inrStr refl (star-pp g₀) (star-pp g₀) star-varCL)
+                              (star-qqpp' g₀ ∙ ap-irr-star (ap-irr-qq refl (SumStrNat g₀)) refl)
 
 record CCatwithmatch (ccat : CCat) (ccatsum : CCatwithSum ccat) (ccatinl : CCatwithinl ccat ccatsum) (ccatinr : CCatwithinr ccat ccatsum) : Set₁ where
   no-eta-equality
@@ -1163,9 +1208,22 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
 
 
   T-dS₁ : (Γ : Ob n) (P : Ob (suc (suc n))) (P= : ft P ≡ NatStr Γ) → Ob (suc (suc (suc n)))
-  T-dS₁ Γ P P= = star (sucStr P (varC (prev last) P) (varCₛ (prev last) P) (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀) ∙ NatStrNat pp₀))
-                      (star+ (pp P) (star+ (pp (NatStr Γ)) P P= NatStr= (pp₁ ∙ NatStr=)) (ft-star ∙ qq₀) (ft-star ∙ pp₀) (pp₁ ∙ P=))
-                      (ft-star ∙ qq₀) (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
+  T-dS₁ Γ P P= = star (sucStr P
+                              (varC (prev last) P)
+                              (varCₛ (prev last) P)
+                              (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀)
+                              ∙ NatStrNat pp₀))
+                      (star+ (pp P)
+                             (star+ (pp (NatStr Γ))
+                                    P
+                                    P=
+                                    NatStr=
+                                    (pp₁ ∙ NatStr=))
+                             (ft-star ∙ qq₀)
+                             (ft-star ∙ pp₀)
+                             (pp₁ ∙ P=))
+                      (ft-star ∙ qq₀)
+                      (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
 
 
   abstract
