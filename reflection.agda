@@ -1,14 +1,10 @@
 {-# OPTIONS --rewriting --prop -v tc.unquote:10 #-}
 
 open import Agda.Builtin.Reflection public
-open import Agda.Builtin.Unit public
 open import Agda.Builtin.String public renaming (primStringAppend to _++ₛ_)
 
 open import common
 open import typetheory
-
-_×R_ : (A B : Set) → Set
-A ×R B = ΣSS A (λ _ → B)
 
 instance
   TCMonad : Monad {ℓ = lzero} TC
@@ -94,7 +90,7 @@ if_then_else_ : {A : Set} → Bool → A → A → A
 if true then t else f = t
 if false then t else f = f
 
-lookup : List (Name ×R Name) → Name → Name
+lookup : List (Name × Name) → Name → Name
 lookup [] _ = quote lookup
 lookup ((a , b) ∷ l) a' = if primQNameEquality a a' then b else lookup l a'
 
@@ -103,12 +99,11 @@ getNumberOfPi (pi _ (abs _ B)) = suc (getNumberOfPi B)
 getNumberOfPi _ = 0
 
 abstract
-  ERROR : Set
-  ERROR = ⊤
+  record ERROR : Set where
 
 {- Meta-macros -}
 
-getConsTyTm : TC (List Name ×R List Name)
+getConsTyTm : TC (List Name × List Name)
 getConsTyTm = do
   data-type _ consTy ← getDefinition (quote TyExpr)
     where _ → typeError (strErr "TyExpr is not a datatype." ∷ [])
@@ -116,15 +111,19 @@ getConsTyTm = do
     where _ → typeError (strErr "TmExpr is not a datatype." ∷ [])
   return (consTy , consTm)
 
-applyToFresh : (Name → Name → TC ⊤) → String → Name → TC (Name ×R Name)
+applyToFresh : (Name → Name → TC ⊤) → String → Name → TC (Name × Name)
 applyToFresh f hint s = do
   sNew ← freshName (hint ++ₛ primShowQName s)
   f s sNew
   return (s , sNew)
 
-listify : List (Name ×R Name) → Term
+pair× : {A B : Set} → A → B → A × B
+pair× = _,_
+
+listify : List (Name × Name) → Term
 listify [] = con (quote []) []
-listify ((s , t) ∷ l) = con (quote _∷_) (earg (def (quote _ΣSS,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
+listify ((s , t) ∷ l) = con (quote _∷_) (earg (def (quote pair×) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])  where
+
 
 iterateExpr : Name → (Name → Name → TC ⊤) → TC ⊤
 iterateExpr s f = do
@@ -219,7 +218,7 @@ generate-ap s res = do
   _ ← defineFun res (clause (generate-pattern ts) (con (quote _≡_.refl) []) ∷ [])
   return _
  
-corresponding-ap : List (Name ×R Name)
+corresponding-ap : List (Name × Name)
 unquoteDef corresponding-ap = iterateExpr corresponding-ap generate-ap
 
 apify : (Name → ℕ → ℕ → Arg Term) → (ℕ → Name → Term → Term)

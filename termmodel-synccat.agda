@@ -436,11 +436,6 @@ up-to-rhsTyEq2' {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) {mor
 
 {- Elimination principles for Ty and Tm -}
 
-_×S_ : (A B : Set) → Set
-A ×S B = ΣSS A (λ _ → B)
-
-infixr 42 _×S_
-
 //-elim-Ctx : ∀ {l} {C : (Γ : ObS n) → Set l}
            → (proj* : (Γ : DCtx n) → C (proj Γ))
            → (eq* : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → PathOver C (eq rΓ) (proj* Γ) (proj* Γ'))
@@ -455,7 +450,7 @@ infixr 42 _×S_
 uncurrifyTy : ∀ {l} {Γ : ObS n} (C : (A : ObS (suc n)) (A= : ftS A ≡ Γ) → Set l) → ΣS (ObS (suc n)) (λ A → ftS A ≡ Γ) → Set l
 uncurrifyTy C (A , A=) = C A A=
 
-uncurrifyTy+ : ∀ {l} {X : Set} {Γ : X → ObS n} (C : (x : X) (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → Set l) → ΣS (X ×S ObS (suc n)) (λ {(x , A) → ftS A ≡ Γ x}) → Set l
+uncurrifyTy+ : ∀ {l} {X : Set} {Γ : X → ObS n} (C : (x : X) (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → Set l) → ΣS (X × ObS (suc n)) (λ {(x , A) → ftS A ≡ Γ x}) → Set l
 uncurrifyTy+ C ((x , A) , A=) = C x A A=
 
 //-elim-Ty : ∀ {l} {Γ : ObS n} {C : (A : ObS (suc n)) (A= : ftS A ≡ Γ) → Set l}
@@ -472,10 +467,10 @@ uncurrifyTy+ C ((x , A) , A=) = C x A A=
            → PathOver (λ x → (A : ObS (suc n)) (A= : ftS A ≡ Γ x) → C x A A=) p lhs rhs
 //-elimP-Ty {p = refl} proj* = PathOver-CstPi (//-elimP (λ A → PathOver-PropPi (λ A= A=' → PathOver-in (PathOver-out (proj* A A= A=')))))
 
-uncurrifyTm : ∀ {l} {A : ObS (suc n)} (C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l) → ΣS (MorS n (suc n)) (λ u → (S.is-section u) × (S.∂₁ u ≡ A)) → Set l
+uncurrifyTm : ∀ {l} {A : ObS (suc n)} (C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l) → ΣS (MorS n (suc n)) (λ u → (S.is-section u) ∧ (S.∂₁ u ≡ A)) → Set l
 uncurrifyTm C (u , uₛu₁) = C u (fst uₛu₁) (snd uₛu₁)
 
-uncurrifyTm+ : ∀ {l} {X : Set} {A : X → ObS (suc n)} (C : (x : X) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A x) → Set l) → ΣS (X ×S MorS n (suc n)) (λ {(x , u) → (S.is-section u) × (S.∂₁ u ≡ A x)}) → Set l
+uncurrifyTm+ : ∀ {l} {X : Set} {A : X → ObS (suc n)} (C : (x : X) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A x) → Set l) → ΣS (X × MorS n (suc n)) (λ {(x , u) → (S.is-section u) ∧ (S.∂₁ u ≡ A x)}) → Set l
 uncurrifyTm+ C ((x , u) , uₛu₁) = C x u (fst uₛu₁) (snd uₛu₁)
 
 //-elim-Tm : ∀ {l} {A : ObS (suc n)} {C : (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ A) → Set l}
