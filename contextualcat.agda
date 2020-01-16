@@ -1211,8 +1211,8 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
   T-dS₁ Γ P P= = star (sucStr P
                               (varC (prev last) P)
                               (varCₛ (prev last) P)
-                              (varC+₁ last P= (varCL₁ ∙ NatStrNat pp₀)
-                              ∙ NatStrNat pp₀))
+                              (varC+₁ last P= varCL₁ ∙ ap-irr-star refl (NatStrNat pp₀)
+                                                     ∙ NatStrNat pp₀ {g₁ = pp₁ ∙ P=}))
                       (star+ (pp P)
                              (star+ (pp (NatStr Γ))
                                     P
@@ -1223,8 +1223,8 @@ record CCatwithsuc (ccat : CCat) (ccatnat : CCatwithNat ccat) : Set₁ where
                              (ft-star ∙ pp₀)
                              (pp₁ ∙ P=))
                       (ft-star ∙ qq₀)
-                      (sucStr₁ ∙ ! (NatStrNat (comp₀ {g₀ = pp₀} ∙ pp₀)) ∙ star-comp)
-
+                      (sucStr₁ ∙ ! (ap-irr-star refl (NatStrNat pp₀)
+                                   ∙ NatStrNat pp₀ {g₁ = pp₁ ∙ P=})) 
 
   abstract
     T-dS₁= :  {Γ : Ob n} {P : Ob (suc (suc n))} {P= : ft P ≡ NatStr Γ} → ft (T-dS₁ Γ P P=) ≡ P
@@ -1365,7 +1365,7 @@ record CCatwithrefl {ccat : CCat} (ccatid : CCatwithId ccat) : Set₁ where
                           (star+ (varC last A)
                                  (star++ (varC last A) wP eq2 eq3 eq4 varCL₁)
                           eq5 eq6 eq7)
-                          eq8 eq9
+                          eq8 (reflStr₁ ∙ eq9)
     where
       abstract
         eq1 = ft-star ∙ pp₀
@@ -1376,15 +1376,22 @@ record CCatwithrefl {ccat : CCat} (ccatid : CCatwithId ccat) : Set₁ where
         eq6 = ft-star ∙ qq₀
         eq7 = varCL₁ ∙ ! star-varCL-star-qqpp
         eq8 = ft-star ∙ qq₀
-        eq9 = reflStr₁ ∙ ! (ap-irr-star refl (! star-comp ∙ ap-irr-star (! (qq-comp {g₀ = qq₀}) ∙ ap-irr-qq (ap-irr-comp (ap-irr-qq (! (id-left pp₀)) refl) refl ∙ ! ss-qq) refl {q' = ft-star ∙ pp₀} ∙ qq-id) refl {q' = T-ftP=} ∙ star-id) ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁} ∙
-                           ap-irr-IdStr refl (! star-comp ∙ ap-irr-star (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁ ) refl {q' = ft-star ∙ pp₀}∙ star-id)
-                                             (star-varCL'' ∙ ap ss (is-section= (ft-star ∙ pp₀) (varCₛ last _) varCL₁))
-                                             (star-varCL' ∙ ss-of-section _ (varCₛ last _)))
-        eq10 = ft-star ∙ pp₀       
+        eq9 = ! (ap-irr-star refl star-qqvarCL-star-qqqqpp
+                ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁}
+                ∙ ap-irr-IdStr refl
+                               (star-pp' (ft-star ∙ pp₀)
+                                         (ft-star ∙ pp₀)
+                                         (varCₛ last _)
+                                         varCL₁)
+                               (star-varCL''
+                               ∙ ap ss (is-section= (ft-star ∙ pp₀)
+                                                    (varCₛ last _)
+                                                    varCL₁))
+                               (star-varCL'
+                               ∙ ss-of-section _ (varCₛ last _)))    
         eq12 = ft-star ∙ pp₀
  
-      wA = star (pp A) A A= (pp₁ ∙ A=)
-      wwA = star+ (pp A) wA eq10 A= (pp₁ ∙ A=)      
+      wA = star (pp A) A A= (pp₁ ∙ A=)     
       wP = star+++ (pp A) P {X' = T-ftP Γ A A=} P= {X'' = wA} T-ftP= {X''' = A} eq12 {X'''' = Γ} A= (pp₁ ∙ A=)
 
   abstract

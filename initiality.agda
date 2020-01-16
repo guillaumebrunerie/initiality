@@ -407,12 +407,12 @@ jjStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ P P= → //-e
                           (jjStrₛS (proj Γ) (proj A) A= (proj P) P= (proj d) dₛ d₁ (proj a) aₛ a₁ (proj b) bₛ b₁ (proj p) pₛ p₁)
                    ∙ ap-irr-jjStr refl (lemmaTy A A=)
                                        (ap-irr (λ z p → ⟦ getTy P ⟧Ty z $ p)
-                                               (ap-irr-IdStr sC (⟦weakenTy⟧= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A)))
-                                                                (ap-irr-star (ap pp (⟦weakenTy⟧= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A))))
-                                                                             (⟦weakenTy⟧= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A)))
-                                                                 ∙ ⟦weakenTy⟧= (weakenTy (getTy A)) (⟦weakenTy⟧ᵈ (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A))) (⟦⟧Ty-ft (weakenTy (getTy A))))
-                                                                (ap ss (ap pp (⟦weakenTy⟧= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A)))))
-                                                                (ap ss (ap idC (⟦weakenTy⟧= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A))))))
+                                               (ap-irr-IdStr sC (⟦weaken⟧Ty= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A)))
+                                                                (ap-irr-star (ap pp (⟦weaken⟧Ty= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A))))
+                                                                             (⟦weaken⟧Ty= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A)))
+                                                                 ∙ ⟦weaken⟧Ty= (weakenTy (getTy A)) (⟦weaken⟧Tyᵈ (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A))) (⟦⟧Ty-ft (weakenTy (getTy A))))
+                                                                (ap ss (ap pp (⟦weaken⟧Ty= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A)))))
+                                                                (ap ss (ap idC (⟦weaken⟧Ty= (getTy A) (⟦⟧dTyᵈ A (reflect A=)) (⟦⟧Ty-ft (getTy A))))))
                                                ∙ lemmaTy {Γ = dctx (((der Γ , dTy A A=) , WeakTy (dTy A A=)) , Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=))))}
                                                          P (P= ∙ eq (box (CtxSymm ((CtxTy=Ctx A A= ,, congTyEq refl weakenTy-to-[]Ty (TyRefl (WeakTy (dTy A A=)))) ,,
                                                                                    congTyEq refl (ap-id-Ty (weakenTy-to-[]Ty ∙ ap (λ z → z [ _ ]Ty) weakenTy-to-[]Ty) refl refl)
