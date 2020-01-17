@@ -426,7 +426,7 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
 
 ⟦idMor+⟧= : {X : Ob n} {Y : Ob (suc n)} (p : ft Y ≡ X) (u : TmExpr n)
             (uᵈ : isDefined (⟦ u ⟧Tm X)) (u₁ : ∂₁ (⟦ u ⟧Tm X $ uᵈ) ≡ Y)
-            → ⟦ idMor n , u ⟧Mor X Y $ idMor+⟧ᵈ p u uᵈ u₁ ≡ ⟦ u ⟧Tm X $ uᵈ
+            → ⟦ idMor n , u ⟧Mor X Y $ ⟦idMor+⟧ᵈ p u uᵈ u₁ ≡ ⟦ u ⟧Tm X $ uᵈ
 ⟦idMor+⟧= refl u uᵈ u₁ =
   ap-irr-comp (ap-irr-qq (⟦idMor⟧= refl) refl ∙ qq-id {p = refl}) refl ∙ id-right u₁
 
@@ -436,7 +436,7 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
            → (uᵈ : isDefined (⟦ u ⟧Tm Y))
            → (q : ∂₁ (⟦ u ⟧Tm Y $ uᵈ) ≡ X)
            → isDefined (⟦ substTy B u ⟧Ty Y)
-⟦subst⟧Tyᵈ B Bᵈ u uᵈ q = ⟦tsubst⟧Tyᵈ B Bᵈ _ (idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)
+⟦subst⟧Tyᵈ B Bᵈ u uᵈ q = ⟦tsubst⟧Tyᵈ B Bᵈ _ (⟦idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)
 
 ⟦subst⟧Tmᵈ : {X : Ob (suc n)} {Y : Ob n} (v : TmExpr (suc n))
             → isDefined (⟦ v ⟧Tm X)
@@ -444,7 +444,7 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
             → (uᵈ : isDefined (⟦ u ⟧Tm Y))
             → (q : ∂₁ (⟦ u ⟧Tm Y $ uᵈ) ≡ X)
             → isDefined (⟦ substTm v u ⟧Tm Y)
-⟦subst⟧Tmᵈ v vᵈ u uᵈ q = ⟦tsubst⟧Tmᵈ v vᵈ _ (idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)
+⟦subst⟧Tmᵈ v vᵈ u uᵈ q = ⟦tsubst⟧Tmᵈ v vᵈ _ (⟦idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)
 
 ⟦subst⟧Ty= : {X : Ob (suc n)} {Y : Ob n} (B : TyExpr (suc n))
              (Bᵈ : isDefined (⟦ B ⟧Ty X))
@@ -452,7 +452,7 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
              (uᵈ : isDefined (⟦ u ⟧Tm Y))
              (q : ∂₁ (⟦ u ⟧Tm Y $ uᵈ) ≡ X)
             → ⟦ substTy B u ⟧Ty Y $ ⟦subst⟧Tyᵈ B Bᵈ u uᵈ q ≡ star (⟦ u ⟧Tm Y $ uᵈ) (⟦ B ⟧Ty X $ Bᵈ) (⟦⟧Ty-ft B) q
-⟦subst⟧Ty= B Bᵈ u uᵈ q = ! (⟦tsubst⟧Ty= B Bᵈ _ (idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)) ∙ ap-irr-star (idMor+⟧= (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q) refl
+⟦subst⟧Ty= B Bᵈ u uᵈ q = ! (⟦tsubst⟧Ty= B Bᵈ _ (⟦idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)) ∙ ap-irr-star (⟦idMor+⟧= (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q) refl
 
 ⟦subst⟧Tm= : {X : Ob (suc n)} {Y : Ob n} (v : TmExpr (suc n))
              (vᵈ : isDefined (⟦ v ⟧Tm X))
@@ -460,7 +460,7 @@ defining ⟦weaken⟧ first (as there is no δ that would mess up the terminatio
              (uᵈ : isDefined (⟦ u ⟧Tm Y))
              (q : ∂₁ (⟦ u ⟧Tm Y $ uᵈ) ≡ X)
             → ⟦ substTm v u ⟧Tm Y $ ⟦subst⟧Tmᵈ v vᵈ u uᵈ q ≡ starTm (⟦ u ⟧Tm Y $ uᵈ) (⟦ v ⟧Tm X $ vᵈ) (⟦⟧Tm₀ v) q
-⟦subst⟧Tm= v vᵈ u uᵈ q = ! (⟦tsubst⟧Tm= v vᵈ _ (idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)) ∙ ap-irr-starTm (idMor+⟧= (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q) refl
+⟦subst⟧Tm= v vᵈ u uᵈ q = ! (⟦tsubst⟧Tm= v vᵈ _ (⟦idMor+⟧ᵈ (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q)) ∙ ap-irr-starTm (⟦idMor+⟧= (ap ft (! q) ∙ ⟦⟧Tm₁-ft u refl) u uᵈ q) refl
 
 {- Double substitutions -}
 

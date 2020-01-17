@@ -80,7 +80,7 @@ ft→S : (X : ObS (suc n)) → ft (Ob→S X) ≡ Ob→S (ftS X)
 ft→S = //-elimP ft/
 
 pp/ : (X : DCtx (suc n)) → pp (Ob→S (proj X)) ≡ Mor→S (ppS (proj X))
-pp/ {n = n} (dctx' {ctx = Γ , A}(dΓ , dA)) = ! (⟦weakenMor⟧= (⟦⟧Ty-ft A) (idMor n) (⟦idMor⟧ᵈ {X = ⟦ Γ ⟧Ctx $ ⟦⟧Ctxᵈ dΓ} refl) ∙ ap-irr-comp (⟦idMor⟧= refl) refl ∙ id-right (pp₁ ∙ ⟦⟧Ty-ft A))
+pp/ {n = n} (dctx' {ctx = Γ , A}(dΓ , dA)) = ! (⟦weaken⟧Mor= (⟦⟧Ty-ft A) (idMor n) (⟦idMor⟧ᵈ {X = ⟦ Γ ⟧Ctx $ ⟦⟧Ctxᵈ dΓ} refl) ∙ ap-irr-comp (⟦idMor⟧= refl) refl ∙ id-right (pp₁ ∙ ⟦⟧Ty-ft A))
 
 pp→S : (X : ObS (suc n)) → pp (Ob→S X) ≡ Mor→S (ppS X)
 pp→S = //-elimP pp/
@@ -104,7 +104,7 @@ star→S : (f : MorS m n) (X : ObS (suc n)) (Y : ObS n) (q : ftS X ≡ Y) (f₁ 
 star→S = //-elimP (λ f → //-elimP (λ X → //-elimP (λ Y → star/ f X Y)))
 
 qq/ : (f : DMor m n) (X : DCtx (suc n)) (Y : DCtx n) (q : ftS (proj X) ≡ proj Y) (f₁ : ∂₁S (proj f) ≡ proj Y) → qq (Mor→S (proj f)) (Ob→S (proj X)) (ft→S (proj X) ∙ ap Ob→S q) (∂₁→S (proj f) ∙ ap Ob→S f₁) ≡ Mor→S (S.qq (proj f) (proj X) q f₁)
-qq/ f X Y q f₁ = ap-irr-qq (ap2-irr (λ x y z → ⟦ mor f ⟧Mor x y $ z) refl (Ob/-eq (reflect (f₁ ∙ ! q)))) refl ∙ ! (⟦weakenMor+⟧= (mor f) (⟦⟧dMorᵈ f (ftS-// X) (ref (lhs f)) (reflectOb (f₁ ∙ ! q))) (ft/ X)   (ap-irr-star refl (Ob/-eq (reflect (lemmaX X refl))) ∙ ⟦tsubst⟧Ty= (getTy X) (⟦⟧dTyᵈ X (ref _)) (mor f) (⟦⟧dMorᵈ f (ftS-// X) (ref _) (reflectOb (f₁ ∙ ! q)))))
+qq/ f X Y q f₁ = ap-irr-qq (ap2-irr (λ x y z → ⟦ mor f ⟧Mor x y $ z) refl (Ob/-eq (reflect (f₁ ∙ ! q)))) refl ∙ ! (⟦weaken⟧Mor+= (mor f) (⟦⟧dMorᵈ f (ftS-// X) (ref (lhs f)) (reflectOb (f₁ ∙ ! q))) (ft/ X)   (ap-irr-star refl (Ob/-eq (reflect (lemmaX X refl))) ∙ ⟦tsubst⟧Ty= (getTy X) (⟦⟧dTyᵈ X (ref _)) (mor f) (⟦⟧dMorᵈ f (ftS-// X) (ref _) (reflectOb (f₁ ∙ ! q)))))
 
 qq→S : (f : MorS m n) (X : ObS (suc n)) (Y : ObS n) (q : ftS X ≡ Y) (f₁ : ∂₁S f ≡ Y) → qq (Mor→S f) (Ob→S X) (ft→S X ∙ ap Ob→S q) (∂₁→S f ∙ ap Ob→S f₁) ≡ Mor→S (S.qq f X q f₁)
 qq→S = //-elimP (λ f → //-elimP (λ X → //-elimP (λ Y → qq/ f X Y)))
