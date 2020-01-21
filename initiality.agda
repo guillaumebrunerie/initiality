@@ -249,7 +249,8 @@ matchStr→S : (Γ : ObS n)
              (db₁ : ∂₁S db ≡ CCatwithinr.T-db₁ inrStrSynCCat Γ A A= B B= C C=)
              (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ SumStrS Γ A A= B B=)
              {w₁ : _} {w₂ : _} {w₃ : _}
-           → Mor→ f₀ (matchStrS Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ u uₛ u₁) ≡ matchStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=) (Ob→ f₀ C) (ft→S C ∙ ap (Ob→ f₀) C= ∙ SumStr→S Γ A A= B B=) (Mor→ f₀ da) (Mor→ₛ f₀ daₛ) w₁ (Mor→ f₀ db) (Mor→ₛ f₀ dbₛ) w₂ (Mor→ f₀ u) (Mor→ₛ f₀ uₛ) w₃
+           → Mor→ f₀ (matchStrS Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ u uₛ u₁)
+           ≡ matchStr sC (Ob→ f₀ Γ) (Ob→ f₀ A) (ft→S A ∙ ap (Ob→ f₀) A=) (Ob→ f₀ B) (ft→S B ∙ ap (Ob→ f₀) B=) (Ob→ f₀ C) (ft→S C ∙ ap (Ob→ f₀) C= ∙ SumStr→S Γ A A= B B=) (Mor→ f₀ da) (Mor→ₛ f₀ daₛ) w₁ (Mor→ f₀ db) (Mor→ₛ f₀ dbₛ) w₂ (Mor→ f₀ u) (Mor→ₛ f₀ uₛ) w₃
 matchStr→S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ C C= → //-elimP (λ da daₛ da₁ → //-elimP (λ db dbₛ db₁ → //-elimP (λ u uₛ u₁
           → lemma2 _ (matchStrₛS (proj Γ) (proj A) A= (proj B) B= (proj C) C= (proj da) daₛ da₁ (proj db) dbₛ db₁ (proj u) uₛ u₁)
           ∙ ap-irr-matchStr refl (lemmaTy A A=) (lemmaTy B B=) (lemmaTy C C=) (lemmaTm da daₛ da₁ (eq (Ctx≃ft+Ty (reflect A=)))) (lemmaTm db dbₛ db₁ (eq (Ctx≃ft+Ty (reflect B=)))) (lemmaTm u uₛ u₁ (SumStr=S (proj Γ) (proj A) A= (proj B) B=)))))))))

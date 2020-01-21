@@ -1360,12 +1360,28 @@ record CCatwithrefl {ccat : CCat} (ccatid : CCatwithId ccat) : Set₁ where
 
 
 
+  T-d₁_refl₁ : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} → IdStr A (weakenObj A=) (ft-star ∙ pp₀) (varC last A) ssₛ varCL₁ (varC last A) ssₛ varCL₁
+                                                           ≡ star (varC last A) (star+ (varC last A) (star++ (pp A) (T-ftP Γ A A=) T-ftP= (ft-star ∙ pp₀) A= (pp₁ ∙ A=)) (ft-star ∙ qq₀) (ft-star ∙ qq₀) varCL₁) (ft-star ∙ qq₀) (varCL₁ ∙ ! star-varCL-star-qqpp) 
+  T-d₁_refl₁ {A = A} = ! (ap-irr-star refl star-qqvarCL-star-qqqqpp
+                       ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁}
+                       ∙ ap-irr-IdStr refl
+                                      (star-pp' (ft-star ∙ pp₀)
+                                                (ft-star ∙ pp₀)
+                                                (varCₛ last A)
+                                                varCL₁)
+                                      (star-varCL''
+                                      ∙ ap ss (is-section= (ft-star ∙ pp₀)
+                                                           (varCₛ last A)
+                                                           varCL₁))
+                                      (star-varCL'
+                                      ∙ ss-of-section _ (varCₛ last A)))    
+
   T-d₁ : (Γ : Ob n) (A : Ob (suc n)) (A= : ft A ≡ Γ) (P : Ob (suc (suc (suc (suc n))))) (P= : ft P ≡ T-ftP Γ A A=) → Ob (suc (suc n))
   T-d₁ Γ A A= P P= = star (reflStr A wA eq1 (varC last A) (varCₛ last A) varCL₁)
                           (star+ (varC last A)
                                  (star++ (varC last A) wP eq2 eq3 eq4 varCL₁)
                           eq5 eq6 (varCL₁ ∙ eq7))
-                          eq8 (reflStr₁ ∙ eq9)
+                          eq8 (reflStr₁ ∙ T-d₁_refl₁)
     where
       abstract
         eq1 = ft-star ∙ pp₀
@@ -1376,19 +1392,6 @@ record CCatwithrefl {ccat : CCat} (ccatid : CCatwithId ccat) : Set₁ where
         eq6 = ft-star ∙ qq₀
         eq7 = ! star-varCL-star-qqpp
         eq8 = ft-star ∙ qq₀
-        eq9 = ! (ap-irr-star refl star-qqvarCL-star-qqqqpp
-                ∙ IdStrNat (varC₀ {k = last}) {g₁ = varCL₁}
-                ∙ ap-irr-IdStr refl
-                               (star-pp' (ft-star ∙ pp₀)
-                                         (ft-star ∙ pp₀)
-                                         (varCₛ last _)
-                                         varCL₁)
-                               (star-varCL''
-                               ∙ ap ss (is-section= (ft-star ∙ pp₀)
-                                                    (varCₛ last _)
-                                                    varCL₁))
-                               (star-varCL'
-                               ∙ ss-of-section _ (varCₛ last _)))    
         eq12 = ft-star ∙ pp₀
  
       wA = star (pp A) A A= (pp₁ ∙ A=)     
