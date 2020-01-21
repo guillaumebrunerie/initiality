@@ -2,8 +2,8 @@
 
 open import common 
 open import typetheory 
-open import syntx  
-open import rules
+open import syntx
+open import rules hiding (getTy)
 open import contextualcat
 open import quotients
 

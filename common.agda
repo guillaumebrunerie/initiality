@@ -106,14 +106,14 @@ data VarPos : ℕ → Set where
   last : VarPos (suc n)
   prev : VarPos n → VarPos (suc n)
 
+-- Size of the context before (and excluding) that variable
+_-VarPos'_ : (n : ℕ) → VarPos n → ℕ
+(suc m) -VarPos' last = m
+(suc m) -VarPos' prev k = m -VarPos' k
+
 -- Size of the context before (and including) that variable
 _-VarPos_ : (n : ℕ) → VarPos n → ℕ
-n -VarPos k = suc (n -VarPos' k) where
-
-  -- Size of the context before (and excluding) that variable
-  _-VarPos'_ : (n : ℕ) → VarPos n → ℕ
-  (suc m) -VarPos' last = m
-  (suc m) -VarPos' prev k = m -VarPos' k
+n -VarPos k = suc (n -VarPos' k)
 
 
 data WeakPos : ℕ → Set where

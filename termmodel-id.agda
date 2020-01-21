@@ -3,7 +3,7 @@
 open import common
 open import typetheory
 open import syntx
-open import rules
+open import rules hiding (getTy)
 open import reflection hiding (proj)
 open import contextualcat
 open import quotients
@@ -114,7 +114,7 @@ abstract
                                                                             (WeakTy (dTy A A=))
                                                                             weakenTy-to-[]Ty)
                                                 (Id (WeakTy (WeakTy (dTy A A=)))
-                                                    (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=)))
+                                                    (VarPrevLast (dTy A A=))
                                                     (VarLast (WeakTy (dTy A A=))))
                                                 (ap-id-Ty (weakenTy-to-[]Ty ∙ ap-[]Ty weakenTy-to-[]Ty refl) refl refl)))
                                                 
@@ -156,7 +156,7 @@ abstract
                   dmorTm= dmorTmₛ dmorTmₛ rΓ (SubstTyFullEq' (der Γ)
                                                              (((der Γ , dTy A A=)
                                                              , WeakTy (dTy A A=))
-                                                             , Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=))))
+                                                             , Id (WeakTy (WeakTy (dTy A A=))) (VarPrevLast (dTy A A=)) (VarLast (WeakTy (dTy A A=))))
                                                              dP=
                                                              ((idMor+= (der Γ) (dTm= A= ra aₛ a'ₛ a₁ a'₁)
                                                              , congTmEqTy (! (weakenSubstTy (getTy A) (getTm a))) (dTm= A= rb bₛ b'ₛ b₁ b'₁))
@@ -170,7 +170,7 @@ abstract
                                                                                     (WeakTy (dTy A A=))
                                                                                     weakenTy-to-[]Ty)
                                                         (Id (WeakTy (WeakTy (dTy A A=)))
-                                                            (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=)))
+                                                            (VarPrevLast (dTy A A=))
                                                             (VarLast (WeakTy (dTy A A=))))
                                                         (ap-id-Ty (weakenTy-to-[]Ty ∙ ap-[]Ty weakenTy-to-[]Ty refl) refl refl)))     
                    dd= : Derivable ((ctx Γ , getTy A) ⊢ getTm d == getTm d' :> subst3Ty (weakenTy' (prev (prev (prev last))) (getTy P)) (var last) (var last) (refl (weakenTy (getTy A)) (var last)))

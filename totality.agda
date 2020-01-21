@@ -748,8 +748,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
    ⟦⟧Tmₛ b ,
    ⟦⟧Tm₁ Γᵈ db , tt)
 
-⟦⟧Tmᵈ Γᵈ (VarLast _) = tt
-⟦⟧Tmᵈ Γᵈ (VarPrev _ _) = tt
+⟦⟧Tmᵈ Γᵈ (Var _ _) = tt
 ⟦⟧Tmᵈ Γᵈ (Conv dA du dA=) = ⟦⟧Tmᵈ Γᵈ du
 
 ⟦⟧Tmᵈ Γᵈ {u = uu i} UUUU = tt
@@ -1164,8 +1163,18 @@ cong⟦⟧Mor refl δᵈ = δᵈ
       δ₁ = ⟦⟧Mor₁ δ
       u₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = ⟦tsubst⟧Tyᵈ B Bᵈ δ δᵈ'} du ∙ ! (⟦tsubst⟧Ty= B Bᵈ δ δᵈ') ∙ ap-irr-star (ap-irr {B = λ X → isDefined (⟦ δ ⟧Mor _ X)} (λ x z → ⟦ δ ⟧Mor _ x $ z) (! (⟦⟧Ty-ft B))) refl
 
-⟦⟧Tm₁ Γᵈ (VarLast {A = A} dA) = varCL₁ ∙ ⟦weaken⟧Ty= A (fst (snd Γᵈ)) (⟦⟧Ty-ft A)
-⟦⟧Tm₁ Γᵈ {u = var (prev k)} (VarPrev {B = B} {A = A} dA dk) = varC+₁ k (⟦⟧Ty-ft B) (⟦⟧Tm₁ (fst Γᵈ) dk) ∙ ⟦weaken⟧Ty= A (⟦⟧Tyᵈ (fst Γᵈ) dA) (⟦⟧Ty-ft B)
+⟦getTy⟧ᵈ : (k : VarPos n) {Γ : Ctx n} (Γᵈ : isDefined ⟦ Γ ⟧Ctx)
+         → isDefined (⟦ getTy k Γ ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ))
+⟦getTy⟧ᵈ last {Γ = Γ , A} (Γᵈ , (Aᵈ , tt)) = ⟦weaken⟧Tyᵈ A Aᵈ (⟦⟧Ty-ft A)
+⟦getTy⟧ᵈ (prev k) {Γ = Γ , A} Γᵈ = ⟦weaken⟧Tyᵈ (getTy k Γ) (⟦getTy⟧ᵈ k (fst Γᵈ)) (⟦⟧Ty-ft A)
+
+⟦getTy⟧ : (k : VarPos n) {Γ : Ctx n} (Γᵈ : isDefined ⟦ Γ ⟧Ctx) (Aᵈ : isDefined (⟦ getTy k Γ ⟧Ty (⟦ Γ ⟧Ctx $ _)))
+        → ∂₁ (⟦ var k ⟧Tm (⟦ Γ ⟧Ctx $ Γᵈ) $ tt) ≡
+          ⟦ getTy k Γ ⟧Ty (⟦ Γ ⟧Ctx $ Γᵈ) $ Aᵈ
+⟦getTy⟧ last {Γ = Γ , A} Γᵈ Aᵈ = varCL₁ ∙ ⟦weaken⟧Ty= A (fst (snd Γᵈ)) (⟦⟧Ty-ft A)
+⟦getTy⟧ (prev k) {Γ = Γ , A} Γᵈ Aᵈ = varC+₁ k (⟦⟧Ty-ft A) (⟦getTy⟧ k (fst Γᵈ) (⟦getTy⟧ᵈ k (fst Γᵈ))) ∙ ⟦weaken⟧Ty= (getTy k Γ) (⟦getTy⟧ᵈ k (fst Γᵈ)) (⟦⟧Ty-ft A)
+
+⟦⟧Tm₁ Γᵈ (Var k dA) = ⟦getTy⟧ k Γᵈ (⟦getTy⟧ᵈ k Γᵈ)
 ⟦⟧Tm₁ Γᵈ (Conv dA du dA=) = ⟦⟧Tm₁ Γᵈ du ∙ ⟦⟧TyEq Γᵈ dA= {Aᵈ = ⟦⟧Tyᵈ Γᵈ dA}
 
 ⟦⟧Tm₁ Γᵈ {u = uu i} UUUU = uuStr₁
@@ -1640,6 +1649,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
                                       (⟦weaken⟧Tm=' k p pᵈ X+= X= Z=)
 
 
+⟦⟧TyEq Γᵈ (TyRefl dA) = refl
 ⟦⟧TyEq Γᵈ (TySymm dA=) = ! (⟦⟧TyEq Γᵈ dA=)
 ⟦⟧TyEq Γᵈ (TyTran dB dA= dB=) = ⟦⟧TyEq Γᵈ dA= {A'ᵈ = ⟦⟧Tyᵈ Γᵈ dB} ∙ ⟦⟧TyEq Γᵈ dB=
 
@@ -1662,8 +1672,7 @@ cong⟦⟧Mor refl δᵈ = δᵈ
 ⟦⟧TyEq Γᵈ ElNat= = elnatStr
 ⟦⟧TyEq Γᵈ (ElId= da du dv) = elidStr
 
-⟦⟧TmEq Γᵈ (VarLastCong dA) = refl
-⟦⟧TmEq (Γᵈ , Bᵈ , tt) (VarPrevCong {B = B} {k = k} {k' = k'} dA dx) = ap ss (pp^prev (⟦⟧Ty-ft B)) ∙ (! star-varCL'' ∙ ap-irr-starTm refl (⟦⟧TmEq Γᵈ dx) ∙ star-varCL'') ∙ ! (ap ss (pp^prev (⟦⟧Ty-ft B)))
+⟦⟧TmEq Γᵈ (TmRefl du) = refl
 ⟦⟧TmEq Γᵈ (TmSymm du=) = ! (⟦⟧TmEq Γᵈ du=)
 ⟦⟧TmEq Γᵈ (TmTran dv du= du'=) = ⟦⟧TmEq Γᵈ du= {u'ᵈ = ⟦⟧Tmᵈ Γᵈ dv} ∙ ⟦⟧TmEq Γᵈ du'=
 ⟦⟧TmEq Γᵈ (ConvEq dA' du= dA=) = ⟦⟧TmEq Γᵈ du=

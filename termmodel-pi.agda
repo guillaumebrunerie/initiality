@@ -4,7 +4,7 @@ open import common
 open import typetheory
 open import reflection hiding (proj) 
 open import syntx
-open import rules
+open import rules hiding (getTy)
 open import contextualcat
 open import quotients
 open import termmodel-common

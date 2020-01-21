@@ -3,7 +3,7 @@
 open import common
 open import typetheory
 open import syntx
-open import rules
+open import rules hiding (getTy)
 open import reflection hiding (proj)
 open import contextualcat
 open import quotients
@@ -30,13 +30,13 @@ abstract
                                                                          (SubstTyMorEq' {Δ = ((ctx Γ , getTy A) , weakenTy (getTy A)) , id (weakenTy (weakenTy (getTy A))) (var (prev last)) (var last)}
                                                                                         ((der Γ , dTy A A=) , Id (WeakTy (dTy A A=)) (WeakTm (dTm A= a aₛ a₁)) (VarLast (dTy A A=)))
                                                                                         (((der Γ , dTy A A=) , WeakTy (dTy A A=)) ,
-                                                                                        Id (WeakTy (WeakTy (dTy A A=))) (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=))) (VarLast (WeakTy (dTy A A=))))
+                                                                                        Id (WeakTy (WeakTy (dTy A A=))) (VarPrevLast (dTy A A=)) (VarLast (WeakTy (dTy A A=))))
                                                                                         (ConvTy (dTy P P=)
                                                                                                 (CtxSymm (ConvTyDCtxEq (ConvTyDCtxEq (CtxTy=Ctx A A=)
                                                                                                                                      (WeakTy (dTy A A=))
                                                                                                                                      weakenTy-to-[]Ty)
                                                                                                                        (Id (WeakTy (WeakTy (dTy A A=)))
-                                                                                                                           (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=)))
+                                                                                                                           (VarPrevLast (dTy A A=))
                                                                                                                            (VarLast (WeakTy (dTy A A=))))
                                                                                                                            (ap-id-Ty (weakenTy-to-[]Ty ∙ ap-[]Ty weakenTy-to-[]Ty refl) refl refl))))
                                                                                         (congMorEqCtxEq {Δ = ((ctx Γ , getTy A) , weakenTy (getTy A)) ,
@@ -45,7 +45,7 @@ abstract
                                                                                                         (WeakMor+Eq' (der Γ , dTy A A=)
                                                                                                                      ((der Γ , dTy A A=) , WeakTy (dTy A A=))
                                                                                                                      (Id (WeakTy (WeakTy (dTy A A=)))
-                                                                                                                         (VarPrev (WeakTy (dTy A A=)) (VarLast (dTy A A=)))
+                                                                                                                         (VarPrevLast (dTy A A=))
                                                                                                                          (VarLast (WeakTy (dTy A A=))))
                                                                                                                      (congMorEqCtxEq (Ctx+= refl (weakenSubstTy (getTy A) _))
                                                                                                                                      (WeakMor+Eq' (der Γ)
