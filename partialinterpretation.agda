@@ -411,3 +411,22 @@ ap-irr-T-ftP refl refl = refl
 ⟦⟧Mor₁ : {X : Ob n} {Y : Ob m} (δ : Mor n m) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} → ∂₁ (⟦ δ ⟧Mor X Y $ δᵈ) ≡ Y
 ⟦⟧Mor₁ ◇ = ptmor₁ ∙ ! (pt-unique _)
 ⟦⟧Mor₁ (δ , u) = comp₁ ∙ qq₁
+
+
+
+{- Transport along the various partial interpretation functions -}
+
+cong⟦⟧Tyᵈ : {X Y : Ob n} {A : TyExpr n} → X ≡ Y → isDefined (⟦ A ⟧Ty Y) → isDefined (⟦ A ⟧Ty X)
+cong⟦⟧Tyᵈ refl Aᵈ = Aᵈ
+
+cong⟦⟧TyEq : {X Y : Ob n} {A : TyExpr n} (p : X ≡ Y) (w₁ : _) → ⟦ A ⟧Ty Y $ w₁ ≡ ⟦ A ⟧Ty X $ (cong⟦⟧Tyᵈ {A = A} p w₁)
+cong⟦⟧TyEq refl _ = refl
+
+congTyEq⟦⟧Tyᵈ : {X : Ob n} {A B : TyExpr n} → A ≡ B → isDefined (⟦ A ⟧Ty X) → isDefined (⟦ B ⟧Ty X)
+congTyEq⟦⟧Tyᵈ refl Aᵈ = Aᵈ
+
+congTyEq⟦⟧Ty= : {X : Ob n} {A B : TyExpr n} (p : A ≡ B) (w₁ : _) → ⟦ A ⟧Ty X $ w₁ ≡ ⟦ B ⟧Ty X $ (congTyEq⟦⟧Tyᵈ {A = A} p w₁)
+congTyEq⟦⟧Ty= refl _ = refl
+
+cong⟦⟧Mor : {X : Ob n} {Y Y' : Ob m} {δ : Mor n m} → Y ≡ Y' → isDefined (⟦ δ ⟧Mor X Y) → isDefined (⟦ δ ⟧Mor X Y')
+cong⟦⟧Mor refl δᵈ = δᵈ

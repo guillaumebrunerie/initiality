@@ -632,3 +632,16 @@ ap-[]Tm refl refl = refl
 
 ap-[]Mor : {θ θ' : Mor n k} {δ δ' : Mor m n} → θ ≡ θ' → δ ≡ δ' → θ [ δ ]Mor ≡ θ' [ δ' ]Mor
 ap-[]Mor refl refl = refl
+
+
+{- Extracting types from contexts -}
+
+getTy : {n : ℕ} (k : VarPos n) → Ctx n → TyExpr n
+getTy last (Γ , A) = weakenTy A
+getTy (prev k) (Γ , A) = weakenTy (getTy k Γ)
+
+weaken-getTy : (k : WeakPos n) (k' : VarPos n) (Γ : Ctx n) (T : TyExpr (n -WeakPos k)) → weakenTy' k (getTy k' Γ) ≡ getTy (weakenVar' k k') (weakenCtx k Γ T)
+weaken-getTy last last (Γ , A) T = refl
+weaken-getTy (prev k) last (Γ , A) T = weakenTy-weakenTy
+weaken-getTy last (prev k') (Γ , A) T = refl
+weaken-getTy (prev k) (prev k') (Γ , A) T = weakenTy-weakenTy ∙ ap weakenTy (weaken-getTy k k' Γ T)

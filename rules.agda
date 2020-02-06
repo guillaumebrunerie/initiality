@@ -13,16 +13,6 @@ data Judgment : Set where
   _⊢_==_ : (Γ : Ctx n) → TyExpr n → TyExpr n → Judgment
   _⊢_==_:>_ : (Γ : Ctx n) → TmExpr n → TmExpr n → TyExpr n → Judgment
 
-getTy : {n : ℕ} (k : VarPos n) → Ctx n → TyExpr n
-getTy last (Γ , A) = weakenTy A
-getTy (prev k) (Γ , A) = weakenTy (getTy k Γ)
-
-weaken-getTy : (k : WeakPos n) (k' : VarPos n) (Γ : Ctx n) (T : TyExpr (n -WeakPos k)) → weakenTy' k (getTy k' Γ) ≡ getTy (weakenVar' k k') (weakenCtx k Γ T)
-weaken-getTy last last (Γ , A) T = refl
-weaken-getTy (prev k) last (Γ , A) T = weakenTy-weakenTy
-weaken-getTy last (prev k') (Γ , A) T = refl
-weaken-getTy (prev k) (prev k') (Γ , A) T = weakenTy-weakenTy ∙ ap weakenTy (weaken-getTy k k' Γ T)
-
 {- Derivability of judgments, the typing rules of the type theory -}
 
 data Derivable : Judgment → Prop where
