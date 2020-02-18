@@ -38,7 +38,11 @@ data Derivable : Judgment → Prop where
   TmTran : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n}
     → Derivable (Γ ⊢ v :> A) → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
 
-  -- Conversion rules
+  -- The derivability of [B] and of [v] in [TyTran]/[TmTran] is used in
+  -- [⟦⟧TyEq]/[⟦⟧TmEq]
+
+  -- Conversion rules, the derivability of [A] is used in [⟦⟧Tm₁], and cannot be
+  -- derived from the other two arguments because we would need [Γ] derivable
   Conv : {Γ : Ctx n} {u : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
     → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ u :> B)
   ConvEq : {Γ : Ctx n} {u u' : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
