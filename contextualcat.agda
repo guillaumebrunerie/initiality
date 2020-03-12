@@ -1588,7 +1588,9 @@ record StructuredCCat : Set₁ where
                → matchStr Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ (inrStr Γ A A= B B= b bₛ b₁) inrStrₛ inrStr₁ ≡ starTm b db (is-section₀ dbₛ db₁ ∙ T-db₁=) b₁  
 
     betaPiStr : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {u : MorC (suc n) (suc (suc n))} {uₛ : is-section u} {u₁ : ∂₁ u ≡ B} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A}
-            → appStr Γ A A= B B= (lamStr Γ A A= B B= u uₛ u₁) lamStrₛ lamStr₁ a aₛ a₁ ≡ starTm a u (is-section₀ uₛ u₁ ∙ B=) a₁
+            → appStr Γ A A= B B= (lamStr Γ A A= B B= u uₛ u₁) lamStrₛ lamStr₁ a aₛ a₁
+              ≡ starTm a u (is-section₀ uₛ u₁ ∙ B=) a₁
+            
     betaSig1Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr1Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ a
     betaSig2Str : {Γ : Ob n} {A : Ob (suc n)} {A= : ft A ≡ Γ} {B : Ob (suc (suc n))} {B= : ft B ≡ A} {a : MorC n (suc n)} {aₛ : is-section a} {a₁ : ∂₁ a ≡ A} {b : MorC n (suc n)} {bₛ : is-section b} {b₁ : ∂₁ b ≡ star a B B= a₁} → pr2Str Γ A A= B B= (pairStr Γ A A= B B= a aₛ a₁ b bₛ b₁) pairStrₛ pairStr₁ ≡ b
 

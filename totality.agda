@@ -881,7 +881,7 @@ judgments.
         → ⟦ Γ ⟧Ctx $ Γᵈ ≡ ⟦ Γ' ⟧Ctx $ Γ'ᵈ
 ⟦⟧CtxEq tt = refl
 ⟦⟧CtxEq (dΓ= , dA=) {Γᵈ = Γᵈ , Aᵈ , tt}
-  = ⟦⟧TyEq+ Γᵈ (ConvTyEq dA= (CtxSymm dΓ=)) (⟦⟧CtxEq dΓ=)
+  = ⟦⟧TyEq+ Γᵈ dA= (⟦⟧CtxEq dΓ=)
 
 {- Totality of the interpretation function on morphisms -}
 

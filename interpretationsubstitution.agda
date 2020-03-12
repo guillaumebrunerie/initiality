@@ -19,6 +19,254 @@ In this file we prove that substitution commutes with the partial interpretation
 appropriate sense. The main mutually inductive lemmas are about total substitutions.
 -}
 
+{- equalitie of interpretation of substitution, if defined -}
+
+⟦tsubst⟧Ty=' : {X : Ob n} {Y : Ob m} (A : TyExpr m)
+              (Aᵈ : isDefined (⟦ A ⟧Ty Y))
+              (δ : Mor n m)
+              (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
+              {w₁ : _}
+            → star (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y $ Aᵈ) (⟦⟧Ty-ft A) (⟦⟧Mor₁ δ)
+              ≡ ⟦ A [ δ ]Ty ⟧Ty X $ w₁
+
+⟦tsubst⟧Tm=' : {X : Ob n} {Y : Ob m} (u : TmExpr m)
+              (uᵈ : isDefined (⟦ u ⟧Tm Y))
+              (δ : Mor n m)
+              (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
+              {w₁ : _}
+            → starTm (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ u ⟧Tm Y $ uᵈ) (⟦⟧Tm₀ u) (⟦⟧Mor₁ δ)
+              ≡ ⟦ u [ δ ]Tm ⟧Tm X $ w₁
+
+{- various helper lemmas -}
+
+⟦tsubst⟧Ty+= : {Z : Ob (suc n)} {X : Ob n} {Y : Ob m} {Y' : Ob (suc m)} (A : TyExpr (suc m)) (Aᵈ : isDefined (⟦ A ⟧Ty Y'))
+               (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (Y'= : ft Y' ≡ Y)
+               (Z= : star (⟦ δ ⟧Mor X Y $ δᵈ) Y' Y'= (⟦⟧Mor₁ δ) ≡ Z)
+               {w₁ : _}
+             → star+ (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y' $ Aᵈ) (⟦⟧Ty-ft A) Y'= (⟦⟧Mor₁ δ)
+               ≡ ⟦ A [ weakenMor+ δ ]Ty ⟧Ty Z $ w₁
+⟦tsubst⟧Ty+= A Aᵈ δ δᵈ Y'= Z= = ap-irr-star (! (⟦weaken⟧Mor+= δ δᵈ Y'= Z=)) refl ∙ ⟦tsubst⟧Ty=' A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= Z=)
+
+
+⟦tsubst⟧Tm+= : {Z : Ob (suc n)} {X : Ob n} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc m))
+               (uᵈ : isDefined (⟦ u ⟧Tm Y'))
+               (δ : Mor n m)
+               (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
+               (Y'= : ft Y' ≡ Y)
+               (Z= : star (⟦ δ ⟧Mor X Y $ δᵈ) Y' Y'= (⟦⟧Mor₁ δ) ≡ Z)
+               {w₁ : _}
+             → starTm+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'= (⟦ u ⟧Tm Y' $ uᵈ) (⟦⟧Tm₀ u) (⟦⟧Mor₁ δ)
+               ≡ ⟦ u [ weakenMor+ δ ]Tm ⟧Tm Z $ w₁
+⟦tsubst⟧Tm+= u uᵈ δ δᵈ Y'= Z= =
+  ap ss (ap-irr-comp refl (! (⟦weaken⟧Mor+= δ δᵈ Y'= Z=)))
+  ∙ ⟦tsubst⟧Tm=' u uᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= Z=)
+
+
+⟦tsubst⟧Ty++= : {Z : Ob (suc (suc n))} {X : Ob n} {Y : Ob m} {Y' : Ob (suc m)} {Y'' : Ob (suc (suc m))} (A : TyExpr (suc (suc m))) (Aᵈ : isDefined (⟦ A ⟧Ty Y''))
+               (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (Y''= : ft Y'' ≡ Y') (Y'= : ft Y' ≡ Y)
+               (Z= : star+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'' Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
+               {w₁ : _}
+               → star++ (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y'' $ Aᵈ) (⟦⟧Ty-ft A) Y''= Y'= (⟦⟧Mor₁ δ)
+                 ≡ ⟦ A [ weakenMor+ (weakenMor+ δ) ]Ty ⟧Ty Z $ w₁
+⟦tsubst⟧Ty++= A Aᵈ δ δᵈ Y''= Y'= Z= = ap-irr-star (ap-irr-qq (! (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=))) refl) refl ∙ ⟦tsubst⟧Ty+= A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) Y''= (ap-irr-star (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) refl ∙ Z=) 
+
+
+-- TODO : make something prettier
+⟦tsubst⟧Tm++= : {Z : Ob (suc (suc n))} {X : Ob n} {Y'' : Ob (suc (suc m))} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc (suc m)))
+                (uᵈ : isDefined (⟦ u ⟧Tm Y''))
+                (δ : Mor n m)
+                (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
+                (Y''= : ft Y'' ≡ Y') (Y'= : ft Y' ≡ Y)
+                (Z= : star+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'' Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
+                {w₁ : _}
+                → starTm++ (⟦ δ ⟧Mor X Y $ δᵈ) Y''= Y'= (⟦ u ⟧Tm Y'' $ uᵈ) (⟦⟧Tm₀ u) (⟦⟧Mor₁ δ)
+                  ≡ ⟦ u [ weakenMor+ (weakenMor+ δ) ]Tm ⟧Tm Z $ w₁
+⟦tsubst⟧Tm++= u uᵈ δ δᵈ Y''= Y'= Z= = ap-irr-starTm (ap-irr-qq (! (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=))) refl) refl ∙ ⟦tsubst⟧Tm+= u uᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) Y''= (ap-irr-star (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) refl ∙ Z=) 
+
+⟦tsubst⟧Ty+++= : {Z : Ob (suc (suc (suc n)))} {X : Ob n} {Y : Ob m} {Y' : Ob (suc m)} {Y'' : Ob (suc (suc m))} {Y''' : Ob (suc (suc (suc m)))} (A : TyExpr (suc (suc (suc m)))) (Aᵈ : isDefined (⟦ A ⟧Ty Y'''))
+                 (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (Y'''= : ft Y''' ≡ Y'') (Y''= : ft Y'' ≡ Y') (Y'= : ft Y' ≡ Y)
+                 (Z= : star++ (⟦ δ ⟧Mor X Y $ δᵈ) Y''' Y'''= Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
+                 {w₁ : _}
+                 → star+++ (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y''' $ Aᵈ) (⟦⟧Ty-ft A) Y'''= Y''= Y'= (⟦⟧Mor₁ δ)
+                   ≡ ⟦ A [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty ⟧Ty Z $ w₁
+⟦tsubst⟧Ty+++= A Aᵈ δ δᵈ Y'''= Y''= Y'= Z= = ap-irr-star (ap-irr-qq (ap-irr-qq (! (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=)))) refl) refl) refl ∙ ⟦tsubst⟧Ty++= A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=))) Y'''= Y''= (ap-irr-star (ap-irr-qq (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=))) refl) refl ∙ Z=)
+
+{- proof of the main lemma -}
+
+⟦tsubst⟧Ty=' (uu i) Aᵈ δ δᵈ =
+  UUStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Ty=' (el i v) (vᵈ , _) δ δᵈ =
+  ElStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-ElStr refl
+                 (⟦tsubst⟧Tm=' v vᵈ δ δᵈ)
+⟦tsubst⟧Ty=' (sum A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ =
+  SumStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-SumStr refl
+                  (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                  (⟦tsubst⟧Ty=' B Bᵈ δ δᵈ)
+⟦tsubst⟧Ty=' (pi A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ =
+  PiStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-PiStr refl
+                 (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                 (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ (⟦⟧Ty-ft A) (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ))
+⟦tsubst⟧Ty=' (sig A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ =
+  SigStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-SigStr refl
+                  (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                  (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ (⟦⟧Ty-ft A) (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ))
+⟦tsubst⟧Ty=' empty Aᵈ δ δᵈ =
+  EmptyStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Ty=' unit Aᵈ δ δᵈ =
+  UnitStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Ty=' nat Aᵈ δ δᵈ =
+  NatStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Ty=' (id A u v) (Aᵈ , A= , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) δ δᵈ =
+  IdStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-IdStr refl
+                 (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                 (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+                 (⟦tsubst⟧Tm=' v vᵈ δ δᵈ)
+
+⟦tsubst⟧Tm=' (var ()) _ ◇
+⟦tsubst⟧Tm=' (var last) _ (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) =
+  star-varCL'' {g₀ = id₀} ∙ ap ss (id-right (comp₁ ∙ qq₁)) ∙ ! ss-comp ∙ ss-of-section (⟦ u ⟧Tm _ $ _) (⟦⟧Tmₛ u)
+⟦tsubst⟧Tm=' (var (prev k)) _ (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) =
+  (star-varCL'' {g₀ = pp^₀ (prev k) _} ∙ ap ss (ap-irr-comp (pp^prev refl) refl ∙ ! assoc ∙ ap-irr-comp (assoc ∙ ap-irr-comp refl pp-qq ∙ ! assoc) refl ∙ assoc ∙ ap-irr-comp refl (refl ∙ is-section= (ft-star ∙ ⟦⟧Mor₀ δ) (⟦⟧Tmₛ u) u₁) ∙ id-left (comp₀ ∙ ⟦⟧Mor₀ δ)) ∙ ! (star-varCL'' {g₀ = pp^₀ k _})) ∙ ⟦tsubst⟧Tm=' (var k) tt δ δᵈ
+
+⟦tsubst⟧Tm=' (uu i) tt δ δᵈ =
+  uuStrNat (⟦⟧Mor₀ δ)
+
+⟦tsubst⟧Tm=' (sum i a b) (aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
+  sumStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-sumStr refl
+                  (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+                  (⟦tsubst⟧Tm=' b bᵈ δ δᵈ)
+⟦tsubst⟧Tm=' (inl A B a) (Aᵈ , A= , Bᵈ , B= , aᵈ , aₛ , a₁ , tt) δ δᵈ =
+  inlStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-inlStr refl
+                  (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                  (⟦tsubst⟧Ty=' B Bᵈ δ δᵈ)
+                  (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)            
+⟦tsubst⟧Tm=' (inr A B b) (Aᵈ , A= , Bᵈ , B= , bᵈ , bₛ , b₁ , tt) δ δᵈ =
+  inrStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-inrStr refl
+                  (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                  (⟦tsubst⟧Ty=' B Bᵈ δ δᵈ)
+                  (⟦tsubst⟧Tm=' b bᵈ δ δᵈ)
+⟦tsubst⟧Tm=' (match A B C da db u) (Aᵈ , A= , Bᵈ , B= , Cᵈ , C= , daᵈ , daₛ , da₁ , dbᵈ , dbₛ , db₁ , uᵈ , uₛ , u₁) δ δᵈ =
+  matchStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-matchStr refl
+                    (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                    (⟦tsubst⟧Ty=' B Bᵈ δ δᵈ)
+                    (⟦tsubst⟧Ty+= C Cᵈ δ δᵈ SumStr= (SumStrNat (⟦⟧Mor₀ δ)
+                                                    ∙ ap-irr-SumStr refl
+                                                                    (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                                                                    (⟦tsubst⟧Ty=' B Bᵈ δ δᵈ)))
+                    (⟦tsubst⟧Tm+= da daᵈ δ δᵈ A= (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ))
+                    (⟦tsubst⟧Tm+= db dbᵈ δ δᵈ B= (⟦tsubst⟧Ty=' B Bᵈ δ δᵈ))
+                    (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+
+⟦tsubst⟧Tm=' (pi i a b) (aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
+  piStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-piStr refl (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+                      (⟦tsubst⟧Tm+= b bᵈ δ δᵈ ElStr= (ElStrNat (⟦⟧Mor₀ δ)
+                                                     ∙ ap-irr-ElStr refl
+                                                                    (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)))                     
+⟦tsubst⟧Tm=' (lam A B u) (Aᵈ , A= , Bᵈ , B= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  lamStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-lamStr refl A[δ]=
+                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
+                       (⟦tsubst⟧Tm+= u uᵈ δ δᵈ A= A[δ]=)
+    where A[δ]= = ⟦tsubst⟧Ty=' A Aᵈ δ δᵈ
+⟦tsubst⟧Tm=' (app A B f a) (Aᵈ , A= , Bᵈ , B= , fᵈ , fₛ , f₁ , aᵈ , aₛ , a₁ , tt) δ δᵈ =
+  appStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-appStr refl A[δ]=
+                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
+                       (⟦tsubst⟧Tm=' f fᵈ δ δᵈ)
+                       (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+    where A[δ]= = ⟦tsubst⟧Ty=' A Aᵈ δ δᵈ
+    
+⟦tsubst⟧Tm=' (sig i a b) (aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
+  sigStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-sigStr refl (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+                       (⟦tsubst⟧Tm+= b bᵈ δ δᵈ ElStr= (ElStrNat (⟦⟧Mor₀ δ)
+                                                      ∙ ap-irr-ElStr refl
+                                                                     (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)))
+⟦tsubst⟧Tm=' (pair A B a b) (Aᵈ , A= , Bᵈ , B= , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
+  pairStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-pairStr refl A[δ]=
+                        (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
+                        (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+                        (⟦tsubst⟧Tm=' b bᵈ δ δᵈ)
+    where A[δ]= = ⟦tsubst⟧Ty=' A Aᵈ δ δᵈ    
+⟦tsubst⟧Tm=' (pr1 A B u) (Aᵈ , A= , Bᵈ  , B= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  pr1StrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-pr1Str refl A[δ]=
+                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
+                       (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+    where A[δ]= = ⟦tsubst⟧Ty=' A Aᵈ δ δᵈ    
+⟦tsubst⟧Tm=' (pr2 A B u) (Aᵈ , A= , Bᵈ , B= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  pr2StrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-pr2Str refl  A[δ]=
+                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A=  A[δ]=)
+                       (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+    where A[δ]= = ⟦tsubst⟧Ty=' A Aᵈ δ δᵈ
+    
+⟦tsubst⟧Tm=' (empty i) tt δ δᵈ =
+  emptyStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Tm=' (emptyelim A u) (Aᵈ , A= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  emptyelimStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-emptyelimStr refl
+                        (⟦tsubst⟧Ty+= A Aᵈ δ δᵈ EmptyStr= (⟦tsubst⟧Ty=' empty tt δ δᵈ)) (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+
+⟦tsubst⟧Tm=' (unit i) tt δ δᵈ =
+  unitStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Tm=' tt tt δ δᵈ =
+  ttStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Tm=' (unitelim A dtt u) (Aᵈ , A= , dttᵈ , dttₛ , dtt₁ , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  unitelimStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-unitelimStr refl
+                       (⟦tsubst⟧Ty+= A Aᵈ δ δᵈ UnitStr= (⟦tsubst⟧Ty=' unit tt δ δᵈ)) (⟦tsubst⟧Tm=' dtt dttᵈ δ δᵈ) (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+  
+⟦tsubst⟧Tm=' (nat i) tt δ δᵈ =
+  natStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Tm=' zero tt δ δᵈ =
+  zeroStrNat (⟦⟧Mor₀ δ)
+⟦tsubst⟧Tm=' (suc u) (uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  sucStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-sucStr refl (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+⟦tsubst⟧Tm=' (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  natelimStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-natelimStr refl (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= (⟦tsubst⟧Ty=' nat tt δ δᵈ))
+                           (⟦tsubst⟧Tm=' dO dOᵈ δ δᵈ)
+                           (⟦tsubst⟧Tm++= dS dSᵈ δ δᵈ P= NatStr= (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= (⟦tsubst⟧Ty=' nat tt δ δᵈ)))
+                           (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+
+⟦tsubst⟧Tm=' (id i a u v) (aᵈ , aₛ , a₁ , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) δ δᵈ =
+  idStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-idStr refl (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+                      (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+                      (⟦tsubst⟧Tm=' v vᵈ δ δᵈ)
+⟦tsubst⟧Tm=' (refl A u) (Aᵈ , A= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
+  reflStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-reflStr refl (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ)
+                        (⟦tsubst⟧Tm=' u uᵈ δ δᵈ)
+⟦tsubst⟧Tm=' (jj A P d a b p) (Aᵈ , A= , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt) δ δᵈ =
+  jjStrNat (⟦⟧Mor₀ δ)
+  ∙ ap-irr-jjStr refl A[δ]=
+                      (⟦tsubst⟧Ty+++= P Pᵈ δ δᵈ T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (⟦⟧Mor₀ δ)
+                       ∙ ap-irr-T-ftP refl A[δ]=))
+                      (⟦tsubst⟧Tm+= d dᵈ δ δᵈ A= A[δ]=)
+                      (⟦tsubst⟧Tm=' a aᵈ δ δᵈ)
+                      (⟦tsubst⟧Tm=' b bᵈ δ δᵈ)
+                      (⟦tsubst⟧Tm=' p pᵈ δ δᵈ)
+    where A[δ]= = (⟦tsubst⟧Ty=' A Aᵈ δ δᵈ )
+
+
+
+
+{- interpretation of substitution is defined -}
+
 ⟦tsubst⟧Tyᵈ : {X : Ob n} {Y : Ob m} (A : TyExpr m)
             → isDefined (⟦ A ⟧Ty Y)
             → (δ : Mor n m)
@@ -31,21 +279,25 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
             → isDefined (⟦ δ ⟧Mor X Y)
             → isDefined (⟦ u [ δ ]Tm ⟧Tm X)
 
+{- Dealing with equality and codomain of the interpretation of a substitution -}
+
+
 ⟦tsubst⟧Ty= : {X : Ob n} {Y : Ob m} (A : TyExpr m)
               (Aᵈ : isDefined (⟦ A ⟧Ty Y))
               (δ : Mor n m)
               (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
             → star (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y $ Aᵈ) (⟦⟧Ty-ft A) (⟦⟧Mor₁ δ)
-              ≡ ⟦ A [ δ ]Ty ⟧Ty X $ ⟦tsubst⟧Tyᵈ A Aᵈ δ δᵈ
+              ≡ ⟦ A [ δ ]Ty ⟧Ty X $ ⟦tsubst⟧Tyᵈ A Aᵈ δ δᵈ 
+⟦tsubst⟧Ty= A Aᵈ δ δᵈ = ⟦tsubst⟧Ty=' A Aᵈ δ δᵈ {w₁ = ⟦tsubst⟧Tyᵈ A Aᵈ δ δᵈ}
+
 
 ⟦tsubst⟧Tm= : {X : Ob n} {Y : Ob m} (u : TmExpr m)
               (uᵈ : isDefined (⟦ u ⟧Tm Y))
               (δ : Mor n m)
               (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
             → starTm (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ u ⟧Tm Y $ uᵈ) (⟦⟧Tm₀ u) (⟦⟧Mor₁ δ)
-              ≡ ⟦ u [ δ ]Tm ⟧Tm X $ ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ
-
-{- Codomain of the interpretation of a substitution -}
+              ≡ ⟦ u [ δ ]Tm ⟧Tm X $ ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ 
+⟦tsubst⟧Tm= u uᵈ δ δᵈ = ⟦tsubst⟧Tm=' u uᵈ δ δᵈ {w₁ = ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ}
 
 ⟦tsubst⟧Tm₁ : {Z : Ob (suc m)} {X : Ob n} {Y : Ob m} (u : TmExpr m)
             → (uᵈ : isDefined (⟦ u ⟧Tm Y)) (u₁ : ∂₁ (⟦ u ⟧Tm Y $ uᵈ) ≡ Z)
@@ -64,13 +316,6 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
              → isDefined (⟦ A [ weakenMor+ δ ]Ty ⟧Ty Z)
 ⟦tsubst⟧Ty+ᵈ A Aᵈ δ δᵈ Y'= Z= = ⟦tsubst⟧Tyᵈ A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= Z=)
 
-⟦tsubst⟧Ty+= : {Z : Ob (suc n)} {X : Ob n} {Y : Ob m} {Y' : Ob (suc m)} (A : TyExpr (suc m)) (Aᵈ : isDefined (⟦ A ⟧Ty Y'))
-               (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (Y'= : ft Y' ≡ Y)
-               (Z= : star (⟦ δ ⟧Mor X Y $ δᵈ) Y' Y'= (⟦⟧Mor₁ δ) ≡ Z)
-             → star+ (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y' $ Aᵈ) (⟦⟧Ty-ft A) Y'= (⟦⟧Mor₁ δ)
-               ≡ ⟦ A [ weakenMor+ δ ]Ty ⟧Ty Z $ ⟦tsubst⟧Ty+ᵈ A Aᵈ δ δᵈ Y'= Z=
-⟦tsubst⟧Ty+= A Aᵈ δ δᵈ Y'= Z= = ap-irr-star (! (⟦weaken⟧Mor+= δ δᵈ Y'= Z=)) refl ∙ ⟦tsubst⟧Ty= A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= Z=)
-
 ⟦tsubst⟧Tm+ᵈ : {Z : Ob (suc n)} {X : Ob n} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc m))
                (uᵈ : isDefined (⟦ u ⟧Tm Y'))
                (δ : Mor n m)
@@ -79,18 +324,6 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
                (Z= : star (⟦ δ ⟧Mor X Y $ δᵈ) Y' Y'= (⟦⟧Mor₁ δ) ≡ Z)
               → isDefined (⟦ u [ weakenMor+ δ ]Tm ⟧Tm Z)
 ⟦tsubst⟧Tm+ᵈ u uᵈ δ δᵈ Y'= Z= = ⟦tsubst⟧Tmᵈ u uᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= Z=)
-
-⟦tsubst⟧Tm+= : {Z : Ob (suc n)} {X : Ob n} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc m))
-               (uᵈ : isDefined (⟦ u ⟧Tm Y'))
-               (δ : Mor n m)
-               (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
-               (Y'= : ft Y' ≡ Y)
-               (Z= : star (⟦ δ ⟧Mor X Y $ δᵈ) Y' Y'= (⟦⟧Mor₁ δ) ≡ Z)
-             → starTm+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'= (⟦ u ⟧Tm Y' $ uᵈ) (⟦⟧Tm₀ u) (⟦⟧Mor₁ δ)
-               ≡ ⟦ u [ weakenMor+ δ ]Tm ⟧Tm Z $ ⟦tsubst⟧Tm+ᵈ u uᵈ δ δᵈ Y'= Z=
-⟦tsubst⟧Tm+= u uᵈ δ δᵈ Y'= Z= =
-  ap ss (ap-irr-comp refl (! (⟦weaken⟧Mor+= δ δᵈ Y'= Z=)))
-  ∙ ⟦tsubst⟧Tm= u uᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= Z=)
 
 ⟦tsubst⟧Tm+₁ : {Z : Ob (suc n)} {X : Ob n} {Y'' : Ob (suc (suc m))} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc m))
                (uᵈ : isDefined (⟦ u ⟧Tm Y')) (u₁ : ∂₁ (⟦ u ⟧Tm Y' $ uᵈ) ≡ Y'')               
@@ -109,13 +342,6 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
               → isDefined (⟦ A [ weakenMor+ (weakenMor+ δ) ]Ty ⟧Ty Z)
 ⟦tsubst⟧Ty++ᵈ A Aᵈ δ δᵈ Y''= Y'= Z= = ⟦tsubst⟧Ty+ᵈ A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) Y''= ((ap-irr-star (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) refl) ∙ Z=)
 
-⟦tsubst⟧Ty++= : {Z : Ob (suc (suc n))} {X : Ob n} {Y : Ob m} {Y' : Ob (suc m)} {Y'' : Ob (suc (suc m))} (A : TyExpr (suc (suc m))) (Aᵈ : isDefined (⟦ A ⟧Ty Y''))
-               (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (Y''= : ft Y'' ≡ Y') (Y'= : ft Y' ≡ Y)
-               (Z= : star+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'' Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
-               → star++ (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y'' $ Aᵈ) (⟦⟧Ty-ft A) Y''= Y'= (⟦⟧Mor₁ δ)
-                 ≡ ⟦ A [ weakenMor+ (weakenMor+ δ) ]Ty ⟧Ty Z $ ⟦tsubst⟧Ty++ᵈ A Aᵈ δ δᵈ Y''= Y'= Z=
-⟦tsubst⟧Ty++= A Aᵈ δ δᵈ Y''= Y'= Z= = ap-irr-star (ap-irr-qq (! (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=))) refl) refl ∙ ⟦tsubst⟧Ty+= A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) Y''= (ap-irr-star (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) refl ∙ Z=) 
-
 ⟦tsubst⟧Tm++ᵈ : {Z : Ob (suc (suc n))} {X : Ob n} {Y'' : Ob (suc (suc m))} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc (suc m)))
                (uᵈ : isDefined (⟦ u ⟧Tm Y''))
                (δ : Mor n m)
@@ -124,17 +350,6 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
                (Z= : star+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'' Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
               → isDefined (⟦ u [ weakenMor+ (weakenMor+ δ) ]Tm ⟧Tm Z)             
 ⟦tsubst⟧Tm++ᵈ u uᵈ δ δᵈ Y''= Y'= Z= = ⟦tsubst⟧Tm+ᵈ u uᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) Y''= (ap-irr-star (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) refl ∙ Z=)  
-
--- TODO : make something prettier
-⟦tsubst⟧Tm++= : {Z : Ob (suc (suc n))} {X : Ob n} {Y'' : Ob (suc (suc m))} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc (suc m)))
-                (uᵈ : isDefined (⟦ u ⟧Tm Y''))
-                (δ : Mor n m)
-                (δᵈ : isDefined (⟦ δ ⟧Mor X Y))
-                (Y''= : ft Y'' ≡ Y') (Y'= : ft Y' ≡ Y)
-                (Z= : star+ (⟦ δ ⟧Mor X Y $ δᵈ) Y'' Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
-                → starTm++ (⟦ δ ⟧Mor X Y $ δᵈ) Y''= Y'= (⟦ u ⟧Tm Y'' $ uᵈ) (⟦⟧Tm₀ u) (⟦⟧Mor₁ δ)
-                  ≡ ⟦ u [ weakenMor+ (weakenMor+ δ) ]Tm ⟧Tm Z $ ⟦tsubst⟧Tm++ᵈ u uᵈ δ δᵈ Y''= Y'= Z=
-⟦tsubst⟧Tm++= u uᵈ δ δᵈ Y''= Y'= Z= = ap-irr-starTm (ap-irr-qq (! (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=))) refl) refl ∙ ⟦tsubst⟧Tm+= u uᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) Y''= (ap-irr-star (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ft-star ∙ qq₀) ∙ ap ft Z=)) refl ∙ Z=) 
 
 ⟦tsubst⟧Tm++₁ : {Z : Ob (suc (suc n))} {X : Ob n} {Y''' : Ob (suc (suc (suc m)))} {Y'' : Ob (suc (suc m))} {Y' : Ob (suc m)} {Y : Ob m} (u : TmExpr (suc (suc m)))
                 (uᵈ : isDefined (⟦ u ⟧Tm Y'')) (u₁ : ∂₁ (⟦ u ⟧Tm Y'' $ uᵈ) ≡ Y''')
@@ -153,16 +368,7 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
                → isDefined (⟦ A [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty ⟧Ty Z)
 ⟦tsubst⟧Ty+++ᵈ A Aᵈ δ δᵈ Y'''= Y''= Y'= Z= = ⟦tsubst⟧Ty++ᵈ A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=))) Y'''= Y''= (ap-irr-star (ap-irr-qq (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=))) refl) refl ∙ Z=)
 
-
-⟦tsubst⟧Ty+++= : {Z : Ob (suc (suc (suc n)))} {X : Ob n} {Y : Ob m} {Y' : Ob (suc m)} {Y'' : Ob (suc (suc m))} {Y''' : Ob (suc (suc (suc m)))} (A : TyExpr (suc (suc (suc m)))) (Aᵈ : isDefined (⟦ A ⟧Ty Y'''))
-                 (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (Y'''= : ft Y''' ≡ Y'') (Y''= : ft Y'' ≡ Y') (Y'= : ft Y' ≡ Y)
-                 (Z= : star++ (⟦ δ ⟧Mor X Y $ δᵈ) Y''' Y'''= Y''= Y'= (⟦⟧Mor₁ δ) ≡ Z)
-                 → star+++ (⟦ δ ⟧Mor X Y $ δᵈ) (⟦ A ⟧Ty Y''' $ Aᵈ) (⟦⟧Ty-ft A) Y'''= Y''= Y'= (⟦⟧Mor₁ δ)
-                   ≡ ⟦ A [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty ⟧Ty Z $ ⟦tsubst⟧Ty+++ᵈ A Aᵈ δ δᵈ Y'''= Y''= Y'= Z=
-⟦tsubst⟧Ty+++= A Aᵈ δ δᵈ Y'''= Y''= Y'= Z= = ap-irr-star (ap-irr-qq (ap-irr-qq (! (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=)))) refl) refl) refl ∙ ⟦tsubst⟧Ty++= A Aᵈ (weakenMor+ δ) (⟦weaken⟧Mor+ᵈ δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=))) Y'''= Y''= (ap-irr-star (ap-irr-qq (⟦weaken⟧Mor+= δ δᵈ Y'= (! (ap ft (ft-star ∙ qq₀) ∙ ft-star ∙ qq₀) ∙ ap ft (ap ft Z=))) refl) refl ∙ Z=)
-
-
-{- We can now prove the main lemmas -} 
+{- We can now prove the main lemma -} 
 
 ⟦tsubst⟧Tyᵈ (uu i) tt δ δᵈ = tt
 ⟦tsubst⟧Tyᵈ (el i v) (vᵈ , vₛ , v₁ , tt) δ δᵈ =
@@ -419,170 +625,6 @@ appropriate sense. The main mutually inductive lemmas are about total substituti
       p[δ]ₛ = ⟦⟧Tmₛ (p [ δ ]Tm)
       p[δ]₁ = ⟦tsubst⟧Tm₁ p pᵈ p₁ δ δᵈ ∙ IdStrNat (⟦⟧Mor₀ δ) ∙ ap-irr-IdStr refl A[δ]= (⟦tsubst⟧Tm= a aᵈ δ δᵈ) (⟦tsubst⟧Tm= b bᵈ δ δᵈ) -- using ⟦tsubst⟧Ty= (id A a b) (Aᵈ , A= , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ gives termination error
       
-
-⟦tsubst⟧Ty= (uu i) Aᵈ δ δᵈ =
-  UUStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Ty= (el i v) (vᵈ , _) δ δᵈ =
-  ElStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-ElStr refl
-                 (⟦tsubst⟧Tm= v vᵈ δ δᵈ)
-⟦tsubst⟧Ty= (sum A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ =
-  SumStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-SumStr refl
-                  (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                  (⟦tsubst⟧Ty= B Bᵈ δ δᵈ)
-⟦tsubst⟧Ty= (pi A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ =
-  PiStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-PiStr refl
-                 (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                 (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ (⟦⟧Ty-ft A) (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
-⟦tsubst⟧Ty= (sig A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ =
-  SigStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-SigStr refl
-                  (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                  (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ (⟦⟧Ty-ft A) (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
-⟦tsubst⟧Ty= empty Aᵈ δ δᵈ =
-  EmptyStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Ty= unit Aᵈ δ δᵈ =
-  UnitStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Ty= nat Aᵈ δ δᵈ =
-  NatStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Ty= (id A u v) (Aᵈ , A= , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) δ δᵈ =
-  IdStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-IdStr refl
-                 (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                 (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-                 (⟦tsubst⟧Tm= v vᵈ δ δᵈ)
-
-⟦tsubst⟧Tm= (var ()) _ ◇
-⟦tsubst⟧Tm= (var last) _ (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) =
-  star-varCL'' {g₀ = id₀} ∙ ap ss (id-right (comp₁ ∙ qq₁)) ∙ ! ss-comp ∙ ss-of-section (⟦ u ⟧Tm _ $ _) (⟦⟧Tmₛ u)
-⟦tsubst⟧Tm= (var (prev k)) _ (δ , u) (δᵈ , uᵈ , δ₁ , u₁ , tt) =
-  (star-varCL'' {g₀ = pp^₀ (prev k) _} ∙ ap ss (ap-irr-comp (pp^prev refl) refl ∙ ! assoc ∙ ap-irr-comp (assoc ∙ ap-irr-comp refl pp-qq ∙ ! assoc) refl ∙ assoc ∙ ap-irr-comp refl (refl ∙ is-section= (ft-star ∙ ⟦⟧Mor₀ δ) (⟦⟧Tmₛ u) u₁) ∙ id-left (comp₀ ∙ ⟦⟧Mor₀ δ)) ∙ ! (star-varCL'' {g₀ = pp^₀ k _})) ∙ ⟦tsubst⟧Tm= (var k) tt δ δᵈ
-
-⟦tsubst⟧Tm= (uu i) tt δ δᵈ =
-  uuStrNat (⟦⟧Mor₀ δ)
-
-⟦tsubst⟧Tm= (sum i a b) (aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
-  sumStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-sumStr refl
-                  (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-                  (⟦tsubst⟧Tm= b bᵈ δ δᵈ)
-⟦tsubst⟧Tm= (inl A B a) (Aᵈ , A= , Bᵈ , B= , aᵈ , aₛ , a₁ , tt) δ δᵈ =
-  inlStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-inlStr refl
-                  (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                  (⟦tsubst⟧Ty= B Bᵈ δ δᵈ)
-                  (⟦tsubst⟧Tm= a aᵈ δ δᵈ)            
-⟦tsubst⟧Tm= (inr A B b) (Aᵈ , A= , Bᵈ , B= , bᵈ , bₛ , b₁ , tt) δ δᵈ =
-  inrStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-inrStr refl
-                  (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                  (⟦tsubst⟧Ty= B Bᵈ δ δᵈ)
-                  (⟦tsubst⟧Tm= b bᵈ δ δᵈ)
-⟦tsubst⟧Tm= (match A B C da db u) (Aᵈ , A= , Bᵈ , B= , Cᵈ , C= , daᵈ , daₛ , da₁ , dbᵈ , dbₛ , db₁ , uᵈ , uₛ , u₁) δ δᵈ =
-  matchStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-matchStr refl
-                    (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                    (⟦tsubst⟧Ty= B Bᵈ δ δᵈ)
-                    (⟦tsubst⟧Ty+= C Cᵈ δ δᵈ SumStr= (⟦tsubst⟧Ty= (sum A B) (Aᵈ , A= , Bᵈ , B= , tt) δ δᵈ))
-                    (⟦tsubst⟧Tm+= da daᵈ δ δᵈ A= (⟦tsubst⟧Ty= A Aᵈ δ δᵈ))
-                    (⟦tsubst⟧Tm+= db dbᵈ δ δᵈ B= (⟦tsubst⟧Ty= B Bᵈ δ δᵈ))
-                    (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-
-⟦tsubst⟧Tm= (pi i a b) (aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
-  piStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-piStr refl (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-                      (⟦tsubst⟧Tm+= b bᵈ δ δᵈ ElStr= (⟦tsubst⟧Ty= (el i a) (aᵈ , aₛ , a₁ , tt) δ δᵈ))                      
-⟦tsubst⟧Tm= (lam A B u) (Aᵈ , A= , Bᵈ , B= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  lamStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-lamStr refl A[δ]=
-                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
-                       (⟦tsubst⟧Tm+= u uᵈ δ δᵈ A= A[δ]=)
-    where A[δ]= = ⟦tsubst⟧Ty= A Aᵈ δ δᵈ
-⟦tsubst⟧Tm= (app A B f a) (Aᵈ , A= , Bᵈ , B= , fᵈ , fₛ , f₁ , aᵈ , aₛ , a₁ , tt) δ δᵈ =
-  appStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-appStr refl A[δ]=
-                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
-                       (⟦tsubst⟧Tm= f fᵈ δ δᵈ)
-                       (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-    where A[δ]= = ⟦tsubst⟧Ty= A Aᵈ δ δᵈ
-    
-⟦tsubst⟧Tm= (sig i a b) (aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
-  sigStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-sigStr refl (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-                       (⟦tsubst⟧Tm+= b bᵈ δ δᵈ ElStr= (⟦tsubst⟧Ty= (el i a) (aᵈ , aₛ , a₁ , tt) δ δᵈ))
-⟦tsubst⟧Tm= (pair A B a b) (Aᵈ , A= , Bᵈ , B= , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , tt) δ δᵈ =
-  pairStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-pairStr refl A[δ]=
-                        (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
-                        (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-                        (⟦tsubst⟧Tm= b bᵈ δ δᵈ)
-    where A[δ]= = ⟦tsubst⟧Ty= A Aᵈ δ δᵈ    
-⟦tsubst⟧Tm= (pr1 A B u) (Aᵈ , A= , Bᵈ  , B= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  pr1StrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-pr1Str refl A[δ]=
-                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A= A[δ]=)
-                       (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-    where A[δ]= = ⟦tsubst⟧Ty= A Aᵈ δ δᵈ    
-⟦tsubst⟧Tm= (pr2 A B u) (Aᵈ , A= , Bᵈ , B= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  pr2StrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-pr2Str refl  A[δ]=
-                       (⟦tsubst⟧Ty+= B Bᵈ δ δᵈ A=  A[δ]=)
-                       (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-    where A[δ]= = ⟦tsubst⟧Ty= A Aᵈ δ δᵈ
-    
-⟦tsubst⟧Tm= (empty i) tt δ δᵈ =
-  emptyStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Tm= (emptyelim A u) (Aᵈ , A= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  emptyelimStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-emptyelimStr refl
-                        (⟦tsubst⟧Ty+= A Aᵈ δ δᵈ EmptyStr= (⟦tsubst⟧Ty= empty tt δ δᵈ)) (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-
-⟦tsubst⟧Tm= (unit i) tt δ δᵈ =
-  unitStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Tm= tt tt δ δᵈ =
-  ttStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Tm= (unitelim A dtt u) (Aᵈ , A= , dttᵈ , dttₛ , dtt₁ , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  unitelimStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-unitelimStr refl
-                       (⟦tsubst⟧Ty+= A Aᵈ δ δᵈ UnitStr= (⟦tsubst⟧Ty= unit tt δ δᵈ)) (⟦tsubst⟧Tm= dtt dttᵈ δ δᵈ) (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-  
-⟦tsubst⟧Tm= (nat i) tt δ δᵈ =
-  natStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Tm= zero tt δ δᵈ =
-  zeroStrNat (⟦⟧Mor₀ δ)
-⟦tsubst⟧Tm= (suc u) (uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  sucStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-sucStr refl (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-⟦tsubst⟧Tm= (natelim P dO dS u) (Pᵈ , P= , dOᵈ , dOₛ , dO₁ , dSᵈ , dSₛ , dS₁ , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  natelimStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-natelimStr refl (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= (⟦tsubst⟧Ty= nat tt δ δᵈ))
-                           (⟦tsubst⟧Tm= dO dOᵈ δ δᵈ)
-                           (⟦tsubst⟧Tm++= dS dSᵈ δ δᵈ P= NatStr= (⟦tsubst⟧Ty+= P Pᵈ δ δᵈ NatStr= (⟦tsubst⟧Ty= nat tt δ δᵈ)))
-                           (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-
-⟦tsubst⟧Tm= (id i a u v) (aᵈ , aₛ , a₁ , uᵈ , uₛ , u₁ , vᵈ , vₛ , v₁ , tt) δ δᵈ =
-  idStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-idStr refl (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-                      (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-                      (⟦tsubst⟧Tm= v vᵈ δ δᵈ)
-⟦tsubst⟧Tm= (refl A u) (Aᵈ , A= , uᵈ , uₛ , u₁ , tt) δ δᵈ =
-  reflStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-reflStr refl (⟦tsubst⟧Ty= A Aᵈ δ δᵈ)
-                        (⟦tsubst⟧Tm= u uᵈ δ δᵈ)
-⟦tsubst⟧Tm= (jj A P d a b p) (Aᵈ , A= , Pᵈ , P= , dᵈ , dₛ , d₁ , aᵈ , aₛ , a₁ , bᵈ , bₛ , b₁ , pᵈ , pₛ , p₁ , tt) δ δᵈ =
-  jjStrNat (⟦⟧Mor₀ δ)
-  ∙ ap-irr-jjStr refl A[δ]=
-                      (⟦tsubst⟧Ty+++= P Pᵈ δ δᵈ T-ftP= (ft-star ∙ pp₀) A= (T-ftPNat (⟦⟧Mor₀ δ)
-                       ∙ ap-irr-T-ftP refl A[δ]=))
-                      (⟦tsubst⟧Tm+= d dᵈ δ δᵈ A= A[δ]=)
-                      (⟦tsubst⟧Tm= a aᵈ δ δᵈ)
-                      (⟦tsubst⟧Tm= b bᵈ δ δᵈ)
-                      (⟦tsubst⟧Tm= p pᵈ δ δᵈ)
-    where A[δ]= = (⟦tsubst⟧Ty= A Aᵈ δ δᵈ )
-
-
 
 {- We are done with the main induction in this file, here are a few additional lemmas needed later. -}
 
