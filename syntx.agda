@@ -146,6 +146,10 @@ weakenVarCommutes (prev p) (prev≤ x) = ap prev (weakenVarCommutes p x)
 
 unquoteDef weakenTyCommutes weakenTmCommutes = generate-weakenCommutes weakenTyCommutes weakenTmCommutes (quote weakenVarCommutes)
 
+weakenMorCommutes' : (θ : Mor n m) {k k' : WeakPos n} (_ : k ≤WP k') → weakenMor' (injWeakPos k') (weakenMor' k θ) ≡ weakenMor' (prev k) (weakenMor' k' θ)
+weakenMorCommutes' ◇ p = refl
+weakenMorCommutes' (θ , u) p = Mor+= (weakenMorCommutes' θ p) (weakenTmCommutes u p)
+
 weakenTmCommutes0 : {n : ℕ} (k : WeakPos n) (u : TmExpr n) → weakenTm' last (weakenTm' k u) ≡ weakenTm' (prev k) (weakenTm' last u)
 weakenTmCommutes0 k u = weakenTmCommutes u last≤
 
@@ -366,6 +370,10 @@ weakenMorInsert' : (θ : Mor n m) (δ : Mor k (suc n)) → weakenMor θ [ δ ]Mo
 weakenMorInsert' ◇ _  = refl
 weakenMorInsert' θ (δ , t) = weakenMorInsert θ δ t
 
+weakenMorInsert'' : (k : WeakPos m) (θ : Mor m l) (δ : Mor n m)  (t : TmExpr n) → weakenMor' k θ [ insertMor k t δ ]Mor ≡ θ [ δ ]Mor
+weakenMorInsert'' k ◇ δ t = refl
+weakenMorInsert'' k (θ , u) δ t = Mor+= (weakenMorInsert'' k θ δ t) (weakenTmInsert' k u δ t)
+
 
 [weakenMor]Mor : (δ : Mor n m) (θ : Mor m l) → (weakenMor θ [ weakenMor+ δ ]Mor) ≡ weakenMor (θ [ δ ]Mor)
 [weakenMor]Ty  : (δ : Mor n m) (C : TyExpr m) → (weakenTy C [ weakenMor+ δ ]Ty) ≡ weakenTy (C [ δ ]Ty)
@@ -544,10 +552,19 @@ ap-subst3Ty refl refl refl refl = refl
 []Ty-subst3Ty : {A : TyExpr (suc (suc (suc m)))} {u v w : TmExpr m} {δ : Mor n m} → (subst3Ty A u v w) [ δ ]Ty ≡ subst3Ty (A [ weakenMor+ (weakenMor+ (weakenMor+ δ)) ]Ty) (u [ δ ]Tm) (v [ δ ]Tm) (w [ δ ]Tm)
 []Ty-subst3Ty {A = A} {u} {v} {w} {δ} = []Ty-assoc _ _ _ ∙ ap (λ z → A [ ((z , u [ δ ]Tm) , v [ δ ]Tm) , w [ δ ]Tm ]Ty) (! (weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ weakenMorInsert _ _ _ ∙ [idMor]Mor δ ∙ ! (idMor[]Mor δ))) ∙ ! ([]Ty-assoc _ _ _)
 
-substTy-subst3Ty : {A : TyExpr (suc (suc (suc m)))} {u v w : TmExpr (suc m)} {t : TmExpr m} → substTy (subst3Ty (weakenTy' (prev (prev (prev last))) A) u v w) t ≡ subst3Ty A (substTm u t) (substTm v t) (substTm w t)
-substTy-subst3Ty {A = A} {u} {v} {w} {t} = []Ty-subst3Ty ∙ ap-subst3Ty (weakenTyInsert' (prev (prev (prev last))) A (idMor _) _ ∙ [idMor]Ty _) refl refl refl
+substTy-subst3Ty : {A : TyExpr (suc (suc (suc m)))} {u v w : TmExpr (suc m)} {t : TmExpr m}
+                 → substTy (subst3Ty (weakenTy' (prev (prev (prev last))) A) u v w) t
+                   ≡ subst3Ty A (substTm u t) (substTm v t) (substTm w t)
+substTy-subst3Ty {A = A} {u} {v} {w} {t} = []Ty-subst3Ty
+                                           ∙ ap-subst3Ty (weakenTyInsert' (prev (prev (prev last))) A (idMor _) _ ∙ [idMor]Ty _)
+                                                         refl
+                                                         refl
+                                                         refl
 
-weakenTy-subst3Ty : {k : WeakPos m} {A : TyExpr (suc (suc (suc m)))} {u v w : TmExpr m} → weakenTy' k (subst3Ty A u v w) ≡ subst3Ty (weakenTy' (prev (prev (prev k))) A) (weakenTm' k u) (weakenTm' k v) (weakenTm' k w)
+weakenTy-subst3Ty : {k : WeakPos m} {A : TyExpr (suc (suc (suc m)))} {u v w : TmExpr m}
+                  → weakenTy' k (subst3Ty A u v w)
+                    ≡ subst3Ty (weakenTy' (prev (prev (prev k))) A)
+                               (weakenTm' k u) (weakenTm' k v) (weakenTm' k w)
 weakenTy-subst3Ty {k = k} {A} {u} {v} {w} =
   weaken[]Ty A _ _
   ∙ ! (weakenTyInsert' (prev (prev (prev k))) A _ (var (WeakPosToVarPos k)))
@@ -603,8 +620,9 @@ subst2Ty-weakenTy = weakenTyInsert _ _ _ ∙ substTy-weakenTy
 subst2Ty-weakenTy1 : {A : TyExpr (suc n)} {u v : TmExpr n} → subst2Ty (weakenTy A) u v ≡ substTy A u
 subst2Ty-weakenTy1 = weakenTyInsert _ _ _
 
-subst2Ty-weakenTy2 : {A : TyExpr (suc n)} {u v : TmExpr n} → subst2Ty (weakenTy' (prev last) A) u v ≡ substTy A v
-subst2Ty-weakenTy2 = weakenTyInsert' _ _ _ _
+-- we don't use this
+-- subst2Ty-weakenTy2 : {A : TyExpr (suc n)} {u v : TmExpr n} → subst2Ty (weakenTy' (prev last) A) u v ≡ substTy A v
+-- subst2Ty-weakenTy2 = weakenTyInsert' _ _ _ _
 
 substTy-substTy : {A : TyExpr (suc (suc n))} {u : TmExpr (suc n)} {v : TmExpr n} → substTy (substTy A u) v ≡ subst2Ty A v (substTm u v)
 substTy-substTy {A = A} {u} {v} = []Ty-assoc _ _ _ ∙ ap (λ z → A [ (z , _) , substTm u v ]Ty) (weakenMorInsert _ _ _ ∙ idMor[]Mor _)
