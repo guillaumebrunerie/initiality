@@ -254,3 +254,9 @@ unquoteDecl ap-refl-Tm = generate-ap (quote TmExpr.refl) ap-refl-Tm
 iterate : ℕ → (List (Arg Term) → Term) → Term → Term
 iterate 0 f t = t
 iterate (suc n) f t = f (earg (iterate n f t) ∷ [])
+
+
+-- Is this the `same'?
+-- iterate' : (n : ℕ) {P : ℕ → Set} (f : {k : ℕ} → P k → P (suc k)) → {k : ℕ} → P k → P (n + k)
+-- iterate' zero f x = x
+-- iterate' (suc n) f {k = k} x = f {k = n + k} (iterate' n (λ {k} x → f {k = k} x) {k = k} x)
