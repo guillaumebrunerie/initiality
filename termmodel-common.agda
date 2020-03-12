@@ -2,12 +2,11 @@
 
 open import common 
 open import typetheory 
-open import syntx
-open import rules hiding (getTy)
-open import contextualcat
+open import syntx hiding (getTy)
+open import rules 
 open import quotients
 
-open CCat hiding (Mor) renaming (id to idC)
+-- open CCat hiding (Mor) renaming (id to idC)
 
 {- Preliminary definitions -}
 
@@ -28,6 +27,15 @@ record DMor (n m : ℕ) : Set where
     {mor} : Mor n m
     morDer : ctx lhs ⊢ mor ∷> ctx rhs
 open DMor public
+ 
+--hack
+
+private
+  postulate
+    ‗ : ∀ {l} {P : Prop l} → P
+
+kill : ∀ {l} {P : Prop l} → P → P
+kill p = ‗
 
 dctx : {ctx : Ctx n} → ⊢ ctx → DCtx n
 dctx dΓ = dctx' (kill dΓ)
@@ -122,11 +130,11 @@ getdMor (dmor' _ (dctx' {ctx = (_ , _)} _) {mor = (_ , _)} (dδ , _)) = dδ
 
 
 
-CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx' (getdCtx A)) ≡ proj Γ) → ⊢ ctx Γ , getTy A == ctx A
-CtxTy=Ctx {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (reflectOb A=) ,, TyRefl (ConvTy (getdTy A) (reflectOb A=))
+CtxTy=Ctx : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx (getdCtx A)) ≡ proj Γ) → ⊢ ctx Γ , getTy A == ctx A
+CtxTy=Ctx {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (reflectOb A=) , TyRefl (ConvTy (getdTy A) (reflectOb A=))
 
 CtxTy=Ctx'' : {Γ : DCtx n} (A : DCtx (suc n)) (A= : (dctx (getdCtx A)) ≃ Γ) → ⊢ ctx Γ , getTy A == ctx A
-CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) ,, TyRefl (ConvTy (getdTy A) (unOb≃ A=)) 
+CtxTy=Ctx'' {Γ = Γ} A@(dctx' {ctx = (_ , _)} (_ , _)) A= = CtxSymm (unOb≃ A=) , TyRefl (ConvTy (getdTy A) (unOb≃ A=)) 
 
 CtxTy=Ctx' : (Γ : DCtx (suc n)) → ⊢ (getCtx (ctx Γ) , getTy Γ) == ctx Γ
 CtxTy=Ctx' (dctx' {ctx = (_ , _)} dΓ) = CtxRefl dΓ
@@ -138,7 +146,7 @@ getCtx= : {Γ Γ' : Ctx (suc n)} (rΓ : ⊢ Γ == Γ') → ⊢ getCtx Γ == getC
 getCtx= {Γ = (Γ , A)} {(Γ' , A')} (dΓ= , _) = dΓ=
 
 getTy= : {Γ Γ' : DCtx (suc n)} (rΓ : Γ ≃ Γ') → Derivable (getCtx (ctx Γ)  ⊢ getTy Γ == getTy Γ')
-getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (dΓ= , dA=)) = ConvTyEq dA= (CtxSymm dΓ=)
+getTy= {Γ = dctx' {ctx = (_ , _)} (dΓ , A)} {dctx' {ctx = (_ , _)} (dΓ' , dA')} (box (dΓ= , dA=)) = ConvTyEq dA= (CtxRefl dΓ)
 
 dLHS : {Γ : Ctx m} {Δ : DCtx (suc n)} {δ : Mor m (suc n)} → Γ ⊢ δ ∷> ctx Δ → Γ ⊢ getLHS δ ∷> getCtx (ctx Δ)
 dLHS {Δ = dctx' {ctx = (_ , _)} (dΔ , dB)} {δ = δ , u} (dδ , du) = dδ
@@ -150,4 +158,4 @@ getRHS= : {Γ : Ctx m} {Δ : Ctx (suc n)} {δ δ' : Mor m (suc n)} → Γ  ⊢ �
 getRHS= {Δ = (Δ , B)} {δ = (δ , u)} {δ' = (δ' , u')} (dδ= , du=) = du=
 
 ConvTyDCtxEq : {Γ Δ : Ctx n} {B B' : TyExpr n} → ⊢ Γ == Δ → Derivable (Γ ⊢ B) → B ≡ B' → ⊢ (Γ , B) == (Δ , B')
-ConvTyDCtxEq dΓ= dB refl = dΓ= ,, TyRefl dB
+ConvTyDCtxEq dΓ= dB refl = dΓ= , TyRefl dB

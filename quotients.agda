@@ -2,13 +2,6 @@
 
 open import common
 
---hack
-postulate
-  ‗ : ∀ {l} {P : Prop l} → P
-
-kill : ∀ {l} {P : Prop l} → P → P
-kill p = ‗
-
 {- PathOver -}
 
 -- Proof-irrelevant PathOver, over a proof-irrelevant equalities
@@ -57,7 +50,7 @@ module _ {A : Set} {R : EquivRel A} where
 
   //-elim : ∀ {l} {B : A // R → Set l} (proj* : (a : A) → B (proj a)) (eq* : {a b : A} (r : a ≃ b) → PathOver B (eq r) (proj* a) (proj* b))
             → (x : A // R) → B x
-  //-elim proj* eq* = //-elim' proj* (kill eq*)
+  //-elim proj* eq* = //-elim' proj* eq*
 
 {- Lemmas about PathOver -}
 
