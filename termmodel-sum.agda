@@ -3,8 +3,8 @@
 open import common
 open import reflection hiding (proj)
 open import typetheory
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules 
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -22,7 +22,7 @@ SumStrS-// Γ A A= B B= = dctx (der Γ , Sum (dTy A A=) (dTy B B=))
 SumStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _)
              {B B' : DCtx (suc n)} (rB : B ≃ B') (B= : _) (B'= : _)
            → SumStrS-// Γ A A= B B= ≃ SumStrS-// Γ' A' A'= B' B'=
-SumStrS-eq rΓ {A = A} rA A= A'= rB B= B'= = box (unOb≃ rΓ ,, SumCong (dTy= rA A=) (dTy= rB B=))
+SumStrS-eq rΓ {A = A} rA A= A'= rB B= B'= = box (unOb≃ rΓ , SumCong (dTy= rA A=) (dTy= rB B=))
 
 SumStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc n)) (B= : ftS B ≡ Γ)
         → ObS (suc n)
@@ -423,7 +423,7 @@ matchStr₁S : (Γ : ObS n)
            → S.∂₁ (matchStrS Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ u uₛ u₁) ≡ S.star u C C= u₁
 matchStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ C C= → //-elimP (λ da daₛ da₁ → //-elimP (λ db dbₛ db₁ → //-elimP (λ u uₛ u₁ →
                                       (eq (box ((reflectOb (!(S.is-section₀ uₛ u₁))
-                                               ,, SubstTyMorEq' (der Γ) (der Γ , Sum (dTy A A=) (dTy B B=)) (dTy C C=)
+                                               , SubstTyMorEq' (der Γ) (der Γ , Sum (dTy A A=) (dTy B B=)) (dTy C C=)
                                                                 (MorSymm (der Γ) (der Γ , Sum (dTy A A=) (dTy B B=)) (morTm=idMorTm refl u uₛ u₁)))))))))))))
 
 
@@ -439,7 +439,7 @@ elsumStrS : (i : ℕ) (Γ : ObS n)
             (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ)
             (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i Γ)
           → ElStrS i Γ (sumStrS i Γ a aₛ a₁ b bₛ b₁) (sumStrₛS i Γ a aₛ a₁ b bₛ b₁) (sumStr₁S i Γ a aₛ a₁ b bₛ b₁) ≡ SumStrS Γ (ElStrS i Γ a aₛ a₁) (ElStr=S i Γ a aₛ a₁) (ElStrS i Γ b bₛ b₁) (ElStr=S i Γ b bₛ b₁)
-elsumStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box (CtxRefl (der Γ) ,, ElSum= (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))))))
+elsumStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box (CtxRefl (der Γ) , ElSum= (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))))))
 
 {- BetaInl -}
 

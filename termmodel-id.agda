@@ -2,8 +2,8 @@
 
 open import common
 open import typetheory
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules
 open import reflection hiding (proj)
 open import contextualcat
 open import quotients
@@ -19,7 +19,7 @@ IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁ = dctx (der Γ , Id (dTy A A=) (dTm A=
 
 
 IdStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : _) (a'ₛ : _) (a₁ : _) (a'₁ : _) {b b' : DMor n (suc n)} (rb : b ≃ b') (bₛ : _) (b'ₛ : _) (b₁ : _) (b'₁ : _) → IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁ ≃ IdStrS-// Γ' A' A'= a' a'ₛ a'₁ b' b'ₛ b'₁
-IdStrS-eq rΓ rA A= A'= ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁ = box (unOb≃ rΓ ,, IdCong (dTy= rA A=) (dTm= A= ra aₛ a'ₛ a₁ a'₁) (dTm= A= rb bₛ b'ₛ b₁ b'₁))
+IdStrS-eq rΓ rA A= A'= ra aₛ a'ₛ a₁ a'₁ rb bₛ b'ₛ b₁ b'₁ = box (unOb≃ rΓ , IdCong (dTy= rA A=) (dTm= A= ra aₛ a'ₛ a₁ a'₁) (dTm= A= rb bₛ b'ₛ b₁ b'₁))
 
 IdStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ A) → ObS (suc n)
 IdStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Tm (λ a aₛ a₁ → //-elim-Tm (λ b bₛ b₁ → proj (IdStrS-// Γ A A= a aₛ a₁ b bₛ b₁))

@@ -2,8 +2,8 @@
 
 open import common
 open import typetheory
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules 
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -21,7 +21,7 @@ MorS n m = DMor n m // MorEquiv
 
 
 ∂₀S-// : DMor n m → DCtx n
-∂₀S-// δ = dctx (der (lhs δ))
+∂₀S-// δ = dctx (der (lhs δ)) 
 
 ∂₀S : {n m : ℕ} → MorS n m → ObS n
 ∂₀S = //-rec (λ δ → proj (∂₀S-// δ)) (λ r → eq (box (unMor≃-lhs r)))
@@ -49,7 +49,7 @@ compS-// : (g : DMor m k) (f : DMor n m) (X : DCtx m) (g₀ : ∂₀S (proj g) �
 compS-// g f X g₀ f₁ = dmor (lhs f) (rhs g) (SubstMor (morDer g) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀))))
 
 compS-eq : (g g' : DMor m k) (rg : g ≃ g') (f f' : DMor n m) (rf : f ≃ f') (X X' : DCtx m) (rX : X ≃ X') (g₀ : ∂₀S (proj g)≡ proj X) (g'₀ : ∂₀S (proj g') ≡ proj X') (f₁ : ∂₁S (proj f) ≡ proj X) (f'₁ : ∂₁S (proj f') ≡ proj X') → proj {R = MorEquiv} (compS-// g f X g₀ f₁) ≡ proj (compS-// g' f' X' g'₀ f'₁)
-compS-eq g g' rg f f' rf X X' rX g₀ g'₀ f₁ f'₁ = eq (box (unMor≃-lhs rf) (unMor≃-rhs rg) (SubstMorFullEq (der (lhs f)) (der (lhs g)) (der (rhs g)) (unMor≃-mor rg) (ConvMorEq (unMor≃-mor rf) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀)))))
+compS-eq g g' rg f f' rf X X' rX g₀ g'₀ f₁ f'₁ = eq (box (unMor≃-lhs rf) (unMor≃-rhs rg) (SubstMorFullEq' (der (lhs f)) (der (lhs g)) (der (rhs g)) (unMor≃-mor rg) (ConvMorEq (unMor≃-mor rf) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀)))))
  
 compS : (g : MorS m k) (f : MorS n m) (X : ObS m) (g₀ : ∂₀S g ≡ X) (f₁ : ∂₁S f ≡ X) → MorS n k
 compS = //-elim-PiS (λ g → //-elim-PiS (λ f → //-elim-PiP2 (λ X g₀ f₁ → proj (compS-// g f X g₀ f₁))
@@ -136,7 +136,7 @@ starS-// : (f : DMor m n) (X : DCtx (suc n)) (Y : DCtx n) (q : ftS (proj X) ≡ 
 starS-// f X Y q f₁ = dctx (der (lhs f) , (SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q)))))
 
 starS-eq : (f g : DMor m n) (r : f ≃ g) (X X' : DCtx (suc n)) (rX : X ≃ X') (Y Y' : DCtx n) (rY : Y ≃ Y') (q : ftS (proj X) ≡ proj Y) (q' : ftS (proj X') ≡ proj Y') (f₁ : ∂₁S (proj f) ≡ proj Y) (g₁ : ∂₁S (proj g) ≡ proj Y') → proj {R = ObEquiv} (starS-// f X Y q f₁) ≡ proj (starS-// g X' Y' q' g₁)
-starS-eq f g r X X' rX Y Y' rY q q' f₁ g₁ = eq (box (unMor≃-lhs r ,, SubstTyFullEq (ConvTy (getdTy X') (reflectOb (q' ∙ ! (f₁ ∙ eq rY)))) (morDer f) (ConvTyEq (getTy= rX) (reflectOb (q ∙ ! f₁))) (unMor≃-mor r)))
+starS-eq f g r X X' rX Y Y' rY q q' f₁ g₁ = eq (box (unMor≃-lhs r , SubstTyFullEq (ConvTy (getdTy X') (reflectOb (q' ∙ ! (f₁ ∙ eq rY)))) (morDer f) (ConvTyEq (getTy= rX) (reflectOb (q ∙ ! f₁))) (unMor≃-mor r)))
 
 starS : (f : MorS m n) (X : ObS (suc n)) (Y : ObS n) (q : ftS X ≡ Y) (f₁ : ∂₁S f ≡ Y) → ObS (suc m)
 starS = //-elim-PiS (λ f → //-elim-PiS (λ X → //-elim-PiP2 (λ Y q f₁ → proj (starS-// f X Y q f₁))
@@ -148,7 +148,7 @@ qqS-// : (f : DMor m n) (X : DCtx (suc n)) (Y : DCtx n) (q : ftS (proj X) ≡ pr
 qqS-// f X Y q f₁ = dmor (starS-// f X Y q f₁) X (ConvMor (WeakMor+ (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q)))) (CtxRefl (der (lhs f) , SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q))))) (CtxTy=Ctx' X))
 
 qqS-eq : (f g : DMor m n) (r : f ≃ g) (X X' : DCtx (suc n)) (rX : X ≃ X') (Y Y' : DCtx n) (rY : Y ≃ Y') (q : ftS (proj X) ≡ proj Y) (q' : ftS (proj X') ≡ proj Y') (f₁ : ∂₁S (proj f) ≡  proj Y) (g₁ : ∂₁S (proj g) ≡ proj Y') → proj {R = MorEquiv} (qqS-// f X Y q f₁) ≡ proj (qqS-// g X' Y' q' g₁)
-qqS-eq f g r X X' rX Y Y' rY q q' f₁ g₁ = eq (box (unMor≃-lhs r ,, SubstTyFullEq (ConvTy (getdTy X') (reflectOb (q' ∙ ! (eq rY) ∙ ! f₁))) (morDer f) (ConvTyEq (getTy= rX) (reflectOb (q ∙ ! f₁))) (unMor≃-mor r)) (unOb≃ rX) (ConvMorEq (WeakMor+Eq (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q))) (ConvMorEq (unMor≃-mor r) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q)))) (CtxRefl (der (lhs f) , SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q))))) (CtxTy=Ctx' X)))
+qqS-eq f g r X X' rX Y Y' rY q q' f₁ g₁ = eq (box (unMor≃-lhs r , SubstTyFullEq (ConvTy (getdTy X') (reflectOb (q' ∙ ! (eq rY) ∙ ! f₁))) (morDer f) (ConvTyEq (getTy= rX) (reflectOb (q ∙ ! f₁))) (unMor≃-mor r)) (unOb≃ rX) (ConvMorEq (WeakMor+Eq (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q))) (ConvMorEq (unMor≃-mor r) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q)))) (CtxRefl (der (lhs f) , SubstTy (getdTy X) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! q))))) (CtxTy=Ctx' X)))
 
 
 qqS : (f : MorS m n) (X : ObS (suc n)) (Y : ObS n) (q : ftS X ≡ Y) (f₁ : ∂₁S f ≡ Y) → MorS (suc m) (suc n)
@@ -174,7 +174,7 @@ ssS-// : (f : DMor m (suc n)) → DMor m (suc m)
 ssS-// f = dmor (lhs f) (dctx (der (lhs f) , SubstTy (getdTy (rhs f)) (getdMor f))) (idMor+ (der (lhs f)) (getdTm f))
 
 ssS-eq : (f f' : DMor m (suc n)) (rf : f ≃ f') → proj {R = MorEquiv} (ssS-// f) ≡ proj (ssS-// f')
-ssS-eq f f' rf = eq (box (unMor≃-lhs rf) (unMor≃-lhs rf ,, SubstTyFullEq' (der (lhs f)) (getdCtx (rhs f)) (getTy= {Γ = rhs f} {Γ' = rhs f'} (box (unMor≃-rhs rf))) (getLHS= {Δ = rhs f} (unMor≃-mor rf))) (idMor+= (der (lhs f)) (getRHS= (unMor≃-mor rf))))
+ssS-eq f f' rf = eq (box (unMor≃-lhs rf) (unMor≃-lhs rf , SubstTyFullEq' (der (lhs f)) (getdCtx (rhs f)) (getTy= {Γ = rhs f} {Γ' = rhs f'} (box (unMor≃-rhs rf))) (getLHS= {Δ = rhs f} (unMor≃-mor rf))) (idMor+= (der (lhs f)) (getRHS= (unMor≃-mor rf))))
 
 ssS : (f : MorS m (suc n)) → MorS m (suc m)
 ssS {n = n} = //-rec (λ f →  proj (ssS-// f)) (λ rf → ssS-eq _ _ rf)
@@ -183,7 +183,7 @@ ss₀S : (f : MorS m (suc n)) → ∂₀S (ssS f) ≡ ∂₀S f
 ss₀S = //-elimP (λ f → refl)
 
 ss₁S-// : (f : DMor m (suc n)) (X : DCtx (suc n)) (f₁ : ∂₁S (proj f) ≡ proj X)→ ∂₁S (ssS (proj f)) ≡ starS (compS (ppS (proj X)) (proj f) (proj X) (pp₀S (proj X)) f₁) (proj X) (ftS (proj X)) refl (comp₁S (ppS (proj X)) (proj f) (proj X) (pp₀S (proj X)) f₁ ∙ pp₁S (proj X))
-ss₁S-// f X f₁ = eq (box (CtxRefl (der (lhs f)) ,, SubstTyFullEq' (der (lhs f)) (getdCtx (rhs f)) (getTy= {Γ = rhs f} {Γ' = X}(box (reflectOb f₁))) (getLHS= {Δ = rhs f} (congMorEq refl refl refl (! (idMor[]Mor _)) (MorRefl (morDer f)))))) 
+ss₁S-// f X f₁ = eq (box (CtxRefl (der (lhs f)) , SubstTyFullEq' (der (lhs f)) (getdCtx (rhs f)) (getTy= {Γ = rhs f} {Γ' = X}(box (reflectOb f₁))) (getLHS= {Δ = rhs f} (congMorEq refl refl refl (! (idMor[]Mor _)) (MorRefl (morDer f)))))) 
 
 ss₁S : (f : MorS m (suc n)) (X : ObS (suc n)) (f₁ : ∂₁S f ≡ X) → ∂₁S (ssS f) ≡ starS (compS (ppS X) f X (pp₀S X) f₁) X (ftS X) refl (comp₁S (ppS X) f X (pp₀S X) f₁ ∙ pp₁S X)
 ss₁S = //-elimP (λ f → //-elimP (λ X → ss₁S-// f X))
@@ -201,19 +201,19 @@ pp-qqS : (f : MorS m n) (X : ObS (suc n)) (Y : ObS n) (p : ftS X ≡ Y) (f₁ : 
 pp-qqS = //-elimP (λ f → //-elimP (λ X → //-elimP (λ Y → pp-qqS-// f X Y)))
 
 star-idS : {n : ℕ} (X : ObS (suc n)) (Y : ObS n) (p : ftS X ≡ Y) → starS (idS n Y) X Y p (id₁S n Y) ≡ X
-star-idS = //-elimP (λ X → //-elimP (λ Y p → eq (box (CtxTran (reflectOb (! p) ,, congTyEq (! ([idMor]Ty _)) refl (TyRefl (ConvTy (getdTy X) (reflectOb p)))) (CtxTy=Ctx' X))))) 
+star-idS = //-elimP (λ X → //-elimP (λ Y p → eq (box (CtxTran (reflectOb (! p) , congTyEq (! ([idMor]Ty _)) refl (TyRefl (ConvTy (getdTy X) (reflectOb p)))) (CtxTy=Ctx' X))))) 
 
 qq-idS : {n : ℕ} (X : ObS (suc n)) (Y : ObS n) (p : ftS X ≡ Y) → qqS (idS n Y) X Y p (id₁S n Y) ≡ idS (suc n) X
-qq-idS  = //-elimP (λ X → //-elimP (λ Y p → eq (box (CtxTran (reflectOb (! p) ,, congTyEq (! ([idMor]Ty _)) refl (TyRefl (ConvTy (getdTy X) (reflectOb p)))) (CtxTy=Ctx' X)) (CtxRefl (der X)) (MorRefl (ConvMor (WeakMor+ (getdTy X) (idMorDerivable (getdCtx X))) (reflectOb p ,, TyRefl (SubstTy (getdTy X) (idMorDerivable (getdCtx X)))) (CtxTy=Ctx' X))))))
+qq-idS  = //-elimP (λ X → //-elimP (λ Y p → eq (box (CtxTran (reflectOb (! p) , congTyEq (! ([idMor]Ty _)) refl (TyRefl (ConvTy (getdTy X) (reflectOb p)))) (CtxTy=Ctx' X)) (CtxRefl (der X)) (MorRefl (ConvMor (WeakMor+ (getdTy X) (idMorDerivable (getdCtx X))) (reflectOb p , TyRefl (SubstTy (getdTy X) (idMorDerivable (getdCtx X)))) (CtxTy=Ctx' X))))))
 
 star-compS-// : (g : DMor m k) (f : DMor n m) (Y : DCtx m) (f₁ : ∂₁S (proj f) ≡ proj Y) (g₀ : ∂₀S (proj g) ≡ proj Y) (X : DCtx (suc k)) (Z : DCtx k) (p : ftS (proj X) ≡ proj Z) (g₁ : ∂₁S (proj g) ≡ proj Z) → starS (compS (proj g) (proj f) (proj Y) g₀ f₁) (proj X) (proj Z) p (comp₁S (proj g) (proj f) (proj Y) g₀ f₁ ∙ g₁) ≡ starS (proj f) (starS (proj g) (proj X) (proj Z) p g₁) (proj Y) (ft-starS (proj g) (proj X) (proj Z) p g₁ ∙ g₀) f₁
-star-compS-// g f Y f₁ g₀ X Z p g₁ = eq (box (CtxRefl (der (lhs f)) ,, congTyEq  ([]Ty-assoc _ _ _) refl (TyRefl (SubstTy (SubstTy (ConvTy (getdTy X) (reflectOb (p ∙ ! g₁))) (morDer g)) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀)))))))
+star-compS-// g f Y f₁ g₀ X Z p g₁ = eq (box (CtxRefl (der (lhs f)) , congTyEq  ([]Ty-assoc _ _ _) refl (TyRefl (SubstTy (SubstTy (ConvTy (getdTy X) (reflectOb (p ∙ ! g₁))) (morDer g)) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀)))))))
 
 star-compS : (g : MorS m k) (f : MorS n m) (Y : ObS m) (f₁ : ∂₁S f ≡ Y) (g₀ : ∂₀S g ≡ Y) (X : ObS (suc k)) (Z : ObS k) (p : ftS X ≡ Z) (g₁ : ∂₁S g ≡ Z) → starS (compS g f Y g₀ f₁) X Z p (comp₁S g f Y g₀ f₁ ∙ g₁) ≡ starS f (starS g X Z p g₁) Y (ft-starS g X Z p g₁ ∙ g₀) f₁
 star-compS = //-elimP (λ g → //-elimP (λ f → //-elimP (λ Y f₁ g₀ → //-elimP (λ X → //-elimP (λ Z → star-compS-// g f Y f₁ g₀ X Z)))))
 
 qq-compS-// : (g : DMor m k) (f : DMor n m) (Y : DCtx m) (f₁ : ∂₁S (proj f) ≡ proj Y) (g₀ : ∂₀S (proj g) ≡ proj Y) (X : DCtx (suc k)) (Z : DCtx k) (p : ftS (proj X) ≡ proj Z) (g₁ : ∂₁S (proj g) ≡ proj Z)  → qqS (compS (proj g) (proj f) (proj Y) g₀ f₁) (proj X) (proj Z) p (comp₁S (proj g) (proj f) (proj Y) g₀ f₁ ∙ g₁) ≡ compS (qqS (proj g) (proj X) (proj Z) p g₁) (qqS (proj f) (starS (proj g) (proj X) (proj Z) p g₁) (proj Y) (ft-starS (proj g) (proj X) (proj Z) p g₁ ∙ g₀) f₁) (starS (proj g) (proj X) (proj Z) p g₁) (qq₀S (proj g) (proj X) (proj Z) p g₁) (qq₁S (proj f) (starS (proj g) (proj X) (proj Z) p g₁) (proj Y) (ft-starS (proj g) (proj X) (proj Z) p g₁ ∙ g₀) f₁)
-qq-compS-// g f Y f₁ g₀ X Z p g₁ = eq (box (CtxRefl (der (lhs f)) ,, congTyEq ([]Ty-assoc _ _ _) refl (TyRefl (SubstTy (SubstTy (ConvTy (getdTy X) (reflectOb (p ∙ ! g₁))) (morDer g)) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀))))))
+qq-compS-// g f Y f₁ g₀ X Z p g₁ = eq (box (CtxRefl (der (lhs f)) , congTyEq ([]Ty-assoc _ _ _) refl (TyRefl (SubstTy (SubstTy (ConvTy (getdTy X) (reflectOb (p ∙ ! g₁))) (morDer g)) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀))))))
                                            (CtxRefl (der X))
                                            (congMorEq refl refl refl (ap (λ z → z , var last) (! ([weakenMor]Mor _ _))) (MorRefl (ConvMor (WeakMor (SubstMor (ConvMor (morDer g) (reflectOb (g₀ ∙ ! f₁)) (reflectOb (g₁ ∙ ! p))) (morDer f)) , congTmTy (weaken[]Ty _ _ _) (VarLast (SubstTy (ConvTy (getdTy X) (reflectOb (p ∙ ! g₁))) (SubstMor (morDer g) (ConvMor (morDer f) (CtxRefl (der (lhs f))) (reflectOb (f₁ ∙ ! g₀))))))) (CtxRefl {Γ = (_ , _)} (der (lhs f) , SubstTy (getdTy X) (SubstMor (ConvMor (morDer g) (reflectOb (g₀ ∙ ! f₁)) (reflectOb (g₁ ∙ ! p))) (morDer f))) ) (CtxTy=Ctx' X)))))
 
@@ -233,7 +233,7 @@ ss-qqS : {m n : ℕ} (f : MorS m (suc n)) (X : ObS (suc n)) (f₁ : ∂₁S f �
 ss-qqS = //-elimP (λ f → //-elimP (λ X → ss-qqS-// f X))
 
 ss-compS-// : {m n k : ℕ} (U : DCtx (suc k)) (X : DCtx k) (p : ftS (proj U) ≡ proj X) (g : DMor n k) (g₁ : ∂₁S (proj g) ≡ proj X) (f : DMor m (suc n)) (f₁ : ∂₁S (proj f) ≡ starS (proj g) (proj U) (proj X) p g₁) → ssS (proj f) ≡ ssS (compS (qqS (proj g) (proj U) (proj X) p g₁) (proj f) (starS (proj g) (proj U) (proj X) p g₁) (qq₀S (proj g) (proj U) (proj X) p g₁) f₁)
-ss-compS-// U X p g g₁ f f₁ = eq (box (CtxRefl (der (lhs f))) (CtxRefl (der (lhs f)) ,, congTyEq refl (! (ap (λ z → (getTy U) [ z ]Ty) (weakenMorInsert' _ _) ∙ ! ([]Ty-assoc _ _ _))) (SubstTyEq (getTy= {Γ = rhs f} {Γ' = dctx (der (lhs g) , SubstTy (ConvTy (getdTy U) (reflectOb (p ∙ ! g₁))) (morDer g))} (box (reflectOb f₁))) (getdMor f))) (MorRefl (idMor+ (der (lhs f)) (getdTm f))))
+ss-compS-// U X p g g₁ f f₁ = eq (box (CtxRefl (der (lhs f))) (CtxRefl (der (lhs f)) , congTyEq refl (! (ap (λ z → (getTy U) [ z ]Ty) (weakenMorInsert' _ _) ∙ ! ([]Ty-assoc _ _ _))) (SubstTyEq (getTy= {Γ = rhs f} {Γ' = dctx (der (lhs g) , SubstTy (ConvTy (getdTy U) (reflectOb (p ∙ ! g₁))) (morDer g))} (box (reflectOb f₁))) (getdMor f))) (MorRefl (idMor+ (der (lhs f)) (getdTm f))))
 
 ss-compS : {m n k : ℕ} (U : ObS (suc k)) (X : ObS k) (p : ftS U ≡ X) (g : MorS n k) (g₁ : ∂₁S g ≡ X) (f : MorS m (suc n)) (f₁ : ∂₁S f ≡ starS g U X p g₁) → ssS f ≡ ssS (compS (qqS g U X p g₁) f (starS g U X p g₁) (qq₀S g U X p g₁)  f₁)
 ss-compS = //-elimP (λ U → //-elimP (λ X p → //-elimP (λ g g₁ → //-elimP (λ f → ss-compS-// U X p g g₁ f))))
@@ -302,7 +302,7 @@ dTy≃ : {Γ : DCtx n} (A : DCtx (suc n)) (A= : (ftS-// A) ≃ Γ) → Derivable
 dTy≃ (dctx' {ctx = (_ , _ )} (_ , dA)) (box A=) = ConvTy dA A=
 
 Ctx≃ft+Ty : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS-// A ≃ Γ) →  A ≃ dctx {ctx = ctx Γ , getTy A} (der Γ , dTy≃ A A=)
-Ctx≃ft+Ty {A = A@(dctx' {ctx = _ , _} _)} (box A=) = box (A= ,, TyRefl (getdTy A))
+Ctx≃ft+Ty {A = A@(dctx' {ctx = _ , _} _)} (box A=) = box (A= , TyRefl (getdTy A))
 
 dTy : {Γ : DCtx n} (A : DCtx (suc n)) (A= : proj {R = ObEquiv} (dctx (getdCtx A)) ≡ proj Γ) → Derivable (ctx Γ ⊢ getTy A)
 dTy (dctx' {ctx = (_ , _ )} (_ , dA)) dA= = ConvTy dA (reflectOb dA=)
@@ -312,17 +312,17 @@ dTy' (dctx' {ctx = (_ , _ )} (_ , dA)) dA= = ConvTy dA dA=
 
 
 dTy= : {Γ : DCtx n} {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : ftS (proj A) ≡ proj Γ) → Derivable (ctx Γ ⊢ getTy A == getTy A')
-dTy= {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (dΓ= , dA=)) A= = ConvTyEq dA= (CtxTran (CtxSymm dΓ=) (reflectOb A=))
+dTy= {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (dΓ= , dA=)) A= = ConvTyEq dA= (reflectOb A=)
 
 dTy=≃ : {Γ : DCtx n} {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : (ftS-// A) ≃ Γ) → Derivable (ctx Γ ⊢ getTy A == getTy A')
-dTy=≃ {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (dΓ= , dA=)) (box A=) = ConvTyEq dA= (CtxTran (CtxSymm dΓ=) A=)
+dTy=≃ {A = dctx' {ctx = (ΓA , A)} (dΓA , dA)} {A' = dctx' {ctx = (ΓA' , A')} (dΓA' , dA')} (box (dΓ= , dA=)) (box A=) = ConvTyEq dA= A=
 
 
 combine : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → ftS (proj B) ≡ proj (dctx (der Γ , dTy A A=))
-combine {A = A} A= B B= = B= ∙ eq (box (CtxTran (CtxSymm (CtxTy=Ctx' A)) (reflectOb A= ,, TyRefl (getdTy A))))
+combine {A = A} A= B B= = B= ∙ eq (box (CtxTran (CtxSymm (CtxTy=Ctx' A)) (reflectOb A= , TyRefl (getdTy A))))
 
 combine' : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → ⊢ ctx (ftS-// B) == (ctx Γ , getTy A)
-combine' {A = A} A= B B= = CtxTran (reflectOb B=) (CtxTran (CtxSymm (CtxTy=Ctx' A)) (reflectOb A= ,, TyRefl (getdTy A)))
+combine' {A = A} A= B B= = CtxTran (reflectOb B=) (CtxTran (CtxSymm (CtxTy=Ctx' A)) (reflectOb A= , TyRefl (getdTy A)))
 
 dTy+ : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : ftS (proj B) ≡ proj A) → Derivable ((ctx Γ , getTy A) ⊢ getTy B)
 dTy+ A= B B= = dTy B (combine A= B B=)
@@ -331,7 +331,7 @@ dTy+= : {Γ : DCtx n} {A  : DCtx (suc n)} {B B' : DCtx (suc (suc n))} (A= : ftS 
 dTy+= {B = B} A= rB B= = dTy= rB (combine A= B B=)
 
 lemmathing : {Γ Δ : DCtx (suc n)} → Γ ≃ Δ → Derivable (ctx (ftS-// Δ) ⊢ getTy Γ == getTy Δ)
-lemmathing {Γ = dctx' {ctx = Γ , A} (dΓ , dA)} {Δ = dctx' {ctx = Δ , B} (dΔ , dB)} (box (dΓ= , dA=)) = dA=
+lemmathing {Γ = dctx' {ctx = Γ , A} (dΓ , dA)} {Δ = dctx' {ctx = Δ , B} (dΔ , dB)} (box (dΓ= , dA=)) = ConvTyEq dA= dΓ=
 
 
 dMor : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : ∂₁S (proj a) ≡ proj A) → ctx Γ ⊢ mor a ∷> (ctx Γ , getTy A)
@@ -419,19 +419,19 @@ dTm+= : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) {B B' :
 dTm+= A= {B = B} B= ru uₛ u'ₛ u₁ u'₁ = dTm= (combine A= B B=) ru uₛ u'ₛ u₁ u'₁
 
 up-to-CtxTyEq : {Γ Δ : DCtx (suc n)} (CtxEq : ⊢ getCtx (ctx Γ) == getCtx (ctx Δ)) (TyEq : getTy Γ ≡ getTy Δ) → proj {R = ObEquiv} Γ ≡ proj Δ
-up-to-CtxTyEq {Γ = dctx' {ctx = Γ , A} (dΓ , dA)} {Δ = dctx' {ctx = Δ , B} (dΔ , dB)} Γ= refl = eq (box (Γ= ,, TyRefl dA))
+up-to-CtxTyEq {Γ = dctx' {ctx = Γ , A} (dΓ , dA)} {Δ = dctx' {ctx = Δ , B} (dΔ , dB)} Γ= refl = eq (box (Γ= , TyRefl dA))
 
 up-to-rhsTyEq : {δ δ' : DMor n (suc n)} → {{ctx (lhs δ) ≡ getCtx (ctx (rhs δ))}} →  {{ctx (lhs δ') ≡ getCtx (ctx (rhs δ'))}} → {{mor δ ≡ mor δ'}} → {{ctx (lhs δ) ≡ ctx (lhs δ')}} → (getTy (rhs δ) ≡ getTy (rhs δ')) → proj {R = MorEquiv} δ ≡ proj δ'
 up-to-rhsTyEq {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) morDer} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) morDer'} {{refl}} {{refl}} {{refl}} {{refl}} refl = refl
 
 up-to-rhsTyEq' : {δ δ' : DMor n (suc n)} → {{ctx (lhs δ) ≡ getCtx (ctx (rhs δ))}} →  {{ctx (lhs δ') ≡ getCtx (ctx (rhs δ'))}} → {{mor δ ≡ mor δ'}} → (⊢ ctx (lhs δ) == ctx (lhs δ')) → (getTy (rhs δ) ≡ getTy (rhs δ')) → proj {R = MorEquiv} δ ≡ proj δ'
-up-to-rhsTyEq' {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) morDer} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) morDer'} {{refl}} {{refl}} {{refl}} Γ= refl = eq (box Γ= (Γ= ,, TyRefl dA) (MorRefl morDer))
+up-to-rhsTyEq' {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) morDer} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) morDer'} {{refl}} {{refl}} {{refl}} Γ= refl = eq (box Γ= (Γ= , TyRefl dA) (MorRefl morDer))
 
 up-to-rhsTyEq2 : {δ δ' : DMor n (suc n)} → {{ctx (lhs δ) ≡ getCtx (ctx (rhs δ))}} →  {{ctx (lhs δ') ≡ getCtx (ctx (rhs δ'))}} → {{getMor δ ≡ getMor δ'}} → {{ctx (lhs δ) ≡ ctx (lhs δ')}} → {{ getMor δ ≡ idMor _}} → Derivable (ctx (lhs δ) ⊢ getTy (rhs δ) == getTy (rhs δ')) → Derivable (ctx (lhs δ) ⊢ getTm δ == getTm δ' :> getTy (rhs δ)) → proj {R = MorEquiv} δ ≡ proj δ'
-up-to-rhsTyEq2 {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) {mor = (δ , u)} (dδ , du)} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) {mor = (δ' , u')} (dδ' , du')} {{refl}} {{refl}} {{refl}} {{refl}} {{refl}} dA= du= = eq (box (CtxRefl dΓ) (CtxRefl dΓ ,, dA=) (MorRefl dδ , congTmEq refl refl (! ([idMor]Ty _)) du=)) 
+up-to-rhsTyEq2 {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) {mor = (δ , u)} (dδ , du)} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) {mor = (δ' , u')} (dδ' , du')} {{refl}} {{refl}} {{refl}} {{refl}} {{refl}} dA= du= = eq (box (CtxRefl dΓ) (CtxRefl dΓ , dA=) (MorRefl dδ , congTmEq refl refl (! ([idMor]Ty _)) du=)) 
 
 up-to-rhsTyEq2' : {δ δ' : DMor n (suc n)} → {{ctx (lhs δ) ≡ getCtx (ctx (rhs δ))}} →  {{ctx (lhs δ') ≡ getCtx (ctx (rhs δ'))}} → {{getMor δ ≡ getMor δ'}} → {{getMor δ ≡ idMor _}} → ⊢ ctx (lhs δ) == ctx (lhs δ') → Derivable (ctx (lhs δ) ⊢ getTy (rhs δ) == getTy (rhs δ')) → Derivable (ctx (lhs δ) ⊢ getTm δ == getTm δ' :> getTy (rhs δ))  → proj {R = MorEquiv} δ ≡ proj δ'
-up-to-rhsTyEq2' {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) {mor = (δ , u)} (dδ , du)} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) {mor = (δ' , u')} (dδ' , du')} {{refl}} {{refl}} {{refl}} {{refl}} dΓ= dA= du= = eq (box dΓ= (dΓ= ,, dA=) (MorRefl dδ , ConvEq (TyEqTy1 dΓ dA=) du= (congTyEq ([idMor]Ty _) refl (TyRefl (SubstTy (TyEqTy1 dΓ dA=) (idMorDerivable dΓ')))))) 
+up-to-rhsTyEq2' {δ = dmor' (dctx' dΓ) (dctx' {ctx = Γ' , A} (dΓ' , dA)) {mor = (δ , u)} (dδ , du)} {δ' = dmor' (dctx' dΔ) (dctx' {ctx = Δ' , B} (dΔ' , dB)) {mor = (δ' , u')} (dδ' , du')} {{refl}} {{refl}} {{refl}} {{refl}} dΓ= dA= du= = eq (box dΓ= (dΓ= , dA=) (MorRefl dδ , ConvEq (TyEqTy1 dΓ dA=) du= (congTyEq ([idMor]Ty _) refl (TyRefl (SubstTy (TyEqTy1 dΓ dA=) (idMorDerivable dΓ')))))) 
 
 
 {- Elimination principles for Ty and Tm -}
@@ -498,6 +498,7 @@ JforNat d _ refl = d
 
 {-- Term formers --}
 
+--TODO: This function takes to many arguments
 dmorTm : (Γ : DCtx n) (A : TyExpr n) (dA : Derivable (ctx Γ ⊢ A)) (u : TmExpr n) (du : Derivable (ctx Γ ⊢ u :> A)) → DMor n (suc n)
 dmorTm Γ A dA u du = dmor Γ (dctx (der Γ , dA)) (idMor+ (der Γ) du)
 
@@ -505,7 +506,7 @@ dmorTm=' : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ')
         → {A A' : TyExpr n} (dA : _) (dA' : _) (dA= : Derivable (ctx Γ ⊢ A == A'))
         → {u u' : TmExpr n} (du : _) (du' : _) (du= : Derivable (ctx Γ ⊢ u == u' :> A))
         → dmorTm Γ A dA u du ≃ dmorTm Γ' A' dA' u' du'
-dmorTm=' {Γ = Γ} rΓ _ _ dA= _ _ du= = box (unOb≃ rΓ) (unOb≃ rΓ ,, dA=) (idMor+= (der Γ) du=)
+dmorTm=' {Γ = Γ} rΓ _ _ dA= _ _ du= = box (unOb≃ rΓ) (unOb≃ rΓ , dA=) (idMor+= (der Γ) du=)
 
 dmorTm= : {δ δ' : DMor n (suc n)} (δₛ : S.is-section (proj δ)) (δ'ₛ : S.is-section (proj δ'))  (let Γ = lhs δ) (let Γ' = lhs δ') {Δ : DCtx n} {Δ' : DCtx n} {{p : ctx Δ ≡ ctx Γ}} {{q : ctx Δ' ≡ ctx Γ'}} (rΔ : Δ ≃ Δ')
            (let A = getTy (rhs δ)) (let A' = getTy (rhs δ')) (let dA = getdTy (rhs δ)) (let dA' = getdTy (rhs δ')) (dA= : Derivable (ctx Γ ⊢ A == A'))
@@ -516,15 +517,15 @@ dmorTm=  {δ = δ} {δ' = δ'} δₛ δ'ₛ {{p}} {{q}} rΔ dA= du= = box (congC
                                                (MorTran (der (lhs δ)) (der (rhs δ)) (morTm=idMorTm' δₛ)
                                                         (MorTran (der (lhs δ)) (der (rhs δ)) (ConvMorEq (idMor+= (der (lhs δ)) du=) (CtxRefl (der (lhs δ)))
                                                                  (CtxSymm (CtxTran (CtxSymm (CtxTy=Ctx' (rhs δ)))
-                                                                                   (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δₛ refl))) ,, TyRefl (getdTy (rhs δ))))))
+                                                                                   (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δₛ refl))) , TyRefl (getdTy (rhs δ))))))
                                                                  (MorSymm (der (lhs δ)) (der (rhs δ))
                                                                           (ConvMorEq (morTm=idMorTm' δ'ₛ) (CtxSymm (congCtxEq p q (unOb≃ rΔ)))
                                                                                                          (CtxSymm rhsδ=rhsδ')))))
                                          where rhsδ=rhsδ' : ⊢ ctx (rhs δ) == ctx (rhs δ')
                                                rhsδ=rhsδ' = (CtxTran (CtxTran (CtxSymm (CtxTy=Ctx' (rhs δ)))
-                                                                     (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δₛ refl))) ,, TyRefl (getdTy (rhs δ))))
-                                                            (CtxTran (congCtxEq p q (unOb≃ rΔ) ,, dA=)
-                                                                     (CtxTran (CtxSymm (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δ'ₛ refl))) ,, TyRefl (getdTy (rhs δ'))))
+                                                                     (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δₛ refl))) , TyRefl (getdTy (rhs δ))))
+                                                            (CtxTran (congCtxEq p q (unOb≃ rΔ) , dA=)
+                                                                     (CtxTran (CtxSymm (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δ'ₛ refl))) , TyRefl (getdTy (rhs δ'))))
                                                                               (CtxTy=Ctx' (rhs δ')))))
 
 dmorTmₛ' : {Γ : DCtx n} {A : TyExpr n} (dA : Derivable (ctx Γ ⊢ A)) {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → S.is-section (proj {R = MorEquiv} (dmorTm Γ A dA u du))
@@ -534,4 +535,4 @@ dmorTmₛ : {δ : DMor n (suc n)} (let Γ = lhs δ) (let Δ = getCtx (ctx (rhs �
 dmorTmₛ {δ = δ@(dmor' (dctx' _) (dctx' {ctx = (_ , _)} (_ , _)) {mor = (_ , u)} _)} {{p}} {{q}} = S.is-section→ (DMor= refl (! p) (ap (λ z → weakenMor (idMor _)  [ z ]Mor) (Mor+= q refl) ∙ weakenMorInsert _ _ u ∙ idMor[]Mor _))
 
 weakenObjS= : {Γ : DCtx n} {A : DCtx (suc n)} (A= : ftS (proj A) ≡ proj Γ) → S.weakenObj {A = proj A} A= ≡ proj (dctx ((der Γ , dTy A A=) , WeakTy (dTy A A=)))
-weakenObjS= {A = A} A= = eq (box (CtxSymm (CtxTy=Ctx A A=) ,, congTyEq weakenTy-to-[]Ty refl (TyRefl (ConvTy (WeakTy (dTy A A=)) (CtxTy=Ctx A A=)))))
+weakenObjS= {A = A} A= = eq (box (CtxSymm (CtxTy=Ctx A A=) , congTyEq weakenTy-to-[]Ty refl (TyRefl (ConvTy (WeakTy (dTy A A=)) (CtxTy=Ctx A A=)))))

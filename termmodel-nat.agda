@@ -2,8 +2,8 @@
 
 open import common
 open import typetheory
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules 
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -19,7 +19,7 @@ NatStrS-// : DCtx n → DCtx (suc n)
 NatStrS-// Γ = dctx (der Γ , Nat)
 
 NatStrS-eq : {Γ Γ' : DCtx n} → Γ ≃ Γ' → NatStrS-// Γ ≃ NatStrS-// Γ'
-NatStrS-eq dΓ= = box (unOb≃ dΓ= ,, NatCong)
+NatStrS-eq dΓ= = box (unOb≃ dΓ= , NatCong)
 
 NatStrS : ObS n → ObS (suc n)
 NatStrS = //-elim-Ctx (λ Γ → proj (NatStrS-// Γ)) (λ rΓ → proj= (NatStrS-eq rΓ))
@@ -205,7 +205,7 @@ abstract
                  (dO : MorS n (suc n)) (dOₛ : S.is-section dO) (dO₁ : ∂₁S dO ≡ S.star (zeroStrS Γ) P P= (zeroStr₁S Γ))
                  (dS : MorS (suc (suc n)) (suc (suc (suc n)))) (dSₛ : S.is-section dS) (dS₁ : ∂₁S dS ≡ sucS.T-dS₁ Γ P P=)
                  (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : ∂₁S u ≡ NatStrS Γ) → S.∂₁ (natelimStrS Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁) ≡ S.star u P P= u₁
-  natelimStr₁S = //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ → eq (box (reflectOb (! (S.is-section₀ uₛ u₁)) ,, SubstTyMorEq' (der Γ) (der Γ , Nat) (dTy P P=) (MorSymm (der Γ) (der Γ , Nat) (morTm=idMorTm (NatStr=S (proj Γ)) u uₛ u₁))))))))) 
+  natelimStr₁S = //-elimP (λ Γ → //-elimP (λ P P= → //-elimP (λ dO dOₛ dO₁ → //-elimP (λ dS dSₛ dS₁ → //-elimP (λ u uₛ u₁ → eq (box (reflectOb (! (S.is-section₀ uₛ u₁)) , SubstTyMorEq' (der Γ) (der Γ , Nat) (dTy P P=) (MorSymm (der Γ) (der Γ , Nat) (morTm=idMorTm (NatStr=S (proj Γ)) u uₛ u₁))))))))) 
 
 natelimStrSynCCat : CCatwithnatelim synCCat NatStrSynCCat zeroStrSynCCat sucStrSynCCat
 CCatwithnatelim.natelimStr natelimStrSynCCat = natelimStrS
@@ -219,7 +219,7 @@ module natelimS = CCatwithnatelim natelimStrSynCCat
 {- ElNat= -}
 
 elnatStrS : (i : ℕ) (Γ : ObS n) → ElStrS i Γ (natStrS i Γ) (natStrₛS i Γ) (natStr₁S i Γ) ≡ NatStrS Γ
-elnatStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) ,, ElNat=)))
+elnatStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) , ElNat=)))
 
 
 {- BetaNatZero -}

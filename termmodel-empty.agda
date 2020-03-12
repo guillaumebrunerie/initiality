@@ -3,8 +3,8 @@
 open import common
 open import typetheory
 open import reflection hiding (proj)
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -19,7 +19,7 @@ EmptyStrS-// : (Γ : DCtx n) → DCtx (suc n)
 EmptyStrS-// Γ = dctx (der Γ , Empty)
 
 EmptyStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → EmptyStrS-// Γ ≃ EmptyStrS-// Γ'
-EmptyStrS-eq rΓ = box (unOb≃ rΓ ,, EmptyCong)
+EmptyStrS-eq rΓ = box (unOb≃ rΓ , EmptyCong)
 
 EmptyStrS : (Γ : ObS n) → ObS (suc n)
 EmptyStrS = //-elim-Ctx (λ Γ → proj (EmptyStrS-// Γ))
@@ -80,7 +80,7 @@ emptyelimStrₛS : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ EmptyStr
 emptyelimStrₛS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ u uₛ u₁ → dmorTmₛ)))
 
 emptyelimStr₁S : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ EmptyStrS Γ) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ EmptyStrS Γ) → S.∂₁ (emptyelimStrS Γ A A= u uₛ u₁) ≡ S.star u A A= u₁
-emptyelimStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ u uₛ u₁ → eq (box (CtxSymm (reflectOb (S.is-section₀ uₛ u₁)) ,, SubstTyMorEq (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁)) (MorSymm (der Γ) (der Γ , Empty) (morTm=idMorTm refl u uₛ u₁)))))))
+emptyelimStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ u uₛ u₁ → eq (box (CtxSymm (reflectOb (S.is-section₀ uₛ u₁)) , SubstTyMorEq (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁)) (MorSymm (der Γ) (der Γ , Empty) (morTm=idMorTm refl u uₛ u₁)))))))
 
 emptyelimStrSynCCat : CCatwithemptyelim synCCat EmptyStrSynCCat
 CCatwithemptyelim.emptyelimStr emptyelimStrSynCCat = emptyelimStrS
@@ -91,4 +91,4 @@ CCatwithemptyelim.emptyelimStrNat' emptyelimStrSynCCat = //-elimP (λ g → Jfor
 {- ElEmpty= -}
 
 elemptyStrS : (i : ℕ) (Γ : ObS n) → ElStrS i Γ (emptyStrS i Γ) (emptyStrₛS i Γ) (emptyStr₁S i Γ) ≡ EmptyStrS Γ
-elemptyStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) ,, ElEmpty=)))
+elemptyStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) , ElEmpty=)))

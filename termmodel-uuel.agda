@@ -18,7 +18,7 @@ UUStrS-// : (i : ℕ) → DCtx n → DCtx (suc n)
 UUStrS-// i Γ = dctx (der Γ , UU {i = i})
 
 UUStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} → Γ ≃ Γ' → UUStrS-// i Γ ≃ UUStrS-// i Γ'
-UUStrS-eq dΓ= = box (unOb≃ dΓ= ,, UUCong)
+UUStrS-eq dΓ= = box (unOb≃ dΓ= , UUCong)
 
 UUStrS : (i : ℕ) → ObS n → ObS (suc n)
 UUStrS i = //-elim-Ctx (λ Γ → proj (UUStrS-// i Γ)) (λ rΓ → proj= (UUStrS-eq rΓ))
@@ -38,7 +38,7 @@ ElStrS-// : (i : ℕ) (Γ : DCtx n) (v : DMor n (suc n)) (vₛ : S.is-section (p
 ElStrS-// i Γ v vₛ v₁ = dctx {ctx = _ , _}(der Γ , El (dTm refl v vₛ v₁))
 
 ElStrS-eq : {i : ℕ} {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {v v' : DMor n (suc n)} (rv : v ≃ v') (vₛ : _) (v'ₛ : _) (v₁ : _) (v'₁ : _) → ElStrS-// i Γ v vₛ v₁ ≃ ElStrS-// i Γ' v' v'ₛ v'₁
-ElStrS-eq rΓ rv vₛ v'ₛ v₁ v'₁ = box (unOb≃ rΓ ,, ElCong (dTm= refl rv vₛ v'ₛ v₁ v'₁))
+ElStrS-eq rΓ rv vₛ v'ₛ v₁ v'₁ = box (unOb≃ rΓ , ElCong (dTm= refl rv vₛ v'ₛ v₁ v'₁))
 
 ElStrS : (i : ℕ) (Γ : ObS n) (v : MorS n (suc n)) (vₛ : S.is-section v) (v₁ : ∂₁S v ≡ UUStrS i Γ) → ObS (suc n)
 ElStrS i = //-elim-Ctx (λ Γ → //-elim-Tm (λ v vₛ v₁ → proj (ElStrS-// i Γ v vₛ v₁))
@@ -81,5 +81,5 @@ CCatwithuu.uuStrNat' uuStrSynCCat = //-elimP (λ g → //-elimP(λ Δ g₀ → (
 {- ElUU= -}
 
 eluuStrS : (i : ℕ) (Γ : ObS n) → ElStrS (suc i) Γ (uuStrS i Γ) (uuStrₛS i Γ) (uuStr₁S i Γ) ≡ UUStrS i Γ
-eluuStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) ,, ElUU=)))
+eluuStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) , ElUU=)))
 

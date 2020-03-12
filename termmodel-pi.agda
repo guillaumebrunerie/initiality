@@ -3,8 +3,8 @@
 open import common
 open import typetheory
 open import reflection hiding (proj) 
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules 
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -21,7 +21,7 @@ PiStrS-// Γ A A= B B= = dctx (der Γ , Pi (dTy A A=) (dTy+ A= B B=))
 
 PiStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _)
           → PiStrS-// Γ A A= B B= ≃ PiStrS-// Γ' A' A'= B' B'=
-PiStrS-eq rΓ {A = A} rA A= A'= {B = B} rB B= B'= = box (unOb≃ rΓ ,, PiCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))
+PiStrS-eq rΓ {A = A} rA A= A'= {B = B} rB B= B'= = box (unOb≃ rΓ , PiCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))
 
 PiStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) → ObS (suc n)
 PiStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → proj (PiStrS-// Γ A A= B B=))
@@ -128,7 +128,7 @@ appStrₛS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-
 
 appStr₁S : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) (f : MorS n (suc n)) (fₛ : S.is-section f) (f₁ : ∂₁S f ≡ PiStrS Γ A A= B B=) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A)
          → ∂₁S (appStrS Γ A A= B B= f fₛ f₁ a aₛ a₁) ≡ S.star a B B= a₁
-appStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ f fₛ f₁ → //-elimP (λ a aₛ a₁ → eq (box (CtxSymm ((reflectOb (S.is-section₀ aₛ a₁ ∙ A=)) ,, SubstTyMorEq (dTy B B=) (ConvMor (morDer a) (CtxRefl (der (lhs a))) (reflectOb a₁)) (ConvMorEq (morTm=idMorTm' aₛ) (CtxRefl (der (lhs a))) (reflectOb a₁))))))))))
+appStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ f fₛ f₁ → //-elimP (λ a aₛ a₁ → eq (box (CtxSymm ((reflectOb (S.is-section₀ aₛ a₁ ∙ A=)) , SubstTyMorEq (dTy B B=) (ConvMor (morDer a) (CtxRefl (der (lhs a))) (reflectOb a₁)) (ConvMorEq (morTm=idMorTm' aₛ) (CtxRefl (der (lhs a))) (reflectOb a₁))))))))))
 
 appStrSynCCat : CCatwithapp synCCat PiStrSynCCat
 CCatwithapp.appStr appStrSynCCat = appStrS
@@ -141,7 +141,7 @@ CCatwithapp.appStrNat' appStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 
 elpiStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁))
             → ElStrS i Γ (piStrS i Γ a aₛ a₁ b bₛ b₁) (piStrₛS i Γ a aₛ a₁ b bₛ b₁) (piStr₁S i Γ a aₛ a₁ b bₛ b₁) ≡ PiStrS Γ (ElStrS i Γ a aₛ a₁) (ElStr=S i Γ a aₛ a₁) (ElStrS i (ElStrS i Γ a aₛ a₁) b bₛ b₁) (ElStr=S i (ElStrS i Γ a aₛ a₁) b bₛ b₁)
-elpiStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box (CtxRefl (der Γ) ,, ElPi= (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))))))
+elpiStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box (CtxRefl (der Γ) , ElPi= (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))))))
 
 
 {- BetaPi -}
@@ -150,7 +150,7 @@ betaPiStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (
             → appStrS Γ A A= B B= (lamStrS Γ A A= B B= u uₛ u₁) (lamStrₛS Γ A A= B B= u uₛ u₁) (lamStr₁S Γ A A= B B= u uₛ u₁) a aₛ a₁ ≡ S.starTm a u (S.is-section₀ uₛ u₁ ∙ B=) a₁
 betaPiStrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ u uₛ u₁ → //-elimP (λ a aₛ a₁ → eq (box
              (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)))
-             (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)) ,, SubstTyFullEq' (der Γ) (der Γ , dTy A A=)
+             (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)) , SubstTyFullEq' (der Γ) (der Γ , dTy A A=)
                                                                                                   (dTy+= A= (sym (reflect u₁)) B=)
                                                                                                   (MorTran (der Γ) (der Γ , dTy A A=)
                                                                                                            (MorSymm (der Γ) (der Γ , (dTy A A=)) (morTm=idMorTm A= a aₛ a₁))

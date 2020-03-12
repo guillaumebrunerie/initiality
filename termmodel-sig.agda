@@ -2,8 +2,8 @@
 
 open import common
 open import typetheory
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules 
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -20,7 +20,7 @@ SigStrS-// Γ A A= B B= = dctx (der Γ , Sig (dTy A A=) (dTy+ A= B B=))
 
 SigStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : _) (A'= : _) {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : _) (B'= : _)
           → SigStrS-// Γ A A= B B= ≃ SigStrS-// Γ' A' A'= B' B'=
-SigStrS-eq rΓ {A = A} rA A= A'= rB B= B'= = box (unOb≃ rΓ ,, SigCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))
+SigStrS-eq rΓ {A = A} rA A= A'= rB B= B'= = box (unOb≃ rΓ , SigCong (dTy A A=) (dTy= rA A=) (dTy+= A= rB B=))
 
 SigStrS : (Γ : ObS n) (A : ObS (suc n)) (A= : ftS A ≡ Γ) (B : ObS (suc (suc n))) (B= : ftS B ≡ A) → ObS (suc n)
 SigStrS = //-elim-Ctx (λ Γ → //-elim-Ty (λ A A= → //-elim-Ty (λ B B= → proj (SigStrS-// Γ A A= B B=))
@@ -177,7 +177,7 @@ CCatwithpr2.pr2StrNat' pr2StrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 
 elsigStrS : (i : ℕ) (Γ : ObS n) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ UUStrS i Γ) (b : MorS (suc n) (suc (suc n))) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ UUStrS i (ElStrS i Γ a aₛ a₁))
             → ElStrS i Γ (sigStrS i Γ a aₛ a₁ b bₛ b₁) (sigStrₛS i Γ a aₛ a₁ b bₛ b₁) (sigStr₁S i Γ a aₛ a₁ b bₛ b₁) ≡ SigStrS Γ (ElStrS i Γ a aₛ a₁) (ElStr=S i Γ a aₛ a₁) (ElStrS i (ElStrS i Γ a aₛ a₁) b bₛ b₁) (ElStr=S i (ElStrS i Γ a aₛ a₁) b bₛ b₁)
-elsigStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box (CtxRefl (der Γ) ,, ElSig= (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))))))
+elsigStrS i = //-elimP (λ Γ → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box (CtxRefl (der Γ) , ElSig= (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))))))
 
 
 {- BetaSig1 -}
@@ -195,11 +195,11 @@ betaSig1StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → /
 betaSig2StrS : (Γ : ObS n) (A : ObS (suc n)) (A= : S.ft A ≡ Γ) (B : ObS (suc (suc n))) (B= : S.ft B ≡ A) (a : MorS n (suc n)) (aₛ : S.is-section a) (a₁ : ∂₁S a ≡ A) (b : MorS n (suc n)) (bₛ : S.is-section b) (b₁ : ∂₁S b ≡ S.star a B B= a₁) → pr2StrS Γ A A= B B= (pairStrS Γ A A= B B= a aₛ a₁ b bₛ b₁) (pairStrₛS Γ A A= B B= a aₛ a₁ b bₛ b₁) (pairStr₁S Γ A A= B B= a aₛ a₁ b bₛ b₁) ≡ b
 betaSig2StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → //-elimP (λ a aₛ a₁ → //-elimP (λ b bₛ b₁ → eq (box
                         (CtxSymm (CtxTran (reflectOb (S.is-section₀ bₛ b₁)) (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=))))
-                        (CtxTran (CtxRefl (der Γ) ,, SubstTyMorEq (dTy+ A= B B=)
+                        (CtxTran (CtxRefl (der Γ) , SubstTyMorEq (dTy+ A= B B=)
                                                                   (idMor+ (der Γ) (Pr1 (dTy A A=) (dTy+ A= B B=) (Pair (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁))))
                                                                   (MorTran (der Γ) (der Γ , dTy A A=) (idMor+= (der Γ) (BetaSig1 (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))
                                                                                                       (MorSymm (der Γ) (der Γ , dTy A A=) (morTm=idMorTm A= a aₛ a₁))))
-                                 (CtxTran (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)) ,, TyRefl (SubstTy (dTy+ A= B B=) (dMor A= a aₛ a₁)))
+                                 (CtxTran (CtxSymm (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)) , TyRefl (SubstTy (dTy+ A= B B=) (dMor A= a aₛ a₁)))
                                           (CtxSymm (reflectOb b₁)))) 
                         (MorTran (der Γ) (der Γ , SubstTy (dTy+ A= B B=) (idMor+ (der Γ) (Pr1 (dTy A A=) (dTy+ A= B B=)
                                                                                               (Pair (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))))
@@ -210,7 +210,7 @@ betaSig2StrS = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ B B= → /
                                                                                        (idMor+= (der Γ) (TmSymm (BetaSig1 (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))))))
                                  (MorSymm (der Γ) (der Γ , SubstTy (dTy+ A= B B=) (idMor+ (der Γ) (Pr1 (dTy A A=) (dTy+ A= B B=) (Pair (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)))))
                                           (ConvMorEq (morTm=idMorTm {Γ = Γ} (eq (box (CtxTran (reflectOb (S.is-section₀ aₛ a₁)) (reflectOb A=)))) b bₛ b₁)
-                                                     (CtxRefl (der Γ)) (CtxRefl (der Γ) ,, SubstTyMorEq (dTy+ A= B B=) (dMor A= a aₛ a₁)
+                                                     (CtxRefl (der Γ)) (CtxRefl (der Γ) , SubstTyMorEq (dTy+ A= B B=) (dMor A= a aₛ a₁)
                                                                                                         (MorTran (der Γ) (der Γ , dTy A A=)
                                                                                                                  (morTm=idMorTm A= a aₛ a₁)
                                                                                                                  (idMor+= (der Γ) (TmSymm (BetaSig1 (dTy A A=)

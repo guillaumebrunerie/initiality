@@ -3,8 +3,8 @@
 open import common
 open import typetheory
 open import reflection hiding (proj)
-open import syntx
-open import rules hiding (getTy)
+open import syntx hiding (getTy)
+open import rules
 open import contextualcat
 open import quotients
 open import termmodel-common
@@ -19,7 +19,7 @@ UnitStrS-// : (Γ : DCtx n) → DCtx (suc n)
 UnitStrS-// Γ = dctx (der Γ , Unit)
 
 UnitStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → UnitStrS-// Γ ≃ UnitStrS-// Γ'
-UnitStrS-eq rΓ = box (unOb≃ rΓ ,, UnitCong)
+UnitStrS-eq rΓ = box (unOb≃ rΓ , UnitCong)
 
 UnitStrS : (Γ : ObS n) → ObS (suc n)
 UnitStrS = //-elim-Ctx (λ Γ → proj (UnitStrS-// Γ))
@@ -105,7 +105,7 @@ unitelimStrₛS : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ UnitStrS 
 unitelimStrₛS = //-elimP-Ctx (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → dmorTmₛ))))
 
 unitelimStr₁S : (Γ : ObS n) (A : ObS (suc (suc n))) (A= : ftS A ≡ UnitStrS Γ) (dtt : MorS n (suc n)) (dttₛ : S.is-section dtt) (dtt₁ : S.∂₁ dtt ≡ S.star (ttStrS Γ) A A= (ttStr₁S Γ)) (u : MorS n (suc n)) (uₛ : S.is-section u) (u₁ : S.∂₁ u ≡ UnitStrS Γ) → S.∂₁ (unitelimStrS Γ A A= dtt dttₛ dtt₁ u uₛ u₁) ≡ S.star u A A= u₁
-unitelimStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → eq (box (CtxSymm (reflectOb (S.is-section₀ uₛ u₁)) ,, SubstTyMorEq (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁)) (MorSymm (der Γ) (der Γ , Unit) (morTm=idMorTm refl u uₛ u₁))))))))
+unitelimStr₁S = //-elimP (λ Γ → //-elimP (λ A A= → //-elimP (λ dtt dttₛ dtt₁ → //-elimP (λ u uₛ u₁ → eq (box (CtxSymm (reflectOb (S.is-section₀ uₛ u₁)) , SubstTyMorEq (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁)) (MorSymm (der Γ) (der Γ , Unit) (morTm=idMorTm refl u uₛ u₁))))))))
 
 unitelimStrSynCCat : CCatwithunitelim synCCat UnitStrSynCCat ttStrSynCCat
 CCatwithunitelim.unitelimStr unitelimStrSynCCat = unitelimStrS
@@ -116,7 +116,7 @@ CCatwithunitelim.unitelimStrNat' unitelimStrSynCCat = //-elimP (λ g → JforNat
 {- ElUnit= -}
 
 elunitStrS : (i : ℕ) (Γ : ObS n) → ElStrS i Γ (unitStrS i Γ) (unitStrₛS i Γ) (unitStr₁S i Γ) ≡ UnitStrS Γ
-elunitStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) ,, ElUnit=)))
+elunitStrS i = //-elimP (λ Γ → eq (box (CtxRefl (der Γ) , ElUnit=)))
 
 {- BetaUnit -}
 
