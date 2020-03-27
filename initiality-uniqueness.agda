@@ -12,7 +12,6 @@ open import termmodel
 import partialinterpretation
 import totality
 
-
 module _ (sC : StructuredCCat) where
 
 open StructuredCCat
@@ -69,8 +68,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Ty-//-Id : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} {u v : TmExpr n} (dA : Derivable (Γ ⊢ A)) (du : Derivable (Γ ⊢ u :> A)) (dv : Derivable (Γ ⊢ v :> A))
                         (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ)))
                         (uA : Ob→ f (proj (dctx (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA))))
-                        (u-u : Mor→ f (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ du) _ du)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ du) _ du)))
-                        (uv : Mor→ f (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ dv) _ dv)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ dv) _ dv)))
+                        (u-u : Mor→ f (proj (dmorTm (dctx dΓ) du)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) du)))
+                        (uv : Mor→ f (proj (dmorTm (dctx dΓ) dv)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) dv)))
                         → Ob→ f (proj (dctx (dΓ , Id dA du dv))) ≡ Ob→ g (proj (dctx (dΓ , Id dA du dv)))
   uniqueness-Ty-//-Id dΓ dA du dv uΓ uA u-u uv =
     IdStr→ sf _ _ refl _ dmorTmₛ refl _ dmorTmₛ refl
@@ -91,8 +90,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Tm-//-Var : {Γ : Ctx n} (dΓ : ⊢ Γ) (k : VarPos n)
                        → (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ)))
                        → {A : _} (A= : syntx.getTy k Γ ≡ A)
-                       → Mor→ f (proj (dmorTm (dctx dΓ) A (congTy A= (getTyDer k dΓ)) (var k) (congTmTy A= (Var k (getTyDer k dΓ)))))
-                       ≡ Mor→ g (proj (dmorTm (dctx dΓ) A (congTy A= (getTyDer k dΓ)) (var k) (congTmTy A= (Var k (getTyDer k dΓ)))))
+                       → Mor→ f (proj (dmorTm (dctx dΓ) (congTmTy A= (Var k (getTyDer k dΓ)))))
+                       ≡ Mor→ g (proj (dmorTm (dctx dΓ) (congTmTy A= (Var k (getTyDer k dΓ)))))
   uniqueness-Tm-//-Var dΓ@(dΓ' , dA) last uΓ refl =
     ap (Mor→ f) (eq (box (CtxRefl dΓ) (CtxRefl dΓ , congTyRefl (WeakTy dA) (! (ap weakenTy ([idMor]Ty _)) ∙ weaken[]Ty _ (idMor _) last))
                          (MorRefl (idMorDerivable dΓ , congTmTy! ([idMor]Ty (weakenTy _)) (VarLast dA)))))
@@ -126,7 +125,7 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                    → Ob→ f (proj (dctx (dΓ , dA))) ≡ Ob→ g (proj (dctx (dΓ , dA)))
   uniqueness-Tm-// : {Γ : Ctx n} (dΓ : ⊢ Γ) {A : TyExpr n} {u : TmExpr n} (du : Derivable (Γ ⊢ u :> A))
                      (uΓ : Ob→ f (proj (dctx dΓ)) ≡ Ob→ g (proj (dctx dΓ)))
-                   → Mor→ f (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ du) _ du)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) _ (DerTmTy dΓ du) _ du))
+                   → Mor→ f (proj (dmorTm (dctx dΓ) du)) ≡ Mor→ g (proj (dmorTm (dctx dΓ) du))
 
   uniqueness-Ob-// (dctx' {ctx = ◇} tt) = pt→ f ∙ ! (pt→ g)
   uniqueness-Ob-// (dctx' {ctx = _ , _} (dΓ , dA)) = uniqueness-Ty-// dΓ dA (uniqueness-Ob-// (dctx dΓ))

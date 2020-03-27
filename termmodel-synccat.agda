@@ -499,14 +499,14 @@ JforNat d _ refl = d
 {-- Term formers --}
 
 --TODO: This function takes to many arguments
-dmorTm : (Γ : DCtx n) (A : TyExpr n) (dA : Derivable (ctx Γ ⊢ A)) (u : TmExpr n) (du : Derivable (ctx Γ ⊢ u :> A)) → DMor n (suc n)
-dmorTm Γ A dA u du = dmor Γ (dctx (der Γ , dA)) (idMor+ (der Γ) du)
+dmorTm : (Γ : DCtx n) {A : TyExpr n} {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → DMor n (suc n)
+dmorTm Γ du = dmor Γ (dctx (der Γ , DerTmTy (der Γ) du)) (idMor+ (der Γ) du)
 
 dmorTm=' : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ')
-        → {A A' : TyExpr n} (dA : _) (dA' : _) (dA= : Derivable (ctx Γ ⊢ A == A'))
-        → {u u' : TmExpr n} (du : _) (du' : _) (du= : Derivable (ctx Γ ⊢ u == u' :> A))
-        → dmorTm Γ A dA u du ≃ dmorTm Γ' A' dA' u' du'
-dmorTm=' {Γ = Γ} rΓ _ _ dA= _ _ du= = box (unOb≃ rΓ) (unOb≃ rΓ , dA=) (idMor+= (der Γ) du=)
+        → {A A' : TyExpr n} (dA= : Derivable (ctx Γ ⊢ A == A'))
+        → {u u' : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) (du' : Derivable (ctx Γ' ⊢ u' :> A')) (du= : Derivable (ctx Γ ⊢ u == u' :> A))
+        → dmorTm Γ du ≃ dmorTm Γ' du'
+dmorTm=' {Γ = Γ} rΓ dA= _ _ du= = box (unOb≃ rΓ) (unOb≃ rΓ , dA=) (idMor+= (der Γ) du=)
 
 dmorTm= : {δ δ' : DMor n (suc n)} (δₛ : S.is-section (proj δ)) (δ'ₛ : S.is-section (proj δ'))  (let Γ = lhs δ) (let Γ' = lhs δ') {Δ : DCtx n} {Δ' : DCtx n} {{p : ctx Δ ≡ ctx Γ}} {{q : ctx Δ' ≡ ctx Γ'}} (rΔ : Δ ≃ Δ')
            (let A = getTy (rhs δ)) (let A' = getTy (rhs δ')) (let dA = getdTy (rhs δ)) (let dA' = getdTy (rhs δ')) (dA= : Derivable (ctx Γ ⊢ A == A'))
@@ -528,7 +528,7 @@ dmorTm=  {δ = δ} {δ' = δ'} δₛ δ'ₛ {{p}} {{q}} rΔ dA= du= = box (congC
                                                                      (CtxTran (CtxSymm (CtxSymm (unMor≃-lhs (reflect (S.is-section= refl δ'ₛ refl))) , TyRefl (getdTy (rhs δ'))))
                                                                               (CtxTy=Ctx' (rhs δ')))))
 
-dmorTmₛ' : {Γ : DCtx n} {A : TyExpr n} (dA : Derivable (ctx Γ ⊢ A)) {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → S.is-section (proj {R = MorEquiv} (dmorTm Γ A dA u du))
+dmorTmₛ' : {Γ : DCtx n} {A : TyExpr n} (dA : Derivable (ctx Γ ⊢ A)) {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → S.is-section (proj {R = MorEquiv} (dmorTm Γ du))
 dmorTmₛ' {Γ = Γ} dA du = S.is-section→ (eq (box (CtxRefl (der Γ)) (CtxRefl (der Γ)) (congMorEq refl refl (! (weakenMorInsert _ _ _  ∙ [idMor]Mor (idMor _))) refl (MorRefl (idMorDerivable (der Γ))))))
 
 dmorTmₛ : {δ : DMor n (suc n)} (let Γ = lhs δ) (let Δ = getCtx (ctx (rhs δ))) (let morδ = getMor δ) {{p : ctx Γ ≡ Δ}} {{q :  morδ ≡ idMor _}} → S.is-section (proj δ)

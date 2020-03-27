@@ -37,7 +37,7 @@ CCatwithEmpty.EmptyStrNat' EmptyStrSynCCat = //-elimP (λ g → JforNat (//-elim
 {- empty -}
 
 emptyStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
-emptyStrS-// i Γ = dmorTm Γ (uu i) UU (empty i) EmptyUU
+emptyStrS-// i Γ = dmorTm Γ (EmptyUU {i = i})
 
 emptyStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → emptyStrS-// i Γ ≃ emptyStrS-// i Γ'
 emptyStrS-eq i rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong EmptyUUCong
@@ -61,7 +61,7 @@ CCatwithempty.emptyStrNat' emptyStrSynCCat = //-elimP (λ g → JforNat (//-elim
 {- emptyelim -}
 
 emptyelimStrS-// : (Γ : DCtx n) (A : DCtx (suc (suc n))) (A= : ftS (proj A) ≡ EmptyStrS (proj Γ)) (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : S.∂₁ (proj u) ≡ EmptyStrS (proj Γ)) → DMor n (suc n)
-emptyelimStrS-// Γ A A= u uₛ u₁ = dmorTm Γ (substTy (getTy A) (getTm u)) (SubstTy (dTy A A=) (idMor+ (der Γ) (dTm refl u uₛ u₁))) (emptyelim (getTy A) (getTm u)) (Emptyelim (dTy A A=) (dTm refl u uₛ u₁))
+emptyelimStrS-// Γ A A= u uₛ u₁ = dmorTm Γ (Emptyelim (dTy A A=) (dTm refl u uₛ u₁))
 
 emptyelimStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc (suc n))} (rA : A ≃ A') (A= : ftS (proj A) ≡ EmptyStrS (proj Γ)) (A'= : ftS (proj A') ≡ EmptyStrS (proj Γ')) {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : S.∂₁ (proj u) ≡ EmptyStrS (proj Γ)) (u'₁ : S.∂₁ (proj u') ≡ EmptyStrS (proj Γ')) → emptyelimStrS-// Γ A A= u uₛ u₁ ≃ emptyelimStrS-// Γ' A' A'= u' u'ₛ u'₁
 emptyelimStrS-eq {Γ = Γ} {Γ'} rΓ {A} {A'} rA A= A'= ru uₛ u'ₛ u₁ u'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ

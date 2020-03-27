@@ -40,7 +40,7 @@ CCatwithSig.SigStrNat' SigStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 {- sig -}
 
 sigStrS-// : (i : ℕ) (Γ : DCtx n) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : ∂₁S (proj a) ≡ UUStrS i (proj Γ)) (b : DMor (suc n) (suc (suc n))) (bₛ : S.is-section (proj b)) (b₁ : ∂₁S (proj b) ≡ UUStrS i (ElStrS i (proj Γ) (proj a) aₛ a₁)) → DMor n (suc n)
-sigStrS-// i Γ a aₛ a₁ b bₛ b₁ = dmorTm Γ (uu i) UU (sig i (getTm a) (getTm b)) (SigUU (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))
+sigStrS-// i Γ a aₛ a₁ b bₛ b₁ = dmorTm Γ (SigUU (dTm refl a aₛ a₁) (dTm refl b bₛ b₁))
 
 sigStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : _) (a'ₛ : _) (a₁ : _) (a'₁ : _) {b b' : DMor (suc n) (suc (suc n))} (rb : b ≃ b') (bₛ : _) (b'ₛ : _) (b₁ : _) (b'₁ : _)
           → sigStrS-// i Γ a aₛ a₁ b bₛ b₁ ≃ sigStrS-// i Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
@@ -72,10 +72,7 @@ CCatwithsig.sigStrNat' sigStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 {- pair -}
 
 pairStrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : S.ft (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : S.ft (proj B) ≡ proj A) (a : DMor n (suc n)) (aₛ : S.is-section (proj a)) (a₁ : S.∂₁ (proj a) ≡ proj A) (b : DMor n (suc n)) (bₛ : S.is-section (proj b)) (b₁ : S.∂₁ (proj b) ≡ S.star (proj a) (proj B) B= a₁) → DMor n (suc n)
-pairStrS-// Γ A A= B B= a aₛ a₁ b bₛ b₁ = dmorTm Γ (sig (getTy A) (getTy B))
-                                                   (Sig (dTy A A=) (dTy+ A= B B=))
-                                                   (pair (getTy A) (getTy B) (getTm a) (getTm b))
-                                                   (Pair (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)) 
+pairStrS-// Γ A A= B B= a aₛ a₁ b bₛ b₁ = dmorTm Γ (Pair (dTy A A=) (dTy+ A= B B=) (dTm A= a aₛ a₁) (dTmSubst A= B B= a aₛ a₁ b bₛ b₁)) 
 
 
 pairStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : S.ft (proj A) ≡ proj Γ) (A'= : S.ft (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : S.ft (proj B) ≡ proj A) (B'= : S.ft (proj B') ≡ proj A') {a a' : DMor n (suc n)} (ra : a ≃ a') (aₛ : S.is-section (proj a)) (a'ₛ : S.is-section (proj a')) (a₁ : S.∂₁ (proj a) ≡ proj A) (a'₁ : S.∂₁ (proj a') ≡ proj A') {b b' : DMor n (suc n)} (rb : b ≃ b') (bₛ : S.is-section (proj b)) (b'ₛ : S.is-section (proj b')) (b₁ : S.∂₁ (proj b) ≡ S.star (proj a) (proj B) B= a₁) (b'₁ : S.∂₁ (proj b') ≡ S.star (proj a') (proj B') B'= a'₁) → pairStrS-// Γ A A= B B= a aₛ a₁ b bₛ b₁ ≃ pairStrS-// Γ' A' A'= B' B'= a' a'ₛ a'₁ b' b'ₛ b'₁
@@ -107,8 +104,7 @@ CCatwithpair.pairStrNat' pairStrSynCCat = //-elimP (λ g → JforNat (//-elimP (
 {- pr1 -}
 
 pr1StrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : S.ft (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : S.ft (proj B) ≡ proj A) (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ SigStrS (proj Γ) (proj A) A= (proj B) B=) → DMor n (suc n)
-pr1StrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (getTy A) (dTy A A=) (pr1 (getTy A) (getTy B) (getTm u))
-                                                               (Pr1 (dTy A A=) (dTy+ A= B B=) (dTm refl u uₛ u₁))
+pr1StrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (Pr1 (dTy A A=) (dTy+ A= B B=) (dTm refl u uₛ u₁))
 
 
 pr1StrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : S.ft (proj A) ≡ proj Γ) (A'= : S.ft (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : S.ft (proj B) ≡ (proj A)) (B'= : S.ft (proj B') ≡ proj A') {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : ∂₁S (proj u) ≡ SigStrS (proj Γ) (proj A) A= (proj B) B=) (u'₁ : ∂₁S (proj u') ≡ SigStrS (proj Γ') (proj A') A'= (proj B') B'=) → pr1StrS-// Γ A A= B B= u uₛ u₁ ≃ pr1StrS-// Γ' A' A'= B' B'= u' u'ₛ u'₁
@@ -140,10 +136,7 @@ CCatwithpr1.pr1StrNat' pr1StrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 {- pr2 -}
 
 pr2StrS-// : (Γ : DCtx n) (A : DCtx (suc n)) (A= : S.ft (proj A) ≡ proj Γ) (B : DCtx (suc (suc n))) (B= : S.ft (proj B) ≡ proj A) (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ SigStrS (proj Γ) (proj A) A= (proj B) B=) → DMor n (suc n)
-pr2StrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (substTy (getTy B) (pr1 (getTy A) (getTy B) (getTm u)))
-                                          (SubstTy (dTy+ A= B B=) (idMor+ (der Γ) (Pr1 (dTy A A=) (dTy+ A= B B=) (dTm refl u uₛ u₁))))
-                                          (pr2 (getTy A) (getTy B) (getTm u))
-                                          (Pr2 (dTy A A=) (dTy+ A= B B=) (dTm refl u uₛ u₁))
+pr2StrS-// Γ A A= B B= u uₛ u₁ = dmorTm Γ (Pr2 (dTy A A=) (dTy+ A= B B=) (dTm refl u uₛ u₁))
 
 
 pr2StrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {A A' : DCtx (suc n)} (rA : A ≃ A') (A= : S.ft (proj A) ≡ proj Γ) (A'= : S.ft (proj A') ≡ proj Γ') {B B' : DCtx (suc (suc n))} (rB : B ≃ B') (B= : S.ft (proj B) ≡ (proj A)) (B'= : S.ft (proj B') ≡ proj A') {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : S.is-section (proj u)) (u'ₛ : S.is-section (proj u')) (u₁ : ∂₁S (proj u) ≡ SigStrS (proj Γ) (proj A) A= (proj B) B=) (u'₁ : ∂₁S (proj u') ≡ SigStrS (proj Γ') (proj A') A'= (proj B') B'=) → pr2StrS-// Γ A A= B B= u uₛ u₁ ≃ pr2StrS-// Γ' A' A'= B' B'= u' u'ₛ u'₁

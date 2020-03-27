@@ -39,7 +39,7 @@ CCatwithNat.NatStrNat' NatStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 {- nat -}
 
 natStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
-natStrS-// i Γ = dmorTm Γ (uu i) UU (nat i) NatUU
+natStrS-// i Γ = dmorTm Γ (NatUU {i = i})
  
 natStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → natStrS-// i Γ ≃ natStrS-// i Γ'
 natStrS-eq i rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong NatUUCong
@@ -63,7 +63,7 @@ CCatwithnat.natStrNat' natStrSynCCat = //-elimP (λ g → JforNat (//-elimP (λ 
 {- zero -}
 
 zeroStrS-// : (Γ : DCtx n) → DMor n (suc n)
-zeroStrS-// Γ = dmorTm Γ nat Nat zero Zero
+zeroStrS-// Γ = dmorTm Γ Zero
 
 zeroStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → zeroStrS-// Γ ≃ zeroStrS-// Γ'
 zeroStrS-eq rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ NatCong ZeroCong
@@ -87,7 +87,7 @@ CCatwithzero.zeroStrNat' zeroStrSynCCat = //-elimP (λ g → JforNat (//-elimP (
 {- suc -}
  
 sucStrS-// : (Γ : DCtx n) (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ NatStrS (proj Γ)) → DMor n (suc n)
-sucStrS-// Γ u uₛ u₁ = dmorTm Γ nat Nat (suc (getTm u)) (Suc (dTm refl u uₛ u₁))
+sucStrS-// Γ u uₛ u₁ = dmorTm Γ (Suc (dTm refl u uₛ u₁))
 
 sucStrS-eq : {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') {u u' : DMor n (suc n)} (ru : u ≃ u') (uₛ : _) (u'ₛ : _) (u₁ : _) (u'₁ : _) → sucStrS-// Γ u uₛ u₁ ≃ sucStrS-// Γ' u' u'ₛ u'₁
 sucStrS-eq rΓ ru uₛ u'ₛ u₁ u'₁ = dmorTm= dmorTmₛ dmorTmₛ rΓ NatCong (SucCong (dTm= refl ru uₛ u'ₛ u₁ u'₁))
@@ -126,9 +126,7 @@ natelimStrS-// : (Γ : DCtx n) (P : DCtx (suc (suc n))) (P= : ftS (proj P) ≡ N
                  (u : DMor n (suc n)) (uₛ : S.is-section (proj u)) (u₁ : ∂₁S (proj u) ≡ NatStrS (proj Γ))
                  → DMor n (suc n)
 natelimStrS-// Γ P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ =
-  dmorTm Γ (substTy (getTy P) (getTm u)) (SubstTy (dTy P P=) (idMor+ (der Γ) (dTm refl u uₛ u₁)))
-           (natelim (getTy P) (getTm dO) (getTm dS) (getTm u))
-           (Natelim (dTy P P=)
+  dmorTm Γ (Natelim (dTy P P=)
                     (dTm refl dO dOₛ dO₁)
                     ddS
                     (dTm refl u uₛ u₁))

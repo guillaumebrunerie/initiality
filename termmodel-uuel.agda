@@ -57,7 +57,7 @@ CCatwithEl.ElStrNat' ElStrSynCCat = //-elimP (λ g → //-elimP (λ Δ g₀ → 
 {- uu -}
 
 uuStrS-// : (i : ℕ) (Γ : DCtx n) → DMor n (suc n)
-uuStrS-// i Γ = dmorTm Γ (uu (suc i)) UU (uu i) UUUU
+uuStrS-// i Γ = dmorTm Γ (UUUU {i = i})
   
 uuStrS-eq : (i : ℕ) {Γ Γ' : DCtx n} (rΓ : Γ ≃ Γ') → uuStrS-// i Γ ≃ uuStrS-// i Γ'
 uuStrS-eq i rΓ = dmorTm= dmorTmₛ dmorTmₛ rΓ UUCong UUUUCong
