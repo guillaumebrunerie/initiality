@@ -498,7 +498,6 @@ JforNat d _ refl = d
 
 {-- Term formers --}
 
---TODO: This function takes to many arguments
 dmorTm : (Γ : DCtx n) {A : TyExpr n} {u : TmExpr n} (du : Derivable (ctx Γ ⊢ u :> A)) → DMor n (suc n)
 dmorTm Γ du = dmor Γ (dctx (der Γ , DerTmTy (der Γ) du)) (idMor+ (der Γ) du)
 
