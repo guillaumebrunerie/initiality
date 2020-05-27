@@ -1,5 +1,5 @@
 {-# OPTIONS --rewriting --prop #-}
-
+ 
 open import common
 open import typetheory
 open import reflection hiding (proj)
@@ -10,16 +10,16 @@ open import contextualcatmor
 open import quotients
 open import termmodel 
 import partialinterpretation
-import totality
+-- import totality
 
 module _ (sC : StructuredCCat) where
 
 open StructuredCCat
 open CCatMor
 open partialinterpretation sC
-open import interpretationweakening sC
-open import interpretationsubstitution sC
-open totality sC
+-- open import interpretationweakening sC
+-- open import interpretationsubstitution sC
+-- -- open totality sC
 open StructuredCCatMor+
 open StructuredCCatMor
 
@@ -29,31 +29,6 @@ private
 open CCat+ C renaming (id to idC)
 
 {- Uniqueness of the morphism -}
-
-getLastTy : {Δ : Ctx n} {C : TyExpr n} → ⊢ (Δ , C) → Derivable (Δ ⊢ C)
-getLastTy (_ , dC) = dC
-
-getFirstTms : {Γ : Ctx n} {Δ : Ctx m} {C : TyExpr m} {δ : syntx.Mor n m} {u : TmExpr n} → Γ ⊢ (δ , u) ∷> (Δ , C) → Γ ⊢ δ ∷> Δ
-getFirstTms (dδ , _) = dδ
-
-getLastTm : {Γ : Ctx n} {Δ : Ctx m} {C : TyExpr m} {δ : syntx.Mor n m} {u : TmExpr n} → Γ ⊢ (δ , u) ∷> (Δ , C) → Derivable (Γ ⊢ u :> C [ δ ]Ty)
-getLastTm (_ , du) = du
-
-split-left : DMor n (suc m) → DMor n (suc n)
-split-left (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} dΔC) {mor = _ , _} dδu) =
-  dmor (dctx dΓ) (dctx {ctx = _ , _} (dΓ , SubstTy (getLastTy dΔC) (getFirstTms dδu))) {mor = _ , _} (idMorDerivable dΓ , congTm (! ([idMor]Ty _)) refl (getLastTm dδu))
-
-split-right : DMor n (suc m) → DMor (suc n) (suc m)
-split-right (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} dΔC) {mor = _ , _} dδu) =
-  dmor (dctx {ctx = _ , _} (dΓ , SubstTy (getLastTy dΔC) (getFirstTms dδu))) (dctx {ctx = _ , _} dΔC) {mor = _ , _} (WeakMor (getFirstTms dδu) , (congTm (weaken[]Ty _ _ last) refl (VarLast (SubstTy (getLastTy dΔC) (getFirstTms dδu)))))
-
-split-eq : (δ : DMor n (suc m)) → ⊢ ctx (rhs (split-left δ)) == ctx (lhs (split-right δ))
-split-eq (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} (dΔ , dC)) {mor = _ , _} (dδ , du)) = CtxRefl (dΓ , SubstTy dC dδ)
-
-split-comp : (δ : DMor n (suc m)) → compS-// (split-right δ) (split-left δ) _ refl (eq (box (split-eq δ))) ≡ δ
-split-comp (dmor' (dctx' dΓ) (dctx' {ctx = _ , _} (dΔ , dC)) {mor = δ , u} (dδ , du)) =
-  ap-irr (λ x z → dmor' (dctx' dΓ) (dctx' {ctx = _ , _} (dΔ , dC)) {mor = x} z) (Mor+= (weakenMorInsert _ _ _ ∙ [idMor]Mor δ) refl) 
-
 
 module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
@@ -136,24 +111,28 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (UUStr→ sg _ _)
   uniqueness-Ty-// dΓ (El dv) uΓ =
     ElStr→ sf _ _ _ dmorTmₛ refl
-    ∙ ap-irr-ElStr uΓ
+    ∙ ap-irr-ElStr sC
+                   uΓ
                    (uniqueness-Tm-// dΓ dv uΓ)
     ∙ ! (ElStr→ sg _ _ _ dmorTmₛ refl)
   uniqueness-Ty-// dΓ (Sum dA dB) uΓ =
     SumStr→ sf _ _ refl _ refl
-    ∙ ap-irr-SumStr uΓ
+    ∙ ap-irr-SumStr sC
+                    uΓ
                     (uniqueness-Ty-// dΓ dA uΓ)
                     (uniqueness-Ty-// dΓ dB uΓ)
     ∙ ! (SumStr→ sg _ _ refl _ refl)
   uniqueness-Ty-// dΓ (Pi dA dB) uΓ =
     PiStr→ sf _ _ refl _ refl
-    ∙ ap-irr-PiStr uΓ
+    ∙ ap-irr-PiStr sC
+                   uΓ
                    (uniqueness-Ty-// dΓ dA uΓ)
                    (uniqueness-Ty-// (dΓ , dA) dB (uniqueness-Ty-// dΓ dA uΓ))
     ∙ ! (PiStr→ sg _ _ refl _ refl)
   uniqueness-Ty-// dΓ (Sig dA dB) uΓ =
     SigStr→ sf _ _ refl _ refl
-    ∙ ap-irr-SigStr uΓ
+    ∙ ap-irr-SigStr sC
+                    uΓ
                    (uniqueness-Ty-// dΓ dA uΓ)
                    (uniqueness-Ty-// (dΓ , dA) dB (uniqueness-Ty-// dΓ dA uΓ))
     ∙ ! (SigStr→ sg _ _ refl _ refl)
@@ -185,7 +164,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
   uniqueness-Tm-// {Γ = Γ} dΓ {u = sum i a b} (SumUU da db) uΓ =
     sumStr→ sf i _ _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-sumStr uΓ
+    ∙ ap-irr-sumStr sC
+                    uΓ
                     (uniqueness-Tm-// dΓ da uΓ)
                     (uniqueness-Tm-// dΓ db uΓ)
     ∙ ! (sumStr→ sg i _ _ dmorTmₛ refl _ dmorTmₛ refl)
@@ -207,7 +187,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (inrStr→ sg _ _ refl _ refl _ dmorTmₛ refl)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = match A B C da db u} (Match dA dB dC dda ddb du) uΓ =
     matchStr→ sf _ _ refl _ refl _ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-matchStr uΓ
+    ∙ ap-irr-matchStr sC
+                      uΓ
                       (uniqueness-Ty-// dΓ dA uΓ)
                       (uniqueness-Ty-// dΓ dB uΓ)
                       (uniqueness-Ty-// (dΓ , Sum dA dB) dC (uniqueness-Ty-// dΓ (Sum dA dB) uΓ))
@@ -218,14 +199,16 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     
   uniqueness-Tm-// {Γ = Γ} dΓ {u = pi i a b} (PiUU da db) uΓ =
     piStr→ sf i _ _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-piStr uΓ
+    ∙ ap-irr-piStr sC
+                   uΓ
                    (uniqueness-Tm-// dΓ da uΓ)
                    (uniqueness-Tm-// (dΓ , El da) db (uniqueness-Ty-// dΓ (El da) uΓ))
     ∙ ! (piStr→ sg i _ _ dmorTmₛ refl _ dmorTmₛ refl)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = lam A B u} (Lam dA dB du) uΓ =
     let uΓA = uniqueness-Ty-// dΓ dA uΓ in
     lamStr→ sf _ _ refl _ refl _ dmorTmₛ refl
-    ∙ ap-irr-lamStr uΓ
+    ∙ ap-irr-lamStr sC
+                    uΓ
                     uΓA
                     (uniqueness-Ty-// (dΓ , dA) dB uΓA)
                     (uniqueness-Tm-// (dΓ , dA) du uΓA)
@@ -233,7 +216,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Tm-// {Γ = Γ} dΓ {u = app A B f a} (App dA dB df da) uΓ =
     let uΓA = uniqueness-Ty-// dΓ dA uΓ in
     appStr→ sf _ _ refl _ refl _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-appStr uΓ
+    ∙ ap-irr-appStr sC
+                    uΓ
                     uΓA
                     (uniqueness-Ty-// (dΓ , dA) dB uΓA)
                     (uniqueness-Tm-// dΓ df uΓ)
@@ -242,14 +226,16 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
   uniqueness-Tm-// {Γ = Γ} dΓ {u = sig i a b} (SigUU da db) uΓ =
     sigStr→ sf i _ _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-sigStr uΓ
+    ∙ ap-irr-sigStr sC
+                    uΓ
                     (uniqueness-Tm-// dΓ da uΓ)
                     (uniqueness-Tm-// (dΓ , El da) db (uniqueness-Ty-// dΓ (El da) uΓ))
     ∙ ! (sigStr→ sg i _ _ dmorTmₛ refl _ dmorTmₛ refl)
   uniqueness-Tm-// {Γ = Γ} dΓ  {u = pair A B a b} (Pair dA dB da db) uΓ =
     let uΓA = uniqueness-Ty-// dΓ dA uΓ in
     pairStr→ sf _ _ refl _ refl _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-pairStr uΓ
+    ∙ ap-irr-pairStr sC
+                     uΓ
                      uΓA
                      (uniqueness-Ty-// (dΓ , dA) dB uΓA)
                      (uniqueness-Tm-// dΓ da uΓ)
@@ -258,7 +244,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Tm-// {Γ = Γ} dΓ {u = pr1 A B u} (Pr1 dA dB du) uΓ =
     let uΓA = uniqueness-Ty-// dΓ dA uΓ in
     pr1Str→ sf _ _ refl _ refl _ dmorTmₛ refl
-    ∙ ap-irr-pr1Str uΓ
+    ∙ ap-irr-pr1Str sC
+                    uΓ
                     uΓA
                     (uniqueness-Ty-// (dΓ , dA) dB uΓA)
                     (uniqueness-Tm-// dΓ du uΓ)
@@ -266,7 +253,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
   uniqueness-Tm-// {Γ = Γ} dΓ {u = pr2 A B u} (Pr2 dA dB du) uΓ =
     let uΓA = uniqueness-Ty-// dΓ dA uΓ in
     pr2Str→ sf _ _ refl _ refl _ dmorTmₛ refl
-    ∙ ap-irr-pr2Str uΓ
+    ∙ ap-irr-pr2Str sC
+                    uΓ
                     uΓA
                     (uniqueness-Ty-// (dΓ , dA) dB uΓA)
                     (uniqueness-Tm-// dΓ du uΓ)
@@ -278,7 +266,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (emptyStr→ sg i _)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = emptyelim A u} (Emptyelim dA du) uΓ =
     emptyelimStr→ sf _ _ refl _ dmorTmₛ refl
-    ∙ ap-irr-emptyelimStr uΓ
+    ∙ ap-irr-emptyelimStr sC
+                          uΓ
                           (uniqueness-Ty-// (dΓ , Empty) dA (uniqueness-Ty-// dΓ Empty uΓ))
                           (uniqueness-Tm-// dΓ du uΓ)
     ∙ ! (emptyelimStr→ sg _ _ refl _ dmorTmₛ refl)
@@ -293,7 +282,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (ttStr→ sg _)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = unitelim A dtt u} (Unitelim dA ddtt du) uΓ =
     unitelimStr→ sf _ _ refl _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-unitelimStr uΓ
+    ∙ ap-irr-unitelimStr sC
+                         uΓ
                          (uniqueness-Ty-// (dΓ , Unit) dA (uniqueness-Ty-// dΓ Unit uΓ))
                          (uniqueness-Tm-// dΓ ddtt uΓ)
                          (uniqueness-Tm-// dΓ du uΓ)
@@ -314,7 +304,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
     ∙ ! (sucStr→ sg _ _ dmorTmₛ refl)
   uniqueness-Tm-// {Γ = Γ} dΓ {u = natelim P dO dS u} (Natelim dP ddO ddS du) uΓ =
     natelimStr→ sf+ _ _ refl _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-natelimStr uΓ
+    ∙ ap-irr-natelimStr sC
+                        uΓ
                         (uniqueness-Ty-// (dΓ , Nat) dP (uniqueness-Ty-// dΓ Nat uΓ))
                         (uniqueness-Tm-// dΓ ddO uΓ)
                         (uniqueness-Tm-// ((dΓ , Nat) , dP) (congTmTy fixSubstTy ddS) (uniqueness-Ty-// (dΓ , Nat) dP (uniqueness-Ty-// dΓ Nat uΓ)))
@@ -323,7 +314,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
   uniqueness-Tm-// {Γ = Γ} dΓ {u = id i a u v} (IdUU da du dv) uΓ =
     idStr→ sf i _ _ dmorTmₛ refl _ dmorTmₛ refl _ dmorTmₛ refl
-    ∙ ap-irr-idStr uΓ
+    ∙ ap-irr-idStr sC
+                   uΓ
                    (uniqueness-Tm-// dΓ da uΓ)
                    (uniqueness-Tm-// dΓ du uΓ)
                    (uniqueness-Tm-// dΓ dv uΓ)
@@ -349,7 +341,8 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
                                 (proj (dmor (dctx {ctx = Γ} dΓ) (dctx {ctx = (_ , _)} (dΓ , dA)) {mor = (idMor _ , a)} (idMor+ dΓ da))) dmorTmₛ refl
                                 (proj (dmor (dctx {ctx = Γ} dΓ) (dctx {ctx = (_ , _)} (dΓ , dA)) {mor = (idMor _ , b)} (idMor+ dΓ db))) dmorTmₛ refl
                                 (proj (dmor (dctx {ctx = Γ} dΓ) (dctx {ctx = (_ , _)} (dΓ , Id dA da db)) {mor = (idMor _ , p)} (idMor+ dΓ dp))) dmorTmₛ refl
-    ∙ ap-irr-jjStr uΓ
+    ∙ ap-irr-jjStr sC
+                   uΓ
                    uΓA
                    (uniqueness-Ty-// (((dΓ , dA) , dwA) , did) dP'
                      (uniqueness-Ty-//-Id ((dΓ , dA) , dwA) dwwA dvpl dvl uΓAwA
@@ -369,19 +362,32 @@ module _ (sf+ sg+ : StructuredCCatMor+ strSynCCat sC) where
 
   uniqueness-Ob : (X : ObS n) → Ob→ f X ≡ Ob→ g X
   uniqueness-Ob = //-elimP uniqueness-Ob-//
-
+  
+  -- showing [δ,t] = qq([δ]) ∘ [id,t] directly via syntactic equality, rather than first via ss-qq. 
   uniqueness-Mor-// : (δ : DMor n m) → Mor→ f (proj δ) ≡ Mor→ g (proj δ)
-  uniqueness-Mor-// (dmor' (dctx' dΓ) (dctx' {ctx = ◇} tt) {mor = ◇} tt) = ptmor→ f {X = proj (dctx dΓ)} ∙ ap ptmor (uniqueness-Ob-// (dctx dΓ)) ∙ ! (ptmor→ g)
+  uniqueness-Mor-// (dmor' (dctx' dΓ) (dctx' {ctx = ◇} tt) {mor = ◇} tt) =
+                    ptmor→ f {X = proj (dctx dΓ)}
+                    ∙ ap ptmor (uniqueness-Ob-// (dctx dΓ))
+                    ∙ ! (ptmor→ g)
   uniqueness-Mor-// δδ@(dmor' (dctx' dΓ) (dctx' {ctx = Δ , C} (dΔ , dC)) {mor = (δ , u)} (dδ , du)) =
-    ap (Mor→ f) (ap proj (! (split-comp δδ)))
-    ∙ comp→ f {g = proj (split-right δδ)} {f = proj (split-left δδ)} {g₀ = refl} {f₁ = refl}
-    ∙ ap-irr-comp (qq→ f {f = proj (dmor (dctx dΓ) (dctx dΔ) dδ)} {X = proj (dctx (dΔ , dC))} {q = refl} {f₁ = refl}
-                  ∙ ap-irr-qq (uniqueness-Mor-// (dmor (dctx dΓ) (dctx dΔ) dδ)) (uniqueness-Ob-// (dctx (dΔ , dC)))
-                  ∙ ! (qq→ g {f = proj (dmor (dctx dΓ) (dctx dΔ) dδ)} {X = proj (dctx (dΔ , dC))} {q = refl} {f₁ = refl}))
-                  (uniqueness-Tm-// dΓ du (uniqueness-Ob-// (dctx dΓ)))
-    ∙ ! (comp→ g {g = proj (split-right δδ)} {f = proj (split-left δδ)} {g₀ = refl} {f₁ = refl})
-    ∙ ! (ap (Mor→ g) (ap proj (! (split-comp δδ))))
-
+                    ap (Mor→ f) 
+                       (eq (box (CtxRefl dΓ)
+                                (CtxRefl (dΔ , dC))
+                                (congMorEq refl refl refl (! (Mor+= (weakenMorInsert _ _ _ ∙ [idMor]Mor _) refl))
+                                           (MorRefl (dδ , du)))))
+                    ∙ comp→ f {g₀ = refl} {f₁ = refl}
+                    ∙ ap-irr-comp (qq→ f {q = refl} {f₁ = refl}
+                                  ∙ ap-irr-qq (uniqueness-Mor-// (dmor' (dctx' dΓ) (dctx' dΔ) dδ))
+                                              (uniqueness-Ob-// (dctx' (dΔ , dC)))
+                                  ∙ ! (qq→ g {q = refl} {f₁ = refl}))
+                                  (uniqueness-Tm-// dΓ du (uniqueness-Ob-// (dctx' dΓ)))
+                    ∙ ! (ap (Mor→ g) 
+                            (eq (box (CtxRefl dΓ)
+                                     (CtxRefl (dΔ , dC))
+                                     (congMorEq refl refl refl (! (Mor+= (weakenMorInsert _ _ _ ∙ [idMor]Mor _) refl))
+                                                (MorRefl (dδ , du)))))
+                        ∙ comp→ g {g₀ = refl} {f₁ = refl})
+                        
   uniqueness-Mor : (X : MorS n m) → Mor→ f X ≡ Mor→ g X
   uniqueness-Mor = //-elimP uniqueness-Mor-//
 
