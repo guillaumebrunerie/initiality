@@ -916,3 +916,20 @@ Unused
                    (ss₀ ∙ comp₀ ∙ qq₀ ∙ ! w₁)
 ⟦subst3⟧Tm= X= X'= X''= t tᵈ u uᵈ u₁ v vᵈ v₁ w wᵈ w₁ = ! (⟦tsubst⟧Tm= t tᵈ (((idMor _ , u) , v) , w) (⟦idMor+++⟧ᵈ X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁)) ∙ ap2-irr starTm (⟦idMor+++⟧= X= X'= X''= u uᵈ u₁ v vᵈ v₁ w wᵈ w₁) refl ∙ starTm-comp {p = comp₁ ∙ qq₁ ∙ {!!} ∙ ! qq₀} {!!} ∙ starTm-comp {p = {!!}} {!!}
 -}
+
+
+{- Interpretation of morphism substitution -}
+
+⟦tsubst⟧Morᵈ : {X : Ob n} {Y Y' : Ob m} {Z : Ob k} (Y= : Y ≡ Y') (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (θ : Mor m k) (θᵈ : isDefined (⟦ θ ⟧Mor Y' Z)) → isDefined (⟦ θ [ δ ]Mor ⟧Mor X Z)
+⟦tsubst⟧Mor= : {X : Ob n} {Y Y' : Ob m} {Z : Ob k} (Y= : Y ≡ Y') (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (θ : Mor m k) (θᵈ : isDefined (⟦ θ ⟧Mor Y' Z))
+             → ⟦ θ [ δ ]Mor ⟧Mor X Z $ (⟦tsubst⟧Morᵈ Y= δ δᵈ θ θᵈ) ≡ comp (⟦ θ ⟧Mor Y' Z $ θᵈ) (⟦ δ ⟧Mor X Y $ δᵈ) (⟦⟧Mor₀ θ) (⟦⟧Mor₁ δ ∙ Y=)
+
+⟦tsubst⟧Morᵈ refl δ δᵈ ◇ tt = tt
+⟦tsubst⟧Morᵈ refl δ δᵈ (θ , u) (θᵈ , uᵈ , θ₁ , u₁ , tt) = (⟦tsubst⟧Morᵈ refl δ δᵈ θ θᵈ , ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ , ⟦⟧Mor₁ (θ [ δ ]Mor) , (⟦tsubst⟧Tm₁ u uᵈ u₁ δ δᵈ ∙ ! (ap-irr-star (⟦tsubst⟧Mor= refl δ δᵈ θ θᵈ) refl ∙ star-comp)) , tt)
+
+⟦tsubst⟧Mor= refl δ δᵈ ◇ θᵈ = ! (ptmor-unique _ _ (comp₀ ∙ ⟦⟧Mor₀ δ) (comp₁ ∙ ptmor₁))
+⟦tsubst⟧Mor= refl δ δᵈ (θ , u) (θᵈ , uᵈ , θ₁ , u₁ , tt) =
+ let thing = ! assoc ∙ ap-irr-comp (is-section= (ap ft (comp₁ {f = idC _} {g₀ = ⟦⟧Tm₀ u} {f₁ = id₁} ∙ u₁) ∙ ft-star ∙ ⟦⟧Mor₀ θ) (⟦⟧Tmₛ u) (! comp₁)) refl ∙ id-right (⟦⟧Mor₁ δ) in
+  ap-irr-comp (ap-irr-qq (⟦tsubst⟧Mor= refl δ δᵈ θ θᵈ) refl ∙ qq-comp) (! (⟦tsubst⟧Tm= u uᵈ δ δᵈ))
+  ∙ assoc {f₁ = starTm₁ _ (ft-star ∙ ⟦⟧Mor₀ θ) _ (⟦⟧Tmₛ u) u₁ _} {g₀ = qq₀}
+  ∙ ! (assoc ∙ ap-irr-comp refl (ss-qq ∙ ap-irr-comp (ap-irr-qq thing (comp₁ ∙ u₁)) refl))

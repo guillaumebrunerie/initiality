@@ -1,5 +1,5 @@
 {-# OPTIONS --rewriting --prop #-}
-
+ 
 open import common
 
 {- Syntax of term- and type-expressions, using de Bruijn indices -}
