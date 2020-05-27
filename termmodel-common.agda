@@ -11,7 +11,6 @@ open import quotients
 {- Preliminary definitions -}
 
 record DCtx (n : ℕ) : Set where
-  no-eta-equality
   constructor dctx'
   field
     {ctx} : Ctx n
@@ -19,7 +18,6 @@ record DCtx (n : ℕ) : Set where
 open DCtx public
 
 record DMor (n m : ℕ) : Set where
-  no-eta-equality
   constructor dmor'
   field
     lhs : DCtx n    
@@ -27,21 +25,22 @@ record DMor (n m : ℕ) : Set where
     {mor} : Mor n m
     morDer : ctx lhs ⊢ mor ∷> ctx rhs
 open DMor public
- 
---hack
+
+
+--The following allows for erasing propositional memory use. At the moment this is necessary to make termmodel-id.agda type check.
 
 private
   postulate
     ‗ : ∀ {l} {P : Prop l} → P
 
-kill : ∀ {l} {P : Prop l} → P → P
-kill p = ‗
+erase : ∀ {l} {P : Prop l} → P → P
+erase p = ‗
 
 dctx : {ctx : Ctx n} → ⊢ ctx → DCtx n
-dctx dΓ = dctx' (kill dΓ)
+dctx dΓ = dctx' (erase dΓ)
 
 dmor : (lhs : DCtx n) (rhs : DCtx m) {mor : Mor n m} → ctx lhs ⊢ mor ∷> ctx rhs → DMor n m
-dmor lhs rhs morDer = dmor' (dctx (der lhs)) (dctx (der rhs)) (kill morDer)
+dmor lhs rhs morDer = dmor' (dctx (der lhs)) (dctx (der rhs)) (erase morDer)
 
 {-
 Defining _Ob≃_ as a datatype as follows rather than being equal to ⊢ ctx Γ == ctx Γ'
