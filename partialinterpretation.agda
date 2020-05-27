@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop #-}
 
-open import common 
+open import common  
 open import typetheory
 open import syntx
 open import contextualcat
@@ -9,77 +9,6 @@ module _ (sC : StructuredCCat) where
 
 open StructuredCCat sC
 open CCat+ ccat renaming (Mor to MorC; id to idC)
-
-ap-irr-UUStr : {n : ℕ} {i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') → UUStr {n = n} i Γ ≡ UUStr i Γ'
-ap-irr-UUStr refl = refl
-
-ap-irr-ElStr : {n : ℕ} {i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → ElStr {n = n} i Γ v vₛ v₁ ≡ ElStr i Γ' v' vₛ' v₁'
-ap-irr-ElStr refl refl = refl
-
-ap-irr-SumStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B'= : _} → SumStr {n = n} Γ A A= B B= ≡ SumStr Γ' A' A'= B' B'=
-ap-irr-SumStr refl refl refl = refl
-
-ap-irr-sumStr : {n i : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {a'ₛ : _} {a₁ : _} {a'₁ : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {b'ₛ : _} {b₁ : _} {b'₁ : _} → sumStr {n = n} i Γ a aₛ a₁ b bₛ b₁ ≡ sumStr i Γ' a' a'ₛ a'₁ b' b'ₛ b'₁
-ap-irr-sumStr refl refl refl = refl
-
-ap-irr-matchStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B'= : _} {C C' : _} (C-eq : C ≡ C') {C= : _} {C'= : _} {da da' : _} (da-eq : da ≡ da') {daₛ : _} {da'ₛ : _} {da₁ : _} {da'₁ : _} {db db' : _} (db-eq : db ≡ db') {dbₛ : _} {db'ₛ : _} {db₁ : _} {db'₁ : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _} → matchStr {n = n} Γ A A= B B= C C= da daₛ da₁ db dbₛ db₁ u uₛ u₁ ≡ matchStr Γ' A' A'= B' B'= C' C'= da' da'ₛ da'₁ db' db'ₛ db'₁ u' u'ₛ u'₁
-ap-irr-matchStr refl refl refl refl refl refl refl = refl
-
-ap-irr-PiStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} → PiStr {n = n} Γ A A= B B= ≡ PiStr Γ' A' A=' B' B='
-ap-irr-PiStr refl refl refl = refl
-
-ap-irr-piStr : {n : ℕ} {i : ℕ} {X X' : _} (X-eq : X ≡ X') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → piStr {n = n} i X a aₛ a₁ b bₛ b₁ ≡ piStr i X' a' aₛ' a₁' b' bₛ' b₁'
-ap-irr-piStr refl refl refl = refl
-
-ap-irr-lamStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → lamStr {n = n} X A A= B B= u uₛ u₁ ≡ lamStr X' A' A=' B' B=' u' uₛ' u₁'
-ap-irr-lamStr refl refl refl refl = refl
-
-ap-irr-appStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {f f' : _} (f-eq : f ≡ f') {fₛ : _} {fₛ' : _} {f₁ : _} {f₁' : _} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} → appStr {n = n} X A A= B B= f fₛ f₁ a aₛ a₁ ≡ appStr X' A' A=' B' B=' f' fₛ' f₁' a' aₛ' a₁'
-ap-irr-appStr refl refl refl refl refl = refl
-
-ap-irr-SigStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} → SigStr {n = n} Γ A A= B B= ≡ SigStr Γ' A' A=' B' B='
-ap-irr-SigStr refl refl refl = refl
-
-ap-irr-sigStr : {n : ℕ} {i : ℕ} {X X' : _} (X-eq : X ≡ X') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → sigStr {n = n} i X a aₛ a₁ b bₛ b₁ ≡ sigStr i X' a' aₛ' a₁' b' bₛ' b₁'
-ap-irr-sigStr refl refl refl = refl
-
-ap-irr-pairStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {b b' : _} (b-eq : b ≡ b') {bₛ : _} {bₛ' : _} {b₁ : _} {b₁' : _} → pairStr {n = n} X A A= B B= a aₛ a₁ b bₛ b₁ ≡ pairStr X' A' A=' B' B=' a' aₛ' a₁' b' bₛ' b₁'
-ap-irr-pairStr refl refl refl refl refl = refl
-
-ap-irr-pr1Str : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr1Str {n = n} X A A= B B= u uₛ u₁ ≡ pr1Str X' A' A=' B' B=' u' uₛ' u₁'
-ap-irr-pr1Str refl refl refl refl = refl
-
-ap-irr-pr2Str : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {A A' : _} (A-eq : A ≡ A') {A= : _} {A=' : _} {B B' : _} (B-eq : B ≡ B') {B= : _} {B=' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} → pr2Str {n = n} X A A= B B= u uₛ u₁ ≡ pr2Str X' A' A=' B' B=' u' uₛ' u₁'
-ap-irr-pr2Str refl refl refl refl = refl
-
-ap-irr-emptyelimStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _} → emptyelimStr {n = n} Γ A A= u uₛ u₁ ≡ emptyelimStr Γ' A' A'= u' u'ₛ u'₁
-ap-irr-emptyelimStr refl refl refl = refl
-
-ap-irr-unitelimStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {A A' : _} (A-eq : A ≡ A') {A= : _} {A'= : _} {dtt dtt' : _} (dtt-eq : dtt ≡ dtt') {dttₛ : _} {dtt'ₛ : _} {dtt₁ : _} {dtt'₁ : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {u'ₛ : _} {u₁ : _} {u'₁ : _} → unitelimStr {n = n} Γ A A= dtt dttₛ dtt₁ u uₛ u₁ ≡ unitelimStr Γ' A' A'= dtt' dtt'ₛ dtt'₁ u' u'ₛ u'₁
-ap-irr-unitelimStr refl refl refl refl = refl
-
--- ap-irr-sucStr : {n : ℕ} {Γ Γ' : _} (Γ-eq : Γ ≡ Γ') {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → sucStr {n = n} Γ v vₛ v₁ ≡ sucStr Γ' v' vₛ' v₁'
--- ap-irr-sucStr refl refl = refl
-
-ap-irr-natelimStr : {n : ℕ} {X X' : _} (X-eq : X ≡ X') {P P' : _} (P-eq : P ≡ P') {dO dO' : _} (dO-eq : dO ≡ dO') {dS dS' : _} (dS-eq : dS ≡ dS') {u u' : _} (u-eq : u ≡ u') → ∀ {P= P'=} → {dS₁ : _} {dS'₁ : _} → ∀ {dOₛ dO₁ dSₛ uₛ u₁ dO'ₛ dO'₁ dS'ₛ u'ₛ u'₁}
-  → natelimStr {n = n} X P P= dO dOₛ dO₁ dS dSₛ dS₁ u uₛ u₁ ≡ natelimStr X' P' P'= dO' dO'ₛ dO'₁ dS' dS'ₛ dS'₁ u' u'ₛ u'₁
-ap-irr-natelimStr refl refl refl refl refl = refl
-
-ap-irr-idStr : {n : ℕ} {i : ℕ} {X X' : _} (X-eq : X ≡ X') {a a' : _} (a-eq : a ≡ a') {aₛ : _} {aₛ' : _} {a₁ : _} {a₁' : _} {u u' : _} (u-eq : u ≡ u') {uₛ : _} {uₛ' : _} {u₁ : _} {u₁' : _} {v v' : _} (v-eq : v ≡ v') {vₛ : _} {vₛ' : _} {v₁ : _} {v₁' : _} → idStr {n = n} i X a aₛ a₁ u uₛ u₁ v vₛ v₁ ≡ idStr {n = n} i X' a' aₛ' a₁' u' uₛ' u₁' v' vₛ' v₁'
-ap-irr-idStr refl refl refl refl = refl
-
-ap-irr-jjStr : {Γ Γ' : Ob n} (Γ= : Γ ≡ Γ') {A A' : Ob (suc n)} (A= : A ≡ A') {ftA : ft A ≡ Γ} {ftA' : ft A' ≡ Γ'}
-               {P P' : Ob (suc (suc (suc (suc n))))} (P= : P ≡ P')
-               {ftP : ft P ≡ T-ftP Γ A ftA} {ftP' : ft P' ≡ T-ftP Γ' A' ftA'}
-               {d d' : MorC (suc n) (suc (suc n))} (d= : d ≡ d') {dₛ : is-section d} {d'ₛ : is-section d'}
-               {d₁ : ∂₁ d ≡ T-d₁ Γ A ftA P ftP} {d'₁ : ∂₁ d' ≡ T-d₁ Γ' A' ftA' P' ftP'}
-               {a a' : MorC n (suc n)} (a= : a ≡ a') {aₛ : is-section a} {a'ₛ : is-section a'} {a₁ : ∂₁ a ≡ A} {a'₁ : ∂₁ a' ≡ A'}
-               {b b' : MorC n (suc n)} (b= : b ≡ b') {bₛ : is-section b} {b'ₛ : is-section b'} {b₁ : ∂₁ b ≡ A} {b'₁ : ∂₁ b' ≡ A'}
-               {p p' : MorC n (suc n)} (p= : p ≡ p') {pₛ : is-section p} {p'ₛ : is-section p'} {p₁ : ∂₁ p ≡ IdStr Γ A ftA a aₛ a₁ b bₛ b₁} {p'₁ : ∂₁ p' ≡ IdStr Γ' A' ftA' a' a'ₛ a'₁ b' b'ₛ b'₁} → jjStr Γ A ftA P ftP d dₛ d₁ a aₛ a₁ b bₛ b₁ p pₛ p₁ ≡ jjStr Γ' A' ftA' P' ftP' d' d'ₛ d'₁ a' a'ₛ a'₁ b' b'ₛ b'₁ p' p'ₛ p'₁
-ap-irr-jjStr refl refl refl refl refl refl refl = refl
-
-ap-irr-T-ftP : {Γ Γ' : Ob n} (Γ-eq : Γ ≡ Γ') {A A' : Ob (suc n)} (A-eq : A ≡ A') {A= : ft A ≡ Γ} {A'= : ft A' ≡ Γ'}  → T-ftP Γ A A= ≡ T-ftP Γ' A' A'=
-ap-irr-T-ftP refl refl = refl
 
 
 {- Partial interpretation of types and terms -}
@@ -430,3 +359,6 @@ congTyEq⟦⟧Ty= refl _ = refl
 
 cong⟦⟧Mor : {X : Ob n} {Y Y' : Ob m} {δ : Mor n m} → Y ≡ Y' → isDefined (⟦ δ ⟧Mor X Y) → isDefined (⟦ δ ⟧Mor X Y')
 cong⟦⟧Mor refl δᵈ = δᵈ
+
+cong⟦⟧MorEq : {X : Ob n} {Y Y' : Ob m} {δ : Mor n m} {w₁ : _} (p : Y ≡ Y') → ⟦ δ ⟧Mor X Y $ w₁ ≡ ⟦ δ ⟧Mor X Y' $ cong⟦⟧Mor {δ = δ} p w₁
+cong⟦⟧MorEq refl = refl
