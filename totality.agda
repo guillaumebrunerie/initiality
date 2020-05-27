@@ -479,8 +479,26 @@ judgments.
 ⟦⟧Tm₁ Γᵈ {u = sum i a b} (SumUU da db) = sumStr₁
 ⟦⟧Tm₁ Γᵈ {u = inl A B a} (Inl dA dB da) = inlStr₁
 ⟦⟧Tm₁ Γᵈ {u = inr A B b} (Inr dA dB db) = inrStr₁
-⟦⟧Tm₁ Γᵈ {u = match A B C da db u} (Match dA dB dC dda ddb du) = matchStr₁ ∙ ! (⟦subst⟧Ty= C (⟦⟧Tyᵈ (Γᵈ , (⟦⟧Tyᵈ Γᵈ dA , ⟦⟧Ty-ft A , ⟦⟧Tyᵈ Γᵈ dB , ⟦⟧Ty-ft B , tt) , tt) dC) u (⟦⟧Tmᵈ Γᵈ du) (⟦⟧Tm₁ Γᵈ {Aᵈ = (⟦⟧Tyᵈ Γᵈ dA , ⟦⟧Ty-ft A , ⟦⟧Tyᵈ Γᵈ dB , ⟦⟧Ty-ft B , tt)} du))
+⟦⟧Tm₁ {Γ = Γ} Γᵈ {u = match A B C da db u} (Match dA dB dC dda ddb du) = matchStr₁ ∙ ! (⟦subst⟧Ty= C (⟦⟧Tyᵈ (Γᵈ , SumABᵈ , tt) dC) u uᵈ u₁)
+      where [Γ] = ⟦ Γ ⟧Ctx $ Γᵈ
 
+            Aᵈ : isDefined (⟦ A ⟧Ty [Γ])
+            Aᵈ = ⟦⟧Tyᵈ Γᵈ dA         
+            A= = ⟦⟧Ty-ft A         
+
+            Bᵈ : isDefined (⟦ B ⟧Ty [Γ])
+            Bᵈ = ⟦⟧Tyᵈ Γᵈ dB
+            B= = ⟦⟧Ty-ft B
+            
+            SumABᵈ : isDefined (⟦ sum A B ⟧Ty [Γ])
+            SumABᵈ = (Aᵈ , A= , Bᵈ , B= , tt)
+
+            uᵈ : isDefined (⟦ u ⟧Tm [Γ])
+            uᵈ = ⟦⟧Tmᵈ Γᵈ du
+            
+            u₁ : ∂₁ (⟦ u ⟧Tm [Γ] $ uᵈ) ≡ ⟦ Γ , sum A B ⟧Ctx $ (Γᵈ , SumABᵈ , tt)
+            u₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = (Aᵈ , A= , Bᵈ , B= , tt)} du
+            
 ⟦⟧Tm₁ Γᵈ {u = pi i a b} (PiUU da db) = piStr₁
 ⟦⟧Tm₁ Γᵈ {u = lam A B u} (Lam dA dB du) = lamStr₁
 ⟦⟧Tm₁ Γᵈ {u = app A B f a} (App dA dB df da) = appStr₁ ∙ ! (⟦subst⟧Ty= B (⟦⟧Tyᵈ (Γᵈ , ⟦⟧Tyᵈ Γᵈ dA , tt) dB) a (⟦⟧Tmᵈ Γᵈ da) (⟦⟧Tm₁ Γᵈ da))
@@ -866,7 +884,6 @@ judgments.
   etaSigStr
 
 
-
 {- We are done with the main induction in this file, here are a few additional lemmas needed later. -}
 
 {- Totality of the interpretation function on derivable contexts -}
@@ -877,44 +894,34 @@ judgments.
 
 {- Interpretation of context equalities -}
 
-⟦⟧CtxEq : {Γ Γ' : Ctx n} (dΓ= : ⊢ Γ == Γ') {Γᵈ : isDefined (⟦ Γ ⟧Ctx)} {Γ'ᵈ : isDefined (⟦ Γ' ⟧Ctx)}
-        → ⟦ Γ ⟧Ctx $ Γᵈ ≡ ⟦ Γ' ⟧Ctx $ Γ'ᵈ
+⟦⟧CtxEq : {Γ Γ' : Ctx n} (dΓ= : ⊢ Γ == Γ')
+        → ⟦ Γ ⟧Ctx $ ⟦⟧Ctxᵈ (CtxEqCtx1 dΓ=) ≡ ⟦ Γ' ⟧Ctx $ ⟦⟧Ctxᵈ (CtxEqCtx2 dΓ=)
 ⟦⟧CtxEq tt = refl
-⟦⟧CtxEq (dΓ= , dA=) {Γᵈ = Γᵈ , Aᵈ , tt}
-  = ⟦⟧TyEq+ Γᵈ dA= (⟦⟧CtxEq dΓ=)
+⟦⟧CtxEq (dΓ= , dA=)
+  = ⟦⟧TyEq+ (⟦⟧Ctxᵈ (CtxEqCtx1 dΓ=)) dA= (⟦⟧CtxEq dΓ=)
 
 {- Totality of the interpretation function on morphisms -}
 
-⟦⟧Morᵈ : {Γ : Ctx n} {Δ : Ctx m} (Γᵈ : isDefined (⟦ Γ ⟧Ctx)) (Δᵈ : isDefined (⟦ Δ ⟧Ctx)) {δ : Mor n m} (dδ : Γ ⊢ δ ∷> Δ) → isDefined (⟦ δ ⟧Mor (⟦ Γ ⟧Ctx $ Γᵈ) (⟦ Δ ⟧Ctx $ Δᵈ))
+⟦⟧Morᵈ : {Γ : Ctx n} {Δ : Ctx m} (dΓ : ⊢ Γ) (dΔ : ⊢ Δ) {δ : Mor n m} (dδ : Γ ⊢ δ ∷> Δ) → isDefined (⟦ δ ⟧Mor (⟦ Γ ⟧Ctx $ (⟦⟧Ctxᵈ dΓ)) (⟦ Δ ⟧Ctx $ (⟦⟧Ctxᵈ dΔ)))
 ⟦⟧Morᵈ {Δ = ◇} _ _ {◇} tt = tt
-⟦⟧Morᵈ {Δ = Δ , B} Γᵈ (Δᵈ , Bᵈ , tt) {δ , u} (dδ , du) =
+⟦⟧Morᵈ {Δ = Δ , B} dΓ (dΔ , dB) {δ , u} (dδ , du) =
   (δᵈ , uᵈ , δ₁ , u₁ , tt)
     where
-      δᵈ' = ⟦⟧Morᵈ Γᵈ Δᵈ dδ
+      δᵈ' = ⟦⟧Morᵈ dΓ dΔ dδ
       δᵈ = cong⟦⟧Mor {δ = δ} (! (⟦⟧Ty-ft B)) δᵈ'
-      uᵈ = ⟦⟧Tmᵈ Γᵈ du
+      uᵈ = ⟦⟧Tmᵈ (⟦⟧Ctxᵈ dΓ) du
       δ₁ = ⟦⟧Mor₁ δ
-      u₁ = ⟦⟧Tm₁ Γᵈ {Aᵈ = ⟦tsubst⟧Tyᵈ B Bᵈ δ δᵈ'} du ∙ ! (⟦tsubst⟧Ty= B Bᵈ δ δᵈ') ∙ ap-irr-star (ap-irr {B = λ X → isDefined (⟦ δ ⟧Mor _ X)} (λ x z → ⟦ δ ⟧Mor _ x $ z) (! (⟦⟧Ty-ft B))) refl
+      u₁ = ⟦⟧Tm₁ (⟦⟧Ctxᵈ dΓ) {Aᵈ = ⟦tsubst⟧Tyᵈ B (⟦⟧Tyᵈ (⟦⟧Ctxᵈ dΔ) dB) δ δᵈ'} du ∙ ! (⟦tsubst⟧Ty= B (⟦⟧Tyᵈ (⟦⟧Ctxᵈ dΔ) dB) δ δᵈ') ∙ ap-irr-star (ap-irr {B = λ X → isDefined (⟦ δ ⟧Mor _ X)} (λ x z → ⟦ δ ⟧Mor _ x $ z) (! (⟦⟧Ty-ft B))) refl
 
 {- Interpretation of morphism equalities -}
 
-⟦⟧MorEq : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} (Γᵈ : isDefined (⟦ Γ ⟧Ctx)) (let X = ⟦ Γ ⟧Ctx $ Γᵈ) {Y : Ob m} (dδ= : Γ ⊢ δ == δ' ∷> Δ) {δᵈ : isDefined (⟦ δ ⟧Mor X Y)} {δ'ᵈ : isDefined (⟦ δ' ⟧Mor X Y)}
-        → ⟦ δ ⟧Mor X Y $ δᵈ ≡ ⟦ δ' ⟧Mor X Y $ δ'ᵈ
-⟦⟧MorEq Γᵈ tt = refl
-⟦⟧MorEq Γᵈ (dδ= , du=) = ap-irr-comp (ap-irr-qq (⟦⟧MorEq Γᵈ dδ=) refl) (⟦⟧TmEq Γᵈ du=)
-
-{- Interpretation of morphism substitution -}
-
-⟦tsubst⟧Morᵈ : {X : Ob n} {Y Y' : Ob m} {Z : Ob k} (Y= : Y ≡ Y') (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (θ : Mor m k) (θᵈ : isDefined (⟦ θ ⟧Mor Y' Z)) → isDefined (⟦ θ [ δ ]Mor ⟧Mor X Z)
-⟦tsubst⟧Mor= : {X : Ob n} {Y Y' : Ob m} {Z : Ob k} (Y= : Y ≡ Y') (δ : Mor n m) (δᵈ : isDefined (⟦ δ ⟧Mor X Y)) (θ : Mor m k) (θᵈ : isDefined (⟦ θ ⟧Mor Y' Z))
-             → ⟦ θ [ δ ]Mor ⟧Mor X Z $ (⟦tsubst⟧Morᵈ Y= δ δᵈ θ θᵈ) ≡ comp (⟦ θ ⟧Mor Y' Z $ θᵈ) (⟦ δ ⟧Mor X Y $ δᵈ) (⟦⟧Mor₀ θ) (⟦⟧Mor₁ δ ∙ Y=)
-
-⟦tsubst⟧Morᵈ refl δ δᵈ ◇ tt = tt
-⟦tsubst⟧Morᵈ refl δ δᵈ (θ , u) (θᵈ , uᵈ , θ₁ , u₁ , tt) = (⟦tsubst⟧Morᵈ refl δ δᵈ θ θᵈ , ⟦tsubst⟧Tmᵈ u uᵈ δ δᵈ , ⟦⟧Mor₁ (θ [ δ ]Mor) , (⟦tsubst⟧Tm₁ u uᵈ u₁ δ δᵈ ∙ ! (ap-irr-star (⟦tsubst⟧Mor= refl δ δᵈ θ θᵈ) refl ∙ star-comp)) , tt)
-
-⟦tsubst⟧Mor= refl δ δᵈ ◇ θᵈ = ! (ptmor-unique _ _ (comp₀ ∙ ⟦⟧Mor₀ δ) (comp₁ ∙ ptmor₁))
-⟦tsubst⟧Mor= refl δ δᵈ (θ , u) (θᵈ , uᵈ , θ₁ , u₁ , tt) =
- let thing = ! assoc ∙ ap-irr-comp (is-section= (ap ft (comp₁ {f = idC _} {g₀ = ⟦⟧Tm₀ u} {f₁ = id₁} ∙ u₁) ∙ ft-star ∙ ⟦⟧Mor₀ θ) (⟦⟧Tmₛ u) (! comp₁)) refl ∙ id-right (⟦⟧Mor₁ δ) in
-  ap-irr-comp (ap-irr-qq (⟦tsubst⟧Mor= refl δ δᵈ θ θᵈ) refl ∙ qq-comp) (! (⟦tsubst⟧Tm= u uᵈ δ δᵈ))
-  ∙ assoc {f₁ = starTm₁ _ (ft-star ∙ ⟦⟧Mor₀ θ) _ (⟦⟧Tmₛ u) u₁ _} {g₀ = qq₀}
-  ∙ ! (assoc ∙ ap-irr-comp refl (ss-qq ∙ ap-irr-comp (ap-irr-qq thing (comp₁ ∙ u₁)) refl))
+⟦⟧MorEq : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} (dΓ : ⊢ Γ) (dΔ : ⊢ Δ) (dδ= : Γ ⊢ δ == δ' ∷> Δ)
+        → ⟦ δ ⟧Mor (⟦ Γ ⟧Ctx $ (⟦⟧Ctxᵈ dΓ)) (⟦ Δ ⟧Ctx $ (⟦⟧Ctxᵈ dΔ)) $ ⟦⟧Morᵈ dΓ dΔ (MorEqMor1 dΓ dΔ dδ=) ≡ ⟦ δ' ⟧Mor (⟦ Γ ⟧Ctx $ (⟦⟧Ctxᵈ dΓ)) (⟦ Δ ⟧Ctx $ (⟦⟧Ctxᵈ dΔ)) $ ⟦⟧Morᵈ dΓ dΔ (MorEqMor2 dΓ dΔ dδ=)
+⟦⟧MorEq dΓ _ tt = refl
+⟦⟧MorEq {Γ = Γ} {Δ = Δ , B} {δ = δ , u} {δ' = δ' , u'} dΓ (dΔ , dB) (dδ= , du=) =
+  ap-irr-comp (ap-irr-qq (ap-irr (λ x p → ⟦ δ ⟧Mor (⟦ Γ ⟧Ctx $ (⟦⟧Ctxᵈ dΓ)) x $ p) (⟦⟧Ty-ft B)
+                         ∙ ⟦⟧MorEq dΓ dΔ dδ=
+                         ∙ ap-irr (λ x p → ⟦ δ' ⟧Mor (⟦ Γ ⟧Ctx $ (⟦⟧Ctxᵈ dΓ)) x $ p)
+                                  (! (⟦⟧Ty-ft B)))
+                                  refl)
+              (⟦⟧TmEq (⟦⟧Ctxᵈ dΓ) du=)
