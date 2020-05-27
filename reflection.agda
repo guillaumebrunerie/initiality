@@ -122,7 +122,7 @@ pair× = _,_
 
 listify : List (Name × Name) → Term
 listify [] = con (quote []) []
-listify ((s , t) ∷ l) = con (quote _∷_) (earg (def (quote pair×) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])  where
+listify ((s , t) ∷ l) = con (quote _∷_) (earg (def (quote pair×) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])  
 
 
 iterateExpr : Name → (Name → Name → TC ⊤) → TC ⊤
