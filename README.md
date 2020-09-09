@@ -1,13 +1,12 @@
 Introduction
 ------------
 
-This project aims at giving a formalized proof in Agda of a version of the initiality conjecture. A
-complete proof for a type theory with only Pi-types and a base dependent type is available at commit
-[8e52bc0](https://github.com/guillaumebrunerie/initiality/tree/8e52bc0b50f3e572d4cd9911889f52ae4ae7d5c9). We
-are now working on extending the type theory to a type theory with Pi-types, Sigma-types, natural
-numbers, identity types, and an infinite hierarchy of universes.
+This project aims at giving a formalized proof in Agda of a version of the initiality conjecture.
+See tag v2.0 for a proof of initiality for a type theory with Pi-types, Sigma-types, natural
+numbers, identity types, binary sum types, the empty and unit types, and an infinite hierarchy of
+universes.
 
-This project requires a recent version of Agda (for instance commit b0dddd4 from 19 November 2019 works).
+This project has been tested to work on Agda 2.6.1.
 
 Some design decisions
 ---------------------
@@ -23,24 +22,14 @@ close to the syntax as possible.
 Metatheory
 ----------
 
-We are using standard Agda with the sort `Prop` of strict propositions
+We are using standard Agda with the sort `Prop` of strict propositions (needs the `--prop` flag)
 (see https://hal.inria.fr/hal-01859964v2/document).
-The other axioms that we are using are:
+The axioms that we are using are:
 - dependent function extensionality (three axioms, for the cases when the domain is a type, a
   proposition, or implicit)
 - propositional extensionality, phrased with `Prop`
-- existence of quotients for `Prop`-valued equivalence relations, with definitional computation rules
-
-Explanation of the flags
-------------------------
-
-* the flag `--prop` is required to enable `Prop`
-* the flag `--rewriting` is required to have quotients that compute
-* the flag `--without-K` is not required, but it’s nice to see that everything compiles with it
-* the flag `-v tc.unquote:10` adds some debug output when running Agda from the command line, it can be used to see the full code of the functions defined by reflection
-* the flag `--no-auto-inline` disables an optimization which seems to actually cause worse performance when combined with Prop (issue #3510)
-
-* the flag `--allow-unsolved-metas` is used only if some file is incomplete but we want to compile another file depending on it anyway. It should not be used in a finished proof!
+- existence of quotients for `Prop`-valued equivalence relations, with definitional computation
+  rules (defined using rewrite rules, needs the `--rewriting` flag).
 
 Files
 -----
@@ -50,9 +39,16 @@ Files
 - `reflection.agda`: some definitions for using reflection (used in `syntx.agda`)
 - `syntx.agda`: properties of the raw syntax
 - `rules.agda`: typing rules and admissible rules
-- `contextualcat.agda`: the models of the type theory and morphisms between them
+- `contextualcat.agda`: models of the type theory
+- `contextualcatmor.agda`: morphisms between models of the type theory
 - `quotients.agda`: quotients (postulated)
 - `termmodel.agda`: the term model
+- `termmodel-common.agda`: preliminary definitions and helper functions for the term model
+- `termmodel-synccat.agda`: the contextual category part of the term model
+- `termmodel-X.agda`: the part of the term model related to type former X
 - `partialinterpretation.agda`: the partial interpretation function
+- `interpretationsubstitution.agda`: commutation of substitution and the interpretation function
+- `interpretationweakening.agda`: commutation of weakening and the interpretation function
 - `totality.agda`: totality of the partial interpretation function
-- `initiality.agda`: initiality of the term model
+- `initiality-existence.agda`: existence part of the proof of initiality of the term model
+- `initiality-uniqueness.agda`: uniqueness part of the proof of initiality of the term model
