@@ -7,7 +7,8 @@ numbers, identity types, binary sum types, the empty and unit types, and an infi
 universes.
 
 This project has been tested to work on Agda 2.6.1 with the `+RTS -M25G -RTS` options (requires 25G
-of RAM).
+of RAM), although you might need to restart it in the middle… It could work with less RAM, but
+taking more time.
 
 Some design decisions
 ---------------------
